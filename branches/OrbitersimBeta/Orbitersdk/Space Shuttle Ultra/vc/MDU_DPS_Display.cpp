@@ -32,7 +32,6 @@ namespace vc
 	{
 		UpdateTextBuffer();
 		
-		int Save = SaveDC( hDC );
 		bool flash = GetFlash();
 
 		// main text
@@ -143,8 +142,6 @@ namespace vc
 			SelectObject( hDC, gdiYellowBrush );
 			Rectangle( hDC, 277, 438, 402, 443 );
 		}
-
-		RestoreDC(hDC, Save);
 		return;
 	}
 

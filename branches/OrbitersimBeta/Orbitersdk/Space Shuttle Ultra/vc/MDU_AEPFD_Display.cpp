@@ -9,12 +9,16 @@ namespace vc
 	{
 		int MM = STS()->pSimpleGPC->GetMajorMode();
 		double MachNumber = STS()->GetMachNumber();
+		double vr = STS()->GetGroundspeed() * MPS2FPS * 0.001;
+		VECTOR3 v3vi;
+		STS()->GetRelativeVel( STS()->GetSurfaceRef(), v3vi );
+		double vi = length( v3vi ) * MPS2FPS * 0.001;
 		double Altitude_ft = STS()->GetAltitude() * MPS2FPS;
 		int adiatt = 1;//GetIDP()->GetADIAttitude();
 		int adierr = GetIDP()->GetADIError();
 		int adirate = GetIDP()->GetADIRate();
 		VECTOR3 vel;
-		STS()->GetHorizonAirspeedVector( vel );
+		STS()->GetGroundspeedVector( FRAME_HORIZON, vel );
 		vel *= MPS2FPS;
 		VECTOR3 av;// x = pitch, y = yaw, z = roll
 		STS()->GetAngularVel( av );
@@ -29,8 +33,6 @@ namespace vc
 		double attYaw = 0;//STS()->GetSlipAngle() * DEG;
 		//if (attYaw <= 0) attYaw += 360;
 		double hsiheading;
-
-		int save = SaveDC( hDC );
 
 		SelectObject( hDC, gdiSSUAFont_h11w9 );
 
@@ -47,7 +49,7 @@ namespace vc
 				break;
 			case 102:
 				AEPFD_Header_AscentDAP( hDC, 102, adiatt );
-				Tape_MVR_KEAS( hDC, MachNumber );
+				Tape_MV_KEAS( hDC, 'R', vr );
 				Tape_Alpha( hDC, 0 );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				if ((Altitude_ft <= 200000) && (STS()->GetMET() <= 150)) AEPFD_BETA( hDC );
@@ -71,7 +73,7 @@ namespace vc
 					SelectObject( hDC, gdiBlackBrush );
 					Rectangle( hDC, 22, 18, 132, 32 );// "hide" throttle
 				}
-				Tape_MVI_KEAS( hDC, MachNumber );
+				Tape_MV_KEAS( hDC, 'I', vi );
 				Tape_Alpha( hDC, 0 );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				if ((Altitude_ft <= 200000) && (STS()->GetMET() <= 150)) AEPFD_BETA( hDC );
@@ -96,7 +98,7 @@ namespace vc
 				break;
 			case 104:
 				AEPFD_Header_TransDAP( hDC, 104, adiatt );
-				Tape_MVI_KEAS( hDC, MachNumber );
+				Tape_MV_KEAS( hDC, 'I', vi );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				ADI_STATIC( hDC );
 				ADI( hDC, attPitch, attRoll, attYaw );
@@ -154,7 +156,7 @@ namespace vc
 				break;
 			case 304:
 				AEPFD_Header_AerojetDAP( hDC, 304, MachNumber );
-				Tape_MVR_KEAS( hDC, MachNumber );
+				Tape_MV_KEAS( hDC, 'R', vr );
 				Tape_Alpha( hDC, MachNumber );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				ADI_STATIC( hDC );
@@ -171,7 +173,7 @@ namespace vc
 				break;
 			case 305:
 				AEPFD_Header_AerojetDAP( hDC, 305, MachNumber );
-				if (MachNumber >= 0.9) Tape_MVR_KEAS( hDC, MachNumber );
+				if (MachNumber >= 0.9) Tape_MV_KEAS( hDC, 'R', vr );
 				else Tape_KEAS_MVR( hDC, MachNumber );
 				Tape_Alpha( hDC, MachNumber );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
@@ -194,8 +196,8 @@ namespace vc
 				break;
 			case 601:
 				AEPFD_Header_AscentDAP( hDC, 601, adiatt );
-				if (0) Tape_MVR_KEAS( hDC, MachNumber );// TODO PPA
-				Tape_MVI_KEAS( hDC, MachNumber );
+				if (0) Tape_MV_KEAS( hDC, 'R', vr );// TODO PPA
+				else Tape_MV_KEAS( hDC, 'I', vi );
 				Tape_Alpha( hDC, 0 );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				AEPFD_BETA( hDC );
@@ -212,7 +214,7 @@ namespace vc
 				break;
 			case 602:
 				AEPFD_Header_AerojetDAP( hDC, 602, MachNumber );
-				Tape_MVR_KEAS( hDC, MachNumber );
+				Tape_MV_KEAS( hDC, 'R', vr );
 				Tape_Alpha( hDC, MachNumber );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				ADI_STATIC( hDC );
@@ -230,7 +232,7 @@ namespace vc
 				break;
 			case 603:
 				AEPFD_Header_AerojetDAP( hDC, 603, MachNumber );
-				if (MachNumber >= 0.9) Tape_MVR_KEAS( hDC, MachNumber );
+				if (MachNumber >= 0.9) Tape_MV_KEAS( hDC, 'R', vr );
 				else Tape_KEAS_MVR( hDC, MachNumber );
 				Tape_Alpha( hDC, MachNumber );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
@@ -265,7 +267,6 @@ namespace vc
 			default:
 				break;
 		}
-		RestoreDC( hDC, save );
 		return;
 	}
 
@@ -273,12 +274,16 @@ namespace vc
 	{
 		int MM = STS()->pSimpleGPC->GetMajorMode();
 		double MachNumber = STS()->GetMachNumber();
+		double vr = STS()->GetGroundspeed() * MPS2FPS * 0.001;
+		VECTOR3 v3vi;
+		STS()->GetRelativeVel( STS()->GetSurfaceRef(), v3vi );
+		double vi = length( v3vi ) * MPS2FPS * 0.001;
 		double Altitude_ft = STS()->GetAltitude() * MPS2FPS;
 		int adiatt = 1;//GetIDP()->GetADIAttitude();
 		int adierr = GetIDP()->GetADIError();
 		int adirate = GetIDP()->GetADIRate();
 		VECTOR3 vel;
-		STS()->GetHorizonAirspeedVector( vel );
+		STS()->GetGroundspeedVector( FRAME_HORIZON, vel );
 		vel *= MPS2FPS;
 		VECTOR3 av;// x = pitch, y = yaw, z = roll
 		STS()->GetAngularVel( av );
@@ -309,7 +314,7 @@ namespace vc
 				break;
 			case 102:
 				AEPFD_Header_AscentDAP( skp, 102, adiatt );
-				Tape_MVR_KEAS( skp, MachNumber );
+				Tape_MV_KEAS( skp, 'R', vr );
 				Tape_Alpha( skp, 0 );
 				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				if ((Altitude_ft <= 200000) && (STS()->GetMET() <= 150)) AEPFD_BETA( skp );
@@ -333,7 +338,7 @@ namespace vc
 					skp->SetBrush( skpBlackBrush );
 					skp->Rectangle( 22, 18, 132, 32 );// "hide" throttle
 				}
-				Tape_MVI_KEAS( skp, MachNumber );
+				Tape_MV_KEAS( skp, 'I', vi );
 				Tape_Alpha( skp, 0 );
 				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				if ((Altitude_ft <= 200000) && (STS()->GetMET() <= 150)) AEPFD_BETA( skp );
@@ -358,7 +363,7 @@ namespace vc
 				break;
 			case 104:
 				AEPFD_Header_TransDAP( skp, 104, adiatt );
-				Tape_MVI_KEAS( skp, MachNumber );
+				Tape_MV_KEAS( skp, 'I', vi );
 				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
@@ -416,7 +421,7 @@ namespace vc
 				break;
 			case 304:
 				AEPFD_Header_AerojetDAP( skp, 304, MachNumber );
-				Tape_MVR_KEAS( skp, MachNumber );
+				Tape_MV_KEAS( skp, 'R', vr );
 				Tape_Alpha( skp, MachNumber );
 				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
@@ -433,7 +438,7 @@ namespace vc
 				break;
 			case 305:
 				AEPFD_Header_AerojetDAP( skp, 305, MachNumber );
-				if (MachNumber >= 0.9) Tape_MVR_KEAS( skp, MachNumber );
+				if (MachNumber >= 0.9) Tape_MV_KEAS( skp, 'R', vr );
 				else Tape_KEAS_MVR( skp, MachNumber );
 				Tape_Alpha( skp, MachNumber );
 				Tape_H_Hdot( skp, Altitude_ft, vel.y );
@@ -456,8 +461,8 @@ namespace vc
 				break;
 			case 601:
 				AEPFD_Header_AscentDAP( skp, 601, adiatt );
-				if (0) Tape_MVR_KEAS( skp, MachNumber );// TODO PPA
-				Tape_MVI_KEAS( skp, MachNumber );
+				if (0) Tape_MV_KEAS( skp, 'R', vr );// TODO PPA
+				else Tape_MV_KEAS( skp, 'I', vi );
 				Tape_Alpha( skp, 0 );
 				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				AEPFD_BETA( skp );
@@ -474,7 +479,7 @@ namespace vc
 				break;
 			case 602:
 				AEPFD_Header_AerojetDAP( skp, 602, MachNumber );
-				Tape_MVR_KEAS( skp, MachNumber );
+				Tape_MV_KEAS( skp, 'R', vr );
 				Tape_Alpha( skp, MachNumber );
 				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
@@ -492,7 +497,7 @@ namespace vc
 				break;
 			case 603:
 				AEPFD_Header_AerojetDAP( skp, 603, MachNumber );
-				if (MachNumber >= 0.9) Tape_MVR_KEAS( skp, MachNumber );
+				if (MachNumber >= 0.9) Tape_MV_KEAS( skp, 'R', vr );
 				else Tape_KEAS_MVR( skp, MachNumber );
 				Tape_Alpha( skp, MachNumber );
 				Tape_H_Hdot( skp, Altitude_ft, vel.y );
@@ -530,110 +535,168 @@ namespace vc
 		return;
 	}
 
-	void MDU::Tape_Create( void )
+	void MDU::CreateTapes( void )
 	{
-		hDC_Tapes = CreateCompatibleDC( GetDC( NULL ) );
-		HBITMAP hBM = CreateCompatibleBitmap( GetDC( NULL ), 113, 3700 );
-		SelectObject( hDC_Tapes, hBM );
-		SelectObject( hDC_Tapes, gdiWhitePen );
-		SelectObject( hDC_Tapes, gdiWhiteBrush );
-		Rectangle( hDC_Tapes, 0, 0, 113, 3700 );
-		//SelectObject( hDC_Tapes, gdiTahomaFont_h10w4 );
+		if (hDC_Tape_MACHV) return;// already created
 
 		// draw tapes
-		int offset = 110;
-		int offset_top = 109;
-		int offset_bottom = 111;
+		int offset_top = 108;
+		int offset_bottom = 110;
 		char cbuf[8];
 		int y = 0;
+		int save;
 
 		// Mach/V
-		// 1K in window (1ft = 0.114px) (4-27K)
-		// M0.5 in window (M1 = 228px) (0-4)
-		// 2622 + 912 = 3534px + offsets
-		SelectObject( hDC_Tapes, gdiBlackPen );
-		SelectObject( hDC_Tapes, gdiBlackBrush );
-		Rectangle( hDC_Tapes, 0, 3534 + offset, 22, 3534 + offset + offset );
+		// 0.75K in window (1fps = 0.2893px) (4-27K)
+		// M0.75 in window (M1 = 289.3px) (0-4)
+		// 6653.9 + 1157.2 = 7811.1px + offsets
+		// (should be +/- 0.7K and M0.7 but it needs a surface too big for D3D9)
+		hDC_Tape_MACHV = CreateCompatibleDC( GetDC( NULL ) );
+		HBITMAP hBM = CreateCompatibleBitmap( GetDC( NULL ), 43, 7811 + offset_top + offset_bottom );
+		hBM_Tape_MACHV_tmp = (HBITMAP)SelectObject( hDC_Tape_MACHV, hBM );
+		save = SaveDC( hDC_Tape_MACHV );
 
-		SetTextColor( hDC_Tapes, CR_BLACK );
-		SetBkMode( hDC_Tapes, TRANSPARENT );
-		SelectObject( hDC_Tapes, gdiBlackPen );
-		for (int i = 270; i >= 42; i -= 1)
+		SelectObject( hDC_Tape_MACHV, gdiWhitePen );
+		SelectObject( hDC_Tape_MACHV, gdiWhiteBrush );
+		Rectangle( hDC_Tape_MACHV, 0, 0, 43, 7811 + offset_top + offset_bottom );
+
+		SetTextColor( hDC_Tape_MACHV, CR_BLACK );
+		SetTextAlign( hDC_Tape_MACHV, TA_CENTER );
+		SelectObject( hDC_Tape_MACHV, gdiSSUBFont_h18w9 );
+		SetBkMode( hDC_Tape_MACHV, TRANSPARENT );
+		SelectObject( hDC_Tape_MACHV, gdiBlackPen );
+
+		sfh_Tape_MACHV = oapiCreateSurface( 43, 7811 + offset_top + offset_bottom );
+		oapi::Sketchpad* skp_Tape_MACHV = oapiGetSketchpad( sfh_Tape_MACHV );
+
+		skp_Tape_MACHV->SetPen( skpWhitePen );
+		skp_Tape_MACHV->SetBrush( skpWhiteBrush );
+		skp_Tape_MACHV->Rectangle( 0, 0, 43, 7811 + offset_top + offset_bottom );
+
+		skp_Tape_MACHV->SetTextColor( CR_BLACK );
+		skp_Tape_MACHV->SetTextAlign( oapi::Sketchpad::CENTER );
+		skp_Tape_MACHV->SetFont( skpSSUBFont_h18 );
+		skp_Tape_MACHV->SetBackgroundColor( oapi::Sketchpad::BK_TRANSPARENT );
+		skp_Tape_MACHV->SetPen( skpBlackPen );
+
+		for (int i = 270; i >= 41; i -= 1)
 		{
-			y = Round( ((270 - i) * 11.4) + offset );
+			y = Round( ((270 - i) * 28.93) + offset_top );
 
 			if ((i % 10) == 0)
 			{
-				sprintf_s( cbuf, 8, "%4.1fK", (double)i / 10 );
-				TextOut( hDC_Tapes, 2, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%.1fK", (double)i / 10 );
+				TextOut( hDC_Tape_MACHV, 22, y - 11, cbuf, strlen( cbuf ) );
+				
+				skp_Tape_MACHV->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else if ((i % 2) == 0)
 			{
-				sprintf_s( cbuf, 8, "%4.1f", (double)i / 10 );
-				TextOut( hDC_Tapes, 4, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%.1f", (double)i / 10 );
+				TextOut( hDC_Tape_MACHV, 22, y - 11, cbuf, strlen( cbuf ) );
+
+				skp_Tape_MACHV->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else
 			{
-				MoveToEx( hDC_Tapes, 4, y, NULL );
-				LineTo( hDC_Tapes, 18, y );
+				MoveToEx( hDC_Tape_MACHV, 0, y, NULL );
+				LineTo( hDC_Tape_MACHV, 14, y );
+
+				skp_Tape_MACHV->Line( 0, y, 14, y );
 			}
 		}
 		for (int i = 40; i >= 0; i--)
 		{
-			y = Round( ((40 - i) * 22.8) + offset ) + 2622;
+			y = Round( ((40 - i) * 28.93) + 6653.9 + offset_top );
 
 			if ((i % 2) == 0)
 			{
 				if ((i % 10) == 0)
 				{
-					sprintf_s( cbuf, 8, "%2.0f", (double)i / 10 );
-					TextOut( hDC_Tapes, 6, y - 5, cbuf, strlen( cbuf ) );
+					sprintf_s( cbuf, 8, "%.1fM", (double)i / 10 );
+					TextOut( hDC_Tape_MACHV, 22, y - 11, cbuf, strlen( cbuf ) );
+
+					skp_Tape_MACHV->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 				}
 				else
 				{
-					sprintf_s( cbuf, 8, "%3.1f", (double)i / 10 );
-					TextOut( hDC_Tapes, 6, y - 5, cbuf, strlen( cbuf ) );
+					sprintf_s( cbuf, 8, "%.1f", (double)i / 10 );
+					TextOut( hDC_Tape_MACHV, 22, y - 11, cbuf, strlen( cbuf ) );
+
+					skp_Tape_MACHV->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 				}
 			}
 			else
 			{
-				MoveToEx( hDC_Tapes, 4, y, NULL );
-				LineTo( hDC_Tapes, 18, y );
+				MoveToEx( hDC_Tape_MACHV, 10, y, NULL );
+				LineTo( hDC_Tape_MACHV, 33, y );
+
+				skp_Tape_MACHV->Line( 10, y, 33, y );
 			}
 		}
+		RestoreDC( hDC_Tape_MACHV, save );
+		oapiReleaseSketchpad( skp_Tape_MACHV );
 			
 		// KEAS
-		// 30KEAS in window (1KEAS = 3.8px) (500-0)
-		// 1900px + offsets
-		SelectObject( hDC_Tapes, gdiBlackPen );
-		SelectObject( hDC_Tapes, gdiBlackBrush );
-		Rectangle( hDC_Tapes, 23, 1900 + offset, 45, 1900 + offset + offset );
+		// 28KEAS in window (1KEAS = 7.75px) (500-0)
+		// 3875px + offsets
+		hDC_Tape_KEAS = CreateCompatibleDC( GetDC( NULL ) );
+		hBM = CreateCompatibleBitmap( GetDC( NULL ), 43, 3875 + offset_top + offset_bottom );
+		hBM_Tape_KEAS_tmp = (HBITMAP)SelectObject( hDC_Tape_KEAS, hBM );
+		save = SaveDC( hDC_Tape_KEAS );
 
-		SetTextColor( hDC_Tapes, CR_BLACK );
-		SetBkMode( hDC_Tapes, TRANSPARENT );
-		SelectObject( hDC_Tapes, gdiBlackPen );
+		SelectObject( hDC_Tape_KEAS, gdiWhitePen );
+		SelectObject( hDC_Tape_KEAS, gdiWhiteBrush );
+		Rectangle( hDC_Tape_KEAS, 0, 0, 43, 3875 + offset_top + offset_bottom );
+
+		SetTextColor( hDC_Tape_KEAS, CR_BLACK );
+		SetTextAlign( hDC_Tape_KEAS, TA_CENTER );
+		SelectObject( hDC_Tape_KEAS, gdiSSUBFont_h18w9 );
+		SetBkMode( hDC_Tape_KEAS, TRANSPARENT );
+		SelectObject( hDC_Tape_KEAS, gdiBlackPen );
+		
+		sfh_Tape_KEAS = oapiCreateSurface( 43, 3875 + offset_top + offset_bottom );
+		oapi::Sketchpad* skp_Tape_KEAS = oapiGetSketchpad( sfh_Tape_KEAS );
+
+		skp_Tape_KEAS->SetPen( skpWhitePen );
+		skp_Tape_KEAS->SetBrush( skpWhiteBrush );
+		skp_Tape_KEAS->Rectangle( 0, 0, 43, 3875 + offset_top + offset_bottom );
+
+		skp_Tape_KEAS->SetTextColor( CR_BLACK );
+		skp_Tape_KEAS->SetTextAlign( oapi::Sketchpad::CENTER );
+		skp_Tape_KEAS->SetFont( skpSSUBFont_h18 );
+		skp_Tape_KEAS->SetBackgroundColor( oapi::Sketchpad::BK_TRANSPARENT );
+		skp_Tape_KEAS->SetPen( skpBlackPen );
+
 		for (int i = 500; i >= 0; i -= 5)
 		{
-			y = Round( ((500 - i) * 3.8) + offset );
+			y = Round( ((500 - i) * 7.75) + offset_top );
 
 			if ((i % 10) == 0)
 			{
-				sprintf_s( cbuf, 8, "%3d", i );
-				TextOut( hDC_Tapes, 28, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%d", i );
+				TextOut( hDC_Tape_KEAS, 21, y - 11, cbuf, strlen( cbuf ) );
+				
+				skp_Tape_KEAS->Text( 21, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else
 			{
-				MoveToEx( hDC_Tapes, 27, y, NULL );
-				LineTo( hDC_Tapes, 41, y );
+				MoveToEx( hDC_Tape_KEAS, 10, y, NULL );
+				LineTo( hDC_Tape_KEAS, 33, y );
+				
+				skp_Tape_KEAS->Line( 10, y, 33, y );
 			}
 		}
+		RestoreDC( hDC_Tape_KEAS, save );
+		oapiReleaseSketchpad( skp_Tape_KEAS );
 
 		// alpha
 		// 23º in window (1º = 9.435px)
 		// 3396px long + offsets
 		hDC_Tape_Alpha = CreateCompatibleDC( GetDC( NULL ) );
-		/*HBITMAP*/ hBM = CreateCompatibleBitmap( GetDC( NULL ), 43, 3396 + offset_top + offset_bottom );
-		SelectObject( hDC_Tape_Alpha, hBM );
+		hBM = CreateCompatibleBitmap( GetDC( NULL ), 43, 3396 + offset_top + offset_bottom );
+		hBM_Tape_Alpha_tmp = (HBITMAP)SelectObject( hDC_Tape_Alpha, hBM );
+		save = SaveDC( hDC_Tape_Alpha );
 
 		SelectObject( hDC_Tape_Alpha, gdiWhitePen );
 		SelectObject( hDC_Tape_Alpha, gdiWhiteBrush );
@@ -677,7 +740,7 @@ namespace vc
 				skp_Tape_Alpha->SetPen( skpWhitePen );
 			}
 
-			y = Round( ((180 - i) * 9.435) + offset );
+			y = Round( ((180 - i) * 9.435) + offset_top );
 
 			MoveToEx( hDC_Tape_Alpha, 35, y, NULL );
 			LineTo( hDC_Tape_Alpha, 43, y );
@@ -686,7 +749,7 @@ namespace vc
 
 			if ((i % 5) == 0)
 			{
-				sprintf_s( cbuf, 8, "%4d", i );
+				sprintf_s( cbuf, 8, "%d", i );
 				if (i > -100)
 				{
 					TextOut( hDC_Tape_Alpha, 19, y - 11, cbuf, strlen( cbuf ) );
@@ -701,253 +764,436 @@ namespace vc
 				}
 			}
 		}
+		RestoreDC( hDC_Tape_Alpha, save );
 		oapiReleaseSketchpad( skp_Tape_Alpha );
 
+
 		// H
-		// NM scale 10NM in window (1NM = 11.4px) (165-65.83137NM)
-		// FT scale 100Kft in window (1ft = 0.00114px) (400-100Kft)
-		// FT scale 11.5Kft in window (1ft = 0.00991px) (100-30Kft)
-		// FT scale 6Kft in window (1ft = 0.019px) n1(n5K)/n1000 m0.5 (30-2Kft)
-		//0 FT scale 1000ft in window (1ft = 0.114px) (2000-200ft)
-		//0 FT scale 150ft in window (1ft = 0.76px) n50m10 (200-0ft)
-		//? FT scale 500ft in window (1ft = 0.228px) (0-(-100)ft)
-		//? FT scale 40ft in window (1ft = 0.057px) ((-100)-(-1100)ft)
-		// 1130.522382 + 342 + 693.7 + 532 + 205.2 + 152 + 0 + 0 = 0px long + offsets
-		SelectObject( hDC_Tapes, gdiYellowPen );
-		SelectObject( hDC_Tapes, gdiYellowBrush );
-		Rectangle( hDC_Tapes, 68, 2698 + offset, 90, 3055 + offset );
+		// NM scale 10NM in window (1NM = 21.7px) (165-65.83137NM)
+		// FT scale 70Kft in window (1ft = 0.0031px) (400-100Kft)
+		// FT scale 11.5Kft in window (1ft = 0.01887px) (100-30Kft)
+		// FT scale 5.5Kft in window (1ft = 0.03945px) n1(n5K)/n1000 m0.5 (30-2Kft)
+		// FT scale 1400ft in window (1ft = 0.155px) (2000-200ft)
+		// FT scale 200ft in window (1ft = 1.085px) n50m10 (200-0ft)
+		// FT scale 450ft in window (1ft = 0.4822px) (0-(-1100)ft)
+		// 2151.959 + 930 + 1320.9 + 1104.6 + 279 + 217 + 530.42 = 6533.879px long + offsets
+		hDC_Tape_H = CreateCompatibleDC( GetDC( NULL ) );
+		hBM = CreateCompatibleBitmap( GetDC( NULL ), 43, 6534 + offset_top + offset_bottom );
+		hBM_Tape_H_tmp = (HBITMAP)SelectObject( hDC_Tape_H, hBM );
+		save = SaveDC( hDC_Tape_H );
 
-		SelectObject( hDC_Tapes, gdiLightGrayPen );
-		SelectObject( hDC_Tapes, gdiLightGrayBrush );
-		Rectangle( hDC_Tapes, 68, 3055 + offset, 90, 3380 + offset + offset );
+		SelectObject( hDC_Tape_H, gdiWhitePen );
+		SelectObject( hDC_Tape_H, gdiWhiteBrush );
+		Rectangle( hDC_Tape_H, 0, 0, 43, 5507 + offset_top );
 
-		SetTextColor( hDC_Tapes, CR_BLACK );
-		SetBkMode( hDC_Tapes, TRANSPARENT );
-		SelectObject( hDC_Tapes, gdiBlackPen );
+		SelectObject( hDC_Tape_H, gdiYellowPen );
+		SelectObject( hDC_Tape_H, gdiYellowBrush );
+		Rectangle( hDC_Tape_H, 0, 5507 + offset_top, 43, 6003 + offset_top );
+
+		SelectObject( hDC_Tape_H, gdiDarkGrayPen );
+		SelectObject( hDC_Tape_H, gdiDarkGrayBrush );
+		Rectangle( hDC_Tape_H, 0, 6003 + offset_top, 43, 6534 + offset_top + offset_bottom );
+
+		SetTextColor( hDC_Tape_H, CR_BLACK );
+		SetTextAlign( hDC_Tape_H, TA_CENTER );
+		SelectObject( hDC_Tape_H, gdiSSUBFont_h18w9 );
+		SetBkMode( hDC_Tape_H, TRANSPARENT );
+		SelectObject( hDC_Tape_H, gdiBlackPen );
+		
+		sfh_Tape_H = oapiCreateSurface( 43, 6534 + offset_top + offset_bottom );
+		oapi::Sketchpad* skp_Tape_H = oapiGetSketchpad( sfh_Tape_H );
+
+		skp_Tape_H->SetPen( skpWhitePen );
+		skp_Tape_H->SetBrush( skpWhiteBrush );
+		skp_Tape_H->Rectangle( 0, 0, 43, 5507 + offset_top );
+
+		skp_Tape_H->SetPen( skpYellowPen );
+		skp_Tape_H->SetBrush( skpYellowBrush );
+		skp_Tape_H->Rectangle( 0, 5507 + offset_top, 43, 6003 + offset_top );
+
+		skp_Tape_H->SetPen( skpDarkGrayPen );
+		skp_Tape_H->SetBrush( skpDarkGrayBrush );
+		skp_Tape_H->Rectangle( 0, 6003 + offset_top, 43, 6534 + offset_top + offset_bottom );
+
+		skp_Tape_H->SetTextColor( CR_BLACK );
+		skp_Tape_H->SetTextAlign( oapi::Sketchpad::CENTER );
+		skp_Tape_H->SetFont( skpSSUBFont_h18 );
+		skp_Tape_H->SetBackgroundColor( oapi::Sketchpad::BK_TRANSPARENT );
+		skp_Tape_H->SetPen( skpBlackPen );
+
 		for (int i = 165; i >= 67; i--)
 		{
-			y = Round( ((165 - i) * 11.4) + offset );
+			y = Round( ((165 - i) * 21.7) + offset_top );
 
 			if ((i % 5) == 0)
 			{
-				sprintf_s( cbuf, 8, "%3dM", i );
-				TextOut( hDC_Tapes, 70, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%dM", i );
+				TextOut( hDC_Tape_H, 22, y - 11, cbuf, strlen( cbuf ) );
+
+				skp_Tape_H->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else
 			{
-				MoveToEx( hDC_Tapes, 83, y, NULL );
-				LineTo( hDC_Tapes, 90, y );
+				MoveToEx( hDC_Tape_H, 29, y, NULL );
+				LineTo( hDC_Tape_H, 43, y );
+
+				skp_Tape_H->Line( 29, y, 43, y );
 			}
 		}
 		for (int i = 400; i >= 100; i -= 5)
 		{
-			y = Round( ((400 - i) * 1.14) + offset ) + 1131;
+			y = Round( ((400 - i) * 3.1) + offset_top + 2151.959 );
 
 			if ((i % 50) == 0)
 			{
-				sprintf_s( cbuf, 8, "%3dK", i );
-				TextOut( hDC_Tapes, 71, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%dK", i );
+				TextOut( hDC_Tape_H, 22, y - 11, cbuf, strlen( cbuf ) );
+
+				skp_Tape_H->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else if ((i % 10) == 0)
 			{
-				MoveToEx( hDC_Tapes, 68, y, NULL );
-				LineTo( hDC_Tapes, 79, y );
+				MoveToEx( hDC_Tape_H, 0, y, NULL );
+				LineTo( hDC_Tape_H, 15, y );
+
+				skp_Tape_H->Line( 0, y, 15, y );
 			}
 		}
 		for (int i = 99; i >= 30; i--)
 		{
-			y = Round( ((100 - i) * 9.91) + offset ) + 1473;
+			y = Round( ((100 - i) * 18.87) + offset_top + 3081.959 );
 
 			if ((i % 5) == 0)
 			{
-				sprintf_s( cbuf, 8, "%2dK", i );
-				TextOut( hDC_Tapes, 73, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%dK", i );
+				TextOut( hDC_Tape_H, 22, y - 11, cbuf, strlen( cbuf ) );
+
+				skp_Tape_H->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else
 			{
-				MoveToEx( hDC_Tapes, 72, y, NULL );
-				LineTo( hDC_Tapes, 86, y );
+				MoveToEx( hDC_Tape_H, 14, y, NULL );
+				LineTo( hDC_Tape_H, 29, y );
+
+				skp_Tape_H->Line( 14, y, 29, y );
 			}
 		}
 		for (int i = 295; i > 20; i -= 5)
 		{
-			y = Round( ((300 - i) * 1.9) + offset ) + 2167;
+			y = Round( ((300 - i) * 3.945) + offset_top + 4402.859 );
 
 			if ((i % 50) == 0)
 			{
-				sprintf_s( cbuf, 8, "%2.0fK", (double)i / 10 );
-				TextOut( hDC_Tapes, 73, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%.0fK", (double)i / 10 );
+				TextOut( hDC_Tape_H, 22, y - 11, cbuf, strlen( cbuf ) );
+
+				skp_Tape_H->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else if ((i % 10) == 0)
 			{
-				sprintf_s( cbuf, 8, "%2.0f", (double)i / 10 );
-				TextOut( hDC_Tapes, 75, y - 5, cbuf, strlen( cbuf ) );
+				if (i > 40) sprintf_s( cbuf, 8, "%.0f", (double)i / 10 );
+				else sprintf_s( cbuf, 8, "%d", i * 100 );
+				TextOut( hDC_Tape_H, 22, y - 11, cbuf, strlen( cbuf ) );
+
+				skp_Tape_H->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else
 			{
-				MoveToEx( hDC_Tapes, 72, y, NULL );
-				LineTo( hDC_Tapes, 86, y );
+				MoveToEx( hDC_Tape_H, 14, y, NULL );
+				LineTo( hDC_Tape_H, 29, y );
+
+				skp_Tape_H->Line( 14, y, 29, y );
 			}
 		}
 
 		for (int i = 20; i > 2; i -= 1)
 		{
-			y = Round( ((20 - i) * 11.4) + offset ) + 2699;
+			y = Round( ((20 - i) * 15.5) + offset_top + 5507.459 );
 
 			if ((i % 2) == 0)
 			{
-				sprintf_s( cbuf, 8, "%4d", i * 100 );
-				TextOut( hDC_Tapes, 71, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%d", i * 100 );
+				TextOut( hDC_Tape_H, 22, y - 11, cbuf, strlen( cbuf ) );
+
+				skp_Tape_H->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else
 			{
-				MoveToEx( hDC_Tapes, 72, y, NULL );
-				LineTo( hDC_Tapes, 86, y );
+				MoveToEx( hDC_Tape_H, 14, y, NULL );
+				LineTo( hDC_Tape_H, 29, y );
+
+				skp_Tape_H->Line( 14, y, 29, y );
 			}
 		}
 		for (int i = 20; i >= 0; i -= 1)
 		{
-			y = Round( ((20 - i) * 7.6) + offset ) + 2904;
+			y = Round( ((20 - i) * 10.85) + offset_top + 5786.459 );
 
 			if ((i % 5) == 0)
 			{
-				sprintf_s( cbuf, 8, "%3d", i * 10 );
-				TextOut( hDC_Tapes, 73, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%d", i * 10 );
+				TextOut( hDC_Tape_H, 22, y - 11, cbuf, strlen( cbuf ) );
+
+				skp_Tape_H->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else
 			{
-				MoveToEx( hDC_Tapes, 72, y, NULL );
-				LineTo( hDC_Tapes, 86, y );
+				MoveToEx( hDC_Tape_H, 14, y, NULL );
+				LineTo( hDC_Tape_H, 29, y );
+
+				skp_Tape_H->Line( 14, y, 29, y );
 			}
 		}
-		SetTextColor( hDC_Tapes, CR_WHITE );
-		for (int i = 0; i >= -10; i -= 1)
+
+		SetTextColor( hDC_Tape_H, CR_WHITE );
+		SelectObject( hDC_Tape_H, gdiWhitePen );
+
+		skp_Tape_H->SetTextColor( CR_WHITE );
+		skp_Tape_H->SetPen( skpWhitePen );
+
+		for (int i = 0; i >= -110; i -= 5)
 		{
-			y = Round( ((20 - i) * 7.6) + offset ) + 2904;
+			y = Round( (-i * 4.822) + offset_top + 6003.459 );
 
-			if ((i % 5) == 0)
+			if ((i % 10) == 0)
 			{
-				sprintf_s( cbuf, 8, "%3d", i * 10 );
-				TextOut( hDC_Tapes, 73, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%d", i * 10 );
+				TextOut( hDC_Tape_H, 22, y - 11, cbuf, strlen( cbuf ) );
+
+				skp_Tape_H->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else
 			{
-				MoveToEx( hDC_Tapes, 72, y, NULL );
-				LineTo( hDC_Tapes, 86, y );
+				MoveToEx( hDC_Tape_H, 10, y, NULL );
+				LineTo( hDC_Tape_H, 33, y );
+
+				skp_Tape_H->Line( 10, y, 33, y );
 			}
 		}
+		RestoreDC( hDC_Tape_H, save );
+		oapiReleaseSketchpad( skp_Tape_H );
+
 
 		// Hdot
-		// small scale 160ft in window (1ft = 0.7125px) (800-(-800))
-		// large scale 800ft in window (1ft = 0.1425px) (3000-800/(-800)-(-3000))
-		// 313.5 + 1140 + 313.5 = 1767px long + offsets
-		SelectObject( hDC_Tapes, gdiLightGrayPen );
-		SelectObject( hDC_Tapes, gdiLightGrayBrush );
-		Rectangle( hDC_Tapes, 91, 884 + offset, 113, 1767 + offset + offset );
+		// small (inner) scale 165ft in window (1ft = 1.315px) (800-(-800))
+		// large (outer) scale 700ft in window (1ft = 0.31px) (3000-800/(-800)-(-3000))
+		// 682 + 2104 + 682 = 3468px long + offsets
+		hDC_Tape_Hdot = CreateCompatibleDC( GetDC( NULL ) );
+		hBM = CreateCompatibleBitmap( GetDC( NULL ), 43, 3468 + offset_top + offset_bottom );
+		hBM_Tape_Hdot_tmp = (HBITMAP)SelectObject( hDC_Tape_Hdot, hBM );
+		save = SaveDC( hDC_Tape_Hdot );
 
-		SetTextColor( hDC_Tapes, CR_BLACK );
-		SetBkMode( hDC_Tapes, TRANSPARENT );
-		SelectObject( hDC_Tapes, gdiBlackPen );
+		SelectObject( hDC_Tape_Hdot, gdiWhitePen );
+		SelectObject( hDC_Tape_Hdot, gdiWhiteBrush );
+		Rectangle( hDC_Tape_Hdot, 0, 0, 43, 1734 + offset_top );
+
+		SelectObject( hDC_Tape_Hdot, gdiDarkGrayPen );
+		SelectObject( hDC_Tape_Hdot, gdiDarkGrayBrush );
+		Rectangle( hDC_Tape_Hdot, 0, 1734 + offset_top, 43, 3468 + offset_top + offset_bottom );
+
+		SetTextColor( hDC_Tape_Hdot, CR_BLACK );
+		SetTextAlign( hDC_Tape_Hdot, TA_CENTER );
+		SelectObject( hDC_Tape_Hdot, gdiSSUBFont_h18w9 );
+		SetBkMode( hDC_Tape_Hdot, TRANSPARENT );
+		SelectObject( hDC_Tape_Hdot, gdiBlackPen );
+
+		sfh_Tape_Hdot = oapiCreateSurface( 43, 3468 + offset_top + offset_bottom );
+		oapi::Sketchpad* skp_Tape_Hdot = oapiGetSketchpad( sfh_Tape_Hdot );
+
+		skp_Tape_Hdot->SetPen( skpWhitePen );
+		skp_Tape_Hdot->SetBrush( skpWhiteBrush );
+		skp_Tape_Hdot->Rectangle( 0, 0, 43, 1734 + offset_top );
+
+		skp_Tape_Hdot->SetPen( skpDarkGrayPen );
+		skp_Tape_Hdot->SetBrush( skpDarkGrayBrush );
+		skp_Tape_Hdot->Rectangle( 0, 1734 + offset_top, 43, 3468 + offset_top + offset_bottom );
+
+		skp_Tape_Hdot->SetTextColor( CR_BLACK );
+		skp_Tape_Hdot->SetTextAlign( oapi::Sketchpad::CENTER );
+		skp_Tape_Hdot->SetFont( skpSSUBFont_h18 );
+		skp_Tape_Hdot->SetBackgroundColor( oapi::Sketchpad::BK_TRANSPARENT );
+		skp_Tape_Hdot->SetPen( skpBlackPen );
+
 		for (int i = 30; i >= 8; i--)
 		{
-			y = Round( ((30 - i) * 14.25) + offset );
+			y = ((30 - i) * 31) + offset_top;//y = Round( ((30 - i) * 31) + offset_top );
 
 			if (i < 10)
 			{
-				sprintf_s( cbuf, 8, "%4d", i * 100 );
-				TextOut( hDC_Tapes, 94, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%d", i * 100 );
+				TextOut( hDC_Tape_Hdot, 22, y - 11, cbuf, strlen( cbuf ) );
+				
+				skp_Tape_Hdot->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else if ((i % 5) == 0)
 			{
-				sprintf_s( cbuf, 8, "%3.1fK", (double)i / 10 );
-				TextOut( hDC_Tapes, 94, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%.1fK", (double)i / 10 );
+				TextOut( hDC_Tape_Hdot, 22, y - 11, cbuf, strlen( cbuf ) );
+
+				skp_Tape_Hdot->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else
 			{
-				MoveToEx( hDC_Tapes, 95, y, NULL );
-				LineTo( hDC_Tapes, 109, y );
+				MoveToEx( hDC_Tape_Hdot, 12, y, NULL );
+				LineTo( hDC_Tape_Hdot, 31, y );
+
+				skp_Tape_Hdot->Line( 12, y, 31, y );
 			}
 		}
-		for (int i = 79; i >= 0; i--)
+		for (int i = 80; i > 0; i--)
 		{
-			y = Round( ((80 - i) * 7.125) + 313.5 + offset );
+			y = Round( ((80 - i) * 13.15) + 682 + offset_top );
 
 			if ((i % 2) == 0)
 			{
-				sprintf_s( cbuf, 8, "%3d", i * 10 );
-				TextOut( hDC_Tapes, 96, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%d", i * 10 );
+				TextOut( hDC_Tape_Hdot, 22, y - 11, cbuf, strlen( cbuf ) );
+
+				skp_Tape_Hdot->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else
 			{
-				MoveToEx( hDC_Tapes, 96, y, NULL );
-				LineTo( hDC_Tapes, 108, y );
+				MoveToEx( hDC_Tape_Hdot, 12, y, NULL );
+				LineTo( hDC_Tape_Hdot, 31, y );
+
+				skp_Tape_Hdot->Line( 12, y, 31, y );
 			}
 		}
-		SetTextColor( hDC_Tapes, CR_WHITE );
-		SelectObject( hDC_Tapes, gdiWhitePen );
-		for (int i = -1; i >= -79; i--)
+
+		SetTextColor( hDC_Tape_Hdot, CR_WHITE );
+		SelectObject( hDC_Tape_Hdot, gdiWhitePen );
+
+		skp_Tape_Hdot->SetTextColor( CR_WHITE );
+		skp_Tape_Hdot->SetPen( skpWhitePen );
+
+		for (int i = 0; i >= -80; i--)
 		{
-			y = Round( ((80 - i) * 7.125) + 313.5 + offset );
+			y = Round( ((80 - i) * 13.15) + 682 + offset_top );
 
 			if ((i % 2) == 0)
 			{
-				sprintf_s( cbuf, 8, "%4d", i * 10 );
-				TextOut( hDC_Tapes, 94, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%d", i * 10 );
+				TextOut( hDC_Tape_Hdot, 22, y - 11, cbuf, strlen( cbuf ) );
+
+				skp_Tape_Hdot->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else
 			{
-				MoveToEx( hDC_Tapes, 96, y, NULL );
-				LineTo( hDC_Tapes, 108, y );
+				MoveToEx( hDC_Tape_Hdot, 12, y, NULL );
+				LineTo( hDC_Tape_Hdot, 31, y );
+
+				skp_Tape_Hdot->Line( 12, y, 31, y );
 			}
 		}
 		for (int i = -8; i >= -30; i--)
 		{
-			y = Round( ((-8 - i) * 14.25) + 313.5 + 1140 + offset );
+			y = ((-8 - i) * 31) + 2786 + offset_top;//y = Round( ((-8 - i) * 31) + 2786 + offset_top );
 
 			if (i > -10)
 			{
-				sprintf_s( cbuf, 8, "%4d", i * 100 );
-				TextOut( hDC_Tapes, 94, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%d", i * 100 );
+				TextOut( hDC_Tape_Hdot, 22, y - 11, cbuf, strlen( cbuf ) );
+
+				skp_Tape_Hdot->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else if ((i % 5) == 0)
 			{
-				sprintf_s( cbuf, 8, "%4.1fK", (double)i / 10 );
-				TextOut( hDC_Tapes, 93, y - 5, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 8, "%.1fK", (double)i / 10 );
+				TextOut( hDC_Tape_Hdot, 22, y - 11, cbuf, strlen( cbuf ) );
+
+				skp_Tape_Hdot->Text( 22, y - 11, cbuf, strlen( cbuf ) );
 			}
 			else
 			{
-				MoveToEx( hDC_Tapes, 95, y, NULL );
-				LineTo( hDC_Tapes, 109, y );
+				MoveToEx( hDC_Tape_Hdot, 12, y, NULL );
+				LineTo( hDC_Tape_Hdot, 31, y );
+
+				skp_Tape_Hdot->Line( 12, y, 31, y );
 			}
 		}
+		RestoreDC( hDC_Tape_Hdot, save );
+		oapiReleaseSketchpad( skp_Tape_Hdot );
 		return;
 	}
 
-	void MDU::ADI_Create( void )
+	void MDU::DestroyTapes( void )
+	{
+		if (!hDC_Tape_MACHV) return;// already deleted
+
+		DeleteObject( SelectObject( hDC_Tape_MACHV, hBM_Tape_MACHV_tmp ) );
+		DeleteObject( hDC_Tape_MACHV );
+		DeleteObject( SelectObject( hDC_Tape_KEAS, hBM_Tape_KEAS_tmp ) );
+		DeleteObject( hDC_Tape_KEAS );
+		DeleteObject( SelectObject( hDC_Tape_Alpha, hBM_Tape_Alpha_tmp ) );
+		DeleteObject( hDC_Tape_Alpha );
+		DeleteObject( SelectObject( hDC_Tape_H, hBM_Tape_H_tmp ) );
+		DeleteObject( hDC_Tape_H );
+		DeleteObject( SelectObject( hDC_Tape_Hdot, hBM_Tape_Hdot_tmp ) );
+		DeleteObject( hDC_Tape_Hdot );
+
+		oapiDestroySurface( sfh_Tape_MACHV );
+		oapiDestroySurface( sfh_Tape_KEAS );
+		oapiDestroySurface( sfh_Tape_Alpha );
+		oapiDestroySurface( sfh_Tape_H );
+		oapiDestroySurface( sfh_Tape_Hdot );
+
+		hDC_Tape_MACHV = NULL;
+		return;
+	}
+
+	void MDU::CreateADI( void )
 	{
 		hDC_ADI = CreateCompatibleDC( GetDC( NULL ) );
 		HBITMAP hBM = CreateCompatibleBitmap( GetDC( NULL ), 192, 192 );
-		SelectObject( hDC_ADI, hBM );
+		hBM_ADI_tmp = (HBITMAP)SelectObject( hDC_ADI, hBM );
+		save_ADI = SaveDC( hDC_ADI );
 		SelectObject( hDC_ADI, gdiSSUBFont_h12w7 );
-
-		hDC_ADIMASK = CreateCompatibleDC( hDC_ADI );
-		hBM = CreateCompatibleBitmap( hDC_ADI, 192, 192 );
-		SelectObject( hDC_ADIMASK, hBM );
-		SelectObject( hDC_ADIMASK, gdiWhitePen );
-		SelectObject( hDC_ADIMASK, gdiWhiteBrush );
-		::Ellipse( hDC_ADIMASK, 1, 1, 191, 191 );
 
 		hDC_ADI_ORBIT = CreateCompatibleDC( hDC_ADI );
 		hBM = CreateCompatibleBitmap( hDC_ADI, 222, 222 );
-		SelectObject( hDC_ADI_ORBIT, hBM );
+		hBM_ADI_ORBIT_tmp = (HBITMAP)SelectObject( hDC_ADI_ORBIT, hBM );
+		save_ADI_ORBIT = SaveDC( hDC_ADI_ORBIT );
 		SelectObject( hDC_ADI_ORBIT, gdiSSUBFont_h12w7 );
+		
+		if (hDC_ADIMASK) return;// already created
 
+		hDC_ADIMASK = CreateCompatibleDC( hDC_ADI );
+		hBM = CreateCompatibleBitmap( hDC_ADI, 192, 192 );
+		hBM_ADIMASK_tmp = (HBITMAP)SelectObject( hDC_ADIMASK, hBM );
+		int save = SaveDC( hDC_ADIMASK );
+		SelectObject( hDC_ADIMASK, gdiWhitePen );
+		SelectObject( hDC_ADIMASK, gdiWhiteBrush );
+		::Ellipse( hDC_ADIMASK, 1, 1, 191, 191 );
+		RestoreDC( hDC_ADIMASK, save );
+		
 		hDC_ADIMASK_ORBIT = CreateCompatibleDC( hDC_ADI );
 		hBM = CreateCompatibleBitmap( hDC_ADI, 222, 222 );
-		SelectObject( hDC_ADIMASK_ORBIT, hBM );
+		hBM_ADIMASK_ORBIT_tmp = (HBITMAP)SelectObject( hDC_ADIMASK_ORBIT, hBM );
+		save = SaveDC( hDC_ADIMASK_ORBIT );
 		SelectObject( hDC_ADIMASK_ORBIT, gdiWhitePen );
 		SelectObject( hDC_ADIMASK_ORBIT, gdiWhiteBrush );
 		::Ellipse( hDC_ADIMASK_ORBIT, 1, 1, 221, 221 );
+		RestoreDC( hDC_ADIMASK_ORBIT, save );
+		return;
+	}
+
+	void MDU::DestroyADI( void )
+	{
+		RestoreDC( hDC_ADI, save_ADI );
+		DeleteObject( SelectObject( hDC_ADI, hBM_ADI_tmp ) );
+		DeleteObject( hDC_ADI );
+		RestoreDC( hDC_ADI_ORBIT, save_ADI_ORBIT );
+		DeleteObject( SelectObject( hDC_ADI_ORBIT, hBM_ADI_ORBIT_tmp ) );
+		DeleteObject( hDC_ADI_ORBIT );
+
+		if (!hDC_ADIMASK) return;// already created
+
+		DeleteObject( SelectObject( hDC_ADIMASK, hBM_ADIMASK_tmp ) );
+		DeleteObject( hDC_ADIMASK );
+		DeleteObject( SelectObject( hDC_ADIMASK_ORBIT, hBM_ADIMASK_ORBIT_tmp ) );
+		DeleteObject( hDC_ADIMASK_ORBIT );
+
+		hDC_ADIMASK = NULL;
 		return;
 	}
 
@@ -968,21 +1214,21 @@ namespace vc
 
 		double tapekeas = keas;
 		if (tapekeas > 500) tapekeas = 500;
-		//BitBlt( hDC, 10, 40, 22, 114, hDC_Tapes, 23, 1900 - Round( tapekeas * 3.8 ), SRCCOPY );
+		BitBlt( hDC, 14, 55, 43, 217, hDC_Tape_KEAS, 0, 3875 - Round( tapekeas * 7.75 ), SRCCOPY );
 
 		Rectangle( hDC, 13, 150, 59, 175 );
 		
 		SelectObject( hDC, gdiSSUBFont_h18w9 );
 		SetTextColor( hDC, CR_WHITE );
 		SetTextAlign( hDC, TA_RIGHT );
-		sprintf_s( cbuf, 8, "%3.0f", keas );
+		sprintf_s( cbuf, 8, "%.0f", keas );
 		TextOut( hDC, 49, 151, cbuf, strlen( cbuf ) );
-		sprintf_s( cbuf, 8, "%5.2f", MachNumber );
-		TextOut( hDC, 53, 285, cbuf, strlen( cbuf ) );
+		sprintf_s( cbuf, 8, "%.2f", MachNumber );
+		TextOut( hDC, 57, 285, cbuf, strlen( cbuf ) );
 		SetTextAlign( hDC, TA_LEFT );
 		return;
 	}
-	
+
 	void MDU::Tape_KEAS_MVR( oapi::Sketchpad2* skp, double MachNumber )
 	{
 		char cbuf[8];
@@ -1000,25 +1246,29 @@ namespace vc
 
 		double tapekeas = keas;
 		if (tapekeas > 500) tapekeas = 500;
-		//BitBlt( hDC, 10, 40, 22, 114, hDC_Tapes, 23, 1900 - Round( tapekeas * 3.8 ), SRCCOPY );
+		RECT src;
+		src.left = 0;
+		src.top = 3875 - Round( tapekeas * 7.75 );
+		src.right = 43;
+		src.bottom = src.top + 217;
+		skp->CopyRect( sfh_Tape_KEAS, &src, 14, 56 );
 
 		skp->Rectangle( 13, 150, 59, 175 );
 		
 		skp->SetFont( skpSSUBFont_h18 );
 		skp->SetTextColor( CR_WHITE );
 		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
-		sprintf_s( cbuf, 8, "%3.0f", keas );
+		sprintf_s( cbuf, 8, "%.0f", keas );
 		skp->Text( 49, 151, cbuf, strlen( cbuf ) );
-		sprintf_s( cbuf, 8, "%5.2f", MachNumber );
-		skp->Text( 53, 285, cbuf, strlen( cbuf ) );
+		sprintf_s( cbuf, 8, "%.2f", MachNumber );
+		skp->Text( 57, 285, cbuf, strlen( cbuf ) );
 		skp->SetTextAlign( oapi::Sketchpad::LEFT );
 		return;
 	}
 
-	void MDU::Tape_MVR_KEAS( HDC hDC, double MachNumber )
+	void MDU::Tape_MV_KEAS( HDC hDC, char label, double vel )
 	{
 		char cbuf[8];
-		int pos;
 		double keas = sqrt( STS()->GetDynPressure() * PA2PSF ) * 17.18;
 		SelectObject( hDC, gdiWhitePen );
 		SelectObject( hDC, gdiBlackBrush );
@@ -1028,42 +1278,28 @@ namespace vc
 
 		SelectObject( hDC, gdiSSUAFont_h11w9 );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 17, 39, "M/VR", 4 );
+		sprintf_s( cbuf, 8, "M/V%c", label );
+		TextOut( hDC, 17, 39, cbuf, 4 );
 		TextOut( hDC, 17, 315, "KEAS", 4 );
 
 		SelectObject( hDC, gdiSSUBFont_h18w9 );
 		SetTextColor( hDC, CR_WHITE );
 		SetTextAlign( hDC, TA_RIGHT );
-		if (MachNumber > 4)
-		{
-			double vr = STS()->GetAirspeed() * MPS2FPS;
+		BitBlt( hDC, 14, 55, 43, 217, hDC_Tape_MACHV, 0, Round( 7811.1 - vel * 289.3 ), SRCCOPY );
+		
+		Rectangle( hDC, 13, 150, 59, 175 );
+		sprintf_s( cbuf, 8, "%.2f", vel );
+		TextOut( hDC, 57, 151, cbuf, strlen( cbuf ) );
 
-			pos = 3078 - Round( vr * 0.114 );
-			//BitBlt( hDC, 10, 40, 22, 114, hDC_Tapes, 0, pos, SRCCOPY );
-
-			Rectangle( hDC, 13, 150, 59, 175 );
-			sprintf_s( cbuf, 8, "%5.0f", vr );// ft
-			TextOut( hDC, 57, 151, cbuf, strlen( cbuf ) );
-		}
-		else
-		{
-			pos = 3534 - Round( MachNumber * 228 );
-			//BitBlt( hDC, 10, 40, 22, 114, hDC_Tapes, 0, pos, SRCCOPY );
-
-			Rectangle( hDC, 13, 150, 59, 175 );
-			sprintf_s( cbuf, 8, "%5.2f", MachNumber );// Mach
-			TextOut( hDC, 57, 151, cbuf, strlen( cbuf ) );
-		}
-		sprintf_s( cbuf, 8, "%3.0f", keas );
+		sprintf_s( cbuf, 8, "%.0f", keas );
 		TextOut( hDC, 49, 285, cbuf, strlen( cbuf ) );
 		SetTextAlign( hDC, TA_LEFT );
 		return;
 	}
-	
-	void MDU::Tape_MVR_KEAS( oapi::Sketchpad2* skp, double MachNumber )
+
+	void MDU::Tape_MV_KEAS( oapi::Sketchpad2* skp, char label, double vel )
 	{
 		char cbuf[8];
-		int pos;
 		double keas = sqrt( STS()->GetDynPressure() * PA2PSF ) * 17.18;
 		skp->SetPen( skpWhitePen );
 		skp->SetBrush( skpBlackBrush );
@@ -1073,127 +1309,26 @@ namespace vc
 
 		skp->SetFont( skpSSUAFont_h11 );
 		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 17, 39, "M/VR", 4 );
+		sprintf_s( cbuf, 8, "M/V%c", label );
+		skp->Text( 17, 39, cbuf, 4 );
 		skp->Text( 17, 315, "KEAS", 4 );
 
 		skp->SetFont( skpSSUBFont_h18 );
 		skp->SetTextColor( CR_WHITE );
 		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
-		if (MachNumber > 4)
-		{
-			double vr = STS()->GetAirspeed() * MPS2FPS;
+		
+		RECT src;
+		src.left = 0;
+		src.top = Round( 7811.1 - vel * 289.3 );
+		src.right = 43;
+		src.bottom = src.top + 217;
+		skp->CopyRect( sfh_Tape_MACHV, &src, 14, 56 );
 
-			pos = 3078 - Round( vr * 0.114 );
-			//BitBlt( hDC, 10, 40, 22, 114, hDC_Tapes, 0, pos, SRCCOPY );
+		skp->Rectangle( 13, 150, 59, 175 );
+		sprintf_s( cbuf, 8, "%.2f", vel );
+		skp->Text( 57, 151, cbuf, strlen( cbuf ) );
 
-			skp->Rectangle( 13, 150, 59, 175 );
-			sprintf_s( cbuf, 8, "%5.0f", vr );// ft
-			skp->Text( 57, 151, cbuf, strlen( cbuf ) );
-		}
-		else
-		{
-			pos = 3534 - Round( MachNumber * 228 );
-			//BitBlt( hDC, 10, 40, 22, 114, hDC_Tapes, 0, pos, SRCCOPY );
-
-			skp->Rectangle( 13, 150, 59, 175 );
-			sprintf_s( cbuf, 8, "%5.2f", MachNumber );// Mach
-			skp->Text( 57, 151, cbuf, strlen( cbuf ) );
-		}
-		sprintf_s( cbuf, 8, "%3.0f", keas );
-		skp->Text( 49, 285, cbuf, strlen( cbuf ) );
-		skp->SetTextAlign( oapi::Sketchpad::LEFT );
-		return;
-	}
-
-	void MDU::Tape_MVI_KEAS( HDC hDC, double MachNumber )
-	{
-		char cbuf[8];
-		int pos;
-		double keas = sqrt( STS()->GetDynPressure() * PA2PSF ) * 17.18;
-		SelectObject( hDC, gdiWhitePen );
-		SelectObject( hDC, gdiBlackBrush );
-		Rectangle( hDC, 13, 54, 59, 274 );
-		SelectObject( hDC, gdiLightGrayPen );
-		Rectangle( hDC, 13, 285, 59, 309 );
-
-		SelectObject( hDC, gdiSSUAFont_h11w9 );
-		SetTextColor( hDC, CR_LIGHT_GRAY );
-		TextOut( hDC, 17, 39, "M/VI", 4 );
-		TextOut( hDC, 17, 315, "KEAS", 4 );
-
-		SelectObject( hDC, gdiSSUBFont_h18w9 );
-		SetTextColor( hDC, CR_WHITE );
-		SetTextAlign( hDC, TA_RIGHT );
-		if (MachNumber > 4)
-		{
-			VECTOR3 v3vi;
-			STS()->GetRelativeVel( STS()->GetSurfaceRef(), v3vi );
-			double vi = length( v3vi ) * MPS2FPS;
-			
-			pos = 3078 - Round( vi * 0.114 );
-			//BitBlt( hDC, 10, 40, 22, 114, hDC_Tapes, 0, pos, SRCCOPY );
-
-			Rectangle( hDC, 13, 150, 59, 175 );
-			sprintf_s( cbuf, 8, "%5.0f", vi );// ft
-			TextOut( hDC, 57, 151, cbuf, strlen( cbuf ) );
-		}
-		else
-		{
-			pos = 3534 - Round( MachNumber * 228 );
-			//BitBlt( hDC, 10, 40, 22, 114, hDC_Tapes, 0, pos, SRCCOPY );
-
-			Rectangle( hDC, 13, 150, 59, 175 );
-			sprintf_s( cbuf, 8, "%5.2f", MachNumber );// Mach
-			TextOut( hDC, 57, 151, cbuf, strlen( cbuf ) );
-		}
-		sprintf_s( cbuf, 8, "%3.0f", keas );
-		TextOut( hDC, 49, 285, cbuf, strlen( cbuf ) );
-		SetTextAlign( hDC, TA_LEFT );
-		return;
-	}
-	
-	void MDU::Tape_MVI_KEAS( oapi::Sketchpad2* skp, double MachNumber )
-	{
-		char cbuf[8];
-		int pos;
-		double keas = sqrt( STS()->GetDynPressure() * PA2PSF ) * 17.18;
-		skp->SetPen( skpWhitePen );
-		skp->SetBrush( skpBlackBrush );
-		skp->Rectangle( 13, 54, 59, 274 );
-		skp->SetPen( skpLightGrayPen );
-		skp->Rectangle( 13, 285, 59, 309 );
-
-		skp->SetFont( skpSSUAFont_h11 );
-		skp->SetTextColor( CR_LIGHT_GRAY );
-		skp->Text( 17, 39, "M/VI", 4 );
-		skp->Text( 17, 315, "KEAS", 4 );
-
-		skp->SetFont( skpSSUBFont_h18 );
-		skp->SetTextColor( CR_WHITE );
-		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
-		if (MachNumber > 4)
-		{
-			VECTOR3 v3vi;
-			STS()->GetRelativeVel( STS()->GetSurfaceRef(), v3vi );
-			double vi = length( v3vi ) * MPS2FPS;
-			
-			pos = 3078 - Round( vi * 0.114 );
-			//BitBlt( hDC, 10, 40, 22, 114, hDC_Tapes, 0, pos, SRCCOPY );
-
-			skp->Rectangle( 13, 150, 59, 175 );
-			sprintf_s( cbuf, 8, "%5.0f", vi );// ft
-			skp->Text( 57, 151, cbuf, strlen( cbuf ) );
-		}
-		else
-		{
-			pos = 3534 - Round( MachNumber * 228 );
-			//BitBlt( hDC, 10, 40, 22, 114, hDC_Tapes, 0, pos, SRCCOPY );
-
-			skp->Rectangle( 13, 150, 59, 175 );
-			sprintf_s( cbuf, 8, "%5.2f", MachNumber );// Mach
-			skp->Text( 57, 151, cbuf, strlen( cbuf ) );
-		}
-		sprintf_s( cbuf, 8, "%3.0f", keas );
+		sprintf_s( cbuf, 8, "%.0f", keas );
 		skp->Text( 49, 285, cbuf, strlen( cbuf ) );
 		skp->SetTextAlign( oapi::Sketchpad::LEFT );
 		return;
@@ -1258,13 +1393,13 @@ namespace vc
 		SelectObject( hDC, gdiSSUBFont_h18w9 );
 		SetTextColor( hDC, CR_WHITE );
 		SetTextAlign( hDC, TA_RIGHT );
-		if (alpha >= -100) sprintf_s( cbuf, 8, "%4.1f", alpha );
-		else sprintf_s( cbuf, 8, "%4.0f", alpha );
+		if (alpha >= -100) sprintf_s( cbuf, 8, "%.1f", alpha );
+		else sprintf_s( cbuf, 8, "%.0f", alpha );
 		TextOut( hDC, 108, 151, cbuf, strlen( cbuf ) );
 		SetTextAlign( hDC, TA_LEFT );
 		return;
 	}
-	
+
 	void MDU::Tape_Alpha( oapi::Sketchpad2* skp, double MachNumber )
 	{
 		skp->SetFont( skpSSUAFont_h11 );
@@ -1329,8 +1464,8 @@ namespace vc
 		skp->SetFont( skpSSUBFont_h18 );
 		skp->SetTextColor( CR_WHITE );
 		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
-		if (alpha >= -100) sprintf_s( cbuf, 8, "%4.1f", alpha );
-		else sprintf_s( cbuf, 8, "%4.0f", alpha );
+		if (alpha >= -100) sprintf_s( cbuf, 8, "%.1f", alpha );
+		else sprintf_s( cbuf, 8, "%.0f", alpha );
 		skp->Text( 108, 151, cbuf, strlen( cbuf ) );
 		skp->SetTextAlign( oapi::Sketchpad::LEFT );
 		return;
@@ -1348,43 +1483,35 @@ namespace vc
 		if (Altitude_ft > 400000)
 		{
 			Altitude_NM = Altitude_ft * F2NM;
-			if (Altitude_NM > 165) pos = 1881;
-			else pos = 1881 - Round( Altitude_NM * 11.4 );
+			if (Altitude_NM > 165) Altitude_NM = 165;
+			pos = Round( 3580.5 - Altitude_NM * 21.7 );
 		}
 		else if (Altitude_ft > 100000)
 		{
-			pos = 1587 - Round( Altitude_ft * 0.00114 );
+			pos = Round( 3391.959271 - Altitude_ft * 0.0031 );
 		}
 		else if (Altitude_ft > 30000)
 		{
-			pos = 2464 - Round( Altitude_ft * 0.00991 );
+			pos = Round( 4968.959271 - Altitude_ft * 0.01887 );
 		}
 		else if (Altitude_ft > 2000)
 		{
-			pos = 2737 - Round( Altitude_ft * 0.019 );
+			pos = Round( 5586.359271 - Altitude_ft * 0.03945 );
 		}
 		else if (Altitude_ft > 200)
 		{
-			pos = 2927 - Round( Altitude_ft * 0.114 );
-		}// HACK below 0
-		else// if (Altitude_ft > 0)
-		{
-			pos = 3056 - Round( Altitude_ft * 0.76 );
+			pos = Round( 5817.459271 - Altitude_ft * 0.155 );
 		}
-		/*else if (Altitude_ft > -100)
+		else if (Altitude_ft > 0)
 		{
-			pos = 0;// TODO
+			pos = Round( 6003.459 - Altitude_ft * 1.085 );
 		}
-		else if (Altitude_ft > -1100)
-		{
-			pos = 0;// TODO
-		}
-		else
+		else //if (Altitude_ft > -1100)
 		{
 			if (Altitude_ft < -1100) Altitude_ft = -1100;
-			pos = 0;// TODO
-		}*/
-		//BitBlt( hDC, 204, 40, 22, 114, hDC_Tapes, 68, pos, SRCCOPY );
+			pos = Round( 6003.459 - Altitude_ft * 0.4822 );
+		}
+		BitBlt( hDC, 395, 55, 43, 217, hDC_Tape_H, 0, pos, SRCCOPY );
 
 		SelectObject( hDC, gdiLightGrayPen );
 		SelectObject( hDC, gdiBlackBrush );
@@ -1395,12 +1522,12 @@ namespace vc
 		char cbuf[8];
 		if (Altitude_ft < 10000)
 		{
-			sprintf_s( cbuf, 8, "%4d", (int)Altitude_ft );
+			sprintf_s( cbuf, 8, "%d", (int)Altitude_ft );
 			TextOut( hDC, 430, 151, cbuf, strlen( cbuf ) );
 		}
 		else if (Altitude_ft < 400000)
 		{
-			sprintf_s( cbuf, 8, "%3d", (int)Altitude_ft / 1000 );
+			sprintf_s( cbuf, 8, "%d", (int)Altitude_ft / 1000 );
 			TextOut( hDC, 430, 151, cbuf, strlen( cbuf ) );
 			SelectObject( hDC, gdiSSUBFont_h12w7 );
 			SetTextColor( hDC, CR_LIGHT_GRAY );
@@ -1408,7 +1535,7 @@ namespace vc
 		}
 		else
 		{
-			sprintf_s( cbuf, 8, "%3.0f", Altitude_NM );
+			sprintf_s( cbuf, 8, "%.0f", Altitude_NM );
 			TextOut( hDC, 430, 151, cbuf, strlen( cbuf ) );
 			SelectObject( hDC, gdiSSUBFont_h12w7 );
 			SetTextColor( hDC, CR_LIGHT_GRAY );
@@ -1425,18 +1552,18 @@ namespace vc
 		if (Hdot > 800)
 		{
 			if (Hdot > 3000) Hdot = 3000;
-			pos = Round( (3000 - Hdot) * 0.1425 );
+			pos = Round( (3000 - Hdot) * 0.31 );
 		}
 		else if (Hdot > -800)
 		{
-			pos = Round( 883.5 - (Hdot * 0.7125) );
+			pos = Round( 1734 - (Hdot * 1.315) );
 		}
 		else
 		{
 			if (Hdot < -3000) Hdot = -3000;
-			pos = Round( 1339.5 - (Hdot * 0.1425) );
+			pos = Round( 2538 - (Hdot * 0.31) );
 		}
-		//BitBlt( hDC, 231, 40, 22, 114, hDC_Tapes, 91, pos, SRCCOPY );
+		BitBlt( hDC, 460, 55, 43, 217, hDC_Tape_Hdot, 0, pos, SRCCOPY );
 
 		SelectObject( hDC, gdiLightGrayPen );
 		SelectObject( hDC, gdiBlackBrush );
@@ -1444,7 +1571,7 @@ namespace vc
 		SelectObject( hDC, gdiSSUBFont_h18w9 );
 		SetTextColor( hDC, CR_WHITE );
 		SetTextAlign( hDC, TA_RIGHT );
-		sprintf_s( cbuf, 8, "%4.0f", Hdot );
+		sprintf_s( cbuf, 8, "%.0f", Hdot );
 		TextOut( hDC, 503, 151, cbuf, strlen( cbuf ) );
 		SetTextAlign( hDC, TA_LEFT );
 		return;
@@ -1462,43 +1589,40 @@ namespace vc
 		if (Altitude_ft > 400000)
 		{
 			Altitude_NM = Altitude_ft * F2NM;
-			if (Altitude_NM > 165) pos = 1881;
-			else pos = 1881 - Round( Altitude_NM * 11.4 );
+			if (Altitude_NM > 165) Altitude_NM = 165;
+			pos = Round( 3580.5 - Altitude_NM * 21.7 );
 		}
 		else if (Altitude_ft > 100000)
 		{
-			pos = 1587 - Round( Altitude_ft * 0.00114 );
+			pos = Round( 3391.959271 - Altitude_ft * 0.0031 );
 		}
 		else if (Altitude_ft > 30000)
 		{
-			pos = 2464 - Round( Altitude_ft * 0.00991 );
+			pos = Round( 4968.959271 - Altitude_ft * 0.01887 );
 		}
 		else if (Altitude_ft > 2000)
 		{
-			pos = 2737 - Round( Altitude_ft * 0.019 );
+			pos = Round( 5586.359271 - Altitude_ft * 0.03945 );
 		}
 		else if (Altitude_ft > 200)
 		{
-			pos = 2927 - Round( Altitude_ft * 0.114 );
-		}// HACK below 0
-		else// if (Altitude_ft > 0)
-		{
-			pos = 3056 - Round( Altitude_ft * 0.76 );
+			pos = Round( 5817.459271 - Altitude_ft * 0.155 );
 		}
-		/*else if (Altitude_ft > -100)
+		else if (Altitude_ft > 0)
 		{
-			pos = 0;// TODO
+			pos = Round( 6003.459 - Altitude_ft * 1.085 );
 		}
-		else if (Altitude_ft > -1100)
-		{
-			pos = 0;// TODO
-		}
-		else
+		else //if (Altitude_ft > -1100)
 		{
 			if (Altitude_ft < -1100) Altitude_ft = -1100;
-			pos = 0;// TODO
-		}*/
-		//BitBlt( hDC, 204, 40, 22, 114, hDC_Tapes, 68, pos, SRCCOPY );
+			pos = Round( 6003.459 - Altitude_ft * 0.4822 );
+		}
+		RECT src;
+		src.left = 0;
+		src.top = pos;
+		src.right = 43;
+		src.bottom = src.top + 217;
+		skp->CopyRect( sfh_Tape_H, &src, 395, 56 );
 
 		skp->SetPen( skpLightGrayPen );
 		skp->SetBrush( skpBlackBrush );
@@ -1509,12 +1633,12 @@ namespace vc
 		char cbuf[8];
 		if (Altitude_ft < 10000)
 		{
-			sprintf_s( cbuf, 8, "%4d", (int)Altitude_ft );
+			sprintf_s( cbuf, 8, "%d", (int)Altitude_ft );
 			skp->Text( 430, 151, cbuf, strlen( cbuf ) );
 		}
 		else if (Altitude_ft < 400000)
 		{
-			sprintf_s( cbuf, 8, "%3d", (int)Altitude_ft / 1000 );
+			sprintf_s( cbuf, 8, "%d", (int)Altitude_ft / 1000 );
 			skp->Text( 430, 151, cbuf, strlen( cbuf ) );
 			skp->SetFont( skpSSUBFont_h12 );
 			skp->SetTextColor( CR_LIGHT_GRAY );
@@ -1522,7 +1646,7 @@ namespace vc
 		}
 		else
 		{
-			sprintf_s( cbuf, 8, "%3.0f", Altitude_NM );
+			sprintf_s( cbuf, 8, "%.0f", Altitude_NM );
 			skp->Text( 430, 151, cbuf, strlen( cbuf ) );
 			skp->SetFont( skpSSUBFont_h12 );
 			skp->SetTextColor( CR_LIGHT_GRAY );
@@ -1539,18 +1663,20 @@ namespace vc
 		if (Hdot > 800)
 		{
 			if (Hdot > 3000) Hdot = 3000;
-			pos = Round( (3000 - Hdot) * 0.1425 );
+			pos = Round( (3000 - Hdot) * 0.31 );
 		}
 		else if (Hdot > -800)
 		{
-			pos = Round( 883.5 - (Hdot * 0.7125) );
+			pos = Round( 1734 - (Hdot * 1.315) );
 		}
 		else
 		{
 			if (Hdot < -3000) Hdot = -3000;
-			pos = Round( 1339.5 - (Hdot * 0.1425) );
+			pos = Round( 2538 - (Hdot * 0.31) );
 		}
-		//BitBlt( hDC, 231, 40, 22, 114, hDC_Tapes, 91, pos, SRCCOPY );
+		src.top = pos;
+		src.bottom = src.top + 217;
+		skp->CopyRect( sfh_Tape_Hdot, &src, 460, 56 );
 
 		skp->SetPen( skpLightGrayPen );
 		skp->SetBrush( skpBlackBrush );
@@ -1558,7 +1684,7 @@ namespace vc
 		skp->SetFont( skpSSUBFont_h18 );
 		skp->SetTextColor( CR_WHITE );
 		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
-		sprintf_s( cbuf, 8, "%4.0f", Hdot );
+		sprintf_s( cbuf, 8, "%.0f", Hdot );
 		skp->Text( 503, 151, cbuf, strlen( cbuf ) );
 		skp->SetTextAlign( oapi::Sketchpad::LEFT );
 		return;
@@ -2166,8 +2292,6 @@ namespace vc
 				SelectObject( hDC_ADI, gdiDarkGrayPen );
 				Chord( hDC_ADI, -37, 95 - hP, 231, 95 + hP, 231, 95, -37, 95 );
 				Rectangle( hDC_ADI, 0, 95, 190, 190 );
-				SelectObject( hDC_ADI, gdiBlackPen );
-				Arc( hDC_ADI, -37, 95 - hP, 231, 95 + hP, 231, 95, -37, 95 );
 			}
 			else
 			{
@@ -2178,10 +2302,8 @@ namespace vc
 				SelectObject( hDC_ADI, gdiWhitePen );
 				Chord( hDC_ADI, -37, 95 - hP, 231, 95 + hP, -37, 95, 231, 95 );
 				Rectangle( hDC_ADI, 0, 0, 190, 95 );
-				SelectObject( hDC_ADI, gdiBlackPen );
-				Arc( hDC_ADI, -37, 95 - hP, 231, 95 + hP, -37, 95, 231, 95 );
 			}
-			hP = 89 + Round( 129.772414 * sinpitch );
+			hP = 93 + Round( 129.772414 * sinpitch );
 			TextOut( hDC_ADI, 60, hP, "0", 1 );
 			TextOut( hDC_ADI, 130, hP, "0", 1 );
 		}
@@ -2197,7 +2319,7 @@ namespace vc
 		}
 
 		// pitch lines/labels for +30º/+60º/+90º/+120º/+150º
-		SelectObject( hDC_ADI, gdiDarkGrayPen );
+		SelectObject( hDC_ADI, gdiBlackPen );
 		// +30º
 		if (fabs( pitch - 30 ) <= 45)
 		{
@@ -2323,20 +2445,20 @@ namespace vc
 		MoveToEx( hDC_ADI, 95, 0, NULL );
 		LineTo( hDC_ADI, 95, 190 );
 
-		SelectObject( hDC_ADI, gdiDarkGrayPen );
+		SelectObject( hDC_ADI, gdiBlackPen );
 		// yaw line 30º (above horizon)
 		MoveToEx( hDC_ADI, 163, 0, NULL );
-		LineTo( hDC_ADI, 163, 95 + Round( 116.349982 * sinpitch ) );
+		LineTo( hDC_ADI, 163, 97 + Round( 116.349982 * sinpitch ) );
 		// yaw line 330º (above horizon)
 		MoveToEx( hDC_ADI, 27, 0, NULL );
-		LineTo( hDC_ADI, 27, 95 + Round( 116.349982 * sinpitch ) );
+		LineTo( hDC_ADI, 27, 97 + Round( 116.349982 * sinpitch ) );
 		SelectObject( hDC_ADI, gdiWhitePen );
 		// yaw line 30º (below horizon)
 		MoveToEx( hDC_ADI, 163, 190, NULL );
-		LineTo( hDC_ADI, 163, 95 + Round( 116.349982 * sinpitch ) );
+		LineTo( hDC_ADI, 163, 97 + Round( 116.349982 * sinpitch ) );
 		// yaw line 330º (below horizon)
 		MoveToEx( hDC_ADI, 27, 190, NULL );
-		LineTo( hDC_ADI, 27, 95 + Round( 116.349982 * sinpitch ) );
+		LineTo( hDC_ADI, 27, 97 + Round( 116.349982 * sinpitch ) );
 
 		// TODO yaw labels
 
@@ -5049,7 +5171,7 @@ namespace vc
 		SetTextAlign( hDC, TA_LEFT );
 		return;
 	}
-	
+
 	void MDU::AEPFD_dAZ_HTA( oapi::Sketchpad2* skp, double MachNumber )
 	{
 		double dtmp;

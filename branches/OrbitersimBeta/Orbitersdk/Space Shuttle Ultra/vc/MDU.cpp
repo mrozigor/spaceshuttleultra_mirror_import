@@ -6,6 +6,98 @@
 
 namespace vc
 {
+	HBRUSH MDU::gdiBlackBrush = NULL;
+	HBRUSH MDU::gdiDarkGrayBrush;
+	HBRUSH MDU::gdiLightGrayBrush;
+	HBRUSH MDU::gdiWhiteBrush;
+	HBRUSH MDU::gdiRedBrush;
+	HBRUSH MDU::gdiYellowBrush;
+	HBRUSH MDU::gdiCyanBrush;
+	HBRUSH MDU::gdiMagentaBrush;
+	HBRUSH MDU::gdiLightGreenBrush;
+	HBRUSH MDU::gdiBlueBrush;
+
+	oapi::Brush* MDU::skpBlackBrush = NULL;
+	oapi::Brush* MDU::skpDarkGrayBrush;
+	oapi::Brush* MDU::skpLightGrayBrush;
+	oapi::Brush* MDU::skpWhiteBrush;
+	oapi::Brush* MDU::skpRedBrush;
+	oapi::Brush* MDU::skpYellowBrush;
+	oapi::Brush* MDU::skpCyanBrush;
+	oapi::Brush* MDU::skpMagentaBrush;
+	oapi::Brush* MDU::skpLightGreenBrush;
+	oapi::Brush* MDU::skpBlueBrush;
+	
+	HPEN MDU::gdiBlackPen;
+	HPEN MDU::gdiDarkGrayPen;
+	HPEN MDU::gdiLightGrayPen;
+	HPEN MDU::gdiLightGrayThickPen;
+	HPEN MDU::gdiWhitePen;
+	HPEN MDU::gdiRedPen;
+	HPEN MDU::gdiYellowPen;
+	HPEN MDU::gdiCyanPen;
+	HPEN MDU::gdiMagentaPen;
+	HPEN MDU::gdiLightGreenPen;
+	HPEN MDU::gdiDarkGreenPen;
+	HPEN MDU::gdiLightGreenThickPen;
+
+	oapi::Pen* MDU::skpBlackPen;
+	oapi::Pen* MDU::skpDarkGrayPen;
+	oapi::Pen* MDU::skpLightGrayThickPen;
+	oapi::Pen* MDU::skpLightGrayPen;
+	oapi::Pen* MDU::skpWhitePen;
+	oapi::Pen* MDU::skpRedPen;
+	oapi::Pen* MDU::skpYellowPen;
+	oapi::Pen* MDU::skpCyanPen;
+	oapi::Pen* MDU::skpMagentaPen;
+	oapi::Pen* MDU::skpLightGreenPen;
+	oapi::Pen* MDU::skpDarkGreenPen;
+	oapi::Pen* MDU::skpLightGreenThickPen;
+
+	HPEN MDU::gdiOverbrightPen;
+	HPEN MDU::gdiNormalPen;
+	HPEN MDU::gdiDashedNormalPen;
+
+	oapi::Pen* MDU::skpOverbrightPen;
+	oapi::Pen* MDU::skpNormalPen;
+	oapi::Pen* MDU::skpDashedNormalPen;
+
+	HFONT MDU::gdiSSUAFont_h20w17;
+	HFONT MDU::gdiSSUAFont_h10w10bold;
+	HFONT MDU::gdiSSUAFont_h11w9;
+	HFONT MDU::gdiSSUBFont_h18w9;
+	HFONT MDU::gdiSSUBFont_h12w7;
+	HFONT MDU::gdiSSUBFont_h16w9;
+
+	oapi::Font* MDU::skpSSUAFont_h20;
+	oapi::Font* MDU::skpSSUAFont_h10bold;
+	oapi::Font* MDU::skpSSUAFont_h11;
+	oapi::Font* MDU::skpSSUBFont_h18;
+	oapi::Font* MDU::skpSSUBFont_h12;
+	oapi::Font* MDU::skpSSUBFont_h16;
+
+	HDC MDU::hDC_Tape_MACHV = NULL;
+	HDC MDU::hDC_Tape_KEAS;
+	HDC MDU::hDC_Tape_Alpha;
+	HDC MDU::hDC_Tape_H;
+	HDC MDU::hDC_Tape_Hdot;
+	HDC MDU::hDC_ADIMASK = NULL;
+	HDC MDU::hDC_ADIMASK_ORBIT;
+
+	HBITMAP MDU::hBM_Tape_MACHV_tmp;
+	HBITMAP MDU::hBM_Tape_KEAS_tmp;
+	HBITMAP MDU::hBM_Tape_Alpha_tmp;
+	HBITMAP MDU::hBM_Tape_H_tmp;
+	HBITMAP MDU::hBM_Tape_Hdot_tmp;
+	HBITMAP MDU::hBM_ADIMASK_tmp;
+	HBITMAP MDU::hBM_ADIMASK_ORBIT_tmp;
+	
+	SURFHANDLE MDU::sfh_Tape_MACHV;
+	SURFHANDLE MDU::sfh_Tape_KEAS;
+	SURFHANDLE MDU::sfh_Tape_Alpha;
+	SURFHANDLE MDU::sfh_Tape_H;
+	SURFHANDLE MDU::sfh_Tape_Hdot;
+
 	MDU::MDU(Atlantis* _sts, const string& _ident, unsigned short _usMDUID, bool _bUseCRTMFD)
 		: AtlantisVCComponent(_sts, _ident), usMDUID(_usMDUID),
 		prim_idp(NULL), sec_idp(NULL), bUseSecondaryPort(false),
@@ -30,8 +122,8 @@ namespace vc
 
 		hADIball = gcLoadSketchMesh( "SSU\\ADI_MEDS" );
 
-		Tape_Create();
-		ADI_Create();
+		CreateTapes();
+		CreateADI();
 
 		display = 0;
 		menu = 3;
@@ -39,6 +131,9 @@ namespace vc
 
 	MDU::~MDU()
 	{
+		DestroyADI();
+		DestroyTapes();
+
 		DestroyGDIObjects();
 		DestroySketchpadObjects();
 
@@ -280,8 +375,10 @@ namespace vc
 					HDC hDC = skp->GetDC();
 					if (hDC)
 					{
+						int save = SaveDC( hDC );
 						DPS( hDC );
 						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
 					}
 				}
 				break;
@@ -296,8 +393,10 @@ namespace vc
 					HDC hDC = skp->GetDC();
 					if (hDC)
 					{
+						int save = SaveDC( hDC );
 						AEPFD( hDC );
 						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
 					}
 				}
 				break;
@@ -312,8 +411,10 @@ namespace vc
 					HDC hDC = skp->GetDC();
 					if (hDC)
 					{
+						int save = SaveDC( hDC );
 						ORBITPFD( hDC );
 						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
 					}
 				}
 				break;
@@ -328,8 +429,10 @@ namespace vc
 					HDC hDC = skp->GetDC();
 					if (hDC)
 					{
+						int save = SaveDC( hDC );
 						OMSMPS( hDC );
 						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
 					}
 				}
 				break;
@@ -344,8 +447,10 @@ namespace vc
 					HDC hDC = skp->GetDC();
 					if (hDC)
 					{
+						int save = SaveDC( hDC );
 						APUHYD( hDC );
 						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
 					}
 				}
 				break;
@@ -360,8 +465,10 @@ namespace vc
 					HDC hDC = skp->GetDC();
 					if (hDC)
 					{
+						int save = SaveDC( hDC );
 						SPI( hDC );
 						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
 					}
 				}
 				break;
@@ -376,8 +483,10 @@ namespace vc
 					HDC hDC = skp->GetDC();
 					if (hDC)
 					{
+						int save = SaveDC( hDC );
 						SystemStatusDisplay_CSTMenu( hDC );
 						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
 					}
 				}
 				break;
@@ -392,8 +501,10 @@ namespace vc
 					HDC hDC = skp->GetDC();
 					if (hDC)
 					{
+						int save = SaveDC( hDC );
 						SystemStatusDisplay_IDPInteractiveCST( hDC );
 						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
 					}
 				}
 				break;
@@ -1119,6 +1230,8 @@ namespace vc
 	
 	void MDU::CreateGDIObjects()
 	{
+		if (gdiBlackBrush) return;// already created
+
 		gdiBlackBrush = CreateSolidBrush( CR_BLACK );
 		gdiDarkGrayBrush = CreateSolidBrush( CR_DARK_GRAY );
 		gdiLightGrayBrush = CreateSolidBrush( CR_LIGHT_GRAY );
@@ -1160,6 +1273,8 @@ namespace vc
 
 	void MDU::DestroyGDIObjects()
 	{
+		if (!gdiBlackBrush) return;// already deleted
+
 		DeleteObject( gdiBlackBrush );
 		DeleteObject( gdiDarkGrayBrush );
 		DeleteObject( gdiLightGrayBrush );
@@ -1194,11 +1309,15 @@ namespace vc
 		DeleteObject( gdiSSUBFont_h18w9 );
 		DeleteObject( gdiSSUBFont_h12w7 );
 		DeleteObject( gdiSSUBFont_h16w9 );
+
+		gdiBlackBrush = NULL;
 		return;
 	}
 
 	void MDU::CreateSketchpadObjects()
 	{
+		if (skpBlackBrush) return;// already created
+
 		skpBlackBrush = oapiCreateBrush( CR_BLACK );
 		skpDarkGrayBrush = oapiCreateBrush( CR_DARK_GRAY );
 		skpLightGrayBrush = oapiCreateBrush( CR_LIGHT_GRAY );
@@ -1238,6 +1357,8 @@ namespace vc
 
 	void MDU::DestroySketchpadObjects()
 	{
+		if (!skpBlackBrush) return;// already deleted
+
 		oapiReleaseBrush( skpBlackBrush );
 		oapiReleaseBrush( skpDarkGrayBrush );
 		oapiReleaseBrush( skpLightGrayBrush );
@@ -1272,6 +1393,8 @@ namespace vc
 		oapiReleaseFont( skpSSUBFont_h18 );
 		oapiReleaseFont( skpSSUBFont_h12 );
 		oapiReleaseFont( skpSSUBFont_h16 );
+
+		skpBlackBrush = NULL;
 		return;
 	}
 };

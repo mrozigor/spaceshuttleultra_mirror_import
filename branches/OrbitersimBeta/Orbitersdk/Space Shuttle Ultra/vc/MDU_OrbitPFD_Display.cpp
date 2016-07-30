@@ -24,8 +24,6 @@ namespace vc
 		double attYaw = 0;//STS()->GetSlipAngle() * DEG;
 		//if (attYaw <= 0) attYaw += 360;
 
-		int save = SaveDC( hDC );
-
 		SelectObject( hDC, gdiSSUBFont_h12w7 );
 
 		ADI_STATIC_ORBIT( hDC );
@@ -36,8 +34,6 @@ namespace vc
 			ADI_ERROR_ORBIT( hDC, atterr.x, atterr.z, atterr.y, adierr );
 		}
 		else ADI_ORBIT( hDC, 129, 77, 14 );
-
-		RestoreDC( hDC, save );
 		return;
 	}
 
@@ -615,8 +611,6 @@ namespace vc
 				SelectObject( hDC_ADI_ORBIT, gdiDarkGrayPen );
 				Chord( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
 				Rectangle( hDC_ADI_ORBIT, 0, 112, 224, 224 );
-				SelectObject( hDC_ADI_ORBIT, gdiBlackPen );
-				Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, 268, 112, -44, 112 );
 			}
 			else
 			{
@@ -627,10 +621,8 @@ namespace vc
 				SelectObject( hDC_ADI_ORBIT, gdiWhitePen );
 				Chord( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, -44, 112, 268, 112 );
 				Rectangle( hDC_ADI_ORBIT, 0, 0, 224, 112 );
-				SelectObject( hDC_ADI_ORBIT, gdiBlackPen );
-				Arc( hDC_ADI_ORBIT, -44, 112 - hP, 268, 112 + hP, -44, 112, 268, 112 );
 			}
-			hP = 105 + Round( 150.262794 * sinpitch );
+			hP = 110 + Round( 150.262794 * sinpitch );
 			TextOut( hDC_ADI_ORBIT, 70, hP, "0", 1 );
 			TextOut( hDC_ADI_ORBIT, 150, hP, "0", 1 );
 		}
@@ -646,7 +638,7 @@ namespace vc
 		}
 		
 		// pitch lines/labels for +30º/+60º/+90º/+120º/+150º
-		SelectObject( hDC_ADI_ORBIT, gdiDarkGrayPen );
+		SelectObject( hDC_ADI_ORBIT, gdiBlackPen );
 		// +30º
 		if (fabs( pitch - 30 ) <= 45)
 		{
@@ -772,20 +764,20 @@ namespace vc
 		MoveToEx( hDC_ADI_ORBIT, 112, 0, NULL );
 		LineTo( hDC_ADI_ORBIT, 112, 222 );
 
-		SelectObject( hDC_ADI_ORBIT, gdiDarkGrayPen );
+		SelectObject( hDC_ADI_ORBIT, gdiBlackPen );
 		// yaw line 30º (above horizon)
 		MoveToEx( hDC_ADI_ORBIT, 190, 0, NULL );
-		LineTo( hDC_ADI_ORBIT, 190, 112 + Round( 134.721936 * sinpitch ) );
+		LineTo( hDC_ADI_ORBIT, 190, 114 + Round( 134.721936 * sinpitch ) );
 		// yaw line 330º (above horizon)
 		MoveToEx( hDC_ADI_ORBIT, 34, 0, NULL );
-		LineTo( hDC_ADI_ORBIT, 34, 112 + Round( 134.721936 * sinpitch ) );
+		LineTo( hDC_ADI_ORBIT, 34, 114 + Round( 134.721936 * sinpitch ) );
 		SelectObject( hDC_ADI_ORBIT, gdiWhitePen );
 		// yaw line 30º (below horizon)
 		MoveToEx( hDC_ADI_ORBIT, 190, 222, NULL );
-		LineTo( hDC_ADI_ORBIT, 190, 112 + Round( 134.721936 * sinpitch ) );
+		LineTo( hDC_ADI_ORBIT, 190, 114 + Round( 134.721936 * sinpitch ) );
 		// yaw line 330º (below horizon)
 		MoveToEx( hDC_ADI_ORBIT, 34, 222, NULL );
-		LineTo( hDC_ADI_ORBIT, 34, 112 + Round( 134.721936 * sinpitch ) );
+		LineTo( hDC_ADI_ORBIT, 34, 114 + Round( 134.721936 * sinpitch ) );
 
 		// TODO yaw labels
 
