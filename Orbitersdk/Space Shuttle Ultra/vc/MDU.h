@@ -139,96 +139,118 @@ namespace vc {
 		bool counting;
 
 		// MEDS pens and brushes
-		HBRUSH gdiBlackBrush;
-		HBRUSH gdiDarkGrayBrush;
-		HBRUSH gdiLightGrayBrush;
-		HBRUSH gdiWhiteBrush;
-		HBRUSH gdiRedBrush;
-		HBRUSH gdiYellowBrush;
-		HBRUSH gdiCyanBrush;
-		HBRUSH gdiMagentaBrush;
-		HBRUSH gdiLightGreenBrush;
-		HBRUSH gdiBlueBrush;
+		static HBRUSH gdiBlackBrush;
+		static HBRUSH gdiDarkGrayBrush;
+		static HBRUSH gdiLightGrayBrush;
+		static HBRUSH gdiWhiteBrush;
+		static HBRUSH gdiRedBrush;
+		static HBRUSH gdiYellowBrush;
+		static HBRUSH gdiCyanBrush;
+		static HBRUSH gdiMagentaBrush;
+		static HBRUSH gdiLightGreenBrush;
+		static HBRUSH gdiBlueBrush;
 
-		oapi::Brush* skpBlackBrush;
-		oapi::Brush* skpDarkGrayBrush;
-		oapi::Brush* skpLightGrayBrush;
-		oapi::Brush* skpWhiteBrush;
-		oapi::Brush* skpRedBrush;
-		oapi::Brush* skpYellowBrush;
-		oapi::Brush* skpCyanBrush;
-		oapi::Brush* skpMagentaBrush;
-		oapi::Brush* skpLightGreenBrush;
-		oapi::Brush* skpBlueBrush;
+		static oapi::Brush* skpBlackBrush;
+		static oapi::Brush* skpDarkGrayBrush;
+		static oapi::Brush* skpLightGrayBrush;
+		static oapi::Brush* skpWhiteBrush;
+		static oapi::Brush* skpRedBrush;
+		static oapi::Brush* skpYellowBrush;
+		static oapi::Brush* skpCyanBrush;
+		static oapi::Brush* skpMagentaBrush;
+		static oapi::Brush* skpLightGreenBrush;
+		static oapi::Brush* skpBlueBrush;
 		
-		HPEN gdiBlackPen;
-		HPEN gdiDarkGrayPen;
-		HPEN gdiLightGrayPen;
-		HPEN gdiLightGrayThickPen;
-		HPEN gdiWhitePen;
-		HPEN gdiRedPen;
-		HPEN gdiYellowPen;
-		HPEN gdiCyanPen;
-		HPEN gdiMagentaPen;
-		HPEN gdiLightGreenPen;
-		HPEN gdiDarkGreenPen;
-		HPEN gdiLightGreenThickPen;
+		static HPEN gdiBlackPen;
+		static HPEN gdiDarkGrayPen;
+		static HPEN gdiLightGrayPen;
+		static HPEN gdiLightGrayThickPen;
+		static HPEN gdiWhitePen;
+		static HPEN gdiRedPen;
+		static HPEN gdiYellowPen;
+		static HPEN gdiCyanPen;
+		static HPEN gdiMagentaPen;
+		static HPEN gdiLightGreenPen;
+		static HPEN gdiDarkGreenPen;
+		static HPEN gdiLightGreenThickPen;
 
-		oapi::Pen* skpBlackPen;
-		oapi::Pen* skpDarkGrayPen;
-		oapi::Pen* skpLightGrayThickPen;
-		oapi::Pen* skpLightGrayPen;
-		oapi::Pen* skpWhitePen;
-		oapi::Pen* skpRedPen;
-		oapi::Pen* skpYellowPen;
-		oapi::Pen* skpCyanPen;
-		oapi::Pen* skpMagentaPen;
-		oapi::Pen* skpLightGreenPen;
-		oapi::Pen* skpDarkGreenPen;
-		oapi::Pen* skpLightGreenThickPen;
+		static oapi::Pen* skpBlackPen;
+		static oapi::Pen* skpDarkGrayPen;
+		static oapi::Pen* skpLightGrayThickPen;
+		static oapi::Pen* skpLightGrayPen;
+		static oapi::Pen* skpWhitePen;
+		static oapi::Pen* skpRedPen;
+		static oapi::Pen* skpYellowPen;
+		static oapi::Pen* skpCyanPen;
+		static oapi::Pen* skpMagentaPen;
+		static oapi::Pen* skpLightGreenPen;
+		static oapi::Pen* skpDarkGreenPen;
+		static oapi::Pen* skpLightGreenThickPen;
 
 		// DPS pens
-		HPEN gdiOverbrightPen;
-		HPEN gdiNormalPen;
-		HPEN gdiDashedNormalPen;
+		static HPEN gdiOverbrightPen;
+		static HPEN gdiNormalPen;
+		static HPEN gdiDashedNormalPen;
 
-		oapi::Pen* skpOverbrightPen;
-		oapi::Pen* skpNormalPen;
-		oapi::Pen* skpDashedNormalPen;
+		static oapi::Pen* skpOverbrightPen;
+		static oapi::Pen* skpNormalPen;
+		static oapi::Pen* skpDashedNormalPen;
 
 		// fonts
-		HFONT gdiSSUAFont_h20w17;
-		HFONT gdiSSUAFont_h10w10bold;
-		HFONT gdiSSUAFont_h11w9;
-		HFONT gdiSSUBFont_h18w9;
-		HFONT gdiSSUBFont_h12w7;
-		HFONT gdiSSUBFont_h16w9;
+		static HFONT gdiSSUAFont_h20w17;
+		static HFONT gdiSSUAFont_h10w10bold;
+		static HFONT gdiSSUAFont_h11w9;
+		static HFONT gdiSSUBFont_h18w9;
+		static HFONT gdiSSUBFont_h12w7;
+		static HFONT gdiSSUBFont_h16w9;
 
-		oapi::Font* skpSSUAFont_h20;
-		oapi::Font* skpSSUAFont_h10bold;
-		oapi::Font* skpSSUAFont_h11;
-		oapi::Font* skpSSUBFont_h18;
-		oapi::Font* skpSSUBFont_h12;
-		oapi::Font* skpSSUBFont_h16;
+		static oapi::Font* skpSSUAFont_h20;
+		static oapi::Font* skpSSUAFont_h10bold;
+		static oapi::Font* skpSSUAFont_h11;
+		static oapi::Font* skpSSUBFont_h18;
+		static oapi::Font* skpSSUBFont_h12;
+		static oapi::Font* skpSSUBFont_h16;
 
 		void CreateGDIObjects();
 		void DestroyGDIObjects();
 		void CreateSketchpadObjects();
 		void DestroySketchpadObjects();
 
-		HDC hDC_Tapes;
-		HDC hDC_Tape_Alpha;
+		static HDC hDC_Tape_MACHV;
+		static HDC hDC_Tape_KEAS;
+		static HDC hDC_Tape_Alpha;
+		static HDC hDC_Tape_H;
+		static HDC hDC_Tape_Hdot;
 		HDC hDC_ADI;
 		HDC hDC_ADI_ORBIT;
-		HDC hDC_ADIMASK;
-		HDC hDC_ADIMASK_ORBIT;
+		static HDC hDC_ADIMASK;
+		static HDC hDC_ADIMASK_ORBIT;
 
-		SURFHANDLE sfh_Tape_Alpha;
+		static HBITMAP hBM_Tape_MACHV_tmp;
+		static HBITMAP hBM_Tape_KEAS_tmp;
+		static HBITMAP hBM_Tape_Alpha_tmp;
+		static HBITMAP hBM_Tape_H_tmp;
+		static HBITMAP hBM_Tape_Hdot_tmp;
+		HBITMAP hBM_ADI_tmp;
+		HBITMAP hBM_ADI_ORBIT_tmp;
+		static HBITMAP hBM_ADIMASK_tmp;
+		static HBITMAP hBM_ADIMASK_ORBIT_tmp;
+
+		int save_ADI;
+		int save_ADI_ORBIT;
+
+		static SURFHANDLE sfh_Tape_MACHV;
+		static SURFHANDLE sfh_Tape_KEAS;
+		static SURFHANDLE sfh_Tape_Alpha;
+		static SURFHANDLE sfh_Tape_H;
+		static SURFHANDLE sfh_Tape_Hdot;
 
 		SKETCHMESH hADIball;
 
-		void Tape_Create( void );
-		void ADI_Create( void );
+		void CreateTapes( void );
+		void DestroyTapes( void );
+		void CreateADI( void );
+		void DestroyADI( void );
 
 		/** 
 		 * Paints the DPS display.
@@ -258,10 +280,8 @@ namespace vc {
 		void Tape_Alpha( oapi::Sketchpad2* skp, double MachNumber );
 		void Tape_KEAS_MVR( HDC hDC, double MachNumber );
 		void Tape_KEAS_MVR( oapi::Sketchpad2* skp, double MachNumber );
-		void Tape_MVR_KEAS( HDC hDC, double MachNumber );
-		void Tape_MVR_KEAS( oapi::Sketchpad2* skp, double MachNumber );
-		void Tape_MVI_KEAS( HDC hDC, double MachNumber );
-		void Tape_MVI_KEAS( oapi::Sketchpad2* skp, double MachNumber );
+		void Tape_MV_KEAS( HDC hDC, char label, double vel );
+		void Tape_MV_KEAS( oapi::Sketchpad2* skp, char label, double vel );
 		void Tape_H_Hdot( HDC hDC, double Altitude_ft, double Hdot );
 		void Tape_H_Hdot( oapi::Sketchpad2* skp, double Altitude_ft, double Hdot );
 		void Tapes_Invalid( HDC hDC );

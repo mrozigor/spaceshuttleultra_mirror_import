@@ -8,7 +8,6 @@ namespace vc
 	void MDU::SystemStatusDisplay_CSTMenu( HDC hDC )
 	{
 		char cbuf[8];
-		int save = SaveDC( hDC );
 
 		SelectObject( hDC, gdiSSUAFont_h10w10bold );
 		SetTextColor( hDC, CR_WHITE );
@@ -1062,8 +1061,6 @@ namespace vc
 		MoveToEx( hDC, 266, 337, NULL );
 		LineTo( hDC, 347, 337 );
 		TextOut( hDC, 286, 276, "IDP4", 4 );
-
-		RestoreDC( hDC, save );
 		return;
 	}
 
@@ -2027,7 +2024,6 @@ namespace vc
 	void MDU::SystemStatusDisplay_IDPInteractiveCST( HDC hDC )
 	{
 		char cbuf[16];
-		int save = SaveDC( hDC );
 
 		SelectObject( hDC, gdiSSUAFont_h10w10bold );
 		SetTextColor( hDC, CR_WHITE );
@@ -3054,8 +3050,6 @@ namespace vc
 		TextOut( hDC, 266, 428, "KEYSTROKE:", 10 );
 		sprintf_s( cbuf, 16, "%s", "SYS SUMM" );// latest keyboard input
 		TextOut( hDC, 366, 428, cbuf, strlen( cbuf ) );
-
-		RestoreDC( hDC, save );
 		return;
 	}
 

@@ -11,7 +11,6 @@ namespace vc
 		double dNum;
 		char cbuf[16];
 
-		int save = SaveDC( hDC );
 		SetTextColor( hDC, CR_DARK_GREEN );
 		SelectObject( hDC, gdiSSUBFont_h18w9 );
 		SelectObject( hDC, gdiDarkGreenPen );
@@ -506,8 +505,6 @@ namespace vc
 			if (dNum < 45) dNum = 45;
 		}
 		Rectangle( hDC, 430, Round( 466.3895 - (1.4531 * dNum) ), 446, 401 );
-
-		RestoreDC( hDC, save );
 		return;
 	}
 
@@ -987,7 +984,6 @@ namespace vc
 		double dNum;
 		char cbuf[16];
 
-		int save = SaveDC( hDC );
 		SelectObject( hDC, gdiSSUBFont_h18w9 );
 		SelectObject( hDC, gdiDarkGreenPen );
 		SelectObject( hDC, gdiBlackBrush );
@@ -1281,8 +1277,6 @@ namespace vc
 			}
 			Rectangle( hDC, 316 + 54 * nPos, static_cast<int>(390 - 0.01325 * dNum), 331 + 54 * nPos, 390 );
 		}
-
-		RestoreDC( hDC, save );
 		return;
 	}
 
@@ -1560,7 +1554,6 @@ namespace vc
 		double dNum;
 		char cbuf[8];
 
-		int savedDC = SaveDC( hDC );
 		SelectObject( hDC, gdiSSUAFont_h10w10bold );
 		SelectObject( hDC, gdiDarkGreenPen );
 		SetTextColor( hDC, CR_DARK_GREEN );
@@ -1984,7 +1977,6 @@ namespace vc
 			case 901:
 				break;
 			default:
-				RestoreDC( hDC, savedDC );
 				return;
 		}
 
@@ -2084,8 +2076,6 @@ namespace vc
 		tri[2].x = nPos - 8;
 		tri[2].y = 319;
 		Polygon( hDC, tri, 3 );
-
-		RestoreDC( hDC, savedDC );
 		return;
 	}
 
