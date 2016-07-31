@@ -88,10 +88,10 @@ const double RMS_EXTEND_SPEED = 0.142857;
 const double SHOULDER_BRACE_SPEED = 0.11765;
 // shoulder brace speed (8.5 seconds)
 
-const VECTOR3 RMS_EE_CAM_POS = _V(-2.666, 0.0785, -7.45);
+const VECTOR3 RMS_EE_CAM_POS = _V(-2.6359, 0.0769995, -7.45687);
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
 const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.37968, 0.296129, -0.0332794);
-const VECTOR3 RMS_EE_LIGHT_POS = _V(-2.688, 0.226, -7.455);
+const VECTOR3 RMS_EE_LIGHT_POS = _V(-2.6359, 0.2296, -7.45687);
 
 const VECTOR3 RMS_Z_AXIS = _V(-0.136553381624, 0.99063271396, 0.0); // axis along which RMS EE camera & light are mounted
 const double RMS_Z_AXIS_ANGLE = acos(dotp(RMS_Z_AXIS, RotateVectorZ(_V(0, 1, 0), RMS_ROLLOUT_ANGLE))); // angle between RMS Z axis and Z axis of IK frame
