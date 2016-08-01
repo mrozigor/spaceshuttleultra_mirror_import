@@ -282,6 +282,7 @@
     <ClCompile Include="eps\ACMotor.cpp" />
     <ClCompile Include="eps\ACMotorController.cpp" />
     <ClCompile Include="eva_docking\TunnelAdapterAssembly.cpp" />
+    <ClCompile Include="gnc\RA.cpp" />
     <ClCompile Include="mps\ComputerInterfaceElectronics.cpp" />
     <ClCompile Include="mps\ComputerInterfaceElectronics_BLOCK_II.cpp" />
     <ClCompile Include="mps\DigitalComputerUnit.cpp" />
@@ -382,6 +383,7 @@
     <ClCompile Include="vc\PanelO17.cpp" />
     <ClCompile Include="vc\PanelO3.cpp" />
     <ClCompile Include="vc\PanelO6.cpp" />
+    <ClCompile Include="vc\PanelO8.cpp" />
     <ClCompile Include="vc\PanelR11.cpp" />
     <ClCompile Include="vc\PanelR13L.cpp" />
     <ClCompile Include="vc\PanelR2.cpp" />
@@ -437,6 +439,7 @@
     <ClInclude Include="dps\TransitionDAP.h" />
     <ClInclude Include="eva_docking\TunnelAdapterAssembly.h" />
     <ClInclude Include="gnc\AA.h" />
+    <ClInclude Include="gnc\RA.h" />
     <ClInclude Include="meshres_ExtAL.h" />
     <ClInclude Include="meshres_IUS_ASE.h" />
     <ClInclude Include="meshres_vc_l10.h" />
@@ -532,6 +535,7 @@
     <ClInclude Include="vc\PanelO17.h" />
     <ClInclude Include="vc\PanelO3.h" />
     <ClInclude Include="vc\PanelO6.h" />
+    <ClInclude Include="vc\PanelO8.h" />
     <ClInclude Include="vc\PanelR11.h" />
     <ClInclude Include="vc\PanelR13L.h" />
     <ClInclude Include="vc\PanelR2.h" />

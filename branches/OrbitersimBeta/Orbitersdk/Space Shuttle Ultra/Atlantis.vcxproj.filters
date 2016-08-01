@@ -485,6 +485,12 @@
     <ClCompile Include="vc\MDU_DPS_Display.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="vc\PanelO8.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="gnc\RA.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -941,6 +947,12 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="CRT.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelO8.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="gnc\RA.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

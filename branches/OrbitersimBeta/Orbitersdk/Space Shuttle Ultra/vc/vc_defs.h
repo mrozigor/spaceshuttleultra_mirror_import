@@ -162,6 +162,10 @@
 #define AID_O6_DS11	   361
 #define AID_O6_DS12	   362
 #define AID_O6_MAX	   362
+
+#define AID_O8_MIN	   380
+#define AID_O8		   380
+#define AID_O8_MAX	   390
 // Panel R2
 #define AID_R2_MIN     400
 #define AID_R2         400

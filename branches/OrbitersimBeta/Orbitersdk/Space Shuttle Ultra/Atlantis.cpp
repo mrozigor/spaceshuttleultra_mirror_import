@@ -61,6 +61,7 @@
 #include "vc/PanelF7.h"
 #include "vc/PanelF8.h"
 #include "vc/PanelO6.h"
+#include "vc/PanelO8.h"
 #include "vc/PanelO17.h"
 #include "vc/PanelA1U.h"
 #include "vc/PanelA2.h"
@@ -81,6 +82,7 @@
 #include "comm\DeployedAssembly.h"
 #include "comm\ElectronicsAssembly1.h"
 #include "comm\ElectronicsAssembly2.h"
+#include "gnc\RA.h"
 #include <UltraMath.h>
 #include <cassert>
 #include "gcAPI.h"
@@ -401,6 +403,7 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 	pgOverhead.AddPanel(new vc::PanelO3(this));
 	pgOverhead.AddPanel(new vc::PanelO6(this));
+	pgOverhead.AddPanel( new vc::PanelO8( this ) );
 
 	pgOverheadAft.AddPanel(new vc::PanelO17(this));
 
@@ -531,6 +534,9 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	psubsystems->AddSubsystem( new comm::GCIL( psubsystems ) );
 
 	psubsystems->AddSubsystem(pATVC = new gnc::ATVC(psubsystems, "ATVC", 1));// HACK should be 4 of this
+
+	psubsystems->AddSubsystem( new gnc::RadarAltimeter( psubsystems, "RA1", 1 ) );
+	psubsystems->AddSubsystem( new gnc::RadarAltimeter( psubsystems, "RA2", 2 ) );
 
 	psubsystems->AddSubsystem(pPayloadBay = new PayloadBay(psubsystems));
 
