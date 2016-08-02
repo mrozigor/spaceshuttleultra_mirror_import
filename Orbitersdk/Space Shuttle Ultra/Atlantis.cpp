@@ -2355,7 +2355,7 @@ void Atlantis::DefineAttachments(const VECTOR3& ofs0)
 
 void Atlantis::CreateETAndSRBAttachments(const VECTOR3 &ofs)
 {
-	ahET = CreateAttachment(false, ET_OFFSET + ofs, _V(0, 1, 0), _V(0, 0, 1), "SSU_ET");
+	ahET = CreateAttachment(false, ET_OFFSET + ofs, _V(0, 1, 0), _V(0, 0, 1) , "SSU_ET"); // DaveS note: DIR and ROT vectors should be V(0.0, 0.999997,  0.00261802), _V(0.0, 0.00261802, 0.999997) but this causes the ET to move during 2nd stage and I'm not sure what to do about that. It's most likely related to CG calcs.
 	ahLeftSRB = CreateAttachment(false, LSRB_OFFSET + ofs, _V(-1, 0, 0), _V(0, 0, 1), "SSU_SRB");
 	ahRightSRB = CreateAttachment(false, RSRB_OFFSET + ofs, _V(-1, 0, 0), _V(0, 0, 1), "SSU_SRB");
 	char pszBuf[255];
@@ -5277,9 +5277,10 @@ bool Atlantis::clbkLoadVC(int id)
 		break;
 	case VC_DOCKCAM: //Docking camera
 		DisplayCameraLabel(VC_LBL_DOCKCAM);
-		SetCameraOffset(_V(orbiter_ofs.x + 0.00175, orbiter_ofs.y - 1.03/*EXTERNAL_AIRLOCK_POS.y*/ + 1.15, orbiter_ofs.z + pMission->GetExternalAirlockZPos() - 0.3275));
+		SetCameraOffset(_V(orbiter_ofs.x, orbiter_ofs.y - 0.9/*EXTERNAL_AIRLOCK_POS.y*/ + 1.15, orbiter_ofs.z + pMission->GetExternalAirlockZPos() - 0.315));
 		SetCameraDefaultDirection(_V(0.0, 1.0, 0.0), PI);
 		SetCameraRotationRange(0, 0, 0, 0);
+		oapiCameraSetAperture(15*RAD);
 		oapiVCSetNeighbours(-1, -1, VC_PLBCAMFL, VC_AFTPILOT);
 
 		//HideMidDeck();
@@ -5290,7 +5291,7 @@ bool Atlantis::clbkLoadVC(int id)
 		DisplayCameraLabel(VC_LBL_AFTPILOT);
 		SetCameraOffset(VC_OFFSET + VC_POS_AFTPILOT + orbiter_ofs);
 		SetCameraDefaultDirection(VC_DIR_AFTPILOT);
-
+		oapiCameraSetAperture(20*RAD);
 		// Default camera rotarion
 		SetCameraRotationRange(144 * RAD, 144 * RAD, 95 * RAD, 72 * RAD);
 		SetCameraMovement(VC_OFSFWD_AFTPILOT, 0, 90.0*RAD,
@@ -5314,6 +5315,7 @@ bool Atlantis::clbkLoadVC(int id)
 		DisplayCameraLabel(VC_LBL_RMSSTATION);
 		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_RMSSTATION);
 		SetCameraDefaultDirection(VC_DIR_RMSSTATION);
+		oapiCameraSetAperture(20*RAD);
 		//SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
 
 		if (bHasODS) oapiVCSetNeighbours(VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);

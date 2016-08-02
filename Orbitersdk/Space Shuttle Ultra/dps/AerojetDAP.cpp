@@ -1009,6 +1009,20 @@ bool AerojetDAP::OnParseLine(const char* keyword, const char* value)
 		if(nTemp>=0 && nTemp<=FNLFL) TAEMGuidanceMode=static_cast<TAEM_GUIDANCE_MODE>(nTemp);
 		return true;
 	}
+	else if (!_strnicmp( keyword, "CLOSE_AIM_POINT", 15 ))
+	{
+		OGS_AIMPOINT = OGS_AIMPOINT_CLOSE;
+		X_AL_INTERCEPT = OGS_AIMPOINT + Y_AL_INTERCEPT/AL_GS;
+		HAC_CENTER_X = OGS_AIMPOINT - 33020.0/MPS2FPS;
+		return true;
+	}
+	else if (!_strnicmp( keyword, "SB_CONTROL_LOGIC", 16 ))
+	{
+		int nTemp;
+		sscanf_s( value, "%d", &nTemp );
+		if ((nTemp >= 0) && (nTemp <= ELS)) SBControlLogic = static_cast<SB_CONTROL_LOGIC>(nTemp);
+		return true;
+	}
 	return false;
 }
 
@@ -1021,6 +1035,8 @@ void AerojetDAP::OnSaveState(FILEHANDLE scn) const
 	if(performedFirstRollReversal) oapiWriteScenario_string(scn, "FIRST_RR", "TRUE");
 	oapiWriteScenario_int(scn, "ENTRY_GUIDANCE", static_cast<int>(EntryGuidanceMode));
 	oapiWriteScenario_int(scn, "TAEM_GUIDANCE", static_cast<int>(TAEMGuidanceMode));
+	if (OGS_AIMPOINT == OGS_AIMPOINT_CLOSE) oapiWriteScenario_string( scn, "CLOSE_AIM_POINT", "TRUE" );
+	oapiWriteScenario_int( scn, "SB_CONTROL_LOGIC", static_cast<int>(SBControlLogic) );
 }
 
 void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
