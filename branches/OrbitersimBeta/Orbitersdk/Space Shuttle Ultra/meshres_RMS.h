@@ -1,13 +1,13 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Mon May 16 19:22:16 2016
+// Date of conversion : Mon Aug 01 00:33:53 2016
 
 // Input file: RMS.msh
 // ======================================================
 
 #pragma once
 
-//const unsigned int NUMGRP = 12;
+const unsigned int NUMGRP_RMS = 12;
 
 const unsigned int GRP_ELBOW_BOOM	=	0;	//ELBOW_BOOM
 const unsigned int GRP_PANTILT_ELBOW_CAM	=	1;	//PANTILT_ELBOW_CAM
