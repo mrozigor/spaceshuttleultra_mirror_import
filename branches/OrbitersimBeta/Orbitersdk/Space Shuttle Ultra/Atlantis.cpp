@@ -976,14 +976,7 @@ void Atlantis::SetLaunchConfiguration(void)
 	SetTrimScale(0.05);
 	SetLiftCoeffFunc(0); // simplification: we assume no lift during launch phase
 
-	DWORD ntdvtx = 4;
-	static TOUCHDOWNVTX tdvtx[4] = {
-		{_V( 0, -10, -55.8 ), 1e5, 1e2, 0.5, 0.005},
-		{_V( -7, 7, -55.8 ), 1e5, 1e2, 0.5, 0.005},
-		{_V( 7, 7, -55.8 ), 1e5, 1e2, 0.5, 0.005},
-		{_V( 0, 0, 20 ), 1e5, 1e2, 0.5}
-	};
-	SetTouchdownPoints( tdvtx, ntdvtx );
+	DefineTouchdownPoints();
 	
 	SetGravityGradientDamping(0.05);
 	//SetEmptyMass(GetEmptyMass()+ 2*SRB_EMPTY_MASS);
@@ -2830,96 +2823,119 @@ void Atlantis::JettisonDragChute()
 
 void Atlantis::DefineTouchdownPoints()
 {
-	DWORD ntdvtx = 10;
-	static TOUCHDOWNVTX tdvtx[10];
-	// points do not necessarily represent EXACT locations in order to decrease total point count
-	// nose tip
-	tdvtx[3].pos = _V( 0, -2.0295, 18.6573 ) + orbiter_ofs;
-	tdvtx[3].stiffness = 1e8;
-	tdvtx[3].damping = 1e6;
-	tdvtx[3].mu = 1;
-	//tdvtx[3].mu_lng = 0;
-	// top of forward fuselage
-	tdvtx[4].pos = _V( 0, 2.0796, 12.0360 ) + orbiter_ofs;
-	tdvtx[4].stiffness = 1e8;
-	tdvtx[4].damping = 1e6;
-	tdvtx[4].mu = 1;
-	//tdvtx[4].mu_lng = 0;
-	// top of tail
-	tdvtx[5].pos = _V( 0, 10.3036, -17.4510 ) + orbiter_ofs;
-	tdvtx[5].stiffness = 1e8;
-	tdvtx[5].damping = 1e6;
-	tdvtx[5].mu = 1;
-	//tdvtx[5].mu_lng = 0;
-	// BF LH tip
-	tdvtx[6].pos = _V( -2.7904, -3.3344, -16.7121 ) + orbiter_ofs;
-	tdvtx[6].stiffness = 1e8;
-	tdvtx[6].damping = 1e6;
-	tdvtx[6].mu = 1;
-	//tdvtx[6].mu_lng = 0;
-	// BF RH tip
-	tdvtx[7].pos = _V( 2.7904, -3.3344, -16.7121 ) + orbiter_ofs;
-	tdvtx[7].stiffness = 1e8;
-	tdvtx[7].damping = 1e6;
-	tdvtx[7].mu = 1;
-	//tdvtx[7].mu_lng = 0;
-	// LH wing tip
-	tdvtx[8].pos = _V( -12.3260, -2.7311, -10.5948 ) + orbiter_ofs;
-	tdvtx[8].stiffness = 1e8;
-	tdvtx[8].damping = 1e6;
-	tdvtx[8].mu = 1;
-	//tdvtx[8].mu_lng = 0;
-	// RH wing tip
-	tdvtx[9].pos = _V( 12.3260, -2.7311, -10.5948 ) + orbiter_ofs;
-	tdvtx[9].stiffness = 1e8;
-	tdvtx[9].damping = 1e6;
-	tdvtx[9].mu = 1;
-	//tdvtx[9].mu_lng = 0;
+	switch (status)
+	{
+		//case STATE_PRELAUNCH:// set in first call to clbkPreStep() with exact pad/MLP elevation
+		case STATE_STAGE1:
+		case STATE_STAGE2:
+			 {
+				DWORD ntdvtx = 4;
+				static TOUCHDOWNVTX tdvtx[4] = {
+					{_V( 0, -10, -55.8 ), 1e5, 1e2, 0.5, 0.005},
+					{_V( -7, 7, -55.8 ), 1e5, 1e2, 0.5, 0.005},
+					{_V( 7, 7, -55.8 ), 1e5, 1e2, 0.5, 0.005},
+					{_V( 0, 0, 20 ), 1e5, 1e2, 0.5}
+				};
+				SetTouchdownPoints( tdvtx, ntdvtx );
+			 }
+			break;
+		case STATE_ORBITER:
+			{
+				DWORD ntdvtx = 10;
+				static TOUCHDOWNVTX tdvtx[10];
+				// points do not necessarily represent EXACT locations in order to decrease total point count
+				// nose tip
+				tdvtx[3].pos = _V( 0, -2.0295, 18.6573 ) + orbiter_ofs;
+				tdvtx[3].stiffness = 1e8;
+				tdvtx[3].damping = 1e6;
+				tdvtx[3].mu = 1;
+				//tdvtx[3].mu_lng = 0;
+				// top of forward fuselage
+				tdvtx[4].pos = _V( 0, 2.0796, 12.0360 ) + orbiter_ofs;
+				tdvtx[4].stiffness = 1e8;
+				tdvtx[4].damping = 1e6;
+				tdvtx[4].mu = 1;
+				//tdvtx[4].mu_lng = 0;
+				// top of tail
+				tdvtx[5].pos = _V( 0, 10.3036, -17.4510 ) + orbiter_ofs;
+				tdvtx[5].stiffness = 1e8;
+				tdvtx[5].damping = 1e6;
+				tdvtx[5].mu = 1;
+				//tdvtx[5].mu_lng = 0;
+				// BF LH tip
+				tdvtx[6].pos = _V( -2.7904, -3.3344, -16.7121 ) + orbiter_ofs;
+				tdvtx[6].stiffness = 1e8;
+				tdvtx[6].damping = 1e6;
+				tdvtx[6].mu = 1;
+				//tdvtx[6].mu_lng = 0;
+				// BF RH tip
+				tdvtx[7].pos = _V( 2.7904, -3.3344, -16.7121 ) + orbiter_ofs;
+				tdvtx[7].stiffness = 1e8;
+				tdvtx[7].damping = 1e6;
+				tdvtx[7].mu = 1;
+				//tdvtx[7].mu_lng = 0;
+				// LH wing tip
+				tdvtx[8].pos = _V( -12.3260, -2.7311, -10.5948 ) + orbiter_ofs;
+				tdvtx[8].stiffness = 1e8;
+				tdvtx[8].damping = 1e6;
+				tdvtx[8].mu = 1;
+				//tdvtx[8].mu_lng = 0;
+				// RH wing tip
+				tdvtx[9].pos = _V( 12.3260, -2.7311, -10.5948 ) + orbiter_ofs;
+				tdvtx[9].stiffness = 1e8;
+				tdvtx[9].damping = 1e6;
+				tdvtx[9].mu = 1;
+				//tdvtx[9].mu_lng = 0;
 
-	if (gear_status.action == AnimState::OPEN)
-	{// gear fully deployed
-		// NLG (open)
-		tdvtx[0].pos = _V( 0, -5.142, 14.897 ) + orbiter_ofs;
-		tdvtx[0].stiffness = 1e8;
-		tdvtx[0].damping = 1e6;
-		tdvtx[0].mu = 2;
-		tdvtx[0].mu_lng = 0.0175;
-		// LH MLG (open)
-		tdvtx[1].pos = _V( -4.027, -6.607, -5.3 ) + orbiter_ofs;
-		tdvtx[1].stiffness = 1e8;
-		tdvtx[1].damping = 1e5;
-		tdvtx[1].mu = 2;
-		tdvtx[1].mu_lng = 0.0175;
-		// RH MLG (open)
-		tdvtx[2].pos = _V( 4.027, -6.607, -5.3 ) + orbiter_ofs;
-		tdvtx[2].stiffness = 1e8;
-		tdvtx[2].damping = 1e5;
-		tdvtx[2].mu = 2;
-		tdvtx[2].mu_lng = 0.0175;
-	}
-	else
-	{// belly landing
-		// NLG area (closed)
-		tdvtx[0].pos = _V( 0, -3.3878, 14.6771 ) + orbiter_ofs;
-		tdvtx[0].stiffness = 1e8;
-		tdvtx[0].damping = 1e6;
-		tdvtx[0].mu = 1;
-		tdvtx[0].mu_lng = 1;
-		// LH MLG area (closed)
-		tdvtx[1].pos = _V( -2.6445, -3.8329, -3.8605 ) + orbiter_ofs;
-		tdvtx[1].stiffness = 1e8;
-		tdvtx[1].damping = 1e6;
-		tdvtx[1].mu = 1;
-		tdvtx[1].mu_lng = 1;
-		// RH MLG area (closed)
-		tdvtx[2].pos = _V( 2.6445, -3.8329, -3.8605 ) + orbiter_ofs;
-		tdvtx[2].stiffness = 1e8;
-		tdvtx[2].damping = 1e6;
-		tdvtx[2].mu = 1;
-		tdvtx[2].mu_lng = 1;
+				if (gear_status.action == AnimState::OPEN)
+				{// gear fully deployed
+					// NLG (open)
+					tdvtx[0].pos = _V( 0, -5.142, 14.897 ) + orbiter_ofs;
+					tdvtx[0].stiffness = 1e8;
+					tdvtx[0].damping = 1e6;
+					tdvtx[0].mu = 2;
+					tdvtx[0].mu_lng = 0.0175;
+					// LH MLG (open)
+					tdvtx[1].pos = _V( -4.027, -6.607, -5.3 ) + orbiter_ofs;
+					tdvtx[1].stiffness = 1e8;
+					tdvtx[1].damping = 1e5;
+					tdvtx[1].mu = 2;
+					tdvtx[1].mu_lng = 0.0175;
+					// RH MLG (open)
+					tdvtx[2].pos = _V( 4.027, -6.607, -5.3 ) + orbiter_ofs;
+					tdvtx[2].stiffness = 1e8;
+					tdvtx[2].damping = 1e5;
+					tdvtx[2].mu = 2;
+					tdvtx[2].mu_lng = 0.0175;
+				}
+				else
+				{// belly landing
+					// NLG area (closed)
+					tdvtx[0].pos = _V( 0, -3.3878, 14.6771 ) + orbiter_ofs;
+					tdvtx[0].stiffness = 1e8;
+					tdvtx[0].damping = 1e6;
+					tdvtx[0].mu = 1;
+					tdvtx[0].mu_lng = 1;
+					// LH MLG area (closed)
+					tdvtx[1].pos = _V( -2.6445, -3.8329, -3.8605 ) + orbiter_ofs;
+					tdvtx[1].stiffness = 1e8;
+					tdvtx[1].damping = 1e6;
+					tdvtx[1].mu = 1;
+					tdvtx[1].mu_lng = 1;
+					// RH MLG area (closed)
+					tdvtx[2].pos = _V( 2.6445, -3.8329, -3.8605 ) + orbiter_ofs;
+					tdvtx[2].stiffness = 1e8;
+					tdvtx[2].damping = 1e6;
+					tdvtx[2].mu = 1;
+					tdvtx[2].mu_lng = 1;
+				}
+
+				SetTouchdownPoints( tdvtx, ntdvtx );
+			}
+			break;
 	}
 
-	SetTouchdownPoints( tdvtx, ntdvtx );
+	return;
 }
 
 void Atlantis::ClearMeshes()
