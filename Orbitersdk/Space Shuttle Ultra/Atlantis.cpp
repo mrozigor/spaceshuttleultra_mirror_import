@@ -5092,9 +5092,6 @@ bool Atlantis::clbkLoadVC(int id)
 	SetClipRadius(0.0);
 
 	// VC Cockpit not visible from Payload cameras or RMS camera.
-	// 080415, DaveS edit: Fixed VC being seen from the BR PLB camera. Original line below in comment
-	// Original line: if ((id > VC_PLBCAMFL && id < VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
-	//if ((id == VC_PLBCAMBL || id == VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
 	if (id >= VC_DOCKCAM && id <= VC_LEECAM) {
 		// for PLBD/RMS camera views, show hid internal VC mesh and show cockpit mesh meant to be seen in external views
 		SetMeshVisibilityMode(mesh_vc, MESHVIS_NEVER);
@@ -5110,386 +5107,299 @@ bool Atlantis::clbkLoadVC(int id)
 		if (id != VC_RMSCAM) pRMS->SetElbowCamView(false);
 	}
 
-	switch (id) {
-	case VC_CDR: // commander position
-		DisplayCameraLabel(VC_LBL_CDR);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_CDR);
-		SetCameraDefaultDirection(_V(0, 0, 1));
-		SetCameraMovement(_V(0, 0, 0.3), 0, 0, _V(-0.3, 0, 0), 75 * RAD, -5 * RAD, _V(0.3, 0, 0), -20 * RAD, -27 * RAD);
-		huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_CDR;
+	switch (id)
+	{
+		case VC_CDR: // commander position
+			DisplayCameraLabel( VC_LBL_CDR );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_CDR );
+			SetCameraDefaultDirection( VC_DIR_CDR );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 100 * RAD, 50 * RAD );
+			SetCameraMovement( VC_OFS_CDR_F, VC_AZ_CDR_F, VC_EL_CDR_F, VC_OFS_CDR_L, VC_AZ_CDR_L, VC_EL_CDR_L, VC_OFS_CDR_R, VC_AZ_CDR_R, VC_EL_CDR_R );
 
-		if (bHasODS) oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_DOCKCAM, VC_MS2);
-		else oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_PLBCAMFL, VC_MS2);
+			if (bHasODS) oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_DOCKCAM, VC_MS2);
+			else oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_PLBCAMFL, VC_MS2);
 
-		// Default camera rotarion
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 100 * RAD, 50 * RAD);
+			huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_CDR;
 
-		//HideMidDeck();
+			pgCenter.RegisterVC();
+			pgForward.RegisterVC();
+			pgLeft.RegisterVC();
+			pgOverhead.RegisterVC();
 
-		pgCenter.RegisterVC();
-		pgForward.RegisterVC();
-		pgLeft.RegisterVC();
-		pgOverhead.RegisterVC();
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_PLT: // pilot position
+			DisplayCameraLabel( VC_LBL_PLT );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_PLT );
+			SetCameraDefaultDirection( VC_DIR_PLT );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 100 * RAD, 75 * RAD );
+			SetCameraMovement( VC_OFS_PLT_F, VC_AZ_PLT_F, VC_EL_PLT_F, VC_OFS_PLT_L, VC_AZ_PLT_L, VC_EL_PLT_L, VC_OFS_PLT_R, VC_AZ_PLT_R, VC_EL_PLT_R );
 
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_PLT: // pilot position
-		DisplayCameraLabel(VC_LBL_PLT);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_PLT);
-		SetCameraDefaultDirection(_V(0, 0, 1));
-		SetCameraMovement(_V(0, 0, 0.3), 0, 0,		//Upwards/forward
-			_V(-0.3, 0, 0), 20 * RAD, -27 * RAD,			//To the left
-			_V(0.2, -0.1, 0.25), -90 * RAD, -72 * RAD);	//To the right
-		huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_PLT;
+			if (bHasODS) oapiVCSetNeighbours( VC_CDR, VC_PANELR4, VC_DOCKCAM, VC_MS1 );
+			else oapiVCSetNeighbours( VC_CDR, VC_PANELR4, VC_PLBCAMFR, VC_MS1 );
 
-		if (bHasODS) oapiVCSetNeighbours(VC_CDR, VC_PANELR4, VC_DOCKCAM, VC_MS1);
-		else oapiVCSetNeighbours(VC_CDR, VC_PANELR4, VC_PLBCAMFR, VC_MS1);
+			huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_PLT;
 
-		// Default camera rotarion
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 100 * RAD, 75 * RAD);
+			pgCenter.RegisterVC();
+			pgForward.RegisterVC();
+			pgRight.RegisterVC();
+			pgOverhead.RegisterVC();
 
-		//HideMidDeck();
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_PANELR4:
+			DisplayCameraLabel( VC_LBL_PANELR4 );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_PANELR4 );
+			SetCameraDefaultDirection( VC_DIR_PANELR4, VC_TILT_PANELR4 );
+			SetCameraRotationRange( 30 * RAD, 30 * RAD, 20 * RAD, 40 * RAD );
+			SetCameraMovement( VC_OFS_PANELR4_F, VC_AZ_PANELR4_F, VC_EL_PANELR4_F, VC_OFS_PANELR4_L, VC_AZ_PANELR4_L, VC_EL_PANELR4_L, VC_OFS_PANELR4_R, VC_AZ_PANELR4_R, VC_EL_PANELR4_R );
 
-		pgCenter.RegisterVC();
-		pgForward.RegisterVC();
-		pgRight.RegisterVC();
-		pgOverhead.RegisterVC();
+			if (bHasODS) oapiVCSetNeighbours( VC_PLT, VC_STBDSTATION, VC_DOCKCAM, VC_MS1 );
+			else oapiVCSetNeighbours( VC_PLT, VC_STBDSTATION, VC_PLBCAMFR, VC_MS1 );
 
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_PANELR4:
-		DisplayCameraLabel(VC_LBL_PANELR4);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_PANELR4);
-		SetCameraDefaultDirection(_V(0, -sin(15 * RAD), -cos(15 * RAD)), 90.0*RAD);
-		SetCameraMovement(_V(0, 0, 0.3), 0, 0,		//Upwards/forward
-			_V(-0.3, 0, 0), 20 * RAD, -27 * RAD,			//To the left
-			_V(0.2, -0.1, 0.25), -90 * RAD, -72 * RAD);	//To the right
+			pgCenter.RegisterVC();
+			pgForward.RegisterVC();
+			pgRight.RegisterVC();
+			pgOverhead.RegisterVC();
 
-		if (bHasODS) oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_DOCKCAM, VC_MS1);
-		else oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_PLBCAMFR, VC_MS1);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_PANELL4:
+			DisplayCameraLabel( VC_LBL_PANELL4 );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_PANELL4 );
+			SetCameraDefaultDirection( VC_DIR_PANELL4, VC_TILT_PANELL4 );
+			SetCameraRotationRange( 30 * RAD, 30 * RAD, 20 * RAD, 40 * RAD );
+			SetCameraMovement( VC_OFS_PANELL4_F, VC_AZ_PANELL4_F, VC_EL_PANELL4_F, VC_OFS_PANELL4_L, VC_AZ_PANELL4_L, VC_EL_PANELL4_L, VC_OFS_PANELL4_R, VC_AZ_PANELL4_R, VC_EL_PANELL4_R );
 
-		// Default camera rotarion
-		SetCameraRotationRange(30 * RAD, 30 * RAD, 20 * RAD, 40 * RAD);
+			if (bHasODS) oapiVCSetNeighbours( VC_PORTSTATION, VC_CDR, VC_DOCKCAM, VC_MS2 );
+			else oapiVCSetNeighbours( VC_PORTSTATION, VC_CDR, VC_PLBCAMFR, VC_MS2 );
 
-		//HideMidDeck();
+			pgCenter.RegisterVC();
+			pgForward.RegisterVC();
+			pgLeft.RegisterVC();
+			pgOverhead.RegisterVC();
 
-		pgCenter.RegisterVC();
-		pgForward.RegisterVC();
-		pgRight.RegisterVC();
-		pgOverhead.RegisterVC();
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_STBDSTATION:
+			DisplayCameraLabel( VC_LBL_STBDSTATION );
+			SetCameraOffset( VC_OFFSET + VC_POS_STBDSTATION + orbiter_ofs );
+			SetCameraDefaultDirection( VC_DIR_STBDSTATION );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_STBDSTATION_F, VC_AZ_STBDSTATION_F, VC_EL_STBDSTATION_F, VC_OFS_STBDSTATION_L, VC_AZ_STBDSTATION_L, VC_EL_STBDSTATION_L, VC_OFS_STBDSTATION_R, VC_AZ_STBDSTATION_R, VC_EL_STBDSTATION_R );
 
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_PANELL4:
-		DisplayCameraLabel(VC_LBL_PANELL4);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_PANELL4);
-		SetCameraDefaultDirection(_V(0, 0, -1), -90.0*RAD);
-		SetCameraMovement(_V(0, 0, 0.3), 0, 0,		//Upwards/forward
-			_V(-0.3, 0, 0), 20 * RAD, -27 * RAD,			//To the left
-			_V(0.2, -0.1, 0.25), -90 * RAD, -72 * RAD);	//To the right
+			if (bHasODS) oapiVCSetNeighbours( VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_AFTWORKSTATION );
+			else oapiVCSetNeighbours( VC_PLT, VC_AFTPILOT, VC_PLBCAMFR, VC_AFTWORKSTATION );
 
-		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_DOCKCAM, VC_MS2);
-		else oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_PLBCAMFR, VC_MS2);
+			pgOverheadAft.RegisterVC();
+			pgAftStbd.RegisterVC();
+			pgAft.RegisterVC();
 
-		// Default camera rotarion
-		SetCameraRotationRange(30 * RAD, 30 * RAD, 20 * RAD, 40 * RAD);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_LEECAM: //RMS End Effector Camera
+			if (pRMS) {
+				DisplayCameraLabel( VC_LBL_LEECAM );
+				pRMS->SetEECameraView( true );
+				oapiVCSetNeighbours( VC_RMSCAM, -1, -1, VC_RMSSTATION );
 
-		//HideMidDeck();
-
-		pgCenter.RegisterVC();
-		pgForward.RegisterVC();
-		pgLeft.RegisterVC();
-		pgOverhead.RegisterVC();
-
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_STBDSTATION:
-		DisplayCameraLabel(VC_LBL_STBDSTATION);
-		SetCameraOffset(VC_OFFSET + VC_POS_STBDSTATION + orbiter_ofs);
-		SetCameraDefaultDirection(VC_DIR_STBDSTATION);
-		SetCameraMovement( _V( 0.3, 0, 0 ), 0, -30.0 * RAD, _V( 0.3, 0, 0.2 ), 15.0 * RAD, -30.0 * RAD, _V( 0.3, 0, -0.2 ), -25.0 * RAD, -30.0 * RAD );
-
-		// Outside cameras neighbours
-		if (bHasODS) oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_AFTWORKSTATION);
-		else oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_PLBCAMFR, VC_AFTWORKSTATION);
-
-		// Default camera rotarion
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-
-		//HideMidDeck();
-
-		//pgOverhead.RegisterVC();
-		pgOverheadAft.RegisterVC();
-		pgAftStbd.RegisterVC();
-		pgAft.RegisterVC();
-
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_LEECAM: //RMS End Effector Camera
-		if (pRMS) {
-			DisplayCameraLabel(VC_LBL_LEECAM);
+				ok = true;
+			}
+			else ok = false;
+			break;
+		case VC_RMSCAM:
+			if (pRMS) {
+				DisplayCameraLabel( VC_LBL_ELBOWCAM );
+				pRMS->SetElbowCamView( true );
+				oapiVCSetNeighbours( -1, VC_LEECAM, -1, VC_RMSSTATION );
+				ok = true;
+			}
+			else ok = false;
+			break;
+		case VC_PLBCAMFL: //FL Payload Bay Camera
+			DisplayCameraLabel( VC_LBL_PLBCAMFL );
+			if (bHasODS) oapiVCSetNeighbours( VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM );
+			else if (pRMS) oapiVCSetNeighbours( VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_RMSSTATION );
+			else oapiVCSetNeighbours( VC_PLBCAMFR, VC_PLBCAMBL, -1, VC_RMSSTATION );
 			
-			pRMS->SetEECameraView(true);
-			oapiVCSetNeighbours(VC_RMSCAM, -1, -1, VC_RMSSTATION);
-
-			//HideMidDeck();
+			ok = true;
+			break;
+		case VC_PLBCAMFR: //FR Payload Bay Camera
+			DisplayCameraLabel( VC_LBL_PLBCAMFR );
+			if (bHasODS) oapiVCSetNeighbours( VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM );
+			else if (pRMS) oapiVCSetNeighbours( VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_AFTPILOT );
+			else oapiVCSetNeighbours( VC_PLBCAMBR, VC_PLBCAMFL, -1, VC_AFTPILOT );
 
 			ok = true;
-		}
-		else ok = false;
-		break;
-	case VC_RMSCAM:
-		if (pRMS) {
-			DisplayCameraLabel(VC_LBL_ELBOWCAM);
-			pRMS->SetElbowCamView(true);
+			break;
+		case VC_PLBCAMBL: //BL Payload Bay Camera
+			DisplayCameraLabel( VC_LBL_PLBCAMBL );
+			if (bHasODS) oapiVCSetNeighbours( VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM );
+			else if (pRMS) oapiVCSetNeighbours( VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_RMSSTATION );
+			else oapiVCSetNeighbours( VC_PLBCAMFL, VC_PLBCAMBR, -1, VC_RMSSTATION );
 
-			oapiVCSetNeighbours(-1, VC_LEECAM, -1, VC_RMSSTATION);
-			//HideMidDeck();
 			ok = true;
-		}
-		else ok = false;
-		break;
-	case VC_PLBCAMFL: //FL Payload Bay Camera
-		DisplayCameraLabel(VC_LBL_PLBCAMFL);
-		if (bHasODS) oapiVCSetNeighbours(VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM);
-		else if (pRMS) oapiVCSetNeighbours(VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_RMSSTATION);
-		else oapiVCSetNeighbours(VC_PLBCAMFR, VC_PLBCAMBL, -1, VC_RMSSTATION);
+			break;
+		case VC_PLBCAMBR: //BR Payload Bay Camera
+			DisplayCameraLabel( VC_LBL_PLBCAMBR );
+			if (bHasODS) oapiVCSetNeighbours( VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM );
+			else if (pRMS) oapiVCSetNeighbours( VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_AFTPILOT );
+			else oapiVCSetNeighbours( VC_PLBCAMBL, VC_PLBCAMFR, -1, VC_AFTPILOT );
 
-		//HideMidDeck();
+			ok = true;
+			break;
+		case VC_DOCKCAM: //Docking camera
+			DisplayCameraLabel( VC_LBL_DOCKCAM );
+			SetCameraOffset( _V( orbiter_ofs.x, orbiter_ofs.y - 0.9/*EXTERNAL_AIRLOCK_POS.y*/ + 1.15, orbiter_ofs.z + pMission->GetExternalAirlockZPos() - 0.315 ) );
+			SetCameraDefaultDirection( _V( 0.0, 1.0, 0.0 ), PI );
+			oapiCameraSetAperture( 15 * RAD );
+			SetCameraRotationRange( 0, 0, 0, 0 );
+			oapiVCSetNeighbours( -1, -1, VC_PLBCAMFL, VC_AFTPILOT );
 
-		ok = true;
+			ok = true;
+			break;
+		case VC_AFTPILOT: //Aft Flight Deck
+			DisplayCameraLabel( VC_LBL_AFTPILOT );
+			SetCameraOffset( VC_OFFSET + VC_POS_AFTPILOT + orbiter_ofs );
+			SetCameraDefaultDirection( VC_DIR_AFTPILOT );
+			oapiCameraSetAperture( 20 * RAD );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 95 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_AFTPILOT_F, VC_AZ_AFTPILOT_F, VC_EL_AFTPILOT_F, VC_OFS_AFTPILOT_L, VC_AZ_AFTPILOT_L, VC_EL_AFTPILOT_L, VC_OFS_AFTPILOT_R, VC_AZ_AFTPILOT_R, VC_EL_AFTPILOT_R );
+			
+			if (bHasODS) oapiVCSetNeighbours( VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION );
+			oapiVCSetNeighbours( VC_STBDSTATION, VC_RMSSTATION, VC_PLBCAMFR, VC_AFTWORKSTATION );
 
-		break;
-	case VC_PLBCAMFR: //FR Payload Bay Camera
-		DisplayCameraLabel(VC_LBL_PLBCAMFR);
-		if (bHasODS) oapiVCSetNeighbours(VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
-		else if (pRMS) oapiVCSetNeighbours(VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_AFTPILOT);
-		else oapiVCSetNeighbours(VC_PLBCAMBR, VC_PLBCAMFL, -1, VC_AFTPILOT);
+			pgAftStbd.RegisterVC();
+			pgAft.RegisterVC();
+			pgAftPort.RegisterVC();
 
-		//HideMidDeck();
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_RMSSTATION:
+			DisplayCameraLabel( VC_LBL_RMSSTATION );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_RMSSTATION );
+			SetCameraDefaultDirection( VC_DIR_RMSSTATION );
+			oapiCameraSetAperture( 20 * RAD );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_RMSSTATION_F, VC_AZ_RMSSTATION_F, VC_EL_RMSSTATION_F, VC_OFS_RMSSTATION_L, VC_AZ_RMSSTATION_L, VC_EL_RMSSTATION_L, VC_OFS_RMSSTATION_R, VC_AZ_RMSSTATION_R, VC_EL_RMSSTATION_R );
 
-		ok = true;
-		break;
-	case VC_PLBCAMBL: //BL Payload Bay Camera
-		DisplayCameraLabel(VC_LBL_PLBCAMBL);
-		if (bHasODS) oapiVCSetNeighbours(VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
-		else if (pRMS) oapiVCSetNeighbours(VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_RMSSTATION);
-		else oapiVCSetNeighbours(VC_PLBCAMFL, VC_PLBCAMBR, -1, VC_RMSSTATION);
+			if (bHasODS) oapiVCSetNeighbours( VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION );
+			else oapiVCSetNeighbours( VC_AFTPILOT, VC_PORTSTATION, VC_PLBCAMFL, VC_AFTWORKSTATION );
 
-		//HideMidDeck();
+			pgAft.RegisterVC();
+			pgAftStbd.RegisterVC();
+			pgAftPort.RegisterVC();
 
-		ok = true;
-		break;
-	case VC_PLBCAMBR: //BR Payload Bay Camera
-		DisplayCameraLabel(VC_LBL_PLBCAMBR);
-		if (bHasODS) oapiVCSetNeighbours(VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
-		else if (pRMS) oapiVCSetNeighbours(VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_AFTPILOT);
-		else oapiVCSetNeighbours(VC_PLBCAMBL, VC_PLBCAMFR, -1, VC_AFTPILOT);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_PORTSTATION:
+			DisplayCameraLabel( VC_LBL_PORTSTATION );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_PORTSTATION );
+			SetCameraDefaultDirection( VC_DIR_PORTSTATION );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_PORTSTATION_F, VC_AZ_PORTSTATION_F, VC_EL_PORTSTATION_F, VC_OFS_PORTSTATION_L, VC_AZ_PORTSTATION_L, VC_EL_PORTSTATION_L, VC_OFS_PORTSTATION_R, VC_AZ_PORTSTATION_R, VC_EL_PORTSTATION_R );
+			
+			if (bHasODS) oapiVCSetNeighbours( VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_MIDDECK );
+			else oapiVCSetNeighbours( VC_RMSSTATION, VC_CDR, VC_PLBCAMFL, VC_MIDDECK );
 
-		//HideMidDeck();
+			pgOverheadAft.RegisterVC();
+			pgAft.RegisterVC();
+			pgAftPort.RegisterVC();
 
-		ok = true;
-		break;
-	case VC_DOCKCAM: //Docking camera
-		DisplayCameraLabel(VC_LBL_DOCKCAM);
-		SetCameraOffset(_V(orbiter_ofs.x, orbiter_ofs.y - 0.9/*EXTERNAL_AIRLOCK_POS.y*/ + 1.15, orbiter_ofs.z + pMission->GetExternalAirlockZPos() - 0.315));
-		SetCameraDefaultDirection(_V(0.0, 1.0, 0.0), PI);
-		SetCameraRotationRange(0, 0, 0, 0);
-		oapiCameraSetAperture(15*RAD);
-		oapiVCSetNeighbours(-1, -1, VC_PLBCAMFL, VC_AFTPILOT);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_AFTWORKSTATION:
+			DisplayCameraLabel( VC_LBL_AFTWORKSTATION );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_AFTWORKSTATION );
+			SetCameraDefaultDirection( VC_DIR_AFTWORKSTATION );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			oapiVCSetNeighbours( VC_STBDSTATION, VC_PORTSTATION, VC_RMSSTATION, VC_MS1 );
 
-		//HideMidDeck();
+			pgOverhead.RegisterVC();
+			pgOverheadAft.RegisterVC();
+			pgAft.RegisterVC();
+			pgAftStbd.RegisterVC();
+			pgAftPort.RegisterVC();
 
-		ok = true;
-		break;
-	case VC_AFTPILOT: //Aft Flight Deck
-		DisplayCameraLabel(VC_LBL_AFTPILOT);
-		SetCameraOffset(VC_OFFSET + VC_POS_AFTPILOT + orbiter_ofs);
-		SetCameraDefaultDirection(VC_DIR_AFTPILOT);
-		oapiCameraSetAperture(20*RAD);
-		// Default camera rotarion
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 95 * RAD, 72 * RAD);
-		SetCameraMovement(VC_OFSFWD_AFTPILOT, 0, 90.0*RAD,
-			_V( 0.5, -0.5, 0.0 ), 20.0 * RAD, -10.0 * RAD,
-			_V(-0.4, 0.0, 0.0), 0, 0);
-		// Outside cameras neighbours
-		if (bHasODS) oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
-		oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_PLBCAMFR, VC_AFTWORKSTATION);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_MS2:
+			DisplayCameraLabel( VC_LBL_MS2 );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_MS2 );
+			SetCameraDefaultDirection( VC_DIR_MS2 );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_MS2_F, VC_AZ_MS2_F, VC_EL_MS2_F, VC_OFS_MS2_L, VC_AZ_MS2_L, VC_EL_MS2_L, VC_OFS_MS2_R, VC_AZ_MS2_R, VC_EL_MS2_R );
 
-		//HideMidDeck();
+			if (bHasODS) oapiVCSetNeighbours( VC_PORTSTATION, VC_MS1, VC_CDR, VC_DOCKCAM );
+			else oapiVCSetNeighbours( VC_PORTSTATION, VC_MS1, VC_CDR, VC_PLBCAMFL );
 
-		//pgOverhead.RegisterVC();
-		pgAftStbd.RegisterVC();
-		pgAft.RegisterVC();
-		pgAftPort.RegisterVC();
+			pgForward.RegisterVC();
+			pgCenter.RegisterVC();
+			pgOverhead.RegisterVC();
+			pgOverheadAft.RegisterVC();
+			pgAft.RegisterVC();
 
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_RMSSTATION:
-		DisplayCameraLabel(VC_LBL_RMSSTATION);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_RMSSTATION);
-		SetCameraDefaultDirection(VC_DIR_RMSSTATION);
-		oapiCameraSetAperture(20*RAD);
-		//SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_MS1:
+			DisplayCameraLabel( VC_LBL_MS1 );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_MS1 );
+			SetCameraDefaultDirection( VC_DIR_MS1 );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_MS1_F, VC_AZ_MS1_F, VC_EL_MS1_F, VC_OFS_MS1_L, VC_AZ_MS1_L, VC_EL_MS1_L, VC_OFS_MS1_R, VC_AZ_MS1_R, VC_EL_MS1_R );
 
-		if (bHasODS) oapiVCSetNeighbours(VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
-		else oapiVCSetNeighbours(VC_AFTPILOT, VC_PORTSTATION, VC_PLBCAMFL, VC_AFTWORKSTATION);
+			if (bHasODS) oapiVCSetNeighbours( VC_MS2, VC_STBDSTATION, VC_PLT, VC_DOCKCAM );
+			else oapiVCSetNeighbours( VC_MS2, VC_STBDSTATION, VC_PLT, VC_PLBCAMFL );
 
-		// Default camera rotation
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-		SetCameraMovement(VC_OFSFWD_AFTPILOT, 0, 90.0*RAD,
-			_V(-0.07, -0.05, -0.35), 0, 0,
-			_V(0, -0.3, 0.15), 0, 0);
+			pgCenter.RegisterVC();
+			pgOverhead.RegisterVC();
+			pgOverheadAft.RegisterVC();
+			pgAftStbd.RegisterVC();
 
-		//ShowMidDeck();
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_MIDDECK:
+			DisplayCameraLabel( VC_LBL_MIDDECK );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_MIDDECK );
+			SetCameraDefaultDirection( VC_DIR_MIDDECK );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
 
-		//pgOverhead.RegisterVC();
-		pgAft.RegisterVC();
-		pgAftStbd.RegisterVC();
-		pgAftPort.RegisterVC();
+			if (pMission->HasExtAL()) oapiVCSetNeighbours( -1, -1, VC_PORTSTATION, VC_EXT_AL );
+			else oapiVCSetNeighbours( -1, -1, VC_PORTSTATION, -1 );
 
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_PORTSTATION:
-		DisplayCameraLabel(VC_LBL_PORTSTATION);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_PORTSTATION);
-		SetCameraDefaultDirection(VC_DIR_PORTSTATION);
-		SetCameraMovement( _V( -0.3, 0, 0 ), 0, -30 * RAD, _V( -0.45, -0.2, -0.35 ), 20 * RAD, -25 * RAD, _V( -0.3, 0, 0.3 ), 0, -30 * RAD );
+			ok = true;
+			break;
+		case VC_EXT_AL:
+			DisplayCameraLabel( VC_LBL_EXT_AL );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_EXT_AL + _V( 0, 0, pMission->GetExternalAirlockZPos() ) );
+			SetCameraDefaultDirection( VC_DIR_EXT_AL );
 
-		if (bHasODS) oapiVCSetNeighbours(VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_MIDDECK);
-		else oapiVCSetNeighbours(VC_RMSSTATION, VC_CDR, VC_PLBCAMFL, VC_MIDDECK);
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
 
-		// Default camera rotation
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
+			if (bHasODS) oapiVCSetNeighbours( -1, -1, VC_MIDDECK, VC_DOCKCAM );
+			else oapiVCSetNeighbours( -1, -1, VC_MIDDECK, -1 );
 
-		//ShowMidDeck();
-
-		//pgOverhead.RegisterVC();
-		pgOverheadAft.RegisterVC();
-		pgAft.RegisterVC();
-		pgAftPort.RegisterVC();
-
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_AFTWORKSTATION:
-		DisplayCameraLabel(VC_LBL_AFTWORKSTATION);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_AFTWORKSTATION);
-		SetCameraDefaultDirection(VC_DIR_AFTWORKSTATION);
-		//SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-		oapiVCSetNeighbours(VC_STBDSTATION, VC_PORTSTATION, VC_RMSSTATION, VC_MS1);
-
-		// Default camera rotation
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-
-		//ShowMidDeck();
-
-		pgOverhead.RegisterVC();
-		pgOverheadAft.RegisterVC();
-		pgAft.RegisterVC();
-		pgAftStbd.RegisterVC();
-		pgAftPort.RegisterVC();
-
-		ok = true;
-		bUpdateVC = true;
-		break;
-
-	case VC_MS2:
-		DisplayCameraLabel(VC_LBL_MS2);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_MS2);
-		SetCameraDefaultDirection(VC_DIR_MS2);
-		SetCameraMovement( _V( 0, 0, 0.3 ), 0, 0, _V( -0.3, 0, 0.1 ), 0 * RAD, 70 * RAD, _V( 0.3, 0, 0.1 ), 0 * RAD, 70 * RAD );
-
-		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_MS1, VC_CDR, VC_DOCKCAM);
-		else oapiVCSetNeighbours(VC_PORTSTATION, VC_MS1, VC_CDR, VC_PLBCAMFL);
-
-		// Default camera rotation
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-
-		//HideMidDeck();
-
-		pgForward.RegisterVC();
-		pgCenter.RegisterVC();
-		pgOverhead.RegisterVC();
-		pgOverheadAft.RegisterVC();
-		pgAft.RegisterVC();
-
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_MS1:
-		DisplayCameraLabel(VC_LBL_MS1);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_MS1);
-		SetCameraDefaultDirection(VC_DIR_MS1);
-		SetCameraMovement( _V( 0.1, -0.1, 0.2 ), -20 * RAD, 0, _V( -0.1, -0.1, 0.1 ), 45 * RAD, -5 * RAD, _V( 0.1, 0, 0.1 ), -70 * RAD, -40 * RAD );
-
-		if (bHasODS) oapiVCSetNeighbours(VC_MS2, VC_STBDSTATION, VC_PLT, VC_DOCKCAM);
-		else oapiVCSetNeighbours(VC_MS2, VC_STBDSTATION, VC_PLT, VC_PLBCAMFL);
-
-		// Default camera rotation
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-
-		//HideMidDeck();
-
-		pgCenter.RegisterVC();
-		pgOverhead.RegisterVC();
-		pgOverheadAft.RegisterVC();
-		pgAftStbd.RegisterVC();
-
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_MIDDECK:
-
-		DisplayCameraLabel(VC_LBL_MIDDECK);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_MIDDECK);
-		SetCameraDefaultDirection(VC_DIR_MIDDECK);
-		//SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-
-		//ShowMidDeck();
-		// Default camera rotation
-		if (pMission->HasExtAL())
-		{
-			oapiVCSetNeighbours(-1, -1, VC_PORTSTATION, VC_EXT_AL);
-		}
-		else {
-			oapiVCSetNeighbours(-1, -1, VC_PORTSTATION, -1);
-		}
-
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-
-		ok = true;
-		break;
-	case VC_EXT_AL:
-		DisplayCameraLabel(VC_LBL_EXT_AL);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_EXT_AL + _V( 0, 0, pMission->GetExternalAirlockZPos() ));
-		SetCameraDefaultDirection(VC_DIR_EXT_AL);
-
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-
-		if (bHasODS) oapiVCSetNeighbours(-1, -1, VC_MIDDECK, VC_DOCKCAM);
-		else oapiVCSetNeighbours(-1, -1, VC_MIDDECK, -1);
-
-		//ShowMidDeck();
-
-		ok = true;
-		break;
-
+			ok = true;
+			break;
 	}
 
 	// Common action for external payload cameras
 	if (id >= VC_DOCKCAM && id <= VC_LEECAM) {
 		// Pan and tilt from camera control not from alt + arrow but from the dialog
-		SetCameraRotationRange(0, 0, 0, 0);
+		SetCameraRotationRange( 0, 0, 0, 0 );
 		// No lean for payload camera
-		SetCameraMovement(_V(0, 0, 0), 0, 0, _V(0, 0, 0), 0, 0, _V(0, 0, 0), 0, 0);
+		SetCameraMovement( _V(0, 0, 0), 0, 0, _V(0, 0, 0), 0, 0, _V(0, 0, 0), 0, 0 );
 
 		// Refresh camera meshes and view positions
 		SetAnimationCameras();
@@ -5510,7 +5420,6 @@ bool Atlantis::clbkLoadVC(int id)
 		for (int i = 0; i < 11; i++)
 		{
 			mdus[i]->RealizeMFD(i);
-			oapiVCTriggerRedrawArea(-1, AID_CDR1_LABEL + i);
 		}
 	}
 	oapiCameraSetCockpitDir(0, 0);
