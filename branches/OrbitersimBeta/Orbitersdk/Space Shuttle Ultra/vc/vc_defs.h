@@ -29,18 +29,6 @@
 // panel area identifiers
 // ==========================================================
 
-// define MFD function buttons
-#define AID_CDR1_LABEL		1
-#define AID_CDR2_LABEL		2
-#define AID_CRT1_LABEL		3
-#define AID_CRT2_LABEL		4
-#define AID_CRT3_LABEL		5
-#define AID_MFD1_LABEL		6
-#define AID_MFD2_LABEL		7
-#define AID_PLT1_LABEL		8
-#define AID_PLT2_LABEL		9
-#define AID_CRT4_LABEL		10
-#define AID_AFD_LABEL		11
 // D. Beachy: define power buttons
 #define AID_CDR1_PWR      12
 #define AID_CDR2_PWR      13
