@@ -13,7 +13,9 @@ namespace vc {
 	}
 
 
-	PushButton::~PushButton() {
+	PushButton::~PushButton()
+	{
+		if (pPushDown) delete pPushDown;
 	}
 
 	void PushButton::DefineGroup(UINT _grpIndex) {

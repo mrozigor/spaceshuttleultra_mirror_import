@@ -380,6 +380,7 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	//----------------------------------------------------
 	// Make these first, for avoiding CTDs
 	//----------------------------------------------------
+	InitMissionManagementMemory();
 	pMission = ssuGetDefaultMission();			//No mission selected
 	options = new SSUOptions();
 	bundleManager = new DiscreteBundleManager();
@@ -932,6 +933,9 @@ Atlantis::~Atlantis() {
 
 	delete busManager;
 	delete bundleManager;
+	delete options;
+
+	ClearMissionManagementMemory();
 
 	UnregisterMFDMode( mfdID );
 
@@ -1959,7 +1963,7 @@ void Atlantis::DefineAnimations(void)
 	parent = AddManagedAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPitch, parent);
 
 	MGROUP_TRANSFORM* CameraFLPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbdCamPos[0]), 1);
-	AddAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPos, parent);
+	AddManagedAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPos, parent);
 
 	// FRONT RIGHT
 	static UINT camFRYawGrp[1] = { GRP_PANTILT_CAM_D };
@@ -1995,7 +1999,7 @@ void Atlantis::DefineAnimations(void)
 	parent = AddManagedAnimationComponent(anim_camBLpitch, 0, 1, CameraBLPitch, parent);
 
 	MGROUP_TRANSFORM* CameraBLPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbdCamPos[1]), 1);
-	AddAnimationComponent(anim_camBLpitch, 0, 1, CameraBLPos, parent);
+	AddManagedAnimationComponent(anim_camBLpitch, 0, 1, CameraBLPos, parent);
 
 	// BACK RIGHT
 	static UINT camBRYawGrp[1] = { GRP_PANTILT_CAM_C };
