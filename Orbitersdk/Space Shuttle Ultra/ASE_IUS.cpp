@@ -104,7 +104,7 @@ void ASE_IUS::Realize()
 
 void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 {
-	if (firststep)// set initial animation/attachment (part 1)
+	if (firststep)// set initial animation
 	{
 		if ((IsIUSAttached()) && (asTiltTable.pos < ASE_IUS_TILT_TABLE_POS_0))
 		{
@@ -114,6 +114,7 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 		CalcUmbilicalAnimation();
 		STS()->SetAnimation( animTiltTable, asTiltTable.pos );
 		STS()->SetAnimation( animUmbilical, asUmbilical.pos );
+		firststep = true;
 	}
 
 	// panel inputs
@@ -221,11 +222,11 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 
 void ASE_IUS::OnPostStep( double SimT, double DeltaT, double MJD )
 {
-	if (firststep)// set initial animation/attachment (part 2)
+	/*if (firststep)// set initial animation/attachment (part 2)
 	{
 		STS()->SetAttachmentParams( hIUSattach, IUSattachpoints[0] + STS()->GetOrbiterCoGOffset(), IUSattachpoints[1] - IUSattachpoints[0], IUSattachpoints[2] - IUSattachpoints[0] );
 		firststep = false;
-	}
+	}*/
 	return;
 }
 
@@ -312,6 +313,12 @@ void ASE_IUS::CreateAttachment()
 		IUSattachpoints[2] = IUSattachpoints[0] + _V( 0, 1, 0 );
 		hIUSattach = STS()->CreateAttachment( false, IUSattachpoints[0], _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_ASE" );
 	}
+	return;
+}
+
+void ASE_IUS::UpdateAttachment( void )
+{
+	if (hIUSattach) STS()->SetAttachmentParams( hIUSattach, IUSattachpoints[0] + STS()->GetOrbiterCoGOffset(), IUSattachpoints[1] - IUSattachpoints[0], IUSattachpoints[2] - IUSattachpoints[0] );
 	return;
 }
 

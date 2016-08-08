@@ -7,7 +7,6 @@
 CISS::CISS( AtlantisSubsystemDirector* _director, bool isGPrime ):AtlantisSubsystem( _director, "CISS" )
 {
 	this->isGPrime = isGPrime;
-	bFirstStep = true;
 
 	bMECH_PRI_PWR = false;
 	bMECH_BKUP_PWR = false;
@@ -288,15 +287,6 @@ void CISS::OnPreStep( double SimT, double DeltaT, double MJD )
 		pMECH_BKUP_PWR_TB.ResetLine();
 	}
 	return;
-}
-
-void CISS::OnPostStep( double SimT, double DeltaT, double MJD )
-{
-	if(bFirstStep) { // required to make sure Centaur is positioned correctly
-		bFirstStep = false;
-		CalcAnimation();
-		RunAnimation();
-	}
 }
 
 bool CISS::OnParseLine( const char* line )
@@ -647,6 +637,13 @@ void CISS::CreateAttachment()
 		if (isGPrime) ahToCentaur = STS()->CreateAttachment( false, centaurAttachment[0], _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CGP" );
 		else ahToCentaur = STS()->CreateAttachment( false, centaurAttachment[0], _V( 0, 0, 1 ), _V( 0, 1, 0 ), "SSU_CG" );
 	}
+	return;
+}
+
+void CISS::UpdateAttachment( void )
+{
+	CalcAnimation();
+	RunAnimation();
 	return;
 }
 

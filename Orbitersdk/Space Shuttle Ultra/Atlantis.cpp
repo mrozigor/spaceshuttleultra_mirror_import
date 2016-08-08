@@ -4997,19 +4997,11 @@ void Atlantis::clbkVisualCreated(VISHANDLE _vis, int refcount)
 	oapiWriteLog("GETTING DEVMESH");
 	hDevHeatShieldMesh = GetDevMesh(vis, mesh_heatshield);
 
-#ifdef UNDEF
-	// note: orbiter re-applies the animations to the mesh before calling
-	// clbkVisualCreated, so updating the mesh here is not necessary
+	if (pRMS) pRMS->UpdateAttachment();
+	if (pMPMs) pMPMs->UpdateAttachment();
+	if (pASE_IUS) pASE_IUS->UpdateAttachment();
+	if (pCISS) pCISS->UpdateAttachment();
 
-	// reset grappling point
-	//wrist_yaw_joint[0] = _V(-2.87, 2.03, -4.88);
-	//wrist_yaw_joint[1] = _V(-2.87, 2.03, -4.88)+RotateVectorZ(_V(0.0, 1.0, 0.0), 18.435);
-	arm_tip[0] = _V(-2.87, 2.03, -6.27);
-	arm_tip[1] = _V(-2.87, 2.03, -7.27);
-	arm_tip[2] = _V(-2.87, 3.03, -6.27);
-
-	UpdateMesh ();
-#endif
 	if (!pMission->GetOrbiterTextureName().empty())
 		UpdateOrbiterTexture(pMission->GetOrbiterTextureName());
 
@@ -5867,7 +5859,6 @@ void Atlantis::SetSSMEGH2burn(int eng, bool burn)
 DLLCLBK void InitModule(HINSTANCE hModule)
 {
 	g_Param.hDLL = hModule;
-	oapiRegisterCustomControls(hModule);
 
 	// initialize aerodynamic lookup tables
 	elevonVerticalLookup.Init("Config/SSU_Elevon.csv");
@@ -5941,7 +5932,6 @@ DLLCLBK void InitModule(HINSTANCE hModule)
 
 DLLCLBK void ExitModule(HINSTANCE hModule)
 {
-	oapiUnregisterCustomControls(hModule);
 	if (g_Param.tkbk_label)
 	{
 		oapiDestroySurface(g_Param.tkbk_label);

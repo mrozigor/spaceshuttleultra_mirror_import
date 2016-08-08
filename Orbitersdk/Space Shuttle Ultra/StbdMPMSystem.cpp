@@ -38,6 +38,12 @@ void StbdMPMSystem::CreateAttachment()
 		hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+OBSS_ATTACHMENT_POINT+MPM_MESH_OFFSET, _V(0,1,0), _V(0,0,1), "OBSS");
 }
 
+void StbdMPMSystem::UpdateAttachment( void )
+{
+	if (hAttach) STS()->SetAttachmentParams( hAttach, STS()->GetOrbiterCoGOffset() + obss_attach_point[0] + MPM_MESH_OFFSET, obss_attach_point[1] - obss_attach_point[0], _V( 0, 0, 1 ) );
+	return;
+}
+
 void StbdMPMSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	// if we haven't found the OBSS yet, check for any new vessels added
