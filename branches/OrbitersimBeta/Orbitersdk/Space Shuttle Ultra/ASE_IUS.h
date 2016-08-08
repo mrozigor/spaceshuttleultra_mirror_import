@@ -159,6 +159,8 @@ class ASE_IUS:public AtlantisSubsystem
 		void AddMesh();
 		void DefineAnimations();
 		void CreateAttachment();
+
+		void UpdateAttachment( void );
 };
 
 #endif //__IUS_ASE_H
