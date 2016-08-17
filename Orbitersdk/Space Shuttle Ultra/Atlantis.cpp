@@ -24,12 +24,9 @@
 #include "SSUOptions.h"
 #include "Atlantis_vc_defs.h"
 #include <OrbiterSoundSDK40.h>
-#include "DlgCtrl.h"
 #include "meshres.h"
 #include "meshres_vc.h"
-#include "meshres_RMS.h"
 #include "meshres_KU.h"
-#include "meshres_vc_additions.h"
 #include "resource.h"
 #include "AtlantisSubsystemDirector.h"
 #include "dps/AerojetDAP.h"
@@ -60,6 +57,7 @@
 #include "vc/PanelF6.h"
 #include "vc/PanelF7.h"
 #include "vc/PanelF8.h"
+#include "vc/PanelO3.h"
 #include "vc/PanelO6.h"
 #include "vc/PanelO8.h"
 #include "vc/PanelO17.h"
@@ -3956,6 +3954,7 @@ void Atlantis::clbkPostCreation()
 		LandingGearPosition[5].Connect(pBundle, 5);
 		LandingGearArmDeployLT[0].Connect(pBundle, 6);
 		LandingGearArmDeployLT[1].Connect(pBundle, 7);
+		if (!gear_status.Closed()) LandingGearArmDeployLT[1].SetLine();
 		LandingGearArmDeployPB[0].Connect(pBundle, 8);
 		LandingGearArmDeployPB[1].Connect(pBundle, 9);
 		LandingGearArmDeployPB[2].Connect(pBundle, 10);
@@ -4063,6 +4062,49 @@ void Atlantis::clbkPreStep(double simT, double simDT, double mjd)
 			// calculate MET (in seconds) from MTU
 			met = pMTU->GetMETDay(0)*86400.0 + pMTU->GetMETHour(0)*3600.0 + pMTU->GetMETMin(0)*60.0 + pMTU->GetMETSec(0) + pMTU->GetMETMilli(0) / 1000.0;
 		}
+
+		// landing gear PB
+		if ((LandingGearArmDeployPB[0].IsSet() == true) || (LandingGearArmDeployPB[2].IsSet() == true)) ArmGear();
+		if ((GearArmed() == true) && ((LandingGearArmDeployPB[1].IsSet() == true) || (LandingGearArmDeployPB[3].IsSet() == true))) DeployLandingGear();
+
+		// landing gear position switches
+		if (gear_status.action == AnimState::CLOSED)
+		{
+			// uplock on / downlock off
+			LandingGearPosition[0].SetLine();
+			LandingGearPosition[1].ResetLine();
+
+			LandingGearPosition[2].SetLine();
+			LandingGearPosition[3].ResetLine();
+
+			LandingGearPosition[4].SetLine();
+			LandingGearPosition[5].ResetLine();
+		}
+		else if (gear_status.action == AnimState::OPEN)
+		{
+			// uplock off / downlock on
+			LandingGearPosition[0].ResetLine();
+			LandingGearPosition[1].SetLine();
+
+			LandingGearPosition[2].ResetLine();
+			LandingGearPosition[3].SetLine();
+
+			LandingGearPosition[4].ResetLine();
+			LandingGearPosition[5].SetLine();
+		}
+		else
+		{
+			// uplock off / downlock off
+			LandingGearPosition[0].ResetLine();
+			LandingGearPosition[1].ResetLine();
+
+			LandingGearPosition[2].ResetLine();
+			LandingGearPosition[3].ResetLine();
+
+			LandingGearPosition[4].ResetLine();
+			LandingGearPosition[5].ResetLine();
+		}
+
 		//Stopwatch st, stSub;
 		//st.Start();
 
@@ -4576,10 +4618,10 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 
 			//deploy gear
 			airspeed = GetAirspeed();
-			if (GetAltitude() < 92.44 && gear_status.action == AnimState::CLOSED) {
+			if (GetAltitude( ALTMODE_GROUND ) < 92.44 && gear_status.action == AnimState::CLOSED) {
 				DeployLandingGear();
 			}
-			else if (GetAltitude() < 609.6) ArmGear();
+			else if (GetAltitude( ALTMODE_GROUND ) < 609.6) ArmGear();
 
 			if (GroundContact())
 				if (airspeed > 1.0) SetThrusterGroupLevel(THGROUP_MAIN, 0.0); // if main thrust is nonzero, shuttle will never come to a complete stop
@@ -4887,48 +4929,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 				mat1 = NULL;
 			}
 
-		}
-
-		// landing gear PB
-		if ((LandingGearArmDeployPB[0].IsSet() == true) || (LandingGearArmDeployPB[2].IsSet() == true)) ArmGear();
-		if ((GearArmed() == true) && ((LandingGearArmDeployPB[1].IsSet() == true) || (LandingGearArmDeployPB[3].IsSet() == true))) DeployLandingGear();
-
-		// landing gear position switches
-		if (gear_status.action == AnimState::CLOSED)
-		{
-			// uplock on / downlock off
-			LandingGearPosition[0].SetLine();
-			LandingGearPosition[1].ResetLine();
-
-			LandingGearPosition[2].SetLine();
-			LandingGearPosition[3].ResetLine();
-
-			LandingGearPosition[4].SetLine();
-			LandingGearPosition[5].ResetLine();
-		}
-		else if (gear_status.action == AnimState::OPEN)
-		{
-			// uplock off / downlock on
-			LandingGearPosition[0].ResetLine();
-			LandingGearPosition[1].SetLine();
-
-			LandingGearPosition[2].ResetLine();
-			LandingGearPosition[3].SetLine();
-
-			LandingGearPosition[4].ResetLine();
-			LandingGearPosition[5].SetLine();
-		}
-		else
-		{
-			// uplock off / downlock off
-			LandingGearPosition[0].ResetLine();
-			LandingGearPosition[1].ResetLine();
-
-			LandingGearPosition[2].ResetLine();
-			LandingGearPosition[3].ResetLine();
-
-			LandingGearPosition[4].ResetLine();
-			LandingGearPosition[5].ResetLine();
 		}
 
 		//double time = st.Stop();

@@ -14,7 +14,7 @@ namespace vc
 
 		for(int i=0;i<24;i++) {
 			sprintf_s(cbuf, 5, "%d", i+1);
-			std::string name="A6_PBI";
+			std::string name="C3_PBI";
 			name+=cbuf;
 			Add(pPBIs[i]=new PushButtonIndicator(_sts, name));
 		}

@@ -491,6 +491,21 @@
     <ClCompile Include="gnc\RA.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="vc\7SegDisp.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp_EventTime.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp_MissionTime.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp_RCSOMS_PRPLT_QTY.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp_RE_RRA.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -953,6 +968,21 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="gnc\RA.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp_EventTime.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp_MissionTime.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp_RCSOMS_PRPLT_QTY.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp_RE_RRA.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

@@ -31,9 +31,9 @@ namespace vc {
 		pADIRate->SetLabel( 1, "MED" );
 		pADIRate->SetLabel( 2, "HIGH" );
 
-		Add( pLandingGearTB[0] = new StandardTalkback( _sts, "Landing Gear Nose", 2 ) );
-		Add( pLandingGearTB[1] = new StandardTalkback( _sts, "Landing Gear Left", 2 ) );
-		Add( pLandingGearTB[2] = new StandardTalkback( _sts, "Landing Gear Right", 2 ) );
+		Add( pLandingGearTB[0] = new StandardTalkback_2( _sts, "Landing Gear Nose", 2 ) );
+		Add( pLandingGearTB[1] = new StandardTalkback_2( _sts, "Landing Gear Left", 2 ) );
+		Add( pLandingGearTB[2] = new StandardTalkback_2( _sts, "Landing Gear Right", 2 ) );
 
 		Add( pLandingGearArmDeployCover[0] = new StandardSwitchCover( _sts, "Landing Gear ARM Cover" ) );
 		Add( pLandingGearArmDeployCover[1] = new StandardSwitchCover( _sts, "Landing Gear DN Cover" ) );
@@ -80,17 +80,11 @@ namespace vc {
 		pADIRate->SetReference( _V( -0.5627, 2.0463, 14.7008 ), switch_rot );
 		pADIRate->SetMouseRegion( 0.710745f, 0.687697f, 0.753016f, 0.750151f );
 
-		pLandingGearTB[0]->AddAIDToRedrawEventList( AID_F8_TKBK1 );
-		pLandingGearTB[0]->SetDimensions( 57, 34 );
-		pLandingGearTB[0]->SetTalkbackLocation( 0, 0 );
-
-		pLandingGearTB[1]->AddAIDToRedrawEventList( AID_F8_TKBK2 );
-		pLandingGearTB[1]->SetDimensions( 57, 34 );
-		pLandingGearTB[1]->SetTalkbackLocation( 0, 0 );
-
-		pLandingGearTB[2]->AddAIDToRedrawEventList( AID_F8_TKBK3 );
-		pLandingGearTB[2]->SetDimensions( 57, 34 );
-		pLandingGearTB[2]->SetTalkbackLocation( 0, 0 );
+		pLandingGearTB[0]->DefineMeshGroup( STS()->mesh_vc, GRP_F8TALKBACK2_VC );
+		
+		pLandingGearTB[1]->DefineMeshGroup( STS()->mesh_vc, GRP_F8TALKBACK1_VC );
+		
+		pLandingGearTB[2]->DefineMeshGroup( STS()->mesh_vc, GRP_F8TALKBACK3_VC );
 
 		pLandingGearArmDeployCover[0]->SetMouseRegion( 0, 0.067760f, 0.823818f, 0.131444f, 0.893443f );
 		pLandingGearArmDeployCover[0]->SetMouseRegion( 1, 0.000289f, 0.880336f, 0.033147f, 0.960580f );
@@ -129,10 +123,6 @@ namespace vc {
 			_V(0.416, 1.949, 14.673)+ofs, _V(0.942, 1.949, 14.673) + ofs);
 
 		SURFHANDLE panel_tex = oapiGetTextureHandle( STS()->hOrbiterVCMesh, TEX_PANELF8_VC );
-		oapiVCRegisterArea( AID_F8_TKBK1, _R( 256, 121, 313, 155 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_F8_TKBK2, _R( 123, 147, 180, 181 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_F8_TKBK3, _R( 385, 143, 442, 177 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-
 		oapiVCRegisterArea( AID_F8_PB1, _R( 185, 323, 227, 337 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
 		oapiVCRegisterArea( AID_F8_PB2, _R( 357, 322, 399, 336 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
 	}

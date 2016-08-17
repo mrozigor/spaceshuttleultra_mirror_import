@@ -1,7 +1,6 @@
 #include "../Atlantis.h"
 #include "MDU.h"
 #include "../dps/IDP.h"
-#include "../meshres_vc_additions.h"
 
 
 namespace vc

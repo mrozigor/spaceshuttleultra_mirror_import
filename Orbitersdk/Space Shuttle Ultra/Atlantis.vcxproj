@@ -304,6 +304,11 @@
     <ClCompile Include="PayloadBay.cpp" />
     <ClCompile Include="ReentryDragTable.cpp" />
     <ClCompile Include="SSULua.cpp" />
+    <ClCompile Include="vc\7SegDisp.cpp" />
+    <ClCompile Include="vc\7SegDisp_EventTime.cpp" />
+    <ClCompile Include="vc\7SegDisp_MissionTime.cpp" />
+    <ClCompile Include="vc\7SegDisp_RCSOMS_PRPLT_QTY.cpp" />
+    <ClCompile Include="vc\7SegDisp_RE_RRA.cpp" />
     <ClCompile Include="vc\AftMDU.cpp" />
     <ClCompile Include="AirDataProbeSystem.cpp" />
     <ClCompile Include="dps\AP101S.cpp" />
@@ -468,6 +473,11 @@
     <ClInclude Include="mps\VehicleInterfaceElectronics_BLOCK_II.h" />
     <ClInclude Include="PayloadBay.h" />
     <ClInclude Include="ReentryDragTable.h" />
+    <ClInclude Include="vc\7SegDisp.h" />
+    <ClInclude Include="vc\7SegDisp_EventTime.h" />
+    <ClInclude Include="vc\7SegDisp_MissionTime.h" />
+    <ClInclude Include="vc\7SegDisp_RCSOMS_PRPLT_QTY.h" />
+    <ClInclude Include="vc\7SegDisp_RE_RRA.h" />
     <ClInclude Include="vc\AftMDU.h" />
     <ClInclude Include="dps\AP101S.h" />
     <ClInclude Include="APU.h" />

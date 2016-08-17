@@ -17,14 +17,8 @@ namespace vc {
 		pLGlareShieldFlood->SetLabel(1, "VAR");
 		pLGlareShieldFlood->SetLabel(2, "BRIGHT");
 
-		Add(pSTYDoorPosition = new Std2SegTalkback(_sts, "STAR TRACKER -Y DOOR POSITION (tb)", 3));
-		pSTYDoorPosition->AddAIDToRedrawEventList(AID_O6_DS1);
-		pSTYDoorPosition->SetDimensions(50, 31);
-		pSTYDoorPosition->SetTalkbackLocation(0, 0);
-		Add(pSTZDoorPosition = new Std2SegTalkback(_sts, "STAR TRACKER -Z DOOR POSITION (tb)", 3));
-		pSTZDoorPosition->AddAIDToRedrawEventList(AID_O6_DS2);
-		pSTZDoorPosition->SetDimensions(50, 31);
-		pSTZDoorPosition->SetTalkbackLocation(0, 0);
+		Add(pSTYDoorPosition = new StandardTalkback_2(_sts, "STAR TRACKER -Y DOOR POSITION (tb)", 2));
+		Add(pSTZDoorPosition = new StandardTalkback_2(_sts, "STAR TRACKER -Z DOOR POSITION (tb)", 2));
 
 		Add( pSTRKDoorControlSys1Cover = new StandardSwitchCover( _sts, "S TRK DR CNTL SYS1 Cover" ) );
 		pSTRKDoorControlSys1Cover->SetMouseRegion( 0, 0.656091f, 0.175973f, 0.700474f, 0.227679f );
@@ -166,30 +160,15 @@ namespace vc {
 		pGPC5Pwr->SetReference(_V(0.0, 3.09556, 13.98215), SWITCH_VERTICAL);
 		pGPC5Pwr->SetInitialAnimState(0.5f);
 
-		Add(pGPCOutput[0] = new StandardTalkback(_sts, "GPC Output 1 (tb)", 0));
-		pGPCOutput[0]->AddAIDToRedrawEventList(AID_O6_DS3);
-		pGPCOutput[0]->SetDimensions(50, 31);
-		pGPCOutput[0]->SetTalkbackLocation(0, 0);
+		Add(pGPCOutput[0] = new StandardTalkback_2(_sts, "GPC Output 1 (tb)", 1));
 		
-		Add(pGPCOutput[1] = new StandardTalkback(_sts, "GPC Output 2 (tb)", 0));
-		pGPCOutput[1]->AddAIDToRedrawEventList(AID_O6_DS4);
-		pGPCOutput[1]->SetDimensions(50, 31);
-		pGPCOutput[1]->SetTalkbackLocation(0, 0);
+		Add(pGPCOutput[1] = new StandardTalkback_2(_sts, "GPC Output 2 (tb)", 1));
 
-		Add(pGPCOutput[2] = new StandardTalkback(_sts, "GPC Output 3 (tb)", 0));
-		pGPCOutput[2]->AddAIDToRedrawEventList(AID_O6_DS5);
-		pGPCOutput[2]->SetDimensions(50, 31);
-		pGPCOutput[2]->SetTalkbackLocation(0, 0);
+		Add(pGPCOutput[2] = new StandardTalkback_2(_sts, "GPC Output 3 (tb)", 1));
 
-		Add(pGPCOutput[3] = new StandardTalkback(_sts, "GPC Output 4 (tb)", 0));
-		pGPCOutput[3]->AddAIDToRedrawEventList(AID_O6_DS6);
-		pGPCOutput[3]->SetDimensions(50, 31);
-		pGPCOutput[3]->SetTalkbackLocation(0, 0);
+		Add(pGPCOutput[3] = new StandardTalkback_2(_sts, "GPC Output 4 (tb)", 1));
 
-		Add(pGPCOutput[4] = new StandardTalkback(_sts, "GPC Output 5 (tb)", 0));
-		pGPCOutput[4]->AddAIDToRedrawEventList(AID_O6_DS7);
-		pGPCOutput[4]->SetDimensions(50, 31);
-		pGPCOutput[4]->SetTalkbackLocation(0, 0);
+		Add(pGPCOutput[4] = new StandardTalkback_2(_sts, "GPC Output 5 (tb)", 1));
 
 		//_V(-0.0, 3.075613, 14.06777)
 
@@ -303,30 +282,15 @@ namespace vc {
 		Add(pIPL5 = new PushButton(_sts, "IPL5"));
 		pIPL5->SetMouseRegion(0.7554f, 0.7365f, 0.8026f, 0.7741f);
 
-		Add(pGPCMode[0] = new Std2SegTalkback(_sts, "GPC MODE 1 (tb)", 2));
-		pGPCMode[0]->AddAIDToRedrawEventList(AID_O6_DS8);
-		pGPCMode[0]->SetDimensions(50, 31);
-		pGPCMode[0]->SetTalkbackLocation(0, 0);
+		Add(pGPCMode[0] = new StandardTalkback_2(_sts, "GPC MODE 1 (tb)", 2));
 
-		Add(pGPCMode[1] = new Std2SegTalkback(_sts, "GPC MODE 2 (tb)", 2));
-		pGPCMode[1]->AddAIDToRedrawEventList(AID_O6_DS9);
-		pGPCMode[1]->SetDimensions(50, 31);
-		pGPCMode[1]->SetTalkbackLocation(0, 0);
+		Add(pGPCMode[1] = new StandardTalkback_2(_sts, "GPC MODE 2 (tb)", 2));
 
-		Add(pGPCMode[2] = new Std2SegTalkback(_sts, "GPC MODE 3 (tb)", 2));
-		pGPCMode[2]->AddAIDToRedrawEventList(AID_O6_DS10);
-		pGPCMode[2]->SetDimensions(50, 31);
-		pGPCMode[2]->SetTalkbackLocation(0, 0);
+		Add(pGPCMode[2] = new StandardTalkback_2(_sts, "GPC MODE 3 (tb)", 2));
 
-		Add(pGPCMode[3] = new Std2SegTalkback(_sts, "GPC MODE 4 (tb)", 2));
-		pGPCMode[3]->AddAIDToRedrawEventList(AID_O6_DS11);
-		pGPCMode[3]->SetDimensions(50, 31);
-		pGPCMode[3]->SetTalkbackLocation(0, 0);
+		Add(pGPCMode[3] = new StandardTalkback_2(_sts, "GPC MODE 4 (tb)", 2));
 
-		Add(pGPCMode[4] = new Std2SegTalkback(_sts, "GPC MODE 5 (tb)", 2));
-		pGPCMode[4]->AddAIDToRedrawEventList(AID_O6_DS12);
-		pGPCMode[4]->SetDimensions(50, 31);
-		pGPCMode[4]->SetTalkbackLocation(0, 0);
+		Add(pGPCMode[4] = new StandardTalkback_2(_sts, "GPC MODE 5 (tb)", 2));
 
 		//0.0,  3.033531,  14.23673
 		Add(pGPC1Mode = new LockableLever3(_sts, "GPC MODE 1"));
@@ -388,6 +352,30 @@ namespace vc {
 	{
 		oapiWriteLog("(PanelO6::Define VC)");
 		AddAIDToMouseEventList(AID_O6);
+
+		pSTYDoorPosition->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK2_VC );
+		
+		pSTZDoorPosition->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK1_VC );
+
+		pGPCOutput[0]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK3_VC );
+		
+		pGPCOutput[1]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK4_VC );
+		
+		pGPCOutput[2]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK5_VC );
+		
+		pGPCOutput[3]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK6_VC );
+		
+		pGPCOutput[4]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK7_VC );
+
+		pGPCMode[0]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK8_VC );
+		
+		pGPCMode[1]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK9_VC );
+		
+		pGPCMode[2]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK10_VC );
+		
+		pGPCMode[3]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK11_VC );
+		
+		pGPCMode[4]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK12_VC );
 	}
 
 	void PanelO6::Realize()
@@ -404,6 +392,11 @@ namespace vc {
 		pSTRKDoorControlSys2->outputA.Connect(pBundle, 4);
 		pSTRKDoorControlSys2->outputB.Connect(pBundle, 5);
 
+		pSTYDoorPosition->SetInput( 0, pBundle, 6, TB_CL );
+		pSTYDoorPosition->SetInput( 1, pBundle, 7, TB_OP );
+		pSTZDoorPosition->SetInput( 0, pBundle, 8, TB_CL );
+		pSTZDoorPosition->SetInput( 1, pBundle, 9, TB_OP );
+
 		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC1", 16);
 		pGPC1Pwr->output.Connect(pBundle, 0);
 		pGPC1Output->outputA.Connect(pBundle, 1);
@@ -411,6 +404,9 @@ namespace vc {
 		pIPL1->output.Connect(pBundle, 3);
 		pGPC1Mode->ConnectPort( 1, pBundle, 4 );
 		pGPC1Mode->ConnectPort( 2, pBundle, 5 );
+		pGPCOutput[0]->SetInput( 0, pBundle, 6, TB_GRAY );
+		pGPCMode[0]->SetInput( 0, pBundle, 7, TB_RUN );
+		pGPCMode[0]->SetInput( 1, pBundle, 8, TB_IPL );
 		
 		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC2", 16);
 		pGPC2Pwr->output.Connect(pBundle, 0);
@@ -419,6 +415,9 @@ namespace vc {
 		pIPL2->output.Connect(pBundle, 3);
 		pGPC2Mode->ConnectPort( 1, pBundle, 4 );
 		pGPC2Mode->ConnectPort( 2, pBundle, 5 );
+		pGPCOutput[1]->SetInput( 0, pBundle, 6, TB_GRAY );
+		pGPCMode[1]->SetInput( 0, pBundle, 7, TB_RUN );
+		pGPCMode[1]->SetInput( 1, pBundle, 8, TB_IPL );
 		
 		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC3", 16);
 		pGPC3Pwr->output.Connect(pBundle, 0);
@@ -427,6 +426,9 @@ namespace vc {
 		pIPL3->output.Connect(pBundle, 3);
 		pGPC3Mode->ConnectPort( 1, pBundle, 4 );
 		pGPC3Mode->ConnectPort( 2, pBundle, 5 );
+		pGPCOutput[2]->SetInput( 0, pBundle, 6, TB_GRAY );
+		pGPCMode[2]->SetInput( 0, pBundle, 7, TB_RUN );
+		pGPCMode[2]->SetInput( 1, pBundle, 8, TB_IPL );
 
 		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC4", 16);
 		pGPC4Pwr->output.Connect(pBundle, 0);
@@ -435,6 +437,9 @@ namespace vc {
 		pIPL4->output.Connect(pBundle, 3);
 		pGPC4Mode->ConnectPort( 1, pBundle, 4 );
 		pGPC4Mode->ConnectPort( 2, pBundle, 5 );
+		pGPCOutput[3]->SetInput( 0, pBundle, 6, TB_GRAY );
+		pGPCMode[3]->SetInput( 0, pBundle, 7, TB_RUN );
+		pGPCMode[3]->SetInput( 1, pBundle, 8, TB_IPL );
 		
 		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC5", 16);
 		pGPC5Pwr->output.Connect(pBundle, 0);
@@ -443,6 +448,9 @@ namespace vc {
 		pIPL5->output.Connect(pBundle, 3);
 		pGPC5Mode->ConnectPort( 1, pBundle, 4 );
 		pGPC5Mode->ConnectPort( 2, pBundle, 5 );
+		pGPCOutput[4]->SetInput( 0, pBundle, 6, TB_GRAY );
+		pGPCMode[4]->SetInput( 0, pBundle, 7, TB_RUN );
+		pGPCMode[4]->SetInput( 1, pBundle, 8, TB_IPL );
 
 		pBundle = STS()->BundleManager()->CreateBundle("O6_IPL", 16);
 		pIPLSource->outputA.Connect(pBundle, 0);
@@ -461,24 +469,6 @@ namespace vc {
 		oapiVCSetAreaClickmode_Quadrilateral (AID_O6, 
 			_V(-0.726224, 3.18582, 13.6082)+ofs, _V(-0.217782, 3.18582, 13.6082)+ofs, 
 			_V(-0.726224, 3.01496, 14.3133) + ofs, _V(-0.217782, 3.01496, 14.3133)+ofs);
-
-		SURFHANDLE o6talkbacks_tex = oapiGetTextureHandle (STS()->hOrbiterVCMesh, 42);
-
-		oapiVCRegisterArea(AID_O6_DS1, _R(0, 0, 50, 31), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
-		oapiVCRegisterArea(AID_O6_DS2, _R(51, 0, 101, 31), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
-		
-		oapiVCRegisterArea(AID_O6_DS3, _R(101, 0, 151, 31), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
-		oapiVCRegisterArea(AID_O6_DS4, _R(151, 0, 201, 31), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
-		oapiVCRegisterArea(AID_O6_DS5, _R(201, 0, 251, 31), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
-		oapiVCRegisterArea(AID_O6_DS6, _R(0, 32, 50, 60), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
-		oapiVCRegisterArea(AID_O6_DS7, _R(51, 32, 101, 60), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
-
-		oapiVCRegisterArea(AID_O6_DS8, _R(101, 32, 151, 60), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
-		oapiVCRegisterArea(AID_O6_DS9, _R(151, 32, 201, 60), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
-		oapiVCRegisterArea(AID_O6_DS10, _R(201, 32, 251, 60), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
-		oapiVCRegisterArea(AID_O6_DS11, _R(0, 61, 50, 92), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
-		oapiVCRegisterArea(AID_O6_DS12, _R(51, 61, 101, 92), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, o6talkbacks_tex);
-
 	}
 
 };
