@@ -24,9 +24,8 @@ namespace vc {
 		Add(pMainEngStatusY[0] = new StandardLight(_sts, "SSME 1 STATUS YELLOW"));
 		Add(pMainEngStatusY[1] = new StandardLight(_sts, "SSME 2 STATUS YELLOW"));
 		Add(pMainEngStatusY[2] = new StandardLight(_sts, "SSME 3 STATUS YELLOW"));
-		
-		sTimerMinutes=0;
-		sTimerSeconds=0;
+
+		Add( pEventTime = new _7SegDisp_EventTime( _sts, "Event Time" ) );
 	}
 
 	PanelF7::~PanelF7()
@@ -78,6 +77,13 @@ namespace vc {
 			pMainEngStatusY[i]->SetSourceCoords(true, 65+130*i, 0);
 			pMainEngStatusY[i]->SetSourceCoords(false, 390, 0);
 		}
+
+		pEventTime->DefineMesh( STS()->mesh_vc );
+		pEventTime->DefineComponent( GRP_F7_EVENT_S_VC, true, false, false, _7SD_STATE_NUM0 );
+		pEventTime->DefineComponent( GRP_F7_EVENT_S10_VC, true, false, false, _7SD_STATE_NUM0 );
+		pEventTime->DefineComponent( GRP_F7_EVENT_M_VC, true, false, false, _7SD_STATE_NUM0 );
+		pEventTime->DefineComponent( GRP_F7_EVENT_M10_VC, true, false, false, _7SD_STATE_NUM0 );
+		pEventTime->SetLocation( true );
 	}
 
 	void PanelF7::RegisterVC()
@@ -85,9 +91,6 @@ namespace vc {
 		AtlantisPanel::RegisterVC();
 		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
 		oapiVCRegisterArea(AID_F7, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
-		//timer
-		SURFHANDLE digit_tex = oapiGetTextureHandle(STS()->hOrbiterVCMesh, TEX_DIGITS_VC);
-		oapiVCRegisterArea(AID_F7_EVTTMR1, _R(0, 320, 256, 384), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digit_tex);	
 		
 		oapiVCSetAreaClickmode_Quadrilateral (AID_F7, 
 			_V(- 0.389, 2.4112365, 14.790174)+ ofs, 
@@ -113,47 +116,5 @@ namespace vc {
 		}
 
 		AtlantisPanel::Realize();
-	}
-	
-	void PanelF7::OnPostStep(double fSimT, double fDeltaT, double fMJD)
-	{		
-		AtlantisPanel::OnPostStep(fSimT, fDeltaT, fMJD);
-		
-		//Check forward event timer for changes and update clock if needed
-		if(STS()->pMTU->GetEventTimerMin(dps::TIMER_FORWARD) != sTimerMinutes || 
-			STS()->pMTU->GetEventTimerSec(dps::TIMER_FORWARD) != sTimerSeconds)
-		{
-			//oapiWriteLog("PanelF7::OnPostStep called");
-
-			sTimerMinutes = STS()->pMTU->GetEventTimerMin(dps::TIMER_FORWARD);
-			sTimerSeconds = STS()->pMTU->GetEventTimerSec(dps::TIMER_FORWARD);
-			oapiVCTriggerRedrawArea(-1, AID_F7_EVTTMR1);
-		}
-	}
-
-	bool PanelF7::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
-	{
-		const int NUMX[10] = {64, 0, 64, 128, 192, 256, 320, 384, 448, 0};
-		const int NUMY[10] = {384, 448, 448, 448, 448, 448, 448, 448, 448, 384};
-		int i;
-		int digit[4];
-		
-		if(id == AID_F7_EVTTMR1)
-		{
-			//oapiWriteLog("PanelF7::OnVCRedrawEvent called");
-
-			digit[0] = sTimerMinutes / 10;
-			digit[1] = sTimerMinutes % 10;
-			digit[2] = sTimerSeconds / 10;
-			digit[3] = sTimerSeconds % 10;
-
-			for(i = 0; i<4; i++)
-			{
-				oapiBlt(surf, g_Param.digits_7seg, i*64, 0, NUMX[digit[i]], NUMY[digit[i]], 64, 64);
-			}
-			return true;
-		}
-
-		return AtlantisPanel::OnVCRedrawEvent(id, _event, surf);
 	}
 };

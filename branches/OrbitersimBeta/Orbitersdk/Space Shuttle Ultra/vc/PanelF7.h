@@ -28,6 +28,8 @@
 #include "MDU.h"
 #include "StandardSwitch.h"
 #include "StandardLight.h"
+#include "7SegDisp_EventTime.h"
+
 
 namespace vc {
 
@@ -39,14 +41,12 @@ namespace vc {
 		MDU* pCRT3;
 		MDU* pMFD1;
 		MDU* pMFD2;
-
-		short sTimerSeconds;
-		short sTimerMinutes;
-
+		
 		StandardLight* pMainEngStatusR[3];
 		StandardLight* pMainEngStatusY[3];
 
-		//Event timer class
+		_7SegDisp_EventTime* pEventTime;
+
 		//C&W warning lights
 	public:
 		PanelF7(Atlantis* _sts);
@@ -54,8 +54,5 @@ namespace vc {
 		virtual void DefineVC();
 		virtual void RegisterVC();
 		virtual void Realize();
-
-		virtual void OnPostStep (double fSimT, double fDeltaT, double fMJD);
-		virtual bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);
 	};
 };

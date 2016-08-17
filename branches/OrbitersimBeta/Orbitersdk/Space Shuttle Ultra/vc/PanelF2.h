@@ -29,6 +29,8 @@
 #include "AtlantisPanel.h"
 #include "PushButtonIndicator.h"
 #include "StandardSwitchCover.h"
+#include "StandardRotarySwitch.h"
+
 
 namespace vc
 {

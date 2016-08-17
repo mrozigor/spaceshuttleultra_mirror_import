@@ -57,7 +57,7 @@
 #include "PanelGroup.h"
 #include "vc/AtlantisPanel.h"
 #include "vc/PanelF7.h"
-#include "vc/PanelO3.h"
+#include "vc\7SegDisp_RCSOMS_PRPLT_QTY.h"
 #include "APU.h"
 #include <EngConst.h>
 #include "Discsignals.h"
@@ -318,8 +318,7 @@ const int RCS_R5R = 13;
 // ==========================================================
 
 class Atlantis: public VESSEL4 {
-	friend class vc::PanelF7;
-	friend class vc::PanelO3;
+	friend class vc::_7SegDisp_RCSOMS_PRPLT_QTY;
 	friend class Keyboard;
 	friend class CRT;
 	friend class vc::MDU;

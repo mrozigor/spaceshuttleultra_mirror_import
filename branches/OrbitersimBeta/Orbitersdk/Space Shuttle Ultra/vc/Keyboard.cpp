@@ -4,9 +4,6 @@
 #include <OrbiterSoundSDK40.h>
 
 
-extern GDIParams g_Param;
-
-
 namespace vc
 {
 	Keyboard::Keyboard( Atlantis* _sts, const std::string& _ident, int ID ):AtlantisVCComponent( _sts, _ident )

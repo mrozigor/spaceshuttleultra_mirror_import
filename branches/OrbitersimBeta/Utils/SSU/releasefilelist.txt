@@ -349,7 +349,6 @@ Textures\SSU\CrawlerTransporter_tex_postSTS114.dds
 Textures\SSU\CrawlerTubing.dds
 Textures\SSU\DFI_pallet_boxtex.dds
 Textures\SSU\DFI_pallet_boxtex_norm.dds
-Textures\SSU\digitPOS.dds
 Textures\SSU\digits.dds
 Textures\SSU\Discovery_9thmod.dds
 Textures\SSU\Discovery_original.dds
@@ -378,8 +377,6 @@ Textures\SSU\ku_norm.dds
 Textures\SSU\ku_refl.dds
 Textures\SSU\ku_spec.dds
 Textures\SSU\L4.dds
-Textures\SSU\label.dds
-Textures\SSU\label2.dds
 Textures\SSU\LWT_ETtex.dds
 Textures\SSU\Main_Concrete_Hardstand_texture.dds
 Textures\SSU\Main_Concrete_Hardstand_texture_1.dds
@@ -388,7 +385,7 @@ Textures\SSU\MDLForwa.dds
 Textures\SSU\MDLRear3.dds
 Textures\SSU\MLP-2_main_tex.dds
 Textures\SSU\MLP_Side1_decks_grating.dds
-Textures\SSU\MON1veiw.dds
+Textures\SSU\MON1view.dds
 Textures\SSU\MON2view.dds
 Textures\SSU\MPESS_FREESTAR_tex.dds
 Textures\SSU\NOR1735tex.dds
@@ -400,7 +397,6 @@ Textures\SSU\O17.dds
 Textures\SSU\O3.dds
 Textures\SSU\O5O9.dds
 Textures\SSU\O6.dds
-Textures\SSU\O6talkbacks.dds
 Textures\SSU\O7.dds
 Textures\SSU\O8.dds
 Textures\SSU\ODSbuttons.dds
