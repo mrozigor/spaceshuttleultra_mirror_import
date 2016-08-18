@@ -355,7 +355,6 @@ Textures\SSU\Discovery_original.dds
 Textures\SSU\docking_ring.dds
 Textures\SSU\Endeavour_3rdmod.dds
 Textures\SSU\Endeavour_original.dds
-Textures\SSU\ET-125_detailtex_launch.dds
 Textures\SSU\ETburntex.dds
 Textures\SSU\exhaust_atrcs.dds
 Textures\SSU\F9panel.dds
@@ -380,6 +379,7 @@ Textures\SSU\L4.dds
 Textures\SSU\label.dds
 Textures\SSU\label2.dds
 Textures\SSU\LWT_ETtex.dds
+Textures\SSU\LWT_ETtex_norm.dds
 Textures\SSU\Main_Concrete_Hardstand_texture.dds
 Textures\SSU\Main_Concrete_Hardstand_texture_1.dds
 Textures\SSU\Main_Concrete_Hardstand_texture_2.dds
@@ -434,6 +434,7 @@ Textures\SSU\RSStex_1.dds
 Textures\SSU\Seat2.dds
 Textures\SSU\ShuttleOTS_tex.dds
 Textures\SSU\SLWT_ETtex.dds
+Textures\SSU\SLWT_ETtex_norm.dds
 Textures\SSU\SpaceShuttle_VABTex_1980.dds
 Textures\SSU\SpaceShuttle_VABTex_2009.dds
 Textures\SSU\SRB_Contrail.dds
