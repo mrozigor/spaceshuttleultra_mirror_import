@@ -518,9 +518,7 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 	
 	// update end effector light position/direction
 	if(arm_moved || MPMRollout.Moving()) {
-		EELightPos = arm_tip[5]+STS()->GetOrbiterCoGOffset()+RMS_MESH_OFFSET;
-		pEELight->SetPosition(EELightPos);
-		pEELight->SetDirection(arm_tip[1]-arm_tip[0]);
+		UpdateEELight();
 
 		// roll camera views
 		if (RMSCameraMode == ELBOW) UpdateElbowCamView();
@@ -1026,6 +1024,14 @@ void RMSSystem::UpdateElbowCamView() const
 		STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+camRMSElbowLoc[0]+RMS_MESH_OFFSET);
 		oapiCameraSetCockpitDir(0.0, 0.0);
 	}
+}
+
+void RMSSystem::UpdateEELight( void )
+{
+	EELightPos = arm_tip[5]+STS()->GetOrbiterCoGOffset()+RMS_MESH_OFFSET;
+	pEELight->SetPosition(EELightPos);
+	pEELight->SetDirection(arm_tip[1]-arm_tip[0]);
+	return;
 }
 
 void RMSSystem::ToggleJointAngleDisplay()
