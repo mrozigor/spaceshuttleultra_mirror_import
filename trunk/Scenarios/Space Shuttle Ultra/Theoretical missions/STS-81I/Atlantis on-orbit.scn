@@ -25,32 +25,12 @@ BEGIN_HUD
   REF AUTO
 END_HUD
 
-BEGIN_MFD Left
-  TYPE User
-  MODE CRT
-  Mode2 2
-  Display 4
-END_MFD
-
 BEGIN_MFD Right
   TYPE User
   MODE CRT
   Mode2 1
-  Display 1
-END_MFD
-
-BEGIN_MFD 3
-  TYPE User
-  MODE CRT
-  Mode2 0
-  Display 1
-END_MFD
-
-BEGIN_MFD 4
-  TYPE User
-  MODE CRT
-  Mode2 0
-  Display 1
+  Display 2
+  MDUID 1
 END_MFD
 
 BEGIN_MFD 5
@@ -58,34 +38,7 @@ BEGIN_MFD 5
   MODE CRT
   Mode2 3
   Display 0
-END_MFD
-
-BEGIN_MFD 6
-  TYPE User
-  MODE CRT
-  Mode2 3
-  Display 0
-END_MFD
-
-BEGIN_MFD 7
-  TYPE User
-  MODE CRT
-  Mode2 2
-  Display 3
-END_MFD
-
-BEGIN_MFD 8
-  TYPE User
-  MODE CRT
-  Mode2 2
-  Display 1
-END_MFD
-
-BEGIN_MFD 9
-  TYPE User
-  MODE CRT
-  Mode2 3
-  Display 0
+  MDUID 4
 END_MFD
 
 BEGIN_VC
