@@ -53,7 +53,7 @@ namespace mission {
 		bHasExtAL = false;
 		bHasTAA = false;
 		bAftTAA = false;
-		bHasBulkheadFloodlights = false;
+		bHasBulkheadFloodlights = true;
 		bHasDragChute = true;
 
 		bUseSILTS = false;
@@ -170,7 +170,8 @@ namespace mission {
 		oapiReadItem_bool(hFile, "UseExtAL", bHasExtAL);
 		oapiReadItem_bool( hFile, "UseTAA", bHasTAA );
 		oapiReadItem_bool( hFile, "AftTAA", bAftTAA );
-		oapiReadItem_bool(hFile, "HasBulkheadFloodlights", bHasBulkheadFloodlights);
+		if ((strOrbiter == "Discovery") || (strOrbiter == "Endeavour"))
+			oapiReadItem_bool(hFile, "HasBulkheadFloodlights", bHasBulkheadFloodlights);
 		oapiReadItem_bool(hFile, "HasDragChute", bHasDragChute);
 
 		for(int i = 0; i<16; i++)

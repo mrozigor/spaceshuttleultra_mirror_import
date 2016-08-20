@@ -7453,6 +7453,7 @@ void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 		for (int i = 0; i < 6; i++) PLBLightPosition[i] -= CoGShift;
 		DockingLightPos -= CoGShift;
 		FwdBulkheadLightPos -= CoGShift;
+		if (pRMS) pRMS->UpdateEELight();
 
 		if (hStackAirfoil) EditAirfoil(hStackAirfoil, 1, CoGShift, NULL, 0.0, 0.0, 0.0);
 

@@ -25,6 +25,22 @@ BEGIN_HUD
   REF AUTO
 END_HUD
 
+BEGIN_MFD Right
+  TYPE User
+  MODE CRT
+  Mode2 1
+  Display 2
+  MDUID 1
+END_MFD
+
+BEGIN_MFD 5
+  TYPE User
+  MODE CRT
+  Mode2 3
+  Display 0
+  MDUID 4
+END_MFD
+
 BEGIN_VC
 END_VC
 
@@ -55,8 +71,16 @@ Endeavour:SpaceShuttleUltra
   GEAR 0 0.0000
   OPS 201
   @PANEL F6
+  @OBJECT "CDR2"
+  DISPLAY 2
+  MENU 1
+  @ENDOBJECT
   @ENDPANEL 
   @PANEL F7
+  @OBJECT "CRT1"
+  DISPLAY 0
+  MENU 3
+  @ENDOBJECT
   @ENDPANEL 
   @PANEL F8
   @ENDPANEL 
