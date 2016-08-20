@@ -18,32 +18,12 @@ BEGIN_CAMERA
   FOV 41.17
 END_CAMERA
 
-BEGIN_MFD Left
-  TYPE User
-  MODE CRT
-  Mode2 3
-  Display 0
-END_MFD
-
 BEGIN_MFD Right
   TYPE User
   MODE CRT
   Mode2 1
-  Display 1
-END_MFD
-
-BEGIN_MFD 3
-  TYPE User
-  MODE CRT
-  Mode2 3
-  Display 0
-END_MFD
-
-BEGIN_MFD 4
-  TYPE User
-  MODE CRT
-  Mode2 1
   Display 2
+  MDUID 1
 END_MFD
 
 BEGIN_MFD 5
@@ -51,13 +31,7 @@ BEGIN_MFD 5
   MODE CRT
   Mode2 3
   Display 0
-END_MFD
-
-BEGIN_MFD 8
-  TYPE User
-  MODE CRT
-  Mode2 2
-  Display 2
+  MDUID 4
 END_MFD
 
 BEGIN_VC
