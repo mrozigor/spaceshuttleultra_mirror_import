@@ -144,6 +144,11 @@ public:
 	 * Returns false if arm is grappled to payload which is attached to something else.
 	 */
 	bool Movable() const;
+
+	/**
+	 * Updates the EE spotlight position/direction. To be called when the RMS moves and also from the Atlantis c.g. change member.
+	 */
+	void UpdateEELight( void );
 protected:
 	virtual void OnMRLLatched();
 
