@@ -512,6 +512,9 @@
     <ClCompile Include="dps\MEC_SOP.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="DragChute.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -995,6 +998,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\MEC_SOP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="DragChute.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
