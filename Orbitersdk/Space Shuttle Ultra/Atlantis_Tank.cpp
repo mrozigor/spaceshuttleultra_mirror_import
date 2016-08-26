@@ -192,8 +192,6 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 	// Note that the camera offset should not be required
 	// since the Tank doesn't define a 'cockpit'
 
-	SetCOG_elev (-5.0);
-
 	DWORD ntdvtx = 4;
 	static TOUCHDOWNVTX tdvtx[4] = {
 		{_V( 0, 1, 3 ), 1e5, 1e2, 0.5, 0.005},
