@@ -46,15 +46,23 @@ namespace mission {
 
 		OVmass = ORBITER_EMPTY_MASS_OV104;// default to Atlantis
 
+		/////////////////////////////////////////
+		// the following options must be false by default, as their panels and/or subsystems are only created if a mission file is specified
 		bUseRMS = false;
-		bHasKUBand = true;
+		bHasKUBand = false;
 		bHasMPMs = false;
 		bHasODS = false;
 		bHasExtAL = false;
 		bHasTAA = false;
 		bAftTAA = false;
+		bUseASE_IUS = false;
+		bUseCISS = false;
+		bHasDragChute = false;
+		/////////////////////////////////////////
+		bASE_IUS_Aft_Location = false;
+		bCISS_GPrime = true;
+
 		bHasBulkheadFloodlights = true;
-		bHasDragChute = true;
 
 		bUseSILTS = false;
 
@@ -63,12 +71,6 @@ namespace mission {
 		for(int i=0;i<13;i++) bHasBridgerail[i] = false;
 
 		bLogSSMEData = false;
-
-		bUseASE_IUS = false;
-		bASE_IUS_Aft_Location = false;
-
-		bUseCISS = false;
-		bCISS_GPrime = true;
 	}
 
 	bool Mission::LoadMission(const std::string& strMission)

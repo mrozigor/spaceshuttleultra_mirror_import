@@ -225,6 +225,7 @@ class RMSSystem;
 class StbdMPMSystem;
 class ASE_IUS;
 class CISS;
+class DragChute;
 class ActiveLatchGroup;
 class MCA;
 class MechActuator;
@@ -417,6 +418,8 @@ public:
 
 	comm::DeployedAssembly* pDeployedAssembly;
 
+	DragChute* pDragChute;
+
 	AnimState::Action spdb_status;
 	int ___iCurrentManifold;
 
@@ -452,7 +455,6 @@ public:
 	UINT mesh_kuband;						   // index for KU band antenna mesh
 	UINT mesh_SILTS;
 	UINT mesh_cargo_static;					   // index for static cargo mesh
-	UINT mesh_dragchute;					   // index for drag chute mesh
 	UINT mesh_heatshield;					   //index for heat shield mesh
 
 	//**********************************************************
@@ -688,8 +690,7 @@ public:
 	VECTOR3 cargo_static_ofs;
 	VISHANDLE vis;      // handle for visual - note: we assume that only one visual per object is created!
 	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, 
-		hMidDeckMesh,
-		hDragChuteMesh; // mesh handles
+		hMidDeckMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	MESHHANDLE hSILTSMesh;
 	MESHHANDLE hHeatShieldMesh;
@@ -857,8 +858,6 @@ private:
 	void ArmGear();
 	void DefineTouchdownPoints();
 	bool GearArmed() const;
-	void DeployDragChute();
-	void JettisonDragChute();
 
 	void RealizeSubsystemConnections();
 
@@ -909,8 +908,6 @@ private:
 	UINT anim_letumbdoor;					   // handle for left ET umbilical door animation
 	UINT anim_retumbdoor;					   // handle for right ET umbilical door animation
 	UINT anim_gear;                            // handle for landing gear animation
-	UINT anim_chute_deploy;					   // handle for drag chute deploy animation
-	UINT anim_chute_spin;					   // handle for chute spinning
 	UINT anim_stzd;							   // handle for +Z Star Tracker Door animation
 	UINT anim_styd;							   // handle for -Y Star Tracker Door animation
 	
@@ -984,14 +981,9 @@ private:
 	LightEmitter* SRBLight[2];
 	LightEmitter* SSMELight;
 
-	//gear/drag chute
+	//gear
 	AnimState gear_status;
 	bool gear_armed;
-	bool DragChuteDeploying; //used to command drag chute deploy
-	enum{STOWED, DEPLOYING, REEFED, INFLATED, JETTISONED} DragChuteState;
-	double DragChuteDeployTime; //time at which deploy command was received
-	double DragChuteSize; //0 (Stowed/Jettisoned) or 0.4(Reefed) or 1.0(Deployed)
-	AnimState DragChuteSpin;
 	
 	PROPELLANT_HANDLE ph_oms, ph_mps, ph_srb, ph_frcs; // handles for propellant resources
 	PROPELLANT_HANDLE ph_lrcs, ph_rrcs, ph_controller;
@@ -1228,11 +1220,6 @@ private:
 	DiscOutPort LandingGearPosition[6];
 	DiscOutPort LandingGearArmDeployLT[2];
 	DiscInPort LandingGearArmDeployPB[4];
-
-	DiscOutPort DragChuteARMDPYJETTLT[3];
-	DiscInPort DragChuteARM[2];
-	DiscInPort DragChuteDPY[2];
-	DiscInPort DragChuteJETT[2];
 
 	DiscOutPort SSMEPBAnalog[3]; // to allow MECO to be commanded from keyboard
 
