@@ -260,6 +260,7 @@
     <ClCompile Include="dps\HALS_Types.cpp" />
     <ClCompile Include="dps\IOModule.cpp" />
     <ClCompile Include="dps\IO_Control.cpp" />
+    <ClCompile Include="dps\MEC_SOP.cpp" />
     <ClCompile Include="dps\MM801.cpp" />
     <ClCompile Include="dps\MMU.cpp" />
     <ClCompile Include="dps\MPS_Dedicated_Display_Driver.cpp" />
@@ -283,6 +284,7 @@
     <ClCompile Include="eps\ACMotorController.cpp" />
     <ClCompile Include="eva_docking\TunnelAdapterAssembly.cpp" />
     <ClCompile Include="gnc\RA.cpp" />
+    <ClCompile Include="MasterEventsController.cpp" />
     <ClCompile Include="mps\ComputerInterfaceElectronics.cpp" />
     <ClCompile Include="mps\ComputerInterfaceElectronics_BLOCK_II.cpp" />
     <ClCompile Include="mps\DigitalComputerUnit.cpp" />
@@ -428,6 +430,7 @@
     <ClInclude Include="dps\IOModule.h" />
     <ClInclude Include="dps\IO_Control.h" />
     <ClInclude Include="dps\MDM.h" />
+    <ClInclude Include="dps\MEC_SOP.h" />
     <ClInclude Include="dps\MM801.h" />
     <ClInclude Include="dps\MPS_Dedicated_Display_Driver.h" />
     <ClInclude Include="dps\MPS_Dump.h" />
@@ -445,6 +448,7 @@
     <ClInclude Include="eva_docking\TunnelAdapterAssembly.h" />
     <ClInclude Include="gnc\AA.h" />
     <ClInclude Include="gnc\RA.h" />
+    <ClInclude Include="MasterEventsController.h" />
     <ClInclude Include="meshres_ExtAL.h" />
     <ClInclude Include="meshres_IUS_ASE.h" />
     <ClInclude Include="meshres_vc_l10.h" />

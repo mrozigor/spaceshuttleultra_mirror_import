@@ -19,6 +19,7 @@
 #include "SRBSepSequence.h"
 #include "ATVC_SOP.h"
 #include "GeneralDisplays.h"
+#include "MEC_SOP.h"
 #include "../Atlantis.h"
 
 namespace dps
@@ -46,6 +47,7 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 	vSoftware.push_back( new SRBSepSequence( this ) );
 	vSoftware.push_back( new ATVC_SOP( this ) );
 	vSoftware.push_back( new GeneralDisplays( this ) );
+	vSoftware.push_back( new MEC_SOP( this ) );
 }
 
 SimpleGPCSystem::~SimpleGPCSystem()

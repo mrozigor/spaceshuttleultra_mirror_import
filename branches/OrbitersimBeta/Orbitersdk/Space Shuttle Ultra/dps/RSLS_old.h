@@ -41,6 +41,7 @@ namespace dps
 	class SSME_SOP;
 	class IO_Control;
 	class ATVC_SOP;
+	class MEC_SOP;
 
 	class RSLS_old:public SimpleGPCSoftware
 	{
@@ -64,6 +65,7 @@ namespace dps
 		SSME_SOP* pSSME_SOP;
 		IO_Control* pIO_Control;
 		ATVC_SOP* pATVC_SOP;
+		MEC_SOP* pMEC_SOP;
 		double launch_mjd, timeToLaunch, lastTTL, RSLSAbortTime;
 		bool Active,Aborted;
 		char* RSLSAbortCause;
@@ -71,6 +73,8 @@ namespace dps
 		bool RSLSAbort;
 		bool abortfirstrun;
 		bool launchconfiggimbal;
+		bool T0UmbilicalReleased;
+		bool SRBIgnitionCMD;
 		short engineSD;
 		double eng1SDtime;
 		double eng2SDtime;

@@ -279,7 +279,7 @@ namespace dps
 		pIO_Control = static_cast<IO_Control*> (FindSoftware( "IO_Control" ));
 		assert( (pIO_Control != NULL) && "MPS_Dump::Realize.pIO_Control" );
 		pATVC_SOP = static_cast<ATVC_SOP*> (FindSoftware( "ATVC_SOP" ));
-		assert( (pATVC_SOP != NULL) && "MPS_Dump::Realize.ATVC_SOP" );
+		assert( (pATVC_SOP != NULL) && "MPS_Dump::Realize.pATVC_SOP" );
 
 		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle( "BODYFLAP_CONTROLS", 16 );
 		BodyFlapManLight.Connect( pBundle, 0 );

@@ -506,6 +506,12 @@
     <ClCompile Include="vc\7SegDisp_RE_RRA.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="MasterEventsController.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\MEC_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -983,6 +989,12 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\7SegDisp_RE_RRA.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="MasterEventsController.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\MEC_SOP.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
