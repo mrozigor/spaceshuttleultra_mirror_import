@@ -62,6 +62,7 @@ namespace dps
 {
 	class SSME_Operations;
 	class AscentGuidance;
+	class MEC_SOP;
 
 	/**
 	 * @brief	Implementation of the SRB Separation Sequencer running in the GPCs.
@@ -73,6 +74,7 @@ namespace dps
 		private:
 			SSME_Operations* pSSME_Operations;
 			AscentGuidance* pAscentGuidance;
+			MEC_SOP* pMEC_SOP;
 
 			DiscInPort SRBSEPSW;
 			DiscInPort SRBSEPPB;

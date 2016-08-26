@@ -2,6 +2,7 @@
 #include "..\Atlantis.h"
 #include "SSME_Operations.h"
 #include "AscentGuidance.h"
+#include "MEC_SOP.h"
 
 
 namespace dps
@@ -28,7 +29,13 @@ namespace dps
 	{
 		if (STS()->GetMET() >= SRB_SEP_SEQUENCE_START_TIME)
 		{
-			if (SRBSEPinit == false)
+			if (SRBSEPCommand)
+			{
+				// TODO wait 4s
+				pMEC_SOP->SetMECMasterResetFlag();
+				SetMajorMode( 103 );
+			}
+			else if (SRBSEPinit == false)
 			{
 				if ((STS()->GetSRBChamberPressure( 0 ) < 50) && (timePC50L == -1)) timePC50L = SimT;
 				if ((STS()->GetSRBChamberPressure( 1 ) < 50) && (timePC50R == -1)) timePC50R = SimT;
@@ -59,6 +66,8 @@ namespace dps
 			{
 				if ((timeSRBSEPinit + SRB_SEP_MOD_DELAY) <= SimT)
 				{
+					pMEC_SOP->SetSRBSepSequencerFlag( MECSOP_SRBSEP_SRB_SEP_PICS_ARM );
+
 					// SRB nozzles to null
 					pAscentGuidance->NullSRBNozzles();
 
@@ -98,8 +107,8 @@ namespace dps
 				if ((SRBSEPCommand == true) && (pSSME_Operations->GetMECOConfirmedFlag() == false))// no SRB SEP for 3 EO, SRBs go together with ET
 				{
 					// sep cmd
-					STS()->SeparateBoosters( STS()->GetMET() );
-					SetMajorMode( 103 );
+					pMEC_SOP->SetSRBSepSequencerFlag( MECSOP_SRBSEP_SRB_SEP_FIRE_1 );
+					pMEC_SOP->SetSRBSepSequencerFlag( MECSOP_SRBSEP_SRB_SEP_FIRE_2 );
 					SRBSEPINH = false;
 
 					char buffer[64];
@@ -115,6 +124,7 @@ namespace dps
 	{
 		pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
 		pAscentGuidance = static_cast<AscentGuidance*> (FindSoftware( "AscentGuidance" ));
+		pMEC_SOP = static_cast<MEC_SOP*> (FindSoftware( "MEC_SOP" ));
 
 		DiscreteBundle* bundle = BundleManager()->CreateBundle( "C3_SEP", 4 );
 		SRBSEPSW.Connect( bundle, 0 );

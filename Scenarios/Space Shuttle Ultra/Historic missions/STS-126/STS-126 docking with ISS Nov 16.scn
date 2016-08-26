@@ -210,6 +210,8 @@ Endeavour:SpaceShuttleUltra
   "EIU L-C" OFF
   "EIU C-R" OFF
   "EIU R-L" OFF
+  "MEC 1 Power" OFF
+  "MEC 2 Power" OFF
   @ENDPANEL 
   @PANEL A1U
   "SLEW RATE" SLOW

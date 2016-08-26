@@ -35,6 +35,8 @@ class PanelO17 : public AtlantisPanel {
 	StdSwitch2* pEIUPowerLC;
 	StdSwitch2* pEIUPowerCR;
 	StdSwitch2* pEIUPowerRL;
+
+	StdSwitch2* pMECPower[2];
 public:
 	PanelO17(Atlantis* psts);
 	virtual ~PanelO17();

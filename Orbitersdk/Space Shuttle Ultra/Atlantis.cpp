@@ -80,6 +80,7 @@
 #include "comm\DeployedAssembly.h"
 #include "comm\ElectronicsAssembly1.h"
 #include "comm\ElectronicsAssembly2.h"
+#include "MasterEventsController.h"
 #include "gnc\RA.h"
 #include <UltraMath.h>
 #include <cassert>
@@ -533,6 +534,9 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	psubsystems->AddSubsystem( new comm::GCIL( psubsystems ) );
 
 	psubsystems->AddSubsystem(pATVC = new gnc::ATVC(psubsystems, "ATVC", 1));// HACK should be 4 of this
+
+	psubsystems->AddSubsystem( new MasterEventsController( psubsystems, "MEC1", 1 ) );
+	psubsystems->AddSubsystem( new MasterEventsController( psubsystems, "MEC2", 2 ) );
 
 	psubsystems->AddSubsystem( new gnc::RadarAltimeter( psubsystems, "RA1", 1 ) );
 	psubsystems->AddSubsystem( new gnc::RadarAltimeter( psubsystems, "RA2", 2 ) );
