@@ -70,23 +70,6 @@
 #include "Sensor.h"
 
 
-
-typedef struct {
-	double P;		//Pressure (psig)
-	double T;		//Temperature (°R)
-	double mdot;	//mass flow (lb/s)
-} FLOWSTATE;
-
-
-
-
-//Z
-//-.5216187842e-1*sin(beta)+.5609219446*cos(alpha)
-//-.2802319446*cos(alpha)*cos(beta)+.9135110136*sin(alpha)
-//+.9417727780e-2*sin(alpha)*cos(beta)
-
-
-
 const short VARSTATE_OK = 0;
 const short VARSTATE_MISSING = 1;
 const short VARSTATE_OFFSCALE_LOW = 2;
@@ -140,13 +123,6 @@ const static char* TEXT_RMSCONTROL = "Controlling RMS";
 // ==========================================================
 
 
-const unsigned int convert[69] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-
-
-
-
 typedef struct {
 	HINSTANCE hDLL;
 	SURFHANDLE pbi_lights;
@@ -167,48 +143,6 @@ typedef struct {
 	SURFHANDLE deu_characters_faultSH;
 } GDIParams;
 
-
-struct DAPConfig {
-	double PRI_ROT_RATE, PRI_ATT_DB, PRI_RATE_DB, PRI_ROT_PLS, PRI_COMP, PRI_TRAN_PLS;
-	int PRI_P_OPTION, PRI_Y_OPTION; //0=ALL, 1=NOSE, 2=TAIL
-	double ALT_RATE_DB, ALT_ON_TIME, ALT_DELAY;
-	int ALT_JET_OPT, ALT_JETS;
-	double VERN_ROT_RATE, VERN_ATT_DB, VERN_RATE_DB, VERN_ROT_PLS, VERN_COMP;
-	int VERN_CNTL_ACC;
-
-	DAPConfig& operator = (const DAPConfig& rhs) {
-		// copy all values from other config into this one
-		PRI_ROT_RATE=rhs.PRI_ROT_RATE;
-		PRI_ATT_DB=rhs.PRI_ATT_DB;
-		PRI_RATE_DB=rhs.PRI_RATE_DB;
-		PRI_ROT_PLS=rhs.PRI_ROT_PLS;
-		PRI_COMP=rhs.PRI_COMP;
-		PRI_TRAN_PLS=rhs.PRI_TRAN_PLS;
-		PRI_P_OPTION=rhs.PRI_P_OPTION;
-		PRI_Y_OPTION=rhs.PRI_Y_OPTION;
-		ALT_RATE_DB=rhs.ALT_RATE_DB;
-		ALT_ON_TIME=rhs.ALT_ON_TIME;
-		ALT_DELAY=rhs.ALT_DELAY;
-		ALT_JET_OPT=rhs.ALT_JET_OPT;
-		ALT_JETS=rhs.ALT_JETS;
-		VERN_ROT_RATE=rhs.VERN_ROT_RATE;
-		VERN_ATT_DB=rhs.VERN_ATT_DB;
-		VERN_RATE_DB=rhs.VERN_RATE_DB;
-		VERN_ROT_PLS=rhs.VERN_ROT_PLS;
-		VERN_COMP=rhs.VERN_COMP;
-		VERN_CNTL_ACC=rhs.VERN_CNTL_ACC;
-
-		return *this;
-	}
-
-};
-
-typedef struct {
-	int START_TIME[4]; // day,hour,min,sec
-	VECTOR3 TargetAttM50;
-	MATRIX3 LVLHTgtOrientationMatrix;
-	enum {OFF, MNVR, TRK, ROT} Type;
-} AttManeuver;
 
 typedef struct {
 	double leftElevon, rightElevon;
@@ -234,14 +168,6 @@ class PayloadBay;
 class Atlantis_Tank;
 class Atlantis_SRB;
 
-
-
-typedef enum {
-	LT_LATCHED = 0,
-	LT_OPENING,
-	LT_CLOSING,
-	LT_RELEASED
-} LATCH_STATE;
 
 typedef enum {
 	OMS_LEFT = 0,
@@ -438,12 +364,6 @@ public:
 	double t0;          // reference time: designated liftoff time
 	double met;
 
-	enum {
-		VCM_FLIGHTDECK = 0,
-		VCM_MIDDECK,
-		VCM_AIRLOCK
-	} vcDeckMode;
-
 	/* **************************************************************
 	 * Mesh indices for use in objects  
 	 ****************************************************************/
@@ -505,7 +425,6 @@ public:
 	virtual vc::MDU* GetMDU(unsigned short usMDUID) const;
 	virtual const VECTOR3& GetOrbiterCoGOffset() const;
 	virtual short GetSRBChamberPressure(unsigned short which_srb);
-	virtual bool IsValidSPEC(int gpc, int spec) const;
 	virtual unsigned int GetGPCMajorMode() const;
 	virtual double GetTgtSpeedbrakePosition() const;
 	virtual double GetActSpeedbrakePosition() const;
@@ -530,7 +449,6 @@ public:
 	void SetOrbiterTankConfiguration (void);
 	void SetPostLaunchConfiguration (double srbtime);
 	void SetRadiatorPosition (double pos, int side);
-	//void SetRadLatchPosition (double pos) {}
 	void SetSpeedbrake (double tgt);
 	/**
 	 * @param usMPSNo numerical ID of the SSME
@@ -680,11 +598,8 @@ public:
 
 
 	AerosurfacePositions aerosurfaces;
-	//double kubd_proc; // Ku-band antenna deployment state (0=retracted, 1=deployed)
 	double spdb_proc, spdb_tgt; // Speedbrake deployment state (0=fully closed, 1=fully open)
 	double ldoor_drag, rdoor_drag; // drag components from open cargo doors
-	bool do_eva;
-	bool do_plat;
 	bool do_cargostatic;
 	VECTOR3 orbiter_ofs;
 	VECTOR3 cargo_static_ofs;
@@ -705,8 +620,6 @@ public:
 	ATTACHMENTHANDLE ahHDP;
 	ATTACHMENTHANDLE ahTow;
 	//P-C attachments
-	ATTACHMENTHANDLE ahMMU[2];
-	ATTACHMENTHANDLE ahExtAL[2];
 	//ATTACHMENTHANDLE ahCenterActive[3];
 	ATTACHMENTHANDLE ahCenterPassive[4];
 	ATTACHMENTHANDLE ahStbdPL[4];
@@ -770,7 +683,6 @@ private:
 	std::vector<ActiveLatchGroup*> pActiveLatches;
 
 	void DetachSRB(SIDE side, double thrust, double prop);
-	void SeparateMMU (void);
 	void loadMDMConfiguration(void);
 	/**
 	 * Copies settings (thrust & ISP) from one thruster to another
@@ -832,7 +744,6 @@ private:
 	int Lua_InitInstance (void *context);
 	//-----------------------------------
 	void DefineKUBandAnimations();
-	void LaunchClamps();
 	void CreateAttControls_RCS(VECTOR3 center);
 
 	void DisableControlSurfaces();
@@ -896,8 +807,6 @@ private:
 	UINT anim_door;                            // handle for cargo door animation
 	UINT anim_rad[2];                             // handle for radiator animation
 	UINT anim_clatch[4];					   // handle for center line latch gangs
-
-	UINT anim_portTS;							//Port Torque Shaft animation (0°...135°)
 
 	UINT anim_kubd;                            // handle for Ku-band antenna animation
 	UINT anim_lelevon;                         // handle for left elevator animation
@@ -1084,7 +993,6 @@ private:
 	THGROUP_HANDLE thg_transfwd, thg_transaft, thg_transup, thg_transdown, thg_transright, thg_transleft;
 	VECTOR3 TransForce[2]; //force provided by translation groups; 0=plus-axis
 	UINT ex_main[3];						   // main engine exhaust
-	UINT ex_retro[2];						   // OMS exhaust
 	std::vector<UINT> vExRCS;				   // RCS exhaust
 	std::vector<PSTREAM_HANDLE> vExStreamRCS;  // RCS exhaust stream
 	PARTICLESTREAMSPEC RCS_PSSpec;
@@ -1124,10 +1032,6 @@ private:
 	//Thruster commands
 	VECTOR3 TranslationCommand, RotationCommand;
 
-	bool reset_mmu;
-	OBJHANDLE hMMU;
-	double jettison_time;
-	bool render_cockpit;
 	VCHUDSPEC huds;
 	double mfdbright[11];
 	double pl_mass;

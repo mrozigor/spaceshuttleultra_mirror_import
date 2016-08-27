@@ -349,7 +349,7 @@ namespace dps {
 		else if(SPEC != std::string::npos) { // SPEC entered
 			//STS()->Input(GetIDPID()-1, 2, scratchPad.substr(SPEC+5).c_str());
 			int newSpec = atoi(scratchPad.substr(SPEC+5).c_str());
-			if(STS()->IsValidSPEC(0, newSpec))
+			if(STS()->pSimpleGPC->IsValidSPEC( newSpec ))
 			{
 				// choose between DISP and SPEC
 				if (IsDisp( newSpec ) == true)

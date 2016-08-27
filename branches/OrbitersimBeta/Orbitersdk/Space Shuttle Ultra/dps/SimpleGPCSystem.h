@@ -31,6 +31,11 @@ public:
 	 */
 	bool IsValidMajorModeTransition(unsigned int newMajorMode) const;
 
+	/**
+	 * Returns true if the specified SPEC is valid in the current OPS.
+	 */
+	bool IsValidSPEC( int spec ) const;
+
 	unsigned int GetMajorMode() const { return majorMode; };
 
 	virtual void Realize();
