@@ -387,11 +387,8 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			if ((airspeed * MPS2KTS) > 100) RudderCommand.SetLine( RHCInput[YAW].GetVoltage() );// rudder available above 100 KGS
 			else RudderCommand.SetLine(0.0f);
 			//Nosewheel steering
-			double steerforce = (95.0-airspeed);
-			if(airspeed<6.0) steerforce*=(airspeed/6);
-			steerforce = 275000/3*steerforce*RHCInput[YAW].GetVoltage();
-			STS()->AddForce(_V(steerforce, 0, 0), _V(0, 0, 12.0));
-			STS()->AddForce(_V(-steerforce, 0, 0), _V(0, 0, -12.0));
+			double steerforce = min( 120000, 120000 * (airspeed / 50.0) ) * RHCInput[YAW].GetVoltage();
+			STS()->AddForce(_V(steerforce, 0, 0), _V(0, 0, 14.9));
 		}
 		else {
 			//oapiWriteLog("No WONG");
