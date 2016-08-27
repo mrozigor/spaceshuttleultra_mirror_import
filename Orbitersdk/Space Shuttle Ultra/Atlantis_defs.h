@@ -20,7 +20,6 @@ const static char* SILTS_MESHNAME = "SSU\\SILTSpod";
 
 
 const VECTOR3 OFS_ZERO             = { 0.0, 0.0,  0.0  };
-const VECTOR3 OFS_MMU              = {0,2.44,10.44};
 const VECTOR3 VC_OFFSET = _V(0.0, -1.32, -2.22);
 
 // mesh offsets

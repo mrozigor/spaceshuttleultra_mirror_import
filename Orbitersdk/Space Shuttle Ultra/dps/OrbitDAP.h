@@ -14,12 +14,51 @@ namespace dps
 const double RHC_SOFT_STOP = 0.75;
 const double RHC_DETENT = 0.01;
 
+const unsigned int convert[69] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+
 struct AttManeuver
 {
 	typedef enum {MNVR, TRK, ROT} TYPE; // at the moment, ROT is not supported
 	bool IsValid;
 	MATRIX3 tgtMatrix; // target attitude (rotation matrix) in right-handed frame (LVLH or M50, as appropriate)
 	TYPE Type; // at the moment, ROT is not supported
+};
+
+struct DAPConfig
+{
+	double PRI_ROT_RATE, PRI_ATT_DB, PRI_RATE_DB, PRI_ROT_PLS, PRI_COMP, PRI_TRAN_PLS;
+	int PRI_P_OPTION, PRI_Y_OPTION; //0=ALL, 1=NOSE, 2=TAIL
+	double ALT_RATE_DB, ALT_ON_TIME, ALT_DELAY;
+	int ALT_JET_OPT, ALT_JETS;
+	double VERN_ROT_RATE, VERN_ATT_DB, VERN_RATE_DB, VERN_ROT_PLS, VERN_COMP;
+	int VERN_CNTL_ACC;
+
+	DAPConfig& operator = (const DAPConfig& rhs) {
+		// copy all values from other config into this one
+		PRI_ROT_RATE=rhs.PRI_ROT_RATE;
+		PRI_ATT_DB=rhs.PRI_ATT_DB;
+		PRI_RATE_DB=rhs.PRI_RATE_DB;
+		PRI_ROT_PLS=rhs.PRI_ROT_PLS;
+		PRI_COMP=rhs.PRI_COMP;
+		PRI_TRAN_PLS=rhs.PRI_TRAN_PLS;
+		PRI_P_OPTION=rhs.PRI_P_OPTION;
+		PRI_Y_OPTION=rhs.PRI_Y_OPTION;
+		ALT_RATE_DB=rhs.ALT_RATE_DB;
+		ALT_ON_TIME=rhs.ALT_ON_TIME;
+		ALT_DELAY=rhs.ALT_DELAY;
+		ALT_JET_OPT=rhs.ALT_JET_OPT;
+		ALT_JETS=rhs.ALT_JETS;
+		VERN_ROT_RATE=rhs.VERN_ROT_RATE;
+		VERN_ATT_DB=rhs.VERN_ATT_DB;
+		VERN_RATE_DB=rhs.VERN_RATE_DB;
+		VERN_ROT_PLS=rhs.VERN_ROT_PLS;
+		VERN_COMP=rhs.VERN_COMP;
+		VERN_CNTL_ACC=rhs.VERN_CNTL_ACC;
+
+		return *this;
+	}
 };
 
 /**

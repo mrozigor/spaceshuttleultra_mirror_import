@@ -600,15 +600,10 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 	hOVTexture = NULL;
 
-	reset_mmu = false;
-	jettison_time = 0.0;
-	render_cockpit = false;
 	bLiftOff = false;
 	bHasKUBand = true;
 	bUseRealRCS = true;
 	bEnableMCADebug = false;
-
-	vcDeckMode = VCM_FLIGHTDECK;
 
 	___iCurrentManifold = 0;
 
@@ -725,17 +720,10 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 	ControlSurfacesEnabled = false;
 
-	//DefineAnimations();
-	do_eva = false;
-	do_plat = false;
 	do_cargostatic = false;
 	vis = NULL;
 	ahHDP = NULL;
 	ahTow = NULL;
-	ahMMU[0] = NULL;
-	ahMMU[1] = NULL;
-	ahExtAL[0] = NULL;
-	ahExtAL[1] = NULL;
 
 	/*for (int i = 0; i < 3; i++)
 	{
@@ -2191,24 +2179,8 @@ void Atlantis::DefineAttachments(const VECTOR3& ofs0)
 	else CreateAttachment(false, _V(0, 0, 0), _V(1, 0, 0), _V(0, 1, 0), "INVALID");
 
 
-	//Without MMU, make this port airlock payload 
-	if (ahMMU[0])
-	{
-
-	}
-	else
-	{
-		ahMMU[0] = CreateAttachment(false, ofs0 + OFS_PORTMMU, _V(1, 0, 0), _V(0, 0, 1), "XS");
-	}
-
-	//Without MMU, make this stbd airlock payload 
-	if (ahMMU[1])
-	{
-	}
-	else
-	{
-		ahMMU[1] = CreateAttachment(false, ofs0 + OFS_STBDMMU, _V(-1, 0, 0), _V(0, 0, 1), "XS");
-	}
+	CreateAttachment(false, ofs0 + OFS_PORTMMU, _V(1, 0, 0), _V(0, 0, 1), "XS");// port airlock payload
+	CreateAttachment(false, ofs0 + OFS_STBDMMU, _V(-1, 0, 0), _V(0, 0, 1), "XS");// stbd airlock payload
 
 
 	/*eva_docking::ODS* pODS = dynamic_cast<eva_docking::ODS*>(pExtAirlock);
@@ -2445,10 +2417,6 @@ void Atlantis::AddOrbiterVisual()
 			}
 			SetMeshVisibilityMode(mesh_cargo_static, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS);
 		}
-		if (do_plat) {
-			VECTOR3 plat_ofs = _V(-2.59805, 1.69209, -5.15524);
-			AddMesh("shuttle_eva_plat", &plat_ofs);
-		}
 
 		// ***** Attachment definitions
 		DefineAttachments(OFS_ZERO);
@@ -2589,20 +2557,6 @@ void Atlantis::ToggleGrapple(void)
 	}
 }
 
-void Atlantis::SeparateMMU(void)
-{
-	// Create MMU as individual object
-	VESSELSTATUS vs;
-	GetStatus(vs);
-	char name[256];
-	strcpy(name, GetName()); strcat(name, "-MMU");
-	hMMU = oapiCreateVessel(name, "Nasa_MMU", vs);
-	jettison_time = oapiGetSimTime();
-	reset_mmu = true;
-	// Remove MMU from shuttle instance
-	SetOrbiterConfiguration();
-}
-
 bool Atlantis::HydraulicsOK() {
 	return panelr2->HydraulicPressure();
 }
@@ -2667,25 +2621,6 @@ void Atlantis::CalcSSMEThrustAngles(int eng, double& degAngleP, double& degAngle
 	degAngleP = DEG*atan2(N.y, N.z);
 	degAngleY = -DEG*atan2(cos(RAD*degAngleP) * N.x, N.z);
 }
-
-void Atlantis::LaunchClamps()
-{
-	VECTOR3 F, T, r = _V(0, 0, 0), Fc = _V(0, 0, 0), Tc = _V(0, 0, 0);
-	GetThrusterMoment(th_srb[0], F, T);
-	Fc.z = -2 * F.z;
-	Tc.x = 2 * T.x;
-	GetThrusterMoment(th_main[0], F, T);
-	Fc.z -= 2 * F.z;
-	Fc.y -= 2 * F.y;
-	Tc.x += 2 * T.x;
-	GetThrusterMoment(th_main[2], F, T);
-	Fc.z -= F.z;
-	Fc.y -= F.y;
-	Tc.x += T.x;
-	r.z = (Fc.y ? Tc.x / Fc.y : 0);
-	AddForce(Fc, r);
-}
-
 
 // Update moving parts of the orbiter's visual: payload bay doors and gear
 // This should only be called when the visual exists, e.g. from within
@@ -2897,7 +2832,6 @@ void Atlantis::SetBayDoorPosition(double pos)
 	SetAnimation(anim_door, pos);
 	rdoor_drag = sqrt(min(1.0, pos*3.0));
 	ldoor_drag = sqrt(min(1.0, max(0.0, pos - 0.3656)*3.0));
-	//SetAnimation (anim_portTS, max(0.0, (pos - 0.5)/0.5));
 }
 
 void Atlantis::SetBayDoorLatchPosition(int gang, double pos)
@@ -3392,9 +3326,6 @@ void Atlantis::clbkSetClassCaps(FILEHANDLE cfg)
 	try
 	{
 		options->Parse(cfg);
-		if (!oapiReadItem_bool(cfg, "RenderCockpit", render_cockpit))
-			render_cockpit = false;
-
 		if (!oapiReadItem_bool(cfg, "UseRealRCS", bUseRealRCS))
 			bUseRealRCS = false;
 
@@ -4403,7 +4334,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 	
 	double airspeed;
 	
-	OBJHANDLE hvessel;
 	try
 	{
 		//Stopwatch st, stSub;
@@ -4526,8 +4456,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 				if (pSimpleGPC->GetMajorMode() == 101) pSimpleGPC->SetMajorMode(102);
 			}
 			else {
-				LaunchClamps();
-
 				if (pRSLS->GetRSLSAbortFlag())// handle pad abort (sound wise)
 				{
 					if (IsPlaying( SoundID, SSME_RUNNING )) PlayVesselWave( SoundID, SSME_SHUTDOWN, NOLOOP );
@@ -4560,26 +4488,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 			if (GroundContact())
 				if (airspeed > 1.0) SetThrusterGroupLevel(THGROUP_MAIN, 0.0); // if main thrust is nonzero, shuttle will never come to a complete stop
 
-			if (do_eva) {
-				char name[256];
-				strcpy(name, GetName()); strcat(name, "-MMU");
-				hvessel = oapiGetVesselByName(name);
-				if (hvessel == 0)
-				{
-					SeparateMMU();
-					hvessel = oapiGetVesselByName(name);
-					if (hvessel != 0)
-						oapiSetFocusObject(hvessel);
-				}
-				else
-				{
-					hvessel = oapiGetVesselByName(name);
-					if (hvessel != 0)
-						oapiSetFocusObject(hvessel);
-				};
-				do_eva = false;
-			};
-
 			//handle body flap and speedbrake PBIs
 			if ((int)(pSimpleGPC->GetMajorMode() / 100) == 3) //Entry
 			{
@@ -4609,29 +4517,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 			//}
 
 			break;
-		}
-
-		VESSEL *aVessel;
-		VESSELSTATUS vs;
-
-		if (reset_mmu && simt - jettison_time > .01)
-		{
-			GetStatus(vs);
-			vs.eng_main = vs.eng_hovr = 0.0;
-			VECTOR3 ofs = OFS_ZERO;
-			ofs.x += OFS_MMU.x;
-			ofs.y += OFS_MMU.y;
-			ofs.z += OFS_MMU.z;
-			VECTOR3 rofs, rvel = { vs.rvel.x, vs.rvel.y, vs.rvel.z };
-			VECTOR3 vel = { 0, 0, 0 };
-			Local2Rel(ofs, vs.rpos);
-			GlobalRot(vel, rofs);
-			vs.rvel.x = rvel.x + rofs.x;
-			vs.rvel.y = rvel.y + rofs.y;
-			vs.rvel.z = rvel.z + rofs.z;
-			aVessel = oapiGetVesselInterface(hMMU);
-			aVessel->DefSetState(&vs);
-			reset_mmu = false;
 		}
 
 		// ***** Animate speedbrake *****
@@ -5514,9 +5399,6 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 		case OAPI_KEY_8:
 			ToggleGrapple();
 			return 1;
-		/*case OAPI_KEY_E:
-			  do_eva = true;
-			  return 1;*/
 		case OAPI_KEY_COMMA:
 			// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
 			if (!Playback() && !GroundContact() && pSimpleGPC->GetMajorMode() >= 304) IncThrusterGroupLevel(THGROUP_MAIN, -0.05);
@@ -6229,151 +6111,6 @@ void Atlantis::SetKuGimbalAngles( double fAlpha, double fBeta )
 {
 	SetAnimation( anim_kualpha, fAlpha );
 	SetAnimation( anim_kubeta, fBeta );
-}
-
-bool Atlantis::IsValidSPEC(int gpc, int spec) const
-{
-	switch (pSimpleGPC->GetMajorMode() / 100)
-	{
-	case 0:
-		switch (spec)
-		{
-		case 1:
-		case 2:
-		case 6:
-		case 99:
-			return true;
-		}
-		break;
-	case 1:
-		switch (spec)
-		{
-		case 0:
-		case 1:
-		case 6:
-		case 18:
-		case 19:// HACK BFS only
-		case 23:
-		case 50:
-		case 51:
-		case 53:
-		case 55:
-		case 99:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	case 2:
-		switch (spec)
-		{
-		case 0:
-		case 1:
-		case 2:
-		case 6:
-		case 18:
-		case 19:
-		case 20:
-		case 21:
-		case 22:
-		case 23:
-		case 25:
-		case 33:
-		case 34:
-		case 55:
-		case 99:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	case 3:
-		switch (spec)
-		{
-		case 0:
-		case 1:
-		case 6:
-		case 18:
-		case 19:// HACK BFS only
-		case 21:
-		case 22:
-		case 23:
-		case 50:
-		case 51:
-		case 53:
-		case 55:
-		case 99:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	case 6:
-		switch (spec)
-		{
-		case 0:
-		case 1:
-		case 6:
-		case 18:
-		case 19:// HACK BFS only
-		case 23:
-		case 50:
-		case 51:
-		case 53:
-		case 55:
-		case 99:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	case 8:
-		switch (spec)
-		{
-		case 0:
-		case 1:
-		case 2:
-		case 6:
-		case 18:
-		case 19:
-		case 23:
-		case 40:
-		case 41:
-		case 42:
-		case 43:
-		case 44:
-		case 45:
-		case 55:
-		case 99:
-			return true;
-		default:
-			return false;
-		}
-	case 9:
-		switch (spec)
-		{
-		case 0:
-		case 1:
-		case 2:
-		case 6:
-		case 55:
-		case 62:
-		case 99:
-		case 100:
-		case 101:
-		case 102:
-		case 104:
-		case 105:
-		case 106:
-		case 112:
-		case 113:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	}
-	return false;
 }
 
 unsigned int Atlantis::GetGPCMajorMode() const

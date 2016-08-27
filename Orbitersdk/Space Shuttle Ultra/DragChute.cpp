@@ -88,7 +88,7 @@ void DragChute::OnPreStep( double SimT, double DeltaT, double MJD )
 				STS()->GetStatusEx( &vs );
 				vs.status = 0;
 				VECTOR3 chute_ofs;
-				STS()->Local2Rel( CHUTE_ATTACH_POINT, chute_ofs );
+				STS()->Local2Rel( STS()->GetOrbiterCoGOffset() + CHUTE_ATTACH_POINT, chute_ofs );
 				vs.rpos = chute_ofs;
 				char name[255];
 				strcpy_s( name, STS()->GetName() );

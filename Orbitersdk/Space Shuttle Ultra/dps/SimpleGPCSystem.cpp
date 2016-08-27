@@ -95,6 +95,151 @@ bool SimpleGPCSystem::IsValidMajorModeTransition(unsigned int newMajorMode) cons
 	}
 }
 
+bool SimpleGPCSystem::IsValidSPEC( int spec ) const
+{
+	switch (majorMode / 100)
+	{
+		case 0:
+			switch (spec)
+			{
+				case 1:
+				case 2:
+				case 6:
+				case 99:
+					return true;
+			}
+			break;
+		case 1:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 6:
+				case 18:
+				case 19:// HACK BFS only
+				case 23:
+				case 50:
+				case 51:
+				case 53:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+			break;
+		case 2:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 6:
+				case 18:
+				case 19:
+				case 20:
+				case 21:
+				case 22:
+				case 23:
+				case 25:
+				case 33:
+				case 34:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+			break;
+		case 3:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 6:
+				case 18:
+				case 19:// HACK BFS only
+				case 21:
+				case 22:
+				case 23:
+				case 50:
+				case 51:
+				case 53:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+			break;
+		case 6:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 6:
+				case 18:
+				case 19:// HACK BFS only
+				case 23:
+				case 50:
+				case 51:
+				case 53:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+			break;
+		case 8:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 6:
+				case 18:
+				case 19:
+				case 23:
+				case 40:
+				case 41:
+				case 42:
+				case 43:
+				case 44:
+				case 45:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+		case 9:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 6:
+				case 55:
+				case 62:
+				case 99:
+				case 100:
+				case 101:
+				case 102:
+				case 104:
+				case 105:
+				case 106:
+				case 112:
+				case 113:
+					return true;
+				default:
+					return false;
+			}
+			break;
+	}
+	return false;
+}
+
 void SimpleGPCSystem::Realize()
 {
 	for(unsigned int i=0;i<vSoftware.size();i++)
