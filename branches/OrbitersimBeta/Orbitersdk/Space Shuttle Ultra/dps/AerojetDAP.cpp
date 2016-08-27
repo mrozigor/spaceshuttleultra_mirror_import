@@ -548,7 +548,7 @@ bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 			// initialize filtered qbar value
 			filteredQBar = STS()->GetDynPressure()*PA2PSF;
 			// reduce roll gains 
-			Roll_AileronRoll.SetGains(0.10, 0.00, 0.01);
+			Roll_AileronRoll.SetGains(0.05, 0.00, 0.01);
 		}
 		else {
 			// initialize both pitch and roll/yaw channels to AUTO
