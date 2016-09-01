@@ -98,6 +98,17 @@ namespace SSUWorkbench
 			}
 		}
 
+        double mecoPe;// for DI only
+        public double MECOPe
+        {
+            get { return mecoPe; }
+            set
+            {
+                mecoPe = value;
+                OnPropertyChanged( "MECOPe");
+            }
+        }
+
         private string oms1tig;
         public string OMS1TIG
         {
