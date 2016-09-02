@@ -63,7 +63,6 @@
 #include "Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
 #include "eva_docking\TunnelAdapterAssembly.h"
-#include "PIDControl.h"
 #include "ISSUMLP.h"
 #include "gnc/ATVC.h"
 #include "comm\DeployedAssembly.h"
@@ -651,8 +650,6 @@ private:
 
 	double slag1, slag2, slag3;
 	PSTREAM_HANDLE pshSlag1[2], pshSlag2[2], pshSlag3[2];
-	PSTREAM_HANDLE reentry_flames;
-	PARTICLESTREAMSPEC PS_REENTRY;
 
 	bool bLiftOff;
 	bool bHasKUBand;
@@ -1059,9 +1056,6 @@ private:
 	VECTOR3 SSMECurrentPos[3];
 	VECTOR3 SRBNullDirection[3];
 
-	// Entry
-	PIDControl BodyFlap, ElevonPitch; // used to maintain AoA
-	PIDControl PitchControl;
 
 	bool firstStep; //call functions in first timestep
 
