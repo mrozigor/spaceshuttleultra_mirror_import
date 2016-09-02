@@ -100,14 +100,14 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;DlgCtrl.lib;OrbiterSoundSDK40.lib;lua5.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;OrbiterSoundSDK40.lib;lua5.1.lib;gcAPI.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\Modules\SpaceShuttleUltra.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\lib;..\lib\Lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>msvcirt.lib;MSVCRTD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>4194304</StackReserveSize>
-      <ImportLibrary>.\..\..\Modules/MG_Atlantis.lib</ImportLibrary>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Manifest>
@@ -149,7 +149,7 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;DlgCtrl.lib;OrbiterSoundSDK40.lib;lua5.1.lib;gcAPI.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>orbiter.lib;OrbiterSDK.lib;OrbiterSoundSDK40.lib;lua5.1.lib;gcAPI.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\Modules\SpaceShuttleUltra.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\lib;..\lib\Lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -158,7 +158,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>4194304</StackReserveSize>
-      <ImportLibrary>.\..\..\..\Modules/MG_Atlantis.lib</ImportLibrary>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalOptions>/DEBUG %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -208,7 +208,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>4194304</StackReserveSize>
-      <ImportLibrary>.\..\..\..\Modules/MG_Atlantis.lib</ImportLibrary>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
@@ -218,16 +218,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="..\..\Meshes\SSU\Cockpit.msh" />
-    <None Include="..\..\Meshes\SSU\ET125.msh" />
-    <None Include="..\..\Meshes\SSU\FixedServiceStructure.msh" />
-    <None Include="..\..\Meshes\SSU\KU.msh" />
-    <None Include="..\..\Meshes\SSU\lsrb.msh" />
-    <None Include="..\..\Meshes\SSU\MLP-2_dev.msh" />
     <None Include="..\..\Meshes\SSU\ODS.msh" />
     <None Include="..\..\Meshes\SSU\ODSVC.msh" />
     <None Include="..\..\Meshes\SSU\Orbiter.msh" />
     <None Include="..\..\Meshes\SSU\RMS.msh" />
-    <None Include="..\..\Meshes\SSU\rsrb.msh" />
     <None Include="..\..\Meshes\SSU\VC.msh" />
     <None Include="..\..\Scenarios\(Current state).scn" />
     <None Include="Bitmaps\DEU_Raw_overbright.bmp" />

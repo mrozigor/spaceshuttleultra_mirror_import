@@ -225,7 +225,7 @@ Missions\SSU\STS-126.cfg
 Missions\SSU\STS-62A.cfg
 Missions\SSU\STS-62B.cfg
 Modules\SpaceShuttleUltra.dll
-Modules\SSUChute.dll
+Modules\SSU_Chute.dll
 Modules\SSU_Centaur.dll
 Modules\SSU_Crawler.dll
 Modules\SSU_IUS.dll

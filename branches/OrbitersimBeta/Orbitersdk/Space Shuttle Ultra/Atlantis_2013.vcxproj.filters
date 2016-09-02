@@ -17,21 +17,6 @@
     <None Include="..\..\Meshes\SSU\Cockpit.msh">
       <Filter>Meshes</Filter>
     </None>
-    <None Include="..\..\Meshes\SSU\ET125.msh">
-      <Filter>Meshes</Filter>
-    </None>
-    <None Include="..\..\Meshes\SSU\FixedServiceStructure.msh">
-      <Filter>Meshes</Filter>
-    </None>
-    <None Include="..\..\Meshes\SSU\KU.msh">
-      <Filter>Meshes</Filter>
-    </None>
-    <None Include="..\..\Meshes\SSU\lsrb.msh">
-      <Filter>Meshes</Filter>
-    </None>
-    <None Include="..\..\Meshes\SSU\MLP-2_dev.msh">
-      <Filter>Meshes</Filter>
-    </None>
     <None Include="..\..\Meshes\SSU\ODS.msh">
       <Filter>Meshes</Filter>
     </None>
@@ -42,9 +27,6 @@
       <Filter>Meshes</Filter>
     </None>
     <None Include="..\..\Meshes\SSU\RMS.msh">
-      <Filter>Meshes</Filter>
-    </None>
-    <None Include="..\..\Meshes\SSU\rsrb.msh">
       <Filter>Meshes</Filter>
     </None>
     <None Include="..\..\Meshes\SSU\VC.msh">
