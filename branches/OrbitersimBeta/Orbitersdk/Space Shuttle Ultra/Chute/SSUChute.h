@@ -16,6 +16,7 @@ public:
 
 	void DefineAnimations();
 
+	void clbkSetClassCaps( FILEHANDLE cfg );
 	void clbkPreStep(double simt, double simdt, double mjd);
 	void clbkSaveState(FILEHANDLE scn);
 	void clbkLoadStateEx(FILEHANDLE scn, void *status);
