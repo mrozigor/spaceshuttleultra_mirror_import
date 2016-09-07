@@ -1,4 +1,4 @@
-This release was created from Rev. 22xx of the Space Shuttle Ultra code.
+This release, created from Rev. 25xx of the Space Shuttle Ultra code, is for use in Orbiter 2010P1.
 
 Installation:
 1. Install Orbiter and other required addons:
@@ -9,7 +9,7 @@ Installation:
 
 3. Enable CRT MFD (Orbiter Launchpad > Modules > check CRT box).
 
-4. The following lines need to be added to the list of textures of the <orbiter_installation\Config\Base.cfg> file:
+4. The following lines need to be added to the list of textures of the "<orbiter_installation>\Config\Base.cfg" file:
 NOR1735tex
 NOR2305tex
 
