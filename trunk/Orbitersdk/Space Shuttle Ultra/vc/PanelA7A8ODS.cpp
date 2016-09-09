@@ -140,7 +140,6 @@ namespace vc {
 	void PanelA7A8ODS::Realize()
 	{	
 		//Define switch connections
-		AtlantisPanel::Realize();
 
 		oapiWriteLog("Panel A7/A8:\tRealize()");
 
@@ -241,7 +240,7 @@ namespace vc {
 		pAPDSPowerB->output.Connect(pBundle, 10);
 		pAPDSPowerC->output.Connect(pBundle, 11);
 
-		//pLampTest->output.Connect(pBundle, 11);
+		AtlantisPanel::Realize();
 
 		oapiWriteLog("Panel A7/A8:\tRealize done.");
 	}
