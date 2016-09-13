@@ -130,9 +130,9 @@ Endeavour:SpaceShuttleUltra
   "APDS PWR A" ON
   "APDS PWR B" ON
   "APDS PWR C" ON
-  "PYROS Ap" [1]
-  "PYROS Bp" [1]
-  "PYROS Cp" [1]
+  "PYROS Ap" OFF
+  "PYROS Bp" OFF
+  "PYROS Cp" OFF
   @ENDPANEL 
   @PANEL R2
   "Boiler1 N2 Supply" OFF
