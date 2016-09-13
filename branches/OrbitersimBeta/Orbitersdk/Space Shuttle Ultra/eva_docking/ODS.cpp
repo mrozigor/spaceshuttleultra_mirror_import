@@ -65,7 +65,7 @@ namespace eva_docking {
 	ODS::ODS(AtlantisSubsystemDirector* pdirect, const string& _ident)
 		: ExtAirlock(pdirect, _ident, true),
 		bPowerRelay(false),
-		bCircuitProtectionOff(false),
+		bAPDSCircuitProtectionOff(false),
 		extend_goal(RETRACT_TO_FINAL),
 		bLatchesOpen(false),
 		bLatchesClosed(true),
@@ -74,14 +74,17 @@ namespace eva_docking {
 		bHooks2Open(true),
 		bHooks2Closed(false),
 		bFixersOn(true),
-		bTargetInCone(false)
+		bTargetInCone(false),
+		bTargetCaptured(false),
+		APASdevices_populated(false),
+		bFirstStep(true)
 	{
 		anim_ring = NULL;
 		pRingAnim = NULL;
 		RingState.Set(AnimState::STOPPED, 0.0);
-		odsAttachVec[0] = ODS_DOCKPOS_OFFSET;
+		odsAttachVec[0] = ODS_DOCKPOS_OFFSET + EXTERNAL_AIRLOCK_POS;
 		odsAttachVec[1] = odsAttachVec[0] + _V(0.0, 1.0, 0.0);
-		odsAttachVec[2] = odsAttachVec[0] + _V(0.0, 0.0, 1.0);
+		odsAttachVec[2] = odsAttachVec[0] + _V(0.0, 0.0, -1.0);
 		target_pos = _V(0.0, 2000.0, 0.0);
 
 		mesh_ods = MESH_UNDEFINED;
@@ -112,109 +115,107 @@ namespace eva_docking {
 		}
 	}
 
-	void ODS::AnalyseVessel(OBJHANDLE hVessel) {
+	void ODS::PopulateAPASdevices( void )
+	{
+		APASdevices.clear();
 
-		VESSEL* pV = oapiGetVesselInterface(hVessel);
-		bool bHasOneAPASPort = false;
-
-		//for(unsigned long j = 0; j<pV->AttachmentCount(true); j++) {
-		for(unsigned long j = pV->AttachmentCount(true) - 1; j>0; j--) {
-			ATTACHMENTHANDLE ahX = 	pV->GetAttachmentHandle(true, j);
-
-			if(!_strnicmp(pV->GetAttachmentId(ahX), "APAS", 4)) {
-				bHasOneAPASPort = true;
-			}
-		}
-
-		known_objects.insert(hVessel);
-		if(!bHasOneAPASPort) {
-			non_apas_objects.insert(hVessel);
-		}
-	}
-
-	bool ODS::FindClosestDockingRing(OBJHANDLE hVessel) {
-		VECTOR3 gpos;
-		VECTOR3 lpos, lpos_remote;
-		VECTOR3 ring_dir, ring_up;
-		VECTOR3 rel_vel;
-		
-
-		
-		//calculate CG/CG distance
-		oapiGetGlobalPos (hVessel, &gpos);
-		STS()->Global2Local(gpos, lpos);
-		//Check distance and hemisphere
-		if(length(lpos) <= 609.6 && lpos.y >= 0) {
-			//Gather attachment points of target
-			VESSEL* pV = oapiGetVesselInterface(hVessel);
-
-			for(unsigned long j = 0; j<pV->AttachmentCount(true); j++) {
-				ATTACHMENTHANDLE ahX = 
-					pV->GetAttachmentHandle(true, j);
-				
-				if(_strnicmp(pV->GetAttachmentId(ahX), "APAS", 4))
-					//Proceed with next attachment
-					continue;
-
-				
-				STS()->GetRelativeVel(hVessel, rel_vel);
-
-
-
-				pV->GetAttachmentParams(ahX, lpos_remote, 
-					ring_dir, ring_up);
-				pV->Local2Global(lpos_remote, gpos);
-				STS()->Global2Local(gpos, lpos_remote);
-				if(length(lpos_remote - odsAttachVec[0]) <= 76.2) {
-					bTargetInCone = true;
-					ahTarget = ahX;
-					ohTarget = hVessel;
-					target_pos = lpos_remote - odsAttachVec[0];
-					target_vel.x = dotp(rel_vel, eX);
-					target_vel.y = dotp(rel_vel, eY);
-					target_vel.z = dotp(rel_vel, eZ);
-					//bFoundAtLeastOne = true;
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	bool ODS::FindClosestDockingRing() {
-
-		/* VECTOR3 gpos;
-		VECTOR3 lpos, lpos_remote;
-		VECTOR3 ring_dir, ring_up; */
-		//bool bFoundAtLeastOne = false;
-		//Scan surrounding vessels, maximum range 2000 ft (609.6 m) CG-CG
-		bTargetInCone = false;		//Cheat.
-
-		if(bTargetInCone) {
-			//Abort, this function is not for updates, but for initial search
-			return false;
-		}
-
-		bool bOneValidTarget = false;
-
-		for(DWORD i = 0; i<oapiGetVesselCount(); i++) {
-
-			OBJHANDLE hVessel = oapiGetVesselByIndex(i);
-			//If it is not our own handle and not known to be without 
-			//APAS
-			if(hVessel != STS()->GetHandle()) {
-				if(known_objects.find(hVessel) == known_objects.end()) {
-					AnalyseVessel(hVessel);
-				}
-
-				if(known_objects.find(hVessel) != known_objects.end() &&
-					non_apas_objects.find(hVessel) == non_apas_objects.end()) 
+		OBJHANDLE pOH;
+		VESSEL* pV;
+		ATTACHMENTHANDLE pAH;
+		for (DWORD i = oapiGetVesselCount(); i > 0; i--)
+		{
+			pOH = oapiGetVesselByIndex( i - 1 );
+			if (pOH != STS()->GetHandle())
+			{
+				pV = oapiGetVesselInterface( pOH );
+				for (DWORD j = pV->AttachmentCount( true ); j > 0; j--)
 				{
-					bOneValidTarget |= FindClosestDockingRing(hVessel);
+					pAH = pV->GetAttachmentHandle( true, j - 1 );
+
+					if (!_strnicmp( pV->GetAttachmentId( pAH ), "APAS", 4 ))
+					{
+						APASdevices.push_back( make_pair( pOH, pAH ) );
+
+						// log output
+						char cbuf[64];
+						sprintf_s( cbuf, 64, "ODS APAS search TGT:%s ID:%d", pV->GetName(), j );
+						oapiWriteLog( cbuf );
+					}
 				}
 			}
 		}
-		return bOneValidTarget;
+
+		APASdevices_populated = true;
+		return;
+	}
+
+	bool ODS::FindClosestAPAS( void )
+	{
+		bool ret = false;
+		OBJHANDLE pOH;
+		ATTACHMENTHANDLE pAH;
+		VECTOR3 gpos;
+		VECTOR3 tgt_pos;
+		VECTOR3 tgtAPAS_pos;
+		VECTOR3 tgtAPAS_dir;
+		VECTOR3 tgtAPAS_rot;
+		VECTOR3 tgt_pos_APAS;
+		VECTOR3 rel_vel;
+
+		target_pos = _V( 999, 999, 999 );// "reset" tgt vessel
+
+		for (unsigned int i = APASdevices.size(); i > 0; i--)
+		{
+			pOH = APASdevices[i - 1].first;
+
+			// calculate CG/CG distance
+			oapiGetGlobalPos( pOH, &gpos );
+			STS()->Global2Local( gpos, tgt_pos );
+
+			// check if cg/cg distance is under 200m (protect for large vessels)
+			if (length( tgt_pos ) < 200)
+			{
+				// calculate APAS/APAS distance
+				pAH = APASdevices[i - 1].second;
+
+				VESSEL* pV = oapiGetVesselInterface( pOH );
+
+				pV->GetAttachmentParams( pAH, tgtAPAS_pos, tgtAPAS_dir, tgtAPAS_rot );
+				pV->Local2Global( tgtAPAS_pos, gpos );
+				STS()->Global2Local( gpos, tgt_pos_APAS );
+
+				// correct for our APAS position and c.g.
+				tgt_pos_APAS -= odsAttachVec[0] + STS()->GetOrbiterCoGOffset();
+
+				// check if APAS/APAS distance under 5m
+				if (length( tgt_pos_APAS ) < 5)
+				{
+					if (length( tgt_pos_APAS ) < length( target_pos ))
+					{
+						ahTarget = pAH;
+						ohTarget = pOH;
+						target_pos = tgt_pos_APAS;
+
+						pV->Local2Global( tgtAPAS_pos + tgtAPAS_dir, gpos );
+						STS()->Global2Local( gpos, target_dir );
+						target_dir -= tgt_pos_APAS + odsAttachVec[0] + STS()->GetOrbiterCoGOffset();
+						target_dir = -target_dir;// correct direction so when lined up the angle is 0º instead of 180º
+
+						pV->Local2Global( tgtAPAS_pos + tgtAPAS_rot, gpos );
+						STS()->Global2Local( gpos, target_rot );
+						target_rot -= tgt_pos_APAS + odsAttachVec[0] + STS()->GetOrbiterCoGOffset();
+						
+						STS()->GetRelativeVel( pOH, rel_vel );
+						target_vel.x = dotp( rel_vel, eX );
+						target_vel.y = dotp( rel_vel, eY );
+						target_vel.z = dotp( rel_vel, eZ );
+
+						ret = true;
+					}
+				}
+			}
+		}
+		return ret;
 	}
 
 	double ODS::GetSubsystemEmptyMass() const {
@@ -238,72 +239,89 @@ namespace eva_docking {
 
 	void ODS::OnPostStep(double fSimT, double fDeltaT, double fMJD)
 	{
-
+		/*if (bFirstStep)
+		{
+			UpdateODSAttachment();
+			bFirstStep = false;
+		}*/
 	}
 
 	void ODS::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 	{
-		//char pszBuffer[256];
+		//if (!APASdevices_populated) PopulateAPASdevices();
 
-		STS()->GlobalRot(_V(1,0,0),eX);
-		STS()->GlobalRot(_V(0,1,0),eY);
-		STS()->GlobalRot(_V(0,0,1),eZ);
+		//STS()->GlobalRot(_V(1,0,0),eX);
+		//STS()->GlobalRot(_V(0,1,0),eY);
+		//STS()->GlobalRot(_V(0,0,1),eZ);
+		//
+		//if (bLatchesClosed && !bTargetCaptured)// search target to attach
+		//{
+		//	if (FindClosestAPAS())
+		//	{
+		//		VESSEL* pV = oapiGetVesselInterface( ohTarget );
+		//		int iD = pV->GetAttachmentIndex( ahTarget );
 
-		//If no target captured
-		//Locate and update objects in 2m cylinder, closest wins
-		/*if(FindClosestDockingRing())
+		//		if ((target_pos.x < 0.1) &&(target_pos.y < 0.1) && (target_pos.z < 0.1) &&
+		//			(acos( dotp( target_dir, odsAttachVec[1] - odsAttachVec[0] ) ) < (5 * RAD)) && (acos( dotp( target_rot, odsAttachVec[2] - odsAttachVec[0] ) ) < (5 * RAD)))
+		//		{
+		//			if (STS()->AttachChild( ohTarget, ahDockAux, ahTarget )) bTargetCaptured = true;
+		//		}
+
+		//		sprintf_s( oapiDebugString(), 255, "ODS: LOCK %s:%d | %5.4f %5.4f %5.4f | %5.4f %5.4f %5.4f | %.3f %.3f", 
+		//			pV->GetName(), iD, target_pos.x, target_pos.y, target_pos.z,
+		//			target_vel.x, target_vel.y, target_vel.z, 
+		//			acos( dotp( target_dir, odsAttachVec[1] - odsAttachVec[0] ) ) * DEG, acos( dotp( target_rot, odsAttachVec[2] - odsAttachVec[0] ) ) * DEG );
+		//		/*sprintf_s( oapiDebugString(), 255, "ODS: LOCK %s:%d | %5.4f\" %5.4f' %5.4f\" | %5.4f %5.4f %5.4f", 
+		//			pV->GetName(), iD, target_pos.x / INCH, target_pos.y / MPS2FPS, target_pos.z / INCH,
+		//			target_vel.x / MPS2FPS, target_vel.y / MPS2FPS, target_vel.z / MPS2FPS);*/
+		//	}
+		//	else
+		//	{
+		//		sprintf_s( oapiDebugString(), 255, "ODS: APAS PORTS:%d", APASdevices.size() );
+		//	}
+
+		//	//If target in range:
+		//	//Calculate contacts and trigger initial contact signal.
+		//	//If all latches matching and overcoming resistence, capture.
+
+		//	//if captured
+		//	//simulate oscillations of structure
+		//}
+
+
+		if (dscu_APDSPowerA.IsSet() || dscu_APDSPowerB.IsSet() || dscu_APDSPowerC.IsSet())// TODO check if 2-of-3
 		{
-			VESSEL* pV;
-			oapiGetObjectName(ohTarget, pszBuffer, 255);
-			int iD = 0;
+			if (dscu_PowerOn.IsSet())
+			{
+				bPowerRelay = true;
+				bAPDSCircuitProtectionOff = false;
+			} 
 
-			pV = oapiGetVesselInterface(ohTarget);
-			iD = pV->GetAttachmentIndex(ahTarget);
-
-			sprintf_s(oapiDebugString(), 255, 
-				"ODS: LOCK %s:%d | %5.4f\" %5.4f' %5.4f\" | %5.4f %5.4f %5.4f", 
-				pszBuffer, iD, target_pos.x / INCH, target_pos.y / MPS2FPS, target_pos.z / INCH,
-				target_vel.x / MPS2FPS, target_vel.y / MPS2FPS, target_vel.z / MPS2FPS);
-		} else {
-			sprintf_s(oapiDebugString(), 255, "ODS: NUM KNOWN %d (%d W/O APAS)",
-				known_objects.size(), non_apas_objects.size());
-		}*/
-
-		//If target in range:
-		//Calculate contacts and trigger initial contact signal.
-		//If all latches matching and overcoming resistence, capture.
-
-		//if captured
-		//simulate oscillations of structure
-
-		if(dscu_PowerOn.IsSet()) {
-			bPowerRelay = true;
-			bCircuitProtectionOff = false;
-		} 
-
-		if(dscu_PowerOff.IsSet()) {
+			if (dscu_PowerOff.IsSet()) bPowerRelay = false;
+		}
+		else
+		{
 			bPowerRelay = false;
 		}
-
 		
 
-		if(HasDSCUPower()) {
-
+		if (HasDSCUPower())
+		{
 			dscu_PowerOnLight.SetLine();
 			dscu_RingAlignedLight.SetLine();
 
-			if(dscu_CircProtectionOff.IsSet()) {
-				bCircuitProtectionOff = true;
+			if(dscu_APDSCircProtectionOff.IsSet()) {
+				bAPDSCircuitProtectionOff = true;
 			}
 
 			if(dscu_FixerOff) {
 				bFixersOn = false;
 			}
 
-			if(bCircuitProtectionOff) {
-				dscu_CircProtectLight.SetLine();
+			if(bAPDSCircuitProtectionOff) {
+				dscu_APDSCircProtectLight.SetLine();
 			} else {
-				dscu_CircProtectLight.ResetLine();
+				dscu_APDSCircProtectLight.ResetLine();
 			}
 
 			if(!bFixersOn) {
@@ -312,7 +330,7 @@ namespace eva_docking {
 				dscu_FixersOffLight.ResetLine();
 			}
 
-			if(dscu_RingOut.IsSet() && bCircuitProtectionOff) {
+			if(dscu_RingOut.IsSet() && bAPDSCircuitProtectionOff) {
 				RingState.action = AnimState::OPENING;
 				extend_goal = EXTEND_TO_INITIAL;
 				if(RingState.pos >= 0.7229167) {
@@ -322,7 +340,7 @@ namespace eva_docking {
 			}
 
 
-			if(dscu_RingIn.IsSet() && bCircuitProtectionOff) {
+			if(dscu_RingIn.IsSet() && bAPDSCircuitProtectionOff) {
 				RingState.action = AnimState::CLOSING;
 				extend_goal = RETRACT_TO_FINAL;
 				bFixersOn = true;
@@ -343,7 +361,7 @@ namespace eva_docking {
 				}
 
 				STS()->SetAnimation(anim_ring, RingState.pos);
-				//UpdateODSAttachment(STS()->GetOrbiterCoGOffset());
+				UpdateODSAttachment();
 
 				CalculateRodAnimation();
 			}
@@ -402,9 +420,12 @@ namespace eva_docking {
 				dscu_Hooks2ClosedLight.ResetLine();
 			}
 
+			if(bTargetCaptured) dscu_CaptureLight.SetLine();
+			else dscu_CaptureLight.ResetLine();
+
 		} else {
 			dscu_PowerOnLight.ResetLine();
-			dscu_CircProtectLight.ResetLine();
+			dscu_APDSCircProtectLight.ResetLine();
 			dscu_RingAlignedLight.ResetLine();
 			dscu_FixersOffLight.ResetLine();
 			dscu_RingInitialLight.ResetLine();
@@ -423,6 +444,11 @@ namespace eva_docking {
 			dscu_LatchesOpenLight.ResetLine();
 			dscu_RingFinalLight.ResetLine();
 		}
+
+		dscu_ADSLight.SetLine( (int)dscu_APDSPowerA.IsSet() * 5.0f );
+		dscu_BDSLight.SetLine( (int)dscu_APDSPowerB.IsSet() * 5.0f );
+		dscu_CDSLight.SetLine( (int)dscu_APDSPowerC.IsSet() * 5.0f );
+		return;
 	}
 
 	void ODS::OnPropagate(double fSimT, double fDeltaT, double fMJD)
@@ -432,41 +458,67 @@ namespace eva_docking {
 	void ODS::Realize() {
 		oapiWriteLog("(ssu)Realize ODS...");
 
-		DiscreteBundle* pBundle = 
-			STS()->BundleManager()->CreateBundle("PANELA8A3_TO_DSCU_A", 16);
-		
-		dscu_PowerOn.Connect(pBundle, 0);
-		dscu_PowerOff.Connect(pBundle, 1);
-		dscu_RingOut.Connect(pBundle, 2);
-		dscu_RingIn.Connect(pBundle, 3);
-		dscu_CircProtectionOff.Connect(pBundle, 4);
-		dscu_CloseHooks.Connect(pBundle, 5);
-		dscu_CloseLatches.Connect(pBundle, 6);
-		dscu_FixerOff.Connect(pBundle, 7);
+		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "PANELA8A3_TO_DSCU_A", 16 );
+		dscu_PowerOn.Connect( pBundle, 0 );
+		dscu_PowerOff.Connect( pBundle, 1 );
+		dscu_RingOut.Connect( pBundle, 2 );
+		dscu_RingIn.Connect( pBundle, 3 );
+		dscu_APDSCircProtectionOff.Connect( pBundle, 4 );
+		dscu_CloseHooks.Connect( pBundle, 5 );
+		dscu_CloseLatches.Connect( pBundle, 6 );
+		dscu_FixerOff.Connect( pBundle, 7 );
+		dscu_PyroCircProtOff.Connect( pBundle, 8 );
+		dscu_PyroCircProtOn.Connect( pBundle, 9 );
+		dscu_ActHooksFiring.Connect( pBundle, 10 );
+		dscu_PasHooksFiring.Connect( pBundle, 11 );
+		dscu_OpenHooks.Connect( pBundle, 12 );
+		dscu_OpenLatches.Connect( pBundle, 13 );
+		dscu_Undocking.Connect( pBundle, 14 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "PANELA8A3_TO_DSCU_B", 16 );
+		dscu_HeatersDCUPowerH1.Connect( pBundle, 0 );
+		dscu_HeatersDCUPowerH2DCU.Connect( pBundle, 1 );
+		dscu_HeatersDCUPowerH3DCU.Connect( pBundle, 2 );
+		dscu_APDSPowerA.Connect( pBundle, 3 );
+		dscu_APDSPowerB.Connect( pBundle, 4 );
+		dscu_APDSPowerC.Connect( pBundle, 5 );
+		dscu_PyrosAp.Connect( pBundle, 6 );
+		dscu_PyrosBp.Connect( pBundle, 7 );
+		dscu_PyrosCp.Connect( pBundle, 8 );
 
 		DiscreteBundle* pBundleA = 
 			STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_A", 16);
-
-		dscu_PowerOnLight.Connect(pBundleA, 0);
-		dscu_CircProtectLight.Connect(pBundleA, 1);
-		dscu_RingAlignedLight.Connect(pBundleA, 2);
-		dscu_RingInitialLight.Connect(pBundleA, 3);
-		dscu_FixersOffLight.Connect(pBundleA, 4);
-		dscu_Hooks1OpenLight.Connect(pBundleA, 5);
-		dscu_Hooks2OpenLight.Connect(pBundleA, 6);
-		dscu_LatchesClosedLight.Connect(pBundleA, 7);
+		dscu_PowerOnLight.Connect( pBundleA, 0 );
+		dscu_APDSCircProtectLight.Connect( pBundleA, 1 );
+		dscu_RingAlignedLight.Connect( pBundleA, 2 );
+		dscu_RingInitialLight.Connect( pBundleA, 3 );
+		dscu_FixersOffLight.Connect( pBundleA, 4 );
+		dscu_Hooks1OpenLight.Connect( pBundleA, 5 );
+		dscu_Hooks2OpenLight.Connect( pBundleA, 6 );
+		dscu_LatchesClosedLight.Connect( pBundleA, 7 );
+		dscu_UndockCompleteLight.Connect( pBundleA, 8 );
+		dscu_InitialContactLight.Connect( pBundleA, 9 );
+		dscu_CaptureLight.Connect( pBundleA, 10 );
+		dscu_RingForwardLight.Connect( pBundleA, 11 );
+		dscu_ReadyToHookLight.Connect( pBundleA, 12 );
+		dscu_InterfSealedLight.Connect( pBundleA, 13 );
+		dscu_Hooks1ClosedLight.Connect( pBundleA, 14 );
+		dscu_Hooks2ClosedLight.Connect( pBundleA, 15 );
 
 		DiscreteBundle* pBundleB = 
 			STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_B", 16);
-
-		dscu_RingForwardLight.Connect(pBundleB, 2);
-		dscu_Hooks1ClosedLight.Connect(pBundleB, 5);
-		dscu_Hooks2ClosedLight.Connect(pBundleB, 6);
-		dscu_LatchesOpenLight.Connect(pBundleB, 7);
-		dscu_RingFinalLight.Connect(pBundleB, 8);
+		dscu_LatchesOpenLight.Connect( pBundleB, 0 );
+		dscu_RingFinalLight.Connect( pBundleB, 1 );
+		dscu_ADSLight.Connect( pBundleB, 2 );
+		dscu_BDSLight.Connect( pBundleB, 3 );
+		dscu_CDSLight.Connect( pBundleB, 4 );
+		// AP
+		// BP
+		// CP
+		// pyro circuit protect off
 
 		STS()->SetAnimation(anim_ring, RingState.pos);
-
+		
 		CalculateRodAnimation();
 		
 	}
@@ -501,11 +553,6 @@ namespace eva_docking {
 		ExtAirlock::DefineAnimations( ofs );
 
 		if(!pRingAnim) {
-
-			odsAttachVec[0] = ODS_DOCKPOS_OFFSET + ofs;
-			odsAttachVec[1] = odsAttachVec[0] + _V(0.0, 1.0, 0.0);
-			odsAttachVec[2] = odsAttachVec[0] + _V(0.0, 0.0, 1.0);
-			
 			pRingAnim = new MGROUP_TRANSLATE(mesh_ods, grps_ring, 2, 
 				ODS_RING_TRANSLATION);
 
@@ -616,15 +663,8 @@ namespace eva_docking {
 			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
 				pRod3RAnim[0], parent);
 			STS()->AddAnimationComponent(anim_rods, 0.0, 1.0, 
-				pRod3RAnim[1]);
-		
-		
-
-			
-			
+				pRod3RAnim[1]);	
 		}
-
-		
 	}
 
 	bool ODS::HasDSCUPower() const {
@@ -661,14 +701,18 @@ namespace eva_docking {
 	{
 		VECTOR3 DockPos = _V( EXTERNAL_AIRLOCK_POS.x + ODS_DOCKPOS_OFFSET.x, EXTERNAL_AIRLOCK_POS.y + ODS_DOCKPOS_OFFSET.y, EALzpos + ODS_DOCKPOS_OFFSET.z );
 		STS()->SetDockParams( DockPos, _V( 0, 1, 0 ), _V( 0, 0, -1 ) );
+
+		Zpos = EALzpos;
+		odsAttachVec[0] = ODS_DOCKPOS_OFFSET + EXTERNAL_AIRLOCK_POS + _V( 0, 0, Zpos );
+		odsAttachVec[1] = odsAttachVec[0] + _V(0.0, 1.0, 0.0);
+		odsAttachVec[2] = odsAttachVec[0] + _V(0.0, 0.0, -1.0);
 		return;
 	}
 
-	void ODS::UpdateODSAttachment( const VECTOR3 &ofs )
+	void ODS::UpdateODSAttachment( void )
 	{
-		VECTOR3 pos = ofs + ODS_DOCKPOS_OFFSET + EXTERNAL_AIRLOCK_POS;
-		if (ahDockAux) STS()->SetAttachmentParams( ahDockAux, pos, odsAttachVec[1] - odsAttachVec[0], odsAttachVec[2] - odsAttachVec[0] );
-		else ahDockAux = STS()->CreateAttachment( false, pos, odsAttachVec[1] - odsAttachVec[0], odsAttachVec[2] - odsAttachVec[0], "APAS" );
+		/*if (ahDockAux) STS()->SetAttachmentParams( ahDockAux, odsAttachVec[0] + STS()->GetOrbiterCoGOffset(), odsAttachVec[1] - odsAttachVec[0], odsAttachVec[2] - odsAttachVec[0] );
+		else ahDockAux = STS()->CreateAttachment( false, odsAttachVec[0] + STS()->GetOrbiterCoGOffset(), odsAttachVec[1] - odsAttachVec[0], odsAttachVec[2] - odsAttachVec[0], "APAS" );*/
 		return;
 	}
 };

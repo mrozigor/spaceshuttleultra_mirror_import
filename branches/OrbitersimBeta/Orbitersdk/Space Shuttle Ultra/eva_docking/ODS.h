@@ -36,8 +36,7 @@ namespace eva_docking {
 
 	const static char* DEFAULT_MESHNAME_ODS = "SSU\\ODS";
 
-	const VECTOR3 ODS_DOCKPOS_OFFSET = _V( 0.00444299, 2.25302, -0.317876 ); // offset between ODS mesh position and docking port position
-	//const VECTOR3 ODS_DOCKPOS_OFFSET = _V( 0.0, 2.3380, -0.319862 ); // offset between ODS mesh position and docking port position
+	const VECTOR3 ODS_DOCKPOS_OFFSET = _V( 0.00444299, /*2.25302*/2.24, -0.317876 ); // offset between ODS mesh position and docking port position
 
 	using discsignals::DiscInPort;
 	using discsignals::DiscOutPort;
@@ -57,6 +56,8 @@ namespace eva_docking {
 
 		bool bDSCUPower;
 
+		bool bFirstStep;
+
 		AnimState RingState;
 
 		//Target data
@@ -65,14 +66,15 @@ namespace eva_docking {
 		OBJHANDLE ohTarget;
 		ATTACHMENTHANDLE ahTarget;
 		VECTOR3 target_pos;
-		VECTOR3 target_vel;	//Use also for relative speed in captured case.
 		VECTOR3 target_dir;
-		VECTOR3 target_up;
+		VECTOR3 target_rot;
+		VECTOR3 target_vel;	//Use also for relative speed in captured case.
 		VECTOR3 target_avel;
 		VECTOR3 eX, eY, eZ;
 
-		set<OBJHANDLE> known_objects;			//list of known vessels
-		set<OBJHANDLE> non_apas_objects;		//Black list
+		vector<pair<OBJHANDLE,ATTACHMENTHANDLE>> APASdevices;// list of vessel/APAS port pairs
+
+		bool APASdevices_populated;
 
 		typedef enum ___extend_goal {
 			EXTEND_TO_INITIAL,
@@ -96,7 +98,7 @@ namespace eva_docking {
 		MGROUP_ROTATE*		pRod3RAnim[3];
 
 		bool bPowerRelay;
-		bool bCircuitProtectionOff;
+		bool bAPDSCircuitProtectionOff;
 		bool bFixersOn;
 		bool bLatchesOpen;
 		bool bLatchesClosed;
@@ -105,6 +107,7 @@ namespace eva_docking {
 		bool bHooks2Open;
 		bool bHooks2Closed;
 
+		double Zpos;// z position of the external airlock
 		VECTOR3 odsAttachVec[3];
 
 		UINT mesh_ods;
@@ -112,43 +115,34 @@ namespace eva_docking {
 
 		ATTACHMENTHANDLE ahDockAux;
 
-		bool HasDSCUPower() const;
-		bool FindClosestDockingRing();
-		bool FindClosestDockingRing(OBJHANDLE hVessel);
-		void AnalyseVessel(OBJHANDLE hVessel);
-		void CalculateRodAnimation();
-
-
-	public:
-		ODS(AtlantisSubsystemDirector* pdirect, const string& _ident);
-		virtual ~ODS();
-		virtual void Realize();
-		virtual void AddMeshes(const VECTOR3& ofs);
-		virtual double GetSubsystemEmptyMass() const;
-		virtual void OnSaveState(FILEHANDLE scn) const;
-		virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
-		virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
-		virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
-		virtual void DefineAnimations(const VECTOR3& ofs);
-		virtual bool OnParseLine(const char* keyword, const char* line);
-		void SetDockParams( double EALzpos );
-		void UpdateODSAttachment( const VECTOR3 &ofs );
-
 		DiscInPort dscu_PowerOn;
 		DiscInPort dscu_PowerOff;
 		DiscInPort dscu_RingOut;
 		DiscInPort dscu_RingIn;
-		DiscInPort dscu_CircProtectionOff;
+		DiscInPort dscu_APDSCircProtectionOff;
 		DiscInPort dscu_CloseHooks;
 		DiscInPort dscu_CloseLatches;
 		DiscInPort dscu_FixerOff;
+		DiscInPort dscu_PyroCircProtOff;
+		DiscInPort dscu_PyroCircProtOn;
+		DiscInPort dscu_ActHooksFiring;
+		DiscInPort dscu_PasHooksFiring;
+		DiscInPort dscu_OpenHooks;
+		DiscInPort dscu_OpenLatches;
+		DiscInPort dscu_Undocking;
 
-		DiscOutPort dscu_PowerA;
-		DiscOutPort dscu_PowerB;
-		DiscOutPort dscu_PowerC;
+		DiscInPort dscu_HeatersDCUPowerH1;
+		DiscInPort dscu_HeatersDCUPowerH2DCU;
+		DiscInPort dscu_HeatersDCUPowerH3DCU;
+		DiscInPort dscu_APDSPowerA;
+		DiscInPort dscu_APDSPowerB;
+		DiscInPort dscu_APDSPowerC;
+		DiscInPort dscu_PyrosAp;
+		DiscInPort dscu_PyrosBp;
+		DiscInPort dscu_PyrosCp;
 		
 		DiscOutPort dscu_PowerOnLight;
-		DiscOutPort dscu_CircProtectLight;
+		DiscOutPort dscu_APDSCircProtectLight;
 		DiscOutPort dscu_RingAlignedLight;
 		DiscOutPort dscu_RingInitialLight;
 		DiscOutPort dscu_FixersOffLight;
@@ -165,6 +159,31 @@ namespace eva_docking {
 		DiscOutPort dscu_Hooks2ClosedLight;
 		DiscOutPort dscu_LatchesOpenLight;
 		DiscOutPort dscu_RingFinalLight;
+		DiscOutPort dscu_ADSLight;
+		DiscOutPort dscu_BDSLight;
+		DiscOutPort dscu_CDSLight;
+
+		bool HasDSCUPower() const;
+		void CalculateRodAnimation();
+
+		void PopulateAPASdevices( void );
+		bool FindClosestAPAS( void );
+
+
+	public:
+		ODS(AtlantisSubsystemDirector* pdirect, const string& _ident);
+		virtual ~ODS();
+		virtual void Realize();
+		virtual void AddMeshes(const VECTOR3& ofs);
+		virtual double GetSubsystemEmptyMass() const;
+		virtual void OnSaveState(FILEHANDLE scn) const;
+		virtual void OnPreStep(double fSimT, double fDeltaT, double fMJD);
+		virtual void OnPropagate(double fSimT, double fDeltaT, double fMJD);
+		virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
+		virtual void DefineAnimations(const VECTOR3& ofs);
+		virtual bool OnParseLine(const char* keyword, const char* line);
+		void SetDockParams( double EALzpos );
+		void UpdateODSAttachment( void );
 	};
 
 };
