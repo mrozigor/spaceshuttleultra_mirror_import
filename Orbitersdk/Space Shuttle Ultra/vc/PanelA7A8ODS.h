@@ -27,6 +27,8 @@
 #include "StandardSwitch.h"
 #include "PushButton.h"
 #include "StandardLight.h"
+#include "StandardSwitchCover.h"
+
 
 namespace vc {
 	/**
@@ -51,7 +53,7 @@ namespace vc {
 		StandardLight* plCapture;
 		StandardLight* plRingForward;
 		StandardLight* plReadyToHook;
-		StandardLight* plInterpSealed;
+		StandardLight* plInterfSealed;
 		StandardLight* plHooks1Closed;
 		StandardLight* plHooks2Closed;
 		StandardLight* plLatchesOpen;
@@ -83,8 +85,8 @@ namespace vc {
 		StdSwitch2* pControlPanelPowerC;
 		
 		StdSwitch2* pHeatersDCUPowerH1;
-		StdSwitch2* pHeatersDCUPowerH2;
-		StdSwitch2* pHeatersDCUPowerH3;
+		StdSwitch2* pHeatersDCUPowerH2DCU;
+		StdSwitch2* pHeatersDCUPowerH3DCU;
 
 		StdSwitch2* pAPDSPowerA;
 		StdSwitch2* pAPDSPowerB;
@@ -104,6 +106,16 @@ namespace vc {
 		PushButton* pCloseLatches;
 		PushButton* pFixerOff;
 
+		PushButton* pPyroCircProtOff;
+		PushButton* pPyroCircProtOn;
+		PushButton* pActHooksFiring;
+		PushButton* pPasHooksFiring;
+		PushButton* pOpenHooks;
+		PushButton* pOpenLatches;
+		PushButton* pUndocking;
+		
+		StandardSwitchCover* pPyroCommands;
+		StandardSwitchCover* pAPDSControlCommands;
 
 		UINT midx_odspanel;
 		MESHHANDLE mesh_odspanel;

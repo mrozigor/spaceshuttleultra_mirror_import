@@ -13,7 +13,7 @@ namespace discsignals {
 
 DiscOutPort::DiscOutPort()
 {
-
+	initval = 0.0f;
 }
 
 DiscOutPort::~DiscOutPort()
@@ -26,6 +26,7 @@ void DiscOutPort::SetLine()
 	if(pBundle != NULL) {
 		pBundle->SetDiscrete(usLine, 5.0f);
 	}
+	else initval = 5.0f;
 }
 
 void DiscOutPort::SetLine( float fVoltage )
@@ -33,6 +34,7 @@ void DiscOutPort::SetLine( float fVoltage )
 	if(pBundle != NULL) {
 		pBundle->SetDiscrete( usLine, fVoltage );
 	}
+	else initval = fVoltage;
 }
 
 void DiscOutPort::ResetLine()
@@ -40,6 +42,15 @@ void DiscOutPort::ResetLine()
 	if(pBundle != NULL) {
 		pBundle->SetDiscrete(usLine, 0.0f);
 	}
+	else initval = 0.0f;
+}
+
+bool DiscOutPort::Connect( DiscreteBundle *pBundle, int iLine )
+{
+	DiscretePort::Connect( pBundle, iLine );// connect
+
+	pBundle->SetDiscrete( iLine, initval );// set inital value (or whatever value was set before the connection was made)
+	return true;
 }
 
 

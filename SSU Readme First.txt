@@ -1,4 +1,4 @@
-This release was created from Rev. 24xx of the Space Shuttle Ultra code.
+This release, created from Rev. 25xx of the Space Shuttle Ultra code, is for use in Orbiter 2016.
 
 Installation:
 1. Install Orbiter and other required addons:
@@ -9,7 +9,7 @@ Installation:
 
 3. Install the "SSU_Font_A" and "SSU_Font_B" fonts, located in the Orbiter base directory, by opening it and selecting install. After installation the files can be deleted.
 
-4. The following lines need to be added to the list of textures of the <orbiter_installation\Config\Base.cfg> file:
+4. The following lines need to be added to the list of textures of the "<orbiter_installation>\Config\Base.cfg" file:
 NOR1735tex
 NOR2305tex
 
