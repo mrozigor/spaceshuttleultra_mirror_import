@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="SSUWorkbench.ETSRB"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid>
+        <Label Content="ET" HorizontalAlignment="Left" Height="26" Margin="110,50,0,0" VerticalAlignment="Top" Width="160"/>
+        <ComboBox HorizontalAlignment="Left" Height="24" Margin="280,50,0,0" VerticalAlignment="Top" Width="160">
+            <ComboBoxItem Content="SWT (with FRL)" ToolTip="Standard Weight Tank painted with Fire Retardant Paint"/>
+            <ComboBoxItem Content="SWT (without FRL)" ToolTip="Standard Weight Tank"/>
+            <ComboBoxItem Content="LWT" ToolTip="Light Weight Tank"/>
+            <ComboBoxItem Content="SLWT" ToolTip="Super Light Weight Tank"/>
+        </ComboBox>
+        <Label Content="SRM" HorizontalAlignment="Left" Height="26" Margin="110,100,0,0" VerticalAlignment="Top" Width="160"/>
+        <ComboBox HorizontalAlignment="Left" Height="24" Margin="280,100,0,0" VerticalAlignment="Top" Width="160">
+            <ComboBoxItem Content="SRM (SPM)" ToolTip="Solid Rocket Motor - Standard Performance Motor"/>
+            <ComboBoxItem Content="SRM (HPM)" ToolTip="Solid Rocket Motor - High Performance Motor"/>
+            <ComboBoxItem Content="FWC" ToolTip="Filament Wound Case"/>
+            <ComboBoxItem Content="RSRM" ToolTip="Redesigned Solid Rocket Motor"/>
+        </ComboBox>
+    </Grid>
+</UserControl>
