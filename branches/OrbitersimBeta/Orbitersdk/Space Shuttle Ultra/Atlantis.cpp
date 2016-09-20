@@ -2178,9 +2178,9 @@ void Atlantis::DefineAttachments(const VECTOR3& ofs0)
 	CreateAttachment(false, ofs0 + OFS_STBDMMU, _V(-1, 0, 0), _V(0, 0, 1), "XS");// stbd airlock payload
 
 
-	eva_docking::ODS* pODS = dynamic_cast<eva_docking::ODS*>(pExtAirlock);
+	/*eva_docking::ODS* pODS = dynamic_cast<eva_docking::ODS*>(pExtAirlock);
 	if (pODS) pODS->UpdateODSAttachment();
-	else CreateAttachment( false, _V( 0, 0, 0 ), _V( 1, 0, 0 ), _V( 0, 1, 0 ), "INVALID" );
+	else */CreateAttachment( false, _V( 0, 0, 0 ), _V( 1, 0, 0 ), _V( 0, 1, 0 ), "INVALID" );
 	
 
 	/*
