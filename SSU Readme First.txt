@@ -10,8 +10,8 @@ Installation:
 3. Install the "SSU_Font_A" and "SSU_Font_B" fonts, located in the Orbiter base directory, by opening it and selecting install. After installation the files can be deleted.
 
 4. The following lines need to be added to the list of textures of the "<orbiter_installation>\Config\Base.cfg" file:
-NOR1735tex
-NOR2305tex
+SSU\NOR1735tex
+SSU\NOR2305tex
 
 5. If using the D3D9 graphics client, the geometry instancing option should be off (Orbiter Launchpad > Video > Advanced > uncheck "Enable geometry instancing").
 
