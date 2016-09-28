@@ -48,7 +48,7 @@ SSU_Centaur::SSU_Centaur( OBJHANDLE hVessel ):VESSEL4( hVessel )
 	AdapterOffset = 0;
 	AdapterMass = 0;
 
-	static char *name = "SSU Centaur MFD";
+	static char *name = "SSU_Centaur";
 	MFDMODESPECEX spec;
 	spec.name = name;
 	spec.key = OAPI_KEY_T;
