@@ -99,9 +99,10 @@ namespace SSUWorkbench
 
 			if (openfiledialog.ShowDialog() == true)
 			{
-				MessageBox.Show( openfiledialog.FileName );
+				MessageBox.Show( "opening '" + openfiledialog.FileName + "'" );
 				mission = fileio.Load( openfiledialog.FileName, orbiterpath );
 				DataContext = mission;// load to screen
+				MessageBox.Show( "done!" );
 			}
 			return;
 		}
@@ -116,8 +117,9 @@ namespace SSUWorkbench
 
 			if (savefiledialog.ShowDialog() == true)
 			{
-				MessageBox.Show( savefiledialog.FileName );
-				//fileio.Save( savefiledialog.FileName, orbiterpath, mission );
+				MessageBox.Show( "opening '" + savefiledialog.FileName + "'" );
+				fileio.Save( savefiledialog.FileName, orbiterpath, mission );
+				MessageBox.Show( "done!" );
 			}
 			return;
 		}
