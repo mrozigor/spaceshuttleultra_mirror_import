@@ -45,7 +45,7 @@ SSU_IUS::SSU_IUS( OBJHANDLE hObj ):VESSEL4( hObj )
 	AdapterOffset = 0;
 	AdapterMass = 0;
 
-	static char *name = "SSU IUS MFD";
+	static char *name = "SSU_IUS";
 	MFDMODESPECEX spec;
 	spec.name = name;
 	spec.key = OAPI_KEY_T;
