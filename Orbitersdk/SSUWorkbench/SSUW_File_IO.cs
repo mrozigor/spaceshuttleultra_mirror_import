@@ -15,6 +15,16 @@ namespace SSUWorkbench.model
 
 		public Mission Load( string scnfile, string orbiterpath )
 		{
+			// TODO missing scenario parameters:
+			// Date JD
+			// Date JE
+			// Help
+			// Script
+			// TRACKMODE (partially done)
+			// GROUNDLOCATION
+			// GROUNDDIRECTION
+			// REF (HUD)
+
 			Mission mission = new Mission();
 			
 			string line;
@@ -22,9 +32,150 @@ namespace SSUWorkbench.model
 			System.IO.StreamReader file = new System.IO.StreamReader( scnfile );
 			while ((line = file.ReadLine()) != null)
 			{
+				line = line.TrimStart( ' ' );
 				// TODO parse scenario file
+				if (line == "BEGIN_DESC")
+				{
+					while ((line = file.ReadLine()) != null)
+					{
+						line = line.TrimStart( ' ' );
+						if (line == "END_DESC") break;
+						else
+						{
+							if (mission.Description == null) mission.Description = line;
+							else mission.Description += "\r\n" + line;
+						}
+					}
+				}
+				else if (line == "BEGIN_ENVIRONMENT" )
+				{
+					while ((line = file.ReadLine()) != null)
+					{
+						line = line.TrimStart( ' ' );
+						if (line == "END_ENVIRONMENT") break;
+						else if (line.StartsWith( "System " ))
+						{
+							mission.scnSystem = line.Substring( 7, line.Length - 7 );
+						}
+						else if (line.StartsWith( "Date MJD " ))
+						{
+							double num = Convert.ToDouble( line.Substring( 9, line.Length - 9 ) ) - 15018.0;
+							mission.scnDatetime = DateTime.FromOADate( num );
+						}
+						else if (line.StartsWith( "Context " ))
+						{
+							mission.scnContext = line.Substring( 8, line.Length - 8 );
+						}
+					}
+				}
+				else if (line == "BEGIN_FOCUS" )
+				{
+					while ((line = file.ReadLine()) != null)
+					{
+						line = line.TrimStart( ' ' );
+						if (line == "END_FOCUS") break;
+						else if (line.StartsWith( "Ship " ))
+						{
+							mission.scnShip = line.Substring( 5, line.Length - 5 );
+						}
+					}
+				}
+				else if (line == "BEGIN_CAMERA" )
+				{
+					while ((line = file.ReadLine()) != null)
+					{
+						line = line.TrimStart( ' ' );
+						if (line == "END_CAMERA") break;
+						else if (line.StartsWith( "TARGET " ))
+						{
+							mission.scnCameraTarget = line.Substring( 7, line.Length - 7 );
+						}
+						else if (line.StartsWith( "MODE " ))
+						{
+							if (line.Substring( 5, line.Length - 5 ) == "Extern") mission.scnCameraMode = 1;
+						}
+						else if (line.StartsWith( "POS " ))
+						{
+							string tmp = line.Substring( 4, line.Length - 4 );
+							double []num = Array.ConvertAll( tmp.Split( ' ' ), Double.Parse );
+							if (num.Count() == 3)
+							{
+								mission.scnCameraPosX = num[0];
+								mission.scnCameraPosY = num[1];
+								mission.scnCameraPosZ = num[2];
+							}
+						}
+						else if (line.StartsWith( "TRACKMODE " ))
+						{
+							mission.scnCameraTrackMode = line.Substring( 10, line.Length - 10 );
+						}
+						else if (line.StartsWith( "FOV " ))
+						{
+							mission.scnCameraFOV = Convert.ToDouble( line.Substring( 4, line.Length - 4 ) );
+						}
+					}
+				}
+				else if (line == "BEGIN_HUD" )
+				{
+					while ((line = file.ReadLine()) != null)
+					{
+						line = line.TrimStart( ' ' );
+						if (line == "END_HUD") break;
+						else if (line.StartsWith( "TYPE " ))
+						{
+							string tmp = line.Substring( 5, line.Length - 5 );
+							if (tmp == "Orbit") mission.scnHUDType = 1;
+							else if (tmp == "Surface") mission.scnHUDType = 2;
+							else mission.scnHUDType = 3;
+						}
+					}
+				}
+				else if (line.StartsWith( "BEGIN_MFD " ))
+				{
+					string mfdid = line.Substring( 10, line.Length - 10 );
+					while ((line = file.ReadLine()) != null)
+					{
+						line = line.TrimStart( ' ' );
+						if (line == "END_MFD") break;
+						else
+						{
+							// TODO
+						}
+					}
+				}
+				else if (line.StartsWith( "BEGIN_PANEL" ))
+				{
+					mission.scnCockpitType = 1;
+					while ((line = file.ReadLine()) != null)
+					{
+						line = line.TrimStart( ' ' );
+						if (line == "END_PANEL") break;
+					}
+				}
+				else if (line.StartsWith( "BEGIN_VC" ))
+				{
+					mission.scnCockpitType = 2;
+					while ((line = file.ReadLine()) != null)
+					{
+						line = line.TrimStart( ' ' );
+						if (line == "END_VC") break;
+					}
+				}
+				else if (line.StartsWith( "BEGIN_SHIPS" ))
+				{
+					while ((line = file.ReadLine()) != null)
+					{
+						line = line.TrimStart( ' ' );
+						if (line == "END_SHIPS") break;
+						else
+						{
+							// TODO
+						}
+					}
+				}
 
 				// TODO get mission file name into mission.MissionName
+				mission.MissionName = "STS-101";
 			}
 			file.Close();
 			
@@ -38,57 +189,91 @@ namespace SSUWorkbench.model
 			// TODO write scn file
 			////////////////// description //////////////////
 			file.WriteLine( "BEGIN_DESC" );
-			file.WriteLine( "  " + mission.Description );
-			file.WriteLine( "END_DESC\r\n" );
+			file.WriteLine( mission.Description );
+			file.WriteLine( "END_DESC" );
+			file.WriteLine( "" );
 
 			////////////////// environment //////////////////
 			file.WriteLine( "BEGIN_ENVIRONMENT" );
-			file.WriteLine( "  System Sol" );
-			file.WriteLine( "  Date MJD " + mission.scnDatetime.ToOADate() + 2415018.5 );
-			file.WriteLine( "  Context SSU" );
-			file.WriteLine( "END_ENVIRONMENT\r\n" );
+			file.WriteLine( "  System " + mission.scnSystem );
+			file.WriteLine( "  Date MJD " + string.Format( "{0:f6}", mission.scnDatetime.ToOADate() + 15018.0 ) );
+			if (mission.scnContext != null) file.WriteLine( "  Context " + mission.scnContext );
+			file.WriteLine( "END_ENVIRONMENT" );
+			file.WriteLine( "" );
 
 			////////////////// focus //////////////////
 			file.WriteLine( "BEGIN_FOCUS" );
-			file.WriteLine( "  Ship " + "TODO" );// TODO focus
+			file.WriteLine( "  Ship " + mission.scnShip );
 			file.WriteLine( "END_FOCUS\r\n" );
 
 			////////////////// camera //////////////////
 			file.WriteLine( "BEGIN_CAMERA" );
-			file.WriteLine( "  TARGET " + "TODO" );// TODO target
-			file.WriteLine( "  MODE " + "TODO" );// TODO mode
-			file.WriteLine( "  POS " + "TODO" );// TODO pos
-			file.WriteLine( "  TRACKMODE " + "TODO" );// TODO track mode
-			file.WriteLine( "  FOV " + "40" );// TODO fov
-			file.WriteLine( "END_CAMERA\r\n" );
+			if (mission.scnCameraMode == 1) file.WriteLine( "  TARGET " + mission.scnCameraTarget );
+			if (mission.scnCameraMode == 0) file.WriteLine( "  MODE Cockpit" );
+			else file.WriteLine( "  MODE Extern" );
+			if (mission.scnCameraMode == 1) file.WriteLine( "  POS " + string.Format( "{0:f2} {1:f2} {2:f2}", mission.scnCameraPosX, mission.scnCameraPosY, mission.scnCameraPosZ ) );
+			file.WriteLine( "  TRACKMODE " + mission.scnCameraTrackMode );
+			file.WriteLine( "  FOV " + string.Format( "{0:f2}", mission.scnCameraFOV ) );
+			file.WriteLine( "END_CAMERA" );
+			file.WriteLine( "" );
+
+			////////////////// hud //////////////////
+			if (mission.scnHUDType != 0)
+			{
+				file.WriteLine( "BEGIN_HUD" );
+				if (mission.scnHUDType == 1) file.WriteLine( "  TYPE Orbit" );
+				else if (mission.scnHUDType == 2) file.WriteLine( "  TYPE Surface" );
+				else file.WriteLine( "  TYPE Docking" );
+				file.WriteLine( "END_HUD" );
+				file.WriteLine( "" );
+			}
 
 			////////////////// mfd //////////////////
-			string[] MFDname = {"Left", "Right", "3", "4", "5", "6", "7", "8", "9", "10", "11"};
-			for (int i = 0; i < 11; i++)
+			string[] MFDname = {"Left", "Right", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
+			for (int i = 0; i < 12; i++)
 			{
 				// TODO add condition to output only if mfd is on
 				file.WriteLine( "BEGIN_MFD " + MFDname[i] );
 				// TODO mfd
-				file.WriteLine( "END_MFD\r\n" );
+				file.WriteLine( "END_MFD" );
+				file.WriteLine( "" );
+			}
+
+			////////////////// panel //////////////////
+			if (mission.scnCockpitType == 1)
+			{
+				file.WriteLine( "BEGIN_PANEL" );
+				file.WriteLine( "END_PANEL" );
+				file.WriteLine( "" );
 			}
 
 			////////////////// vc //////////////////
-			file.WriteLine( "BEGIN_VC" );
-			file.WriteLine( "END_VC\r\n" );
+			if (mission.scnCockpitType == 2)
+			{
+				file.WriteLine( "BEGIN_VC" );
+				file.WriteLine( "END_VC" );
+				file.WriteLine( "" );
+			}
 
 			////////////////// ships //////////////////
 			file.WriteLine( "BEGIN_SHIPS" );
 			// TODO ships
-			file.WriteLine( "END_SHIPS\r\n" );
+			file.WriteLine( "END_SHIPS" );
+			//file.WriteLine( "" );
+
+			////////////////// extmfd //////////////////
+			/*file.WriteLine( "BEGIN_DX9ExtMFD" );
+			file.WriteLine( "END" );
+			//file.WriteLine( "" );
 
 			////////////////// extmfd //////////////////
 			file.WriteLine( "BEGIN_ExtMFD" );
-			// TODO extmfd
 			file.WriteLine( "END" );
-			
+			//file.WriteLine( "" );*/
+
 			file.Close();
 
-			SaveMissionFile( orbiterpath + "Missions\\SSU\\" + mission.MissionName + ".cfg", mission );
+			//SaveMissionFile( orbiterpath + "Missions\\SSU\\" + mission.MissionName + ".cfg", mission );
 			return;
 		}
 
