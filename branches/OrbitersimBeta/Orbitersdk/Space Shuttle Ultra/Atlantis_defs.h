@@ -29,7 +29,7 @@ const VECTOR3 LSRB_OFFSET = _V(-6.4, -8.9, 0.95); // offset between SRB and shut
 const VECTOR3 RSRB_OFFSET = _V(6.4, -8.9, 0.95); // offset between SRB and shuttle mesh
 const VECTOR3 SILTS_OFFSET = _V( 0, 0, 0 );
 const VECTOR3 KU_OFFSET = _V(0.0, 0, 0.0);
-const VECTOR3 ENTRY_OFFSET = _V(0.0, -1.5, -2.0);
+const VECTOR3 ENTRY_OFFSET = _V(0.0, 0.0, 0.0);
 
 
 const double MPS_MANIFOLD_MASS_LOX = 2306;// kg
