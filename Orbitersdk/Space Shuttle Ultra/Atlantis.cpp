@@ -6829,7 +6829,7 @@ double Atlantis::GetLH2ManifPress(void) const
 void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
 	if (!hDevOrbiterMesh) return; // no mesh handle
 	hOVTexture = oapiLoadTexture(strTextureName.c_str());
-	oapiSetTexture(hDevOrbiterMesh, 3, hOVTexture);
+	oapiSetTexture(hDevOrbiterMesh, 2, hOVTexture);
 }
 
 int Atlantis::GetSoundID() const {
