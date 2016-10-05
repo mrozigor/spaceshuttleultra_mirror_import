@@ -612,6 +612,8 @@ public:
 	DEVMESHHANDLE hDevOrbiterMesh;
 
 	SURFHANDLE hOVTexture;
+	SURFHANDLE hLOMSTexture;
+	SURFHANDLE hROMSTexture;
 
 	char cargo_static_mesh_name[256];
 
@@ -796,7 +798,9 @@ private:
 
 	void UpdateTranslationForces();
 
-	void UpdateOrbiterTexture(const std::string& strTextureName);
+	void UpdateOrbiterTexture( const std::string& strTextureName );
+	void UpdateLOMSPodTexture( const std::string& strTextureName );
+	void UpdateROMSPodTexture( const std::string& strTextureName );
 
 	// *******************************************************************************
 	// Animations

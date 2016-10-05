@@ -596,6 +596,8 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	vis = NULL;
 
 	hOVTexture = NULL;
+	hLOMSTexture = NULL;
+	hROMSTexture = NULL;
 
 	bLiftOff = false;
 	bHasKUBand = true;
@@ -922,6 +924,8 @@ Atlantis::~Atlantis() {
 	UnregisterMFDMode( mfdID );
 
 	if (hOVTexture) oapiReleaseTexture( hOVTexture );
+	if (hLOMSTexture) oapiReleaseTexture( hLOMSTexture );
+	if (hROMSTexture) oapiReleaseTexture( hROMSTexture );
 }
 
 DiscreteBundleManager* Atlantis::BundleManager() const
@@ -4770,8 +4774,9 @@ void Atlantis::clbkVisualCreated(VISHANDLE _vis, int refcount)
 	if (pASE_IUS) pASE_IUS->UpdateAttachment();
 	if (pCISS) pCISS->UpdateAttachment();
 
-	if (!pMission->GetOrbiterTextureName().empty())
-		UpdateOrbiterTexture(pMission->GetOrbiterTextureName());
+	if (!pMission->GetOrbiterTextureName().empty()) UpdateOrbiterTexture( pMission->GetOrbiterTextureName() );
+	if (!pMission->GetLOMSPodTextureName().empty()) UpdateLOMSPodTexture( pMission->GetLOMSPodTextureName() );
+	if (!pMission->GetROMSPodTextureName().empty()) UpdateROMSPodTexture( pMission->GetROMSPodTextureName() );
 
 	// hide tail which is not used on this flight
 	GROUPEDITSPEC grpSpec;
@@ -6826,10 +6831,43 @@ double Atlantis::GetLH2ManifPress(void) const
 	return pMPS->GetLH2ManifPress();
 }
 
-void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
-	if (!hDevOrbiterMesh) return; // no mesh handle
-	hOVTexture = oapiLoadTexture(strTextureName.c_str());
-	oapiSetTexture(hDevOrbiterMesh, 2, hOVTexture);
+void Atlantis::UpdateOrbiterTexture( const std::string& strTextureName )
+{
+	if (!hDevOrbiterMesh) return;// no mesh handle
+	hOVTexture = oapiLoadTexture( strTextureName.c_str() );
+	if (hOVTexture == NULL)
+	{
+		char cbuf[256];
+		sprintf_s( cbuf, 255, "(SpaceShuttleUltra) ERROR: Could not load texture %s", strTextureName.c_str() );
+		oapiWriteLog( cbuf );
+	}
+	else oapiSetTexture( hDevOrbiterMesh, 2, hOVTexture );
+}
+
+void Atlantis::UpdateLOMSPodTexture( const std::string& strTextureName )
+{
+	if (!hDevOrbiterMesh) return;// no mesh handle
+	hLOMSTexture = oapiLoadTexture( strTextureName.c_str() );
+	if (hLOMSTexture == NULL)
+	{
+		char cbuf[256];
+		sprintf_s( cbuf, 255, "(SpaceShuttleUltra) ERROR: Could not load texture %s", strTextureName.c_str() );
+		oapiWriteLog( cbuf );
+	}
+	else oapiSetTexture( hDevOrbiterMesh, 3, hLOMSTexture );
+}
+
+void Atlantis::UpdateROMSPodTexture( const std::string& strTextureName )
+{
+	if (!hDevOrbiterMesh) return;// no mesh handle
+	hROMSTexture = oapiLoadTexture( strTextureName.c_str() );
+	if (hROMSTexture == NULL)
+	{
+		char cbuf[256];
+		sprintf_s( cbuf, 255, "(SpaceShuttleUltra) ERROR: Could not load texture %s", strTextureName.c_str() );
+		oapiWriteLog( cbuf );
+	}
+	else oapiSetTexture( hDevOrbiterMesh, 4, hROMSTexture );
 }
 
 int Atlantis::GetSoundID() const {
