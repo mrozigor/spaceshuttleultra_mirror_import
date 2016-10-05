@@ -25,8 +25,6 @@ namespace mission {
 
 	void Mission::SetDefaultValues()
 	{
-		//strLOMSPodMeshName = "SSU\\LOMS_pod_standard";
-		//strROMSPodMeshName = "SSU\\ROMS_pod_standard";
 		//fLaunchTimeMJD = -1.0;
 		//fLandTimeMJD = -1.0;
 
@@ -125,20 +123,18 @@ namespace mission {
 			// default already loaded ORBITER_EMPTY_MASS_OV104 and "Atlantis_5thmod.dds" texture is default in mesh
 		}
 
-		if(oapiReadItem_string(hFile, "OrbiterTexture", buffer))
+		if(oapiReadItem_string( hFile, "OrbiterTexture", buffer ))
 		{
-			strOrbiterTexName = "SSU\\" + std::string(buffer) + ".dds";
-			oapiWriteLog((char*)strOrbiterTexName.c_str());
+			strOrbiterTexName = "SSU\\" + std::string( buffer ) + ".dds";
 		}
-
-		/*if(oapiReadItem_string(hFile, "LOMSPodMesh", buffer))
+		if (oapiReadItem_string( hFile, "LOMSPodTexture", buffer ))
 		{
-			strLOMSPodMeshName = "SSU\\" + std::string(buffer);
+			strLOMSPodTexName = "SSU\\" + std::string( buffer ) + ".dds";
 		}
-		if(oapiReadItem_string(hFile, "ROMSPodMesh", buffer))
+		if (oapiReadItem_string( hFile, "ROMSPodTexture", buffer ))
 		{
-			strROMSPodMeshName = "SSU\\" + std::string(buffer);
-		}*/
+			strROMSPodTexName = "SSU\\" + std::string( buffer ) + ".dds";
+		}
 
 		//oapiReadItem_float(hFile, "LTime", fLaunchTimeMJD);
 		
@@ -310,15 +306,15 @@ namespace mission {
 		return strOrbiterTexName;
 	}
 
-	/*const std::string& Mission::GetLOMSPodMeshName() const
+	const std::string& Mission::GetLOMSPodTextureName() const
 	{
-		return strLOMSPodMeshName;
+		return strLOMSPodTexName;
 	}
 
-	const std::string& Mission::GetROMSPodMeshName() const
+	const std::string& Mission::GetROMSPodTextureName() const
 	{
-		return strROMSPodMeshName;
-	}*/
+		return strROMSPodTexName;
+	}
 
 	bool Mission::HasBridgerail(unsigned int index) const
 	{
