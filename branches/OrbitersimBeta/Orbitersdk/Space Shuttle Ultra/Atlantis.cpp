@@ -4795,6 +4795,12 @@ void Atlantis::clbkVisualCreated(VISHANDLE _vis, int refcount)
 	// hide bay 13 covers
 	if (hasCISS) oapiEditMeshGroup( hDevOrbiterMesh, GRP_PLB_BAY13_COVERS, &grpSpec );
 
+	if (!pMission->HasBulkheadFloodlights())
+	{
+		oapiEditMeshGroup( hDevOrbiterMesh, GRP_XO576_BULKHEAD_DOCKING_LIGHT, &grpSpec );
+		oapiEditMeshGroup( hDevOrbiterMesh, GRP_XO576_BULKHEAD_LIGHT, &grpSpec );
+	}
+
 	if (pExtAirlock) dynamic_cast<eva_docking::ExtAirlock*>(pExtAirlock)->VisualCreated( vis );
 
 	// update UVs for talkbacks and lights
