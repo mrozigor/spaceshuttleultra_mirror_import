@@ -1,0 +1,21 @@
+Crawler Transporter notes:
+
+-Correct procedure for start up and general notes:
+1: PARKING BRAKE OFF by depressing the BRAKE Push Button Indicator (PBI) on the left console and checking that the OFF light is illuminated
+2: SELECT PROPULSIVE DIRECTION by depressing either the FWD or REV PBI. A green GO light should be illuminated on the selected PBI
+3: Initiate motion by using the NumPad + key, Numpad - decreases the speed
+4: Control is through the NumPad 1 and 3 keys
+
+Shut down/securing is done by making sure that the Crawler is stationary and then going through the start up procedure in reverse (steps 3, 2 and 1), with the note that step 2 is depressing the NEUT PBI.
+The actual speed can be seen on the MPH gauge on the top of the center console. Max speed unloaded is 2 MPH while unloaded is limited by computer to 0.8 MPH to avoid inducing harmful vibrations into the stack.
+Do note that the Crawler accelerates very much like a train so don't expect on the dime stop, always plan your speeds ahead especially when you are approaching your target (your speed should then be below 0.1 MPH). The Crawler is equipped with a service brake which is actuated by pressing the B key.
+
+General notes on steering:
+-Make sure you always plan your trajectory as the Crawler has a built in delay in how fast it responds to steering inputs. This is due the fact that the Crawler steering system is entirely hydraulic and is done by hydraulically actuating 4 steering cylinders that are attached to each drive truck. The desired steering angles of the drive trucks on each end of the Crawler is displayed on the right console as is the actual steering angles. Also found on the right console is the three steering mode PBIs, only one can be selected at any given time. The three modes are GREAT CIRCLE (G CIRC) INDEPENDET (INDEP) where the drive trucks are disconnected from each other (meaning that steering commands input in one cab doesn't affect the trucks on the opposite end) and CRAB which allows the Crawler to move diagonally to sort out any misalignments between it and the MLP (or the mounts if the MLP is attached).
+
+Then we have the Laser Docking System which allows the driver to visualize the horizontal (left/right) alignment between the Crawler and its target (either the MLP or the mounts if the MLP is attached). This is the large yellow rectangular box on top of the right console. None of the switches except for the CAB 1/3 switch actually work. This switch allows the LDS display to switch between the receivers mounted on each end so that the driver in the active cab can correct any rotational misalignments without communicating with the driver in the opposing cab. It's a STEER TO alignment system so if the black alignment bar is on the right you need to steer to the right and if it is on the left you need to steer to the left. The goal is to get the alignment bar in the very center of the display as seen from cabs.
+
+The last item to be covered is the Jacking, Equalization and Leveling system also known as the JEL system. The JEL system is comprised of 16 hydraulic cylinders (4 in each corner of the Crawler). They can extended a maximum of 6 feet. The AVERAGE HEIGHT gauge on the right console is showing the averaged height between all four corners. When the Crawler is exactly level (not ascending or descending the pad ramp) the gauge shows the extension all JEL cylinders. To jack up the Crawler to pick up the MLP use the Ctrl-K key-combo. The Crawler will begin the ascent to DOCKING height where the top of the Crawler contacts the bottom of the MLP. The CTrl-K will again raise the Crawler/MLP to CLEARANCE height where the pins on the MLP is clear of the mounts. Once CLEARANCE height has been attained, the Crawler is ready for FIRST MOTION. Attaching/detaching the MLP to the Crawler can only be done in the DOCKING height as done by the K key. Ctrl-J does what Ctrl-K but in reverse, jacking down the Crawler. Proper procedure is to fully jack down the Crawler once the MLP has fully cleared the mounts either in the VAB or at the pad.
+
+Technical notes:
+The SSU Crawler is fully generic compatible with any launcher platform as long as the attachment point has the ID of XMLP. The attachment point on the launcher platform should be on the very bottom of the platform.
