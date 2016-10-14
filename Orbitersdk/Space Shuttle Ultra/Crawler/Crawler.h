@@ -334,6 +334,7 @@ private:
 	//OBJHANDLE hLV;
 	//OBJHANDLE hMSS;
 	ATTACHMENTHANDLE ahMLP;
+	char MLPclassname[255];
 
 	MESHHANDLE hFwdVCMesh;
 	MESHHANDLE hRearVCMesh;
