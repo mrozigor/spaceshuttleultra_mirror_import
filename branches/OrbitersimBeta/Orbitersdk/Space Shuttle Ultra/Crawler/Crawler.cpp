@@ -232,6 +232,8 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 
 	hEarth = NULL;
 
+	strcpy( MLPclassname, "SSU_MLP" );
+
 	SoundID = ConnectToOrbiterSoundDLL(GetHandle());
 	SetMyDefaultWaveDirectory("Sound\\_CustomVesselsSounds\\SpaceShuttleUltra");
 	RequestLoadVesselWave(SoundID, ENGINE_SOUND_ID, "CrawlerEngine.wav", BOTHVIEW_FADED_MEDIUM);
@@ -310,6 +312,18 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	SetMeshVisibilityMode(rearVCIdx, MESHVIS_COCKPIT | MESHVIS_VC | MESHVIS_EXTERNAL);
 
 	DefineAnimations(mesh_1980);
+
+	char cbuf[255];
+	if (oapiReadItem_string( cfg, "MLPclass", cbuf ))
+	{
+		if (strlen( cbuf ) > 0)
+		{
+			strcpy( MLPclassname, cbuf );
+
+			oapiWriteLog( "Changed target MLP class to:" );
+			oapiWriteLog( MLPclassname );
+		}
+	}
 
 	//CreateAttachment(false, _V(0.0, 6.3, 0.0), _V(0, 1, 0), _V(1, 0, 0), "ML", false);
 	ahMLP = CreateAttachment(false, MLP_ATTACH_POS, _V(0, -1, 0), MLP_ATTACH_ROT, "XMLP");
@@ -911,7 +925,7 @@ void Crawler::Attach() {
 
 		VESSEL* pVessel=oapiGetVesselInterface(hV);
 		std::string className=pVessel->GetClassName();
-		if(className == "SSU_MLP") { //found an MLP
+		if(className == MLPclassname) { //found an MLP
 			oapiWriteLog("Found MLP");
 			ATTACHMENTHANDLE ahAttach=pVessel->GetAttachmentHandle(true, 0);
 
