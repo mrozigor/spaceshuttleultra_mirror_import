@@ -1,143 +1,139 @@
-// ========================================================
-// Mesh resource file for Crawler_drivetrucks.msh
-// Generated with meshc on Mon Jun 20 22:15:29 2011
+// ======================================================
+// Created by ssumeshc 0.2
+// Date of conversion : Fri Nov 04 18:08:36 2016
 
-// ========================================================
+// Input file: Crawler_drivetrucks.msh
+// ======================================================
 
-// Number of mesh groups:
-#define NGRP_TRUCK 127
+#pragma once
 
-// Number of materials:
-#define NMAT_TRUCK 4
+const unsigned int NUMGRP_TRUCK = 127;
 
-// Number of textures:
-#define NTEX_TRUCK 2
+const unsigned int GRP_AUXILLARY_STEERING_ARM_TRUCK	=	0;	//Auxillary_steering_arm
+const unsigned int GRP_BELT_IDLERS_TRUCK	=	1;	//Belt_idlers
+const unsigned int GRP_BELT_TENSION_ADJUSTORS_TRUCK	=	2;	//Belt_tension_adjustors
+const unsigned int GRP_DC_TRACTION_MOTOR_BRAKE_DISCS_INNER_TRUCK	=	3;	//DC_traction_motor_brake_discs_inner
+const unsigned int GRP_DC_TRACTION_MOTORS_TRUCK	=	4;	//DC_traction_motors
+const unsigned int GRP_GUIDE_TUBE_DUST_SHIELD_LOWER_TRUCK	=	5;	//Guide_tube_dust_shield_lower
+const unsigned int GRP_INNERSHOE_01_TRUCK	=	6;	//InnerShoe_01
+const unsigned int GRP_INNERSHOE_02_TRUCK	=	7;	//InnerShoe_02
+const unsigned int GRP_INNERSHOE_03_TRUCK	=	8;	//InnerShoe_03
+const unsigned int GRP_INNERSHOE_04_TRUCK	=	9;	//InnerShoe_04
+const unsigned int GRP_INNERSHOE_05_TRUCK	=	10;	//InnerShoe_05
+const unsigned int GRP_INNERSHOE_06_TRUCK	=	11;	//InnerShoe_06
+const unsigned int GRP_INNERSHOE_07_TRUCK	=	12;	//InnerShoe_07
+const unsigned int GRP_INNERSHOE_08_TRUCK	=	13;	//InnerShoe_08
+const unsigned int GRP_INNERSHOE_09_TRUCK	=	14;	//InnerShoe_09
+const unsigned int GRP_INNERSHOE_10_TRUCK	=	15;	//InnerShoe_10
+const unsigned int GRP_INNERSHOE_11_TRUCK	=	16;	//InnerShoe_11
+const unsigned int GRP_INNERSHOE_12_TRUCK	=	17;	//InnerShoe_12
+const unsigned int GRP_INNERSHOE_13_TRUCK	=	18;	//InnerShoe_13
+const unsigned int GRP_INNERSHOE_14_TRUCK	=	19;	//InnerShoe_14
+const unsigned int GRP_INNERSHOE_15_TRUCK	=	20;	//InnerShoe_15
+const unsigned int GRP_INNERSHOE_16_TRUCK	=	21;	//InnerShoe_16
+const unsigned int GRP_INNERSHOE_17_TRUCK	=	22;	//InnerShoe_17
+const unsigned int GRP_INNERSHOE_18_TRUCK	=	23;	//InnerShoe_18
+const unsigned int GRP_INNERSHOE_19_TRUCK	=	24;	//InnerShoe_19
+const unsigned int GRP_INNERSHOE_20_TRUCK	=	25;	//InnerShoe_20
+const unsigned int GRP_INNERSHOE_21_TRUCK	=	26;	//InnerShoe_21
+const unsigned int GRP_INNERSHOE_22_TRUCK	=	27;	//InnerShoe_22
+const unsigned int GRP_INNERSHOE_23_TRUCK	=	28;	//InnerShoe_23
+const unsigned int GRP_INNERSHOE_24_TRUCK	=	29;	//InnerShoe_24
+const unsigned int GRP_INNERSHOE_25_TRUCK	=	30;	//InnerShoe_25
+const unsigned int GRP_INNERSHOE_26_TRUCK	=	31;	//InnerShoe_26
+const unsigned int GRP_INNERSHOE_27_TRUCK	=	32;	//InnerShoe_27
+const unsigned int GRP_INNERSHOE_28_TRUCK	=	33;	//InnerShoe_28
+const unsigned int GRP_INNERSHOE_29_TRUCK	=	34;	//InnerShoe_29
+const unsigned int GRP_INNERSHOE_30_TRUCK	=	35;	//InnerShoe_30
+const unsigned int GRP_INNERSHOE_31_TRUCK	=	36;	//InnerShoe_31
+const unsigned int GRP_INNERSHOE_32_TRUCK	=	37;	//InnerShoe_32
+const unsigned int GRP_INNERSHOE_33_TRUCK	=	38;	//InnerShoe_33
+const unsigned int GRP_INNERSHOE_34_TRUCK	=	39;	//InnerShoe_34
+const unsigned int GRP_INNERSHOE_35_TRUCK	=	40;	//InnerShoe_35
+const unsigned int GRP_INNERSHOE_36_TRUCK	=	41;	//InnerShoe_36
+const unsigned int GRP_INNERSHOE_37_TRUCK	=	42;	//InnerShoe_37
+const unsigned int GRP_INNERSHOE_38_TRUCK	=	43;	//InnerShoe_38
+const unsigned int GRP_INNERSHOE_39_TRUCK	=	44;	//InnerShoe_39
+const unsigned int GRP_INNERSHOE_40_TRUCK	=	45;	//InnerShoe_40
+const unsigned int GRP_INNERSHOE_41_TRUCK	=	46;	//InnerShoe_41
+const unsigned int GRP_INNERSHOE_42_TRUCK	=	47;	//InnerShoe_42
+const unsigned int GRP_INNERSHOE_43_TRUCK	=	48;	//InnerShoe_43
+const unsigned int GRP_INNERSHOE_43A_TRUCK	=	49;	//InnerShoe_43
+const unsigned int GRP_INNERSHOE_45_TRUCK	=	50;	//InnerShoe_45
+const unsigned int GRP_INNERSHOE_46_TRUCK	=	51;	//InnerShoe_46
+const unsigned int GRP_INNERSHOE_47_TRUCK	=	52;	//InnerShoe_47
+const unsigned int GRP_INNERSHOE_48_TRUCK	=	53;	//InnerShoe_48
+const unsigned int GRP_INNERSHOE_49_TRUCK	=	54;	//InnerShoe_49
+const unsigned int GRP_INNERSHOE_50_TRUCK	=	55;	//InnerShoe_50
+const unsigned int GRP_INNERSHOE_51_TRUCK	=	56;	//InnerShoe_51
+const unsigned int GRP_INNERSHOE_52_TRUCK	=	57;	//InnerShoe_52
+const unsigned int GRP_INNERSHOE_53_TRUCK	=	58;	//InnerShoe_53
+const unsigned int GRP_INNERSHOE_55_TRUCK	=	59;	//InnerShoe_55
+const unsigned int GRP_INNERSHOE_56_TRUCK	=	60;	//InnerShoe_56
+const unsigned int GRP_INNERSHOE_57_TRUCK	=	61;	//InnerShoe_57
+const unsigned int GRP_JEL__GUIDE_CYLINDERS_TRUCK	=	62;	//JEL__Guide_cylinders
+const unsigned int GRP_JEL_GUIDE_CYLINDER_DUST_SHIELDS_TRUCK	=	63;	//JEL_Guide_cylinder_dust_shields
+const unsigned int GRP_MAIN_TRUCK_ASSEMBLY_TRUCK	=	64;	//Main_truck_assembly
+const unsigned int GRP_MAIN_TRUCK_ASSEMBLY_SIDES_TRUCK	=	65;	//Main_truck_assembly_sides
+const unsigned int GRP_OUTERSHOE_01_TRUCK	=	66;	//OuterShoe_01
+const unsigned int GRP_OUTERSHOE_02_TRUCK	=	67;	//OuterShoe_02
+const unsigned int GRP_OUTERSHOE_03_TRUCK	=	68;	//OuterShoe_03
+const unsigned int GRP_OUTERSHOE_04_TRUCK	=	69;	//OuterShoe_04
+const unsigned int GRP_OUTERSHOE_05_TRUCK	=	70;	//OuterShoe_05
+const unsigned int GRP_OUTERSHOE_06_TRUCK	=	71;	//OuterShoe_06
+const unsigned int GRP_OUTERSHOE_07_TRUCK	=	72;	//OuterShoe_07
+const unsigned int GRP_OUTERSHOE_08_TRUCK	=	73;	//OuterShoe_08
+const unsigned int GRP_OUTERSHOE_09_TRUCK	=	74;	//OuterShoe_09
+const unsigned int GRP_OUTERSHOE_10_TRUCK	=	75;	//OuterShoe_10
+const unsigned int GRP_OUTERSHOE_11_TRUCK	=	76;	//OuterShoe_11
+const unsigned int GRP_OUTERSHOE_12_TRUCK	=	77;	//OuterShoe_12
+const unsigned int GRP_OUTERSHOE_13_TRUCK	=	78;	//OuterShoe_13
+const unsigned int GRP_OUTERSHOE_14_TRUCK	=	79;	//OuterShoe_14
+const unsigned int GRP_OUTERSHOE_15_TRUCK	=	80;	//OuterShoe_15
+const unsigned int GRP_OUTERSHOE_16_TRUCK	=	81;	//OuterShoe_16
+const unsigned int GRP_OUTERSHOE_17_TRUCK	=	82;	//OuterShoe_17
+const unsigned int GRP_OUTERSHOE_18_TRUCK	=	83;	//OuterShoe_18
+const unsigned int GRP_OUTERSHOE_19_TRUCK	=	84;	//OuterShoe_19
+const unsigned int GRP_OUTERSHOE_20_TRUCK	=	85;	//OuterShoe_20
+const unsigned int GRP_OUTERSHOE_21_TRUCK	=	86;	//OuterShoe_21
+const unsigned int GRP_OUTERSHOE_22_TRUCK	=	87;	//OuterShoe_22
+const unsigned int GRP_OUTERSHOE_23_TRUCK	=	88;	//OuterShoe_23
+const unsigned int GRP_OUTERSHOE_24_TRUCK	=	89;	//OuterShoe_24
+const unsigned int GRP_OUTERSHOE_25_TRUCK	=	90;	//OuterShoe_25
+const unsigned int GRP_OUTERSHOE_26_TRUCK	=	91;	//OuterShoe_26
+const unsigned int GRP_OUTERSHOE_27_TRUCK	=	92;	//OuterShoe_27
+const unsigned int GRP_OUTERSHOE_28_TRUCK	=	93;	//OuterShoe_28
+const unsigned int GRP_OUTERSHOE_29_TRUCK	=	94;	//OuterShoe_29
+const unsigned int GRP_OUTERSHOE_30_TRUCK	=	95;	//OuterShoe_30
+const unsigned int GRP_OUTERSHOE_31_TRUCK	=	96;	//OuterShoe_31
+const unsigned int GRP_OUTERSHOE_32_TRUCK	=	97;	//OuterShoe_32
+const unsigned int GRP_OUTERSHOE_33_TRUCK	=	98;	//OuterShoe_33
+const unsigned int GRP_OUTERSHOE_34_TRUCK	=	99;	//OuterShoe_34
+const unsigned int GRP_OUTERSHOE_35_TRUCK	=	100;	//OuterShoe_35
+const unsigned int GRP_OUTERSHOE_36_TRUCK	=	101;	//OuterShoe_36
+const unsigned int GRP_OUTERSHOE_37_TRUCK	=	102;	//OuterShoe_37
+const unsigned int GRP_OUTERSHOE_38_TRUCK	=	103;	//OuterShoe_38
+const unsigned int GRP_OUTERSHOE_39_TRUCK	=	104;	//OuterShoe_39
+const unsigned int GRP_OUTERSHOE_40_TRUCK	=	105;	//OuterShoe_40
+const unsigned int GRP_OUTERSHOE_41_TRUCK	=	106;	//OuterShoe_41
+const unsigned int GRP_OUTERSHOE_42_TRUCK	=	107;	//OuterShoe_42
+const unsigned int GRP_OUTERSHOE_43_TRUCK	=	108;	//OuterShoe_43
+const unsigned int GRP_OUTERSHOE_44_TRUCK	=	109;	//OuterShoe_44
+const unsigned int GRP_OUTERSHOE_45_TRUCK	=	110;	//OuterShoe_45
+const unsigned int GRP_OUTERSHOE_46_TRUCK	=	111;	//OuterShoe_46
+const unsigned int GRP_OUTERSHOE_47_TRUCK	=	112;	//OuterShoe_47
+const unsigned int GRP_OUTERSHOE_48_TRUCK	=	113;	//OuterShoe_48
+const unsigned int GRP_OUTERSHOE_49_TRUCK	=	114;	//OuterShoe_49
+const unsigned int GRP_OUTERSHOE_50_TRUCK	=	115;	//OuterShoe_50
+const unsigned int GRP_OUTERSHOE_51_TRUCK	=	116;	//OuterShoe_51
+const unsigned int GRP_OUTERSHOE_52_TRUCK	=	117;	//OuterShoe_52
+const unsigned int GRP_OUTERSHOE_53_TRUCK	=	118;	//OuterShoe_53
+const unsigned int GRP_OUTERSHOE_55_TRUCK	=	119;	//OuterShoe_55
+const unsigned int GRP_OUTERSHOE_56_TRUCK	=	120;	//OuterShoe_56
+const unsigned int GRP_OUTERSHOE_57_TRUCK	=	121;	//OuterShoe_57
+const unsigned int GRP_OUTERSHOE_58_TRUCK	=	122;	//OuterShoe_58
+const unsigned int GRP_OUTERSHOE_58A_TRUCK	=	123;	//OuterShoe_58
+const unsigned int GRP_SPROCKETS_TRUCK	=	124;	//Sprockets
+const unsigned int GRP_STEERING_ARMS_TRUCK	=	125;	//Steering_arms
+const unsigned int GRP_DC_TRACTION_MOTOR_BRAKE_DISCS_OUTER_TRUCK	=	126;	//DC_traction_motor_brake_discs_outer
 
-// Named mesh groups:
-#define GRP_Auxillary_steering_arm_TRUCK 0
-#define GRP_Belt_idlers_TRUCK 1
-#define GRP_Belt_tension_adjustors_TRUCK 2
-#define GRP_DC_traction_motor_brake_discs_inner_TRUCK 3
-#define GRP_DC_traction_motors_TRUCK 4
-#define GRP_Guide_tube_dust_shield_lower_TRUCK 5
-#define GRP_InnerShoe_01_TRUCK 6
-#define GRP_InnerShoe_02_TRUCK 7
-#define GRP_InnerShoe_03_TRUCK 8
-#define GRP_InnerShoe_04_TRUCK 9
-#define GRP_InnerShoe_05_TRUCK 10
-#define GRP_InnerShoe_06_TRUCK 11
-#define GRP_InnerShoe_07_TRUCK 12
-#define GRP_InnerShoe_08_TRUCK 13
-#define GRP_InnerShoe_09_TRUCK 14
-#define GRP_InnerShoe_10_TRUCK 15
-#define GRP_InnerShoe_11_TRUCK 16
-#define GRP_InnerShoe_12_TRUCK 17
-#define GRP_InnerShoe_13_TRUCK 18
-#define GRP_InnerShoe_14_TRUCK 19
-#define GRP_InnerShoe_15_TRUCK 20
-#define GRP_InnerShoe_16_TRUCK 21
-#define GRP_InnerShoe_17_TRUCK 22
-#define GRP_InnerShoe_18_TRUCK 23
-#define GRP_InnerShoe_19_TRUCK 24
-#define GRP_InnerShoe_20_TRUCK 25
-#define GRP_InnerShoe_21_TRUCK 26
-#define GRP_InnerShoe_22_TRUCK 27
-#define GRP_InnerShoe_23_TRUCK 28
-#define GRP_InnerShoe_24_TRUCK 29
-#define GRP_InnerShoe_25_TRUCK 30
-#define GRP_InnerShoe_26_TRUCK 31
-#define GRP_InnerShoe_27_TRUCK 32
-#define GRP_InnerShoe_28_TRUCK 33
-#define GRP_InnerShoe_29_TRUCK 34
-#define GRP_InnerShoe_30_TRUCK 35
-#define GRP_InnerShoe_31_TRUCK 36
-#define GRP_InnerShoe_32_TRUCK 37
-#define GRP_InnerShoe_33_TRUCK 38
-#define GRP_InnerShoe_34_TRUCK 39
-#define GRP_InnerShoe_35_TRUCK 40
-#define GRP_InnerShoe_36_TRUCK 41
-#define GRP_InnerShoe_37_TRUCK 42
-#define GRP_InnerShoe_38_TRUCK 43
-#define GRP_InnerShoe_39_TRUCK 44
-#define GRP_InnerShoe_40_TRUCK 45
-#define GRP_InnerShoe_41_TRUCK 46
-#define GRP_InnerShoe_42_TRUCK 47
-#define GRP_InnerShoe_43_TRUCK 48
-#define GRP_InnerShoe_44_TRUCK 49
-#define GRP_InnerShoe_45_TRUCK 50
-#define GRP_InnerShoe_46_TRUCK 51
-#define GRP_InnerShoe_47_TRUCK 52
-#define GRP_InnerShoe_48_TRUCK 53
-#define GRP_InnerShoe_49_TRUCK 54
-#define GRP_InnerShoe_50_TRUCK 55
-#define GRP_InnerShoe_51_TRUCK 56
-#define GRP_InnerShoe_52_TRUCK 57
-#define GRP_InnerShoe_53_TRUCK 58
-#define GRP_InnerShoe_55_TRUCK 59
-#define GRP_InnerShoe_56_TRUCK 60
-#define GRP_InnerShoe_57_TRUCK 61
-#define GRP_JEL__Guide_cylinders_TRUCK 62
-#define GRP_JEL_Guide_cylinder_dust_shields_TRUCK 63
-#define GRP_Main_truck_assembly_TRUCK 64
-#define GRP_Main_truck_assembly_sides_TRUCK 65
-#define GRP_OuterShoe_01_TRUCK 66
-#define GRP_OuterShoe_02_TRUCK 67
-#define GRP_OuterShoe_03_TRUCK 68
-#define GRP_OuterShoe_04_TRUCK 69
-#define GRP_OuterShoe_05_TRUCK 70
-#define GRP_OuterShoe_06_TRUCK 71
-#define GRP_OuterShoe_07_TRUCK 72
-#define GRP_OuterShoe_08_TRUCK 73
-#define GRP_OuterShoe_09_TRUCK 74
-#define GRP_OuterShoe_10_TRUCK 75
-#define GRP_OuterShoe_11_TRUCK 76
-#define GRP_OuterShoe_12_TRUCK 77
-#define GRP_OuterShoe_13_TRUCK 78
-#define GRP_OuterShoe_14_TRUCK 79
-#define GRP_OuterShoe_15_TRUCK 80
-#define GRP_OuterShoe_16_TRUCK 81
-#define GRP_OuterShoe_17_TRUCK 82
-#define GRP_OuterShoe_18_TRUCK 83
-#define GRP_OuterShoe_19_TRUCK 84
-#define GRP_OuterShoe_20_TRUCK 85
-#define GRP_OuterShoe_21_TRUCK 86
-#define GRP_OuterShoe_22_TRUCK 87
-#define GRP_OuterShoe_23_TRUCK 88
-#define GRP_OuterShoe_24_TRUCK 89
-#define GRP_OuterShoe_25_TRUCK 90
-#define GRP_OuterShoe_26_TRUCK 91
-#define GRP_OuterShoe_27_TRUCK 92
-#define GRP_OuterShoe_28_TRUCK 93
-#define GRP_OuterShoe_29_TRUCK 94
-#define GRP_OuterShoe_30_TRUCK 95
-#define GRP_OuterShoe_31_TRUCK 96
-#define GRP_OuterShoe_32_TRUCK 97
-#define GRP_OuterShoe_33_TRUCK 98
-#define GRP_OuterShoe_34_TRUCK 99
-#define GRP_OuterShoe_35_TRUCK 100
-#define GRP_OuterShoe_36_TRUCK 101
-#define GRP_OuterShoe_37_TRUCK 102
-#define GRP_OuterShoe_38_TRUCK 103
-#define GRP_OuterShoe_39_TRUCK 104
-#define GRP_OuterShoe_40_TRUCK 105
-#define GRP_OuterShoe_41_TRUCK 106
-#define GRP_OuterShoe_42_TRUCK 107
-#define GRP_OuterShoe_43_TRUCK 108
-#define GRP_OuterShoe_44_TRUCK 109
-#define GRP_OuterShoe_45_TRUCK 110
-#define GRP_OuterShoe_46_TRUCK 111
-#define GRP_OuterShoe_47_TRUCK 112
-#define GRP_OuterShoe_48_TRUCK 113
-#define GRP_OuterShoe_49_TRUCK 114
-#define GRP_OuterShoe_50_TRUCK 115
-#define GRP_OuterShoe_51_TRUCK 116
-#define GRP_OuterShoe_52_TRUCK 117
-#define GRP_OuterShoe_53_TRUCK 118
-#define GRP_OuterShoe_55_TRUCK 119
-#define GRP_OuterShoe_56_TRUCK 120
-#define GRP_OuterShoe_57_TRUCK 121
-#define GRP_OuterShoe_58_TRUCK 122
-#define GRP_OuterShoe_59_TRUCK 123
-#define GRP_Sprockets_TRUCK 124
-#define GRP_Steering_arms_TRUCK 125
-#define GRP_DC_traction_motor_brake_discs_outer_TRUCK 126
