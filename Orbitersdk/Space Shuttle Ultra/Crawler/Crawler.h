@@ -350,7 +350,7 @@ private:
 	UINT anim_truck_rot[4];
 	UINT anim_brake_discs;
 	double brake_discs_state;
-	UINT DrivetruckGrpList[NGRP_TRUCK-4]; // array used to define drivetruck animations
+	UINT DrivetruckGrpList[NUMGRP_TRUCK-4]; // array used to define drivetruck animations
 	MGROUP_ROTATE* InnerBrakeDiscs[4];
 	MGROUP_ROTATE* OutterBrakeDiscs[4];
 
