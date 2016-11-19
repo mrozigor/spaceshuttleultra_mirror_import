@@ -61,6 +61,8 @@ struct DAPConfig
 	}
 };
 
+class THC_SOP;
+
 /**
  * Controls shuttle's attitude during orbital flight.
  * Also performs OMS TVC.
@@ -145,7 +147,6 @@ private:
 	DiscInPort DAPMode[3]; // PRI, ALT, VERN
 	DiscInPort DAPControlMode[4]; // AUTO, INRTL, LVLH, FREE*/
 	DiscInPort RHCInput[3];
-	DiscInPort THCInput[3];
 	DiscOutPort RotThrusterCommands[3];
 	DiscOutPort TransThrusterCommands[3]; // 0=X, 1=Y, 2=Z
 	DiscOutPort POMSGimbalCommand[2], YOMSGimbalCommand[2];
@@ -153,9 +154,9 @@ private:
 	DiscInPort BodyFlapAuto; // used to trigger PCT
 	DiscOutPort port_PCTActive[2]; // PBIs indicating is PCT is in progress
 	//DiscOutPort port_PCTActive;
-	DiscOutPort PitchAuto, RollYawAuto, PitchCSS, RollYawCSS; // make sure these PBIs are all OFF
 	
 	StateVectorSoftware* pStateVector;
+	THC_SOP *pTHC_SOP;
 public:
 	OrbitDAP(SimpleGPCSystem* pGPC);
 	virtual ~OrbitDAP();

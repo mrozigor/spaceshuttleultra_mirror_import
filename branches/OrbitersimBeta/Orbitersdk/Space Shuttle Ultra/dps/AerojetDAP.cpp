@@ -1,5 +1,6 @@
 #include "AerojetDAP.h"
 #include "../Atlantis.h"
+#include "RHC_SOP.h"
 #include "IDP.h"
 #include <UltraMath.h>
 #include "../ParameterValues.h"
@@ -230,6 +231,9 @@ HUDFlashTime(0.0), bHUDFlasher(true), SITE_ID(0), SEC(false)
 	declutter_level[0] = 0;
 	declutter_level[1] = 0;
 
+	AutoFCSPitch = true;
+	AutoFCSRoll = true;
+
 	tCSS = -1;
 	tGear = -1;
 }
@@ -259,11 +263,52 @@ void AerojetDAP::Realize()
 		ThrusterCommands[i].Connect(pBundle, i);
 	}
 
-	pBundle=BundleManager()->CreateBundle("CSS_CONTROLS", 4);
-	PitchAuto.Connect(pBundle, 0);
-	PitchCSSOut.Connect(pBundle, 1);
-	RollYawAuto.Connect(pBundle, 2);
-	RollYawCSSOut.Connect(pBundle, 3);
+	pBundle = BundleManager()->CreateBundle( "CSS_CONTROLS", 16 );
+	CDRPitchAuto.Connect( pBundle, 0 );
+	CDRPitchAutoLT.Connect( pBundle, 1 );
+	CDRPitchCSS.Connect( pBundle, 2 );
+	CDRPitchCSSLT.Connect( pBundle, 3 );
+	CDRRollYawAuto.Connect( pBundle, 4 );
+	CDRRollYawAutoLT.Connect( pBundle, 5 );
+	CDRRollYawCSS.Connect( pBundle, 6 );
+	CDRRollYawCSSLT.Connect( pBundle, 7 );
+	PLTPitchAuto.Connect( pBundle, 8 );
+	PLTPitchAutoLT.Connect( pBundle, 9 );
+	PLTPitchCSS.Connect( pBundle, 10 );
+	PLTPitchCSSLT.Connect( pBundle, 11 );
+	PLTRollYawAuto.Connect( pBundle, 12 );
+	PLTRollYawAutoLT.Connect( pBundle, 13 );
+	PLTRollYawCSS.Connect( pBundle, 14 );
+	PLTRollYawCSSLT.Connect( pBundle, 15 );
+
+	if (AutoFCSPitch == false)
+	{
+		CDRPitchAutoLT.ResetLine();
+		PLTPitchAutoLT.ResetLine();
+		CDRPitchCSSLT.SetLine();
+		PLTPitchCSSLT.SetLine();
+	}
+	else
+	{
+		CDRPitchAutoLT.SetLine();
+		PLTPitchAutoLT.SetLine();
+		CDRPitchCSSLT.ResetLine();
+		PLTPitchCSSLT.ResetLine();
+	}
+	if (AutoFCSRoll == false)
+	{
+		CDRRollYawAutoLT.ResetLine();
+		PLTRollYawAutoLT.ResetLine();
+		CDRRollYawCSSLT.SetLine();
+		PLTRollYawCSSLT.SetLine();
+	}
+	else
+	{
+		CDRRollYawAutoLT.SetLine();
+		PLTRollYawAutoLT.SetLine();
+		CDRRollYawCSSLT.ResetLine();
+		PLTRollYawCSSLT.ResetLine();
+	}
 
 	pBundle=STS()->BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
 	SpeedbrakeAuto.Connect(pBundle, 0);
@@ -276,6 +321,8 @@ void AerojetDAP::Realize()
 	pBundle = STS()->BundleManager()->CreateBundle( "HUD_PLT", 16 );
 	HUDPower[1].Connect( pBundle, 0 );
 	pHUDDCLT[1].Connect( pBundle, 1 );
+
+	pRHC_SOP = static_cast<RHC_SOP*> (FindSoftware( "RHC_SOP" ));
 	
 	hEarth = STS()->GetGravityRef();
 	InitializeRunwayData();
@@ -302,9 +349,81 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	// select correct side for HAC
 	if(HACDirection == STRT || STS()->GetAirspeed() > 9000.0/MPS2FPS) SelectHAC();
 
+	// check if AUTO or CSS
+	if (AutoFCSPitch == true)
+	{
+		if (CDRPitchCSS.IsSet() || PLTPitchCSS.IsSet())
+		{
+			// to CSS
+			AutoFCSPitch = false;
+			CDRPitchAutoLT.ResetLine();
+			PLTPitchAutoLT.ResetLine();
+			CDRPitchCSSLT.SetLine();
+			PLTPitchCSSLT.SetLine();
+		}
+	}
+	else
+	{
+		if (CDRPitchAuto.IsSet() || PLTPitchAuto.IsSet())
+		{
+			// to AUTO
+			AutoFCSPitch = true;
+			CDRPitchAutoLT.SetLine();
+			PLTPitchAutoLT.SetLine();
+			CDRPitchCSSLT.ResetLine();
+			PLTPitchCSSLT.ResetLine();
+		}
+	}
+	if (AutoFCSRoll == true)
+	{
+		if (CDRRollYawCSS.IsSet() || PLTRollYawCSS.IsSet())
+		{
+			// to CSS
+			AutoFCSRoll = false;
+			CDRRollYawAutoLT.ResetLine();
+			PLTRollYawAutoLT.ResetLine();
+			CDRRollYawCSSLT.SetLine();
+			PLTRollYawCSSLT.SetLine();
+		}
+	}
+	else
+	{
+		if (CDRRollYawAuto.IsSet() || PLTRollYawAuto.IsSet())
+		{
+			// to AUTO
+			AutoFCSRoll = true;
+			CDRRollYawAutoLT.SetLine();
+			PLTRollYawAutoLT.SetLine();
+			CDRRollYawCSSLT.ResetLine();
+			PLTRollYawCSSLT.ResetLine();
+		}
+	}
 	// downmode to CSS if RHC is out of detent
-	if(!Eq(RHCInput[PITCH].GetVoltage(), 0.0, 0.1)) PitchCSSOut.SetLine();
-	if(!Eq(RHCInput[ROLL].GetVoltage(), 0.0, 0.1)) RollYawCSSOut.SetLine();
+	if (AutoFCSPitch == true)
+	{
+		if (pRHC_SOP->GetPitchManTakeOver() == true)
+		{
+			// to CSS
+			AutoFCSPitch = false;
+			CDRPitchAutoLT.ResetLine();
+			PLTPitchAutoLT.ResetLine();
+			CDRPitchCSSLT.SetLine();
+			PLTPitchCSSLT.SetLine();
+		}
+	}
+	
+	if (AutoFCSRoll == true)
+	{
+		if (pRHC_SOP->GetRollManTakeOver() == true)
+		{
+			// to CSS
+			AutoFCSRoll = false;
+			CDRRollYawAutoLT.ResetLine();
+			PLTRollYawAutoLT.ResetLine();
+			CDRRollYawCSSLT.SetLine();
+			PLTRollYawCSSLT.SetLine();
+		}
+	}
 
 	//double distToRwy, delaz; // only used in MM304
 	switch(GetMajorMode()) {
@@ -324,7 +443,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 
 		// PITCH channel
 		double targetAOA = CalculateTargetAOA(STS()->GetMachNumber());
-		if(PitchAuto) {
+		if (AutoFCSPitch == true) {
 			const double MAX_PITCH_RATE = 0.5;
 			degTargetRates.data[PITCH] = range(-MAX_PITCH_RATE, 0.25*(targetAOA-degCurrentAttitude.data[PITCH]), MAX_PITCH_RATE);
 		}
@@ -335,7 +454,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		// ROLL/YAW channel
 		double tgtBank = CalculateTargetBank(STS()->GetMachNumber(), targetAOA, DeltaT, SimT);
 		double tgtBankRate = 0.0;
-		if(RollYawAuto)
+		if (AutoFCSRoll == true)
 		{
 			double MAX_BANK_RATE = 3.0;
 			if(STS()->GetMachNumber() < 23.5) MAX_BANK_RATE = 5.0;
@@ -434,7 +553,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 
 			double NZSteadyState = cos(STS()->GetPitch())/cos(STS()->GetBank());
 			NZErr = NZCommand+NZSteadyState-averageNZ;
-			if(PitchAuto)
+			if (AutoFCSPitch == true)
 			{
 				degTargetRates.data[PITCH] = range(-0.5, 5.0*NZErr, 0.5);
 			}
@@ -445,7 +564,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			//degTargetRates.data[ROLL] = CSSRollInput(DeltaT);
 			//double tgtBankRate = CSSRollInput(DeltaT);
 			double tgtBankRate;
-			if(RollYawAuto)
+			if (AutoFCSRoll == true)
 			{
 				double MAX_BANK_RATE = 5.0;
 				double BANK_GAIN = 1.0;
@@ -547,14 +666,22 @@ bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 			// reduce roll gains 
 			Roll_AileronRoll.SetGains(0.05, 0.00, 0.01);
 		}
-		else {
-			// initialize both pitch and roll/yaw channels to AUTO
-			DiscOutPort port;
-			pBundle=BundleManager()->CreateBundle("CSS_CONTROLS", 4);
-			port.Connect(pBundle, 0); // PITCH AUTO
-			port.SetLine();
-			port.Connect(pBundle, 2); // ROLL/YAW AUTO
-			port.SetLine();
+		else
+		{
+			// when entering MM304 from MM303 init FCS to AUTO, otherwise it's a scenario start so leave it to the scenario data
+			if (GetMajorMode() == 303)
+			{
+				AutoFCSPitch = true;
+				CDRPitchAutoLT.SetLine();
+				PLTPitchAutoLT.SetLine();
+				CDRPitchCSSLT.ResetLine();
+				PLTPitchCSSLT.ResetLine();
+				AutoFCSRoll = true;
+				CDRRollYawAutoLT.SetLine();
+				PLTRollYawAutoLT.SetLine();
+				CDRRollYawCSSLT.ResetLine();
+				PLTRollYawCSSLT.ResetLine();
+			}
 		}
 		return true;
 	}
@@ -1020,6 +1147,18 @@ bool AerojetDAP::OnParseLine(const char* keyword, const char* value)
 		if ((nTemp >= 0) && (nTemp <= ELS)) SBControlLogic = static_cast<SB_CONTROL_LOGIC>(nTemp);
 		return true;
 	}
+	if (!_strnicmp( keyword, "FCS_PITCH", 9 ))
+	{
+		if (!_strnicmp( value, "CSS", 3 )) AutoFCSPitch = false;
+		else AutoFCSPitch = true;
+		return true;
+	}
+	if (!_strnicmp( keyword, "FCS_ROLL", 8 ))
+	{
+		if (!_strnicmp( value, "CSS", 3 )) AutoFCSRoll = false;
+		else AutoFCSRoll = true;
+		return true;
+	}
 	return false;
 }
 
@@ -1034,6 +1173,8 @@ void AerojetDAP::OnSaveState(FILEHANDLE scn) const
 	oapiWriteScenario_int(scn, "TAEM_GUIDANCE", static_cast<int>(TAEMGuidanceMode));
 	if (OGS_AIMPOINT == OGS_AIMPOINT_CLOSE) oapiWriteScenario_string( scn, "CLOSE_AIM_POINT", "TRUE" );
 	oapiWriteScenario_int( scn, "SB_CONTROL_LOGIC", static_cast<int>(SBControlLogic) );
+	if (AutoFCSPitch == false) oapiWriteScenario_string( scn, "FCS_PITCH", "CSS" );
+	if (AutoFCSRoll == false) oapiWriteScenario_string( scn, "FCS_ROLL", "CSS" );
 }
 
 void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
@@ -2869,7 +3010,7 @@ void AerojetDAP::GetAttitudeData(double DeltaT)
 		degCurrentAttitude.data[PITCH] = STS()->GetPitch()*DEG;
 	degCurrentAttitude.data[YAW] = STS()->GetSlipAngle()*DEG;
 	// for AUTO control, we are interested in bank around lift vector; for CSS control, use actual bank
-	if(!RollYawAuto)
+	if (AutoFCSRoll == false)
 		degCurrentAttitude.data[ROLL] = -STS()->GetBank()*DEG;
 	else
 		degCurrentAttitude.data[ROLL] = CalculateCurrentLiftBank();
@@ -3740,12 +3881,12 @@ void AerojetDAP::LoadLandingSiteList()
 
 bool AerojetDAP::GetAutoPitchState( void ) const
 {
-	return PitchAuto.IsSet();
+	return AutoFCSPitch;
 }
 
 bool AerojetDAP::GetAutoRollYawState( void ) const
 {
-	return RollYawAuto.IsSet();
+	return AutoFCSRoll;
 }
 
 bool AerojetDAP::GetAutoSpeedbrakeState( void ) const

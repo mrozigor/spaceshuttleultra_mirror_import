@@ -763,7 +763,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 
 	RHCInput = _V(0, 0, 0);
-	THCInput = _V(0, 0, 0);
 	AltKybdInput = _V(0, 0, 0);
 
 	for (i = 0; i < 3; i++) {
@@ -3196,7 +3195,24 @@ double Atlantis::GetPropellantLevel(PROPELLANT_HANDLE ph) const
 void Atlantis::UpdateHandControllerSignals()
 {
 	//get THC and RHC input
-	if (ControlRMS) { // use RHC/THC input to control RMS
+	if (ControlRMS)
+	{
+		// use RHC/THC input to control RMS
+
+		// kill FCS input
+		for (int i = 0; i < 9; i++)
+		{
+			LeftRHC[i].ResetLine();
+			RightRHC[i].ResetLine();
+			AftRHC[i].ResetLine();
+
+			LeftTHC[i * 2].ResetLine();
+			LeftTHC[(i * 2) + 1].ResetLine();
+			AftTHC[i * 2].ResetLine();
+			AftTHC[(i * 2) + 1].ResetLine();
+		}
+		for (int i = 0; i<3; i++) RHCInput.data[i] = 0.0;// TODO delete with old RHC code
+
 		RMS_RHCInput[PITCH].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_PITCHUP) - GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)));
 		RMS_RHCInput[YAW].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)));
 		RMS_RHCInput[ROLL].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)));
@@ -3209,10 +3225,6 @@ void Atlantis::UpdateHandControllerSignals()
 			RMS_THCInput[0].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_FORWARD) - GetThrusterGroupLevel(THGROUP_ATT_BACK)));
 			RMS_THCInput[1].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_RIGHT) - GetThrusterGroupLevel(THGROUP_ATT_LEFT)));
 			RMS_THCInput[2].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_DOWN) - GetThrusterGroupLevel(THGROUP_ATT_UP)));
-		}
-		for (int i = 0; i<3; i++) {
-			RHCInput.data[i] = 0.0;
-			THCInput.data[i] = 0.0;
 		}
 
 		// use RHC pitch commands to drive single joint input
@@ -3243,70 +3255,499 @@ void Atlantis::UpdateHandControllerSignals()
 				RHCInput.data[YAW] = GetControlSurfaceLevel(AIRCTRL_RUDDER);
 				RHCInput.data[ROLL] = GetControlSurfaceLevel(AIRCTRL_AILERON);
 			}
-			else {
-				RHCInput = _V(0, 0, 0);
-			}
-			THCInput = _V(0, 0, 0);
+			else RHCInput = _V(0, 0, 0);
 		}
 		else { // launch or in orbit - use Orbiter thrusters
-			//if(VCMode==VC_CDR || VCMode==VC_PLT || VCMode==VC_MS1 || VCMode==VC_MS2) { //forward RHC/THC
 			if ((VCMode == VC_CDR && CdrFltCntlrPwr) || (VCMode == VC_PLT && PltFltCntlrPwr)) { //forward RHC/THC
 				RHCInput.data[PITCH] = GetThrusterGroupLevel(THGROUP_ATT_PITCHUP) - GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
 				RHCInput.data[YAW] = GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
 				RHCInput.data[ROLL] = GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
-				if (!ControlSurfacesEnabled && GetAttitudeMode() == RCS_ROT) { // use arrow, Ins/Del keys for translation input
-					for (int i = 0; i < 3; i++) THCInput.data[i] = AltKybdInput.data[i];
-				}
-				else {
-					THCInput.x = GetThrusterGroupLevel(THGROUP_ATT_FORWARD) - GetThrusterGroupLevel(THGROUP_ATT_BACK);
-					THCInput.y = GetThrusterGroupLevel(THGROUP_ATT_RIGHT) - GetThrusterGroupLevel(THGROUP_ATT_LEFT);
-					THCInput.z = GetThrusterGroupLevel(THGROUP_ATT_DOWN) - GetThrusterGroupLevel(THGROUP_ATT_UP);
-				}
 			}
 			else if ((VCMode != VC_MS1 && VCMode != VC_MS2) && AftFltCntlrPwr) { //aft RHC/THC
 				if (AftSense) { //-Z
 					RHCInput.data[PITCH] = GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN) - GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
 					RHCInput.data[YAW] = GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT) - GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
 					RHCInput.data[ROLL] = GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT) - GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
-					if (!ControlSurfacesEnabled && GetAttitudeMode() == RCS_ROT) { // use arrow, Ins/Del keys for translation input
-						THCInput.z = -AltKybdInput.x;
-						THCInput.y = -AltKybdInput.y;
-						THCInput.x = -AltKybdInput.z;
-					}
-					else {
-						THCInput.z = GetThrusterGroupLevel(THGROUP_ATT_BACK) - GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-						THCInput.y = GetThrusterGroupLevel(THGROUP_ATT_LEFT) - GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-						THCInput.x = GetThrusterGroupLevel(THGROUP_ATT_UP) - GetThrusterGroupLevel(THGROUP_ATT_DOWN);
-					}
 				}
 				else { //-X
 					RHCInput.data[PITCH] = GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN) - GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
 					RHCInput.data[YAW] = GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
 					RHCInput.data[ROLL] = GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT) - GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-					if (!ControlSurfacesEnabled && GetAttitudeMode() == RCS_ROT) { // use arrow, Ins/Del keys for translation input
-						THCInput.x = -AltKybdInput.x;
-						THCInput.y = -AltKybdInput.y;
-						THCInput.z = AltKybdInput.z;
-					}
-					else {
-						THCInput.x = GetThrusterGroupLevel(THGROUP_ATT_BACK) - GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-						THCInput.y = GetThrusterGroupLevel(THGROUP_ATT_LEFT) - GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-						THCInput.z = GetThrusterGroupLevel(THGROUP_ATT_DOWN) - GetThrusterGroupLevel(THGROUP_ATT_UP);
-					}
 				}
 			}
-			else {
-				RHCInput = _V(0, 0, 0);
-				THCInput = _V(0, 0, 0);
-			}
+			else RHCInput = _V(0, 0, 0);
 		}
 
-		for (unsigned short i = 0; i < 3; i++) {
-			RMS_RHCInput[i].SetLine(0.0);
-			RMS_THCInput[i].SetLine(0.0);
+		for (unsigned short i = 0; i < 3; i++) RHCInputPort[i].SetLine(static_cast<float>(RHCInput.data[i]));
 
-			RHCInputPort[i].SetLine(static_cast<float>(RHCInput.data[i]));
-			THCInputPort[i].SetLine(static_cast<float>(THCInput.data[i]));
+
+		/////////////////// new RHC & THC code ///////////////////
+
+		// kill RMS input
+		for (int i = 0; i < 3; i++)
+		{
+			RMS_RHCInput[i].ResetLine();
+			RMS_THCInput[i].ResetLine();
+		}
+
+		// left RHC & THC
+		if ((VCMode == VC_CDR) && (CdrFltCntlrPwr.IsSet()))
+		{
+			// power is on and user is "here", use input
+			double pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
+			LeftRHC[0].SetLine( static_cast<float>(pitch) );
+			LeftRHC[1].SetLine( static_cast<float>(pitch) );
+			LeftRHC[2].SetLine( static_cast<float>(pitch) );
+			double roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
+			LeftRHC[3].SetLine( static_cast<float>(roll) );
+			LeftRHC[4].SetLine( static_cast<float>(roll) );
+			LeftRHC[5].SetLine( static_cast<float>(roll) );
+			double yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
+			LeftRHC[6].SetLine( static_cast<float>(yaw) );
+			LeftRHC[7].SetLine( static_cast<float>(yaw) );
+			LeftRHC[8].SetLine( static_cast<float>(yaw) );
+			
+			if (GetAttitudeMode() == RCS_ROT)
+			{
+				// use arrows and Ins and Del keys
+				if (AltKybdInput.x == 1.0)
+				{
+					LeftTHC[0].SetLine( 1.0f );
+					LeftTHC[1].SetLine( 1.0f );
+					LeftTHC[2].SetLine( 1.0f );
+					LeftTHC[3].ResetLine();
+					LeftTHC[4].ResetLine();
+					LeftTHC[5].ResetLine();
+				}
+				else if (AltKybdInput.x == -1.0)
+				{
+					LeftTHC[0].ResetLine();
+					LeftTHC[1].ResetLine();
+					LeftTHC[2].ResetLine();
+					LeftTHC[3].SetLine( 1.0f );
+					LeftTHC[4].SetLine( 1.0f );
+					LeftTHC[5].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[0].ResetLine();
+					LeftTHC[1].ResetLine();
+					LeftTHC[2].ResetLine();
+					LeftTHC[3].ResetLine();
+					LeftTHC[4].ResetLine();
+					LeftTHC[5].ResetLine();
+				}
+
+				if (AltKybdInput.y == 1.0)
+				{
+					LeftTHC[6].SetLine( 1.0f );
+					LeftTHC[7].SetLine( 1.0f );
+					LeftTHC[8].SetLine( 1.0f );
+					LeftTHC[9].ResetLine();
+					LeftTHC[10].ResetLine();
+					LeftTHC[11].ResetLine();
+				}
+				else if (AltKybdInput.y == -1.0)
+				{
+					LeftTHC[6].ResetLine();
+					LeftTHC[7].ResetLine();
+					LeftTHC[8].ResetLine();
+					LeftTHC[9].SetLine( 1.0f );
+					LeftTHC[10].SetLine( 1.0f );
+					LeftTHC[11].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[6].ResetLine();
+					LeftTHC[7].ResetLine();
+					LeftTHC[8].ResetLine();
+					LeftTHC[9].ResetLine();
+					LeftTHC[10].ResetLine();
+					LeftTHC[11].ResetLine();
+				}
+
+				if (AltKybdInput.z == 1.0)
+				{
+					LeftTHC[12].SetLine( 1.0f );
+					LeftTHC[13].SetLine( 1.0f );
+					LeftTHC[14].SetLine( 1.0f );
+					LeftTHC[15].ResetLine();
+					LeftTHC[16].ResetLine();
+					LeftTHC[17].ResetLine();
+				}
+				else if (AltKybdInput.z == -1.0)
+				{
+					LeftTHC[12].ResetLine();
+					LeftTHC[13].ResetLine();
+					LeftTHC[14].ResetLine();
+					LeftTHC[15].SetLine( 1.0f );
+					LeftTHC[16].SetLine( 1.0f );
+					LeftTHC[17].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[12].ResetLine();
+					LeftTHC[13].ResetLine();
+					LeftTHC[14].ResetLine();
+					LeftTHC[15].ResetLine();
+					LeftTHC[16].ResetLine();
+					LeftTHC[17].ResetLine();
+				}
+			}
+			else
+			{
+				// use numpad keys
+				if (GetThrusterGroupLevel( THGROUP_ATT_BACK ) != 0)
+				{
+					LeftTHC[0].SetLine( 1.0f );
+					LeftTHC[1].SetLine( 1.0f );
+					LeftTHC[2].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[0].ResetLine();
+					LeftTHC[1].ResetLine();
+					LeftTHC[2].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_FORWARD ) != 0)
+				{
+					LeftTHC[3].SetLine( 1.0f );
+					LeftTHC[4].SetLine( 1.0f );
+					LeftTHC[5].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[3].ResetLine();
+					LeftTHC[4].ResetLine();
+					LeftTHC[5].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_RIGHT ) != 0)
+				{
+					LeftTHC[6].SetLine( 1.0f );
+					LeftTHC[7].SetLine( 1.0f );
+					LeftTHC[8].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[6].ResetLine();
+					LeftTHC[7].ResetLine();
+					LeftTHC[8].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_LEFT ) != 0)
+				{
+					LeftTHC[9].SetLine( 1.0f );
+					LeftTHC[10].SetLine( 1.0f );
+					LeftTHC[11].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[9].ResetLine();
+					LeftTHC[10].ResetLine();
+					LeftTHC[11].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_UP ) != 0)
+				{
+					LeftTHC[12].SetLine( 1.0f );
+					LeftTHC[13].SetLine( 1.0f );
+					LeftTHC[14].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[12].ResetLine();
+					LeftTHC[13].ResetLine();
+					LeftTHC[14].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_DOWN ) != 0)
+				{
+					LeftTHC[15].SetLine( 1.0f );
+					LeftTHC[16].SetLine( 1.0f );
+					LeftTHC[17].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[15].ResetLine();
+					LeftTHC[16].ResetLine();
+					LeftTHC[17].ResetLine();
+				}
+			}
+		}
+		else
+		{
+			// power is off or empty seat, no input
+			LeftRHC[0].ResetLine();
+			LeftRHC[1].ResetLine();
+			LeftRHC[2].ResetLine();
+			LeftRHC[3].ResetLine();
+			LeftRHC[4].ResetLine();
+			LeftRHC[5].ResetLine();
+			LeftRHC[6].ResetLine();
+			LeftRHC[7].ResetLine();
+			LeftRHC[8].ResetLine();
+
+			LeftTHC[0].ResetLine();
+			LeftTHC[1].ResetLine();
+			LeftTHC[2].ResetLine();
+			LeftTHC[3].ResetLine();
+			LeftTHC[4].ResetLine();
+			LeftTHC[5].ResetLine();
+			LeftTHC[6].ResetLine();
+			LeftTHC[7].ResetLine();
+			LeftTHC[8].ResetLine();
+			LeftTHC[9].ResetLine();
+			LeftTHC[10].ResetLine();
+			LeftTHC[11].ResetLine();
+			LeftTHC[12].ResetLine();
+			LeftTHC[13].ResetLine();
+			LeftTHC[14].ResetLine();
+			LeftTHC[15].ResetLine();
+			LeftTHC[16].ResetLine();
+			LeftTHC[17].ResetLine();
+		}
+
+		// right RHC
+		if ((VCMode == VC_PLT) && (PltFltCntlrPwr.IsSet()))
+		{
+			// power is on and user is "here", use input
+			double pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
+			RightRHC[0].SetLine( static_cast<float>(pitch) );
+			RightRHC[1].SetLine( static_cast<float>(pitch) );
+			RightRHC[2].SetLine( static_cast<float>(pitch) );
+			double roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
+			RightRHC[3].SetLine( static_cast<float>(roll) );
+			RightRHC[4].SetLine( static_cast<float>(roll) );
+			RightRHC[5].SetLine( static_cast<float>(roll) );
+			double yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
+			RightRHC[6].SetLine( static_cast<float>(yaw) );
+			RightRHC[7].SetLine( static_cast<float>(yaw) );
+			RightRHC[8].SetLine( static_cast<float>(yaw) );
+		}
+		else
+		{
+			// power is off or empty seat, no input
+			RightRHC[0].ResetLine();
+			RightRHC[1].ResetLine();
+			RightRHC[2].ResetLine();
+			RightRHC[3].ResetLine();
+			RightRHC[4].ResetLine();
+			RightRHC[5].ResetLine();
+			RightRHC[6].ResetLine();
+			RightRHC[7].ResetLine();
+			RightRHC[8].ResetLine();
+		}
+
+		// aft RHC & THC
+		if (((VCMode == VC_AFTPILOT) || (VCMode == VC_DOCKCAM)) && (AftFltCntlrPwr.IsSet()))
+		{
+			// power is on and user is "here", use input
+			double pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
+			AftRHC[0].SetLine( static_cast<float>(pitch) );
+			AftRHC[1].SetLine( static_cast<float>(pitch) );
+			AftRHC[2].SetLine( static_cast<float>(pitch) );
+			double roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
+			AftRHC[3].SetLine( static_cast<float>(roll) );
+			AftRHC[4].SetLine( static_cast<float>(roll) );
+			AftRHC[5].SetLine( static_cast<float>(roll) );
+			double yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
+			AftRHC[6].SetLine( static_cast<float>(yaw) );
+			AftRHC[7].SetLine( static_cast<float>(yaw) );
+			AftRHC[8].SetLine( static_cast<float>(yaw) );
+
+			// connections below are due to physical orientation of aft THC
+			if (GetAttitudeMode() == RCS_ROT)
+			{
+				// use arrows and Ins and Del keys
+				if (AltKybdInput.x == 1.0)
+				{
+					AftTHC[0].SetLine( 1.0f );
+					AftTHC[1].SetLine( 1.0f );
+					AftTHC[2].SetLine( 1.0f );
+					AftTHC[3].ResetLine();
+					AftTHC[4].ResetLine();
+					AftTHC[5].ResetLine();
+				}
+				else if (AltKybdInput.x == -1.0)
+				{
+					AftTHC[0].ResetLine();
+					AftTHC[1].ResetLine();
+					AftTHC[2].ResetLine();
+					AftTHC[3].SetLine( 1.0f );
+					AftTHC[4].SetLine( 1.0f );
+					AftTHC[5].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[0].ResetLine();
+					AftTHC[1].ResetLine();
+					AftTHC[2].ResetLine();
+					AftTHC[3].ResetLine();
+					AftTHC[4].ResetLine();
+					AftTHC[5].ResetLine();
+				}
+
+				if (AltKybdInput.z == 1.0)
+				{
+					AftTHC[6].SetLine( 1.0f );
+					AftTHC[7].SetLine( 1.0f );
+					AftTHC[8].SetLine( 1.0f );
+					AftTHC[9].ResetLine();
+					AftTHC[10].ResetLine();
+					AftTHC[11].ResetLine();
+				}
+				else if (AltKybdInput.z == -1.0)
+				{
+					AftTHC[6].ResetLine();
+					AftTHC[7].ResetLine();
+					AftTHC[8].ResetLine();
+					AftTHC[9].SetLine( 1.0f );
+					AftTHC[10].SetLine( 1.0f );
+					AftTHC[11].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[6].ResetLine();
+					AftTHC[7].ResetLine();
+					AftTHC[8].ResetLine();
+					AftTHC[9].ResetLine();
+					AftTHC[10].ResetLine();
+					AftTHC[11].ResetLine();
+				}
+
+				if (AltKybdInput.y == 1.0)
+				{
+					AftTHC[12].ResetLine();
+					AftTHC[13].ResetLine();
+					AftTHC[14].ResetLine();
+					AftTHC[15].SetLine( 1.0f );
+					AftTHC[16].SetLine( 1.0f );
+					AftTHC[17].SetLine( 1.0f );
+				}
+				else if (AltKybdInput.y == -1.0)
+				{
+					AftTHC[12].SetLine( 1.0f );
+					AftTHC[13].SetLine( 1.0f );
+					AftTHC[14].SetLine( 1.0f );
+					AftTHC[15].ResetLine();
+					AftTHC[16].ResetLine();
+					AftTHC[17].ResetLine();
+				}
+				else
+				{
+					AftTHC[12].ResetLine();
+					AftTHC[13].ResetLine();
+					AftTHC[14].ResetLine();
+					AftTHC[15].ResetLine();
+					AftTHC[16].ResetLine();
+					AftTHC[17].ResetLine();
+				}
+			}
+			else
+			{
+				// use numpad keys
+				if (GetThrusterGroupLevel( THGROUP_ATT_BACK ) != 0)
+				{
+					AftTHC[0].SetLine( 1.0f );
+					AftTHC[1].SetLine( 1.0f );
+					AftTHC[2].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[0].ResetLine();
+					AftTHC[1].ResetLine();
+					AftTHC[2].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_FORWARD ) != 0)
+				{
+					AftTHC[3].SetLine( 1.0f );
+					AftTHC[4].SetLine( 1.0f );
+					AftTHC[5].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[3].ResetLine();
+					AftTHC[4].ResetLine();
+					AftTHC[5].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_UP ) != 0)
+				{
+					AftTHC[6].SetLine( 1.0f );
+					AftTHC[7].SetLine( 1.0f );
+					AftTHC[8].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[6].ResetLine();
+					AftTHC[7].ResetLine();
+					AftTHC[8].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_DOWN ) != 0)
+				{
+					AftTHC[9].SetLine( 1.0f );
+					AftTHC[10].SetLine( 1.0f );
+					AftTHC[11].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[9].ResetLine();
+					AftTHC[10].ResetLine();
+					AftTHC[11].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_LEFT ) != 0)
+				{
+					AftTHC[12].SetLine( 1.0f );
+					AftTHC[13].SetLine( 1.0f );
+					AftTHC[14].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[12].ResetLine();
+					AftTHC[13].ResetLine();
+					AftTHC[14].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_RIGHT ) != 0)
+				{
+					AftTHC[15].SetLine( 1.0f );
+					AftTHC[16].SetLine( 1.0f );
+					AftTHC[17].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[15].ResetLine();
+					AftTHC[16].ResetLine();
+					AftTHC[17].ResetLine();
+				}
+			}
+		}
+		else
+		{
+			// power is off or empty seat, no input
+			AftRHC[0].ResetLine();
+			AftRHC[1].ResetLine();
+			AftRHC[2].ResetLine();
+			AftRHC[3].ResetLine();
+			AftRHC[4].ResetLine();
+			AftRHC[5].ResetLine();
+			AftRHC[6].ResetLine();
+			AftRHC[7].ResetLine();
+			AftRHC[8].ResetLine();
+
+			AftTHC[0].ResetLine();
+			AftTHC[1].ResetLine();
+			AftTHC[2].ResetLine();
+			AftTHC[3].ResetLine();
+			AftTHC[4].ResetLine();
+			AftTHC[5].ResetLine();
+			AftTHC[6].ResetLine();
+			AftTHC[7].ResetLine();
+			AftTHC[8].ResetLine();
+			AftTHC[9].ResetLine();
+			AftTHC[10].ResetLine();
+			AftTHC[11].ResetLine();
+			AftTHC[12].ResetLine();
+			AftTHC[13].ResetLine();
+			AftTHC[14].ResetLine();
+			AftTHC[15].ResetLine();
+			AftTHC[16].ResetLine();
+			AftTHC[17].ResetLine();
 		}
 	}
 	// get SPDBK/THROT level
@@ -3723,10 +4164,7 @@ void Atlantis::clbkPostCreation()
 		pBundle = bundleManager->CreateBundle("HC_INPUT", 16);
 		for (int i = 0; i < 3; i++) {
 			RHCInputPort[i].Connect(pBundle, i);
-			THCInputPort[i].Connect(pBundle, i + 3);
-
 			RHCInputPort[i].SetLine(0.0f);
-			THCInputPort[i].SetLine(0.0f);
 		}
 		SpdbkThrotPort.Connect(pBundle, 6);
 
@@ -3760,6 +4198,19 @@ void Atlantis::clbkPostCreation()
 			RMS_RHCInput[i].Connect(pBundle, i);
 			RMS_THCInput[i].Connect(pBundle, i + 3);
 		}
+
+		pBundle = bundleManager->CreateBundle( "LeftRHCTHC_A", 16 );
+		for (int i = 0; i < 9; i++) LeftRHC[i].Connect( pBundle, i );
+		for (int i = 9; i < 16; i++) LeftTHC[i - 9].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "LeftRHCTHC_B", 16 );
+		for (int i = 0; i < 11; i++) LeftTHC[i + 7].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "RightRHC", 16 );
+		for (int i = 0; i < 9; i++) RightRHC[i].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "AftRHCTHC_A", 16 );
+		for (int i = 0; i < 9; i++) AftRHC[i].Connect( pBundle, i );
+		for (int i = 9; i < 16; i++) AftTHC[i - 9].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "AftRHCTHC_B", 16 );
+		for (int i = 0; i < 11; i++) AftTHC[i + 7].Connect( pBundle, i );
 
 		pBundle = bundleManager->CreateBundle("RMS_MODE", 16);
 		RMSSpeedIn.Connect(pBundle, 12);
@@ -5423,16 +5874,16 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 			AltKybdInput.y = 1.0;
 			return 1;
 		case OAPI_KEY_INSERT:
-			AltKybdInput.x = -1.0;
-			return 1;
-		case OAPI_KEY_DELETE:
 			AltKybdInput.x = 1.0;
 			return 1;
+		case OAPI_KEY_DELETE:
+			AltKybdInput.x = -1.0;
+			return 1;
 		case OAPI_KEY_UP:
-			AltKybdInput.z = 1.0;
+			AltKybdInput.z = -1.0;
 			return 1;
 		case OAPI_KEY_DOWN:
-			AltKybdInput.z = -1.0;
+			AltKybdInput.z = 1.0;
 			return 1;
 		case OAPI_KEY_MULTIPLY: // NUMPAD *
 			for (int i = 0; i < 3; i++) SSMEPBAnalog[i].SetLine();

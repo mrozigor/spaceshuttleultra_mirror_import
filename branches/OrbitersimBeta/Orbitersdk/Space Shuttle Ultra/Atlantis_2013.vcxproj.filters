@@ -314,9 +314,6 @@
     <ClCompile Include="dps\OrbitTgtSoftware.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="dps\AscentGuidance.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="mps\ComputerInterfaceElectronics.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -513,6 +510,21 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="CRT.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\THC_RM.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\THC_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RHC_RM.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RHC_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\AscentDAP.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -784,9 +796,6 @@
     <ClInclude Include="dps\OrbitTgtSoftware.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="dps\AscentGuidance.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="dps\SSME_SOP.h">
       <Filter>Includes</Filter>
     </ClInclude>
@@ -1025,6 +1034,21 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="CommModeHandler.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\RHC_RM.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\RHC_SOP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\THC_RM.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\THC_SOP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\AscentDAP.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

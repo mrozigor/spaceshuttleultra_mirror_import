@@ -2,7 +2,7 @@
 #include "SimpleGPCSystem.h"
 #include "IO_Control.h"
 #include "SSME_Operations.h"
-#include "AscentGuidance.h"
+#include "AscentDAP.h"
 #include "AerojetDAP.h"
 #include "OMSBurnSoftware.h"
 
@@ -35,7 +35,7 @@ namespace dps {
 	{
 		pIO_Control =  static_cast<IO_Control*> (STS()->pSimpleGPC->FindSoftware( "IO_Control" ));
 		pSSME_Operations =  static_cast<SSME_Operations*> (STS()->pSimpleGPC->FindSoftware( "SSME_Operations" ));
-		pAscentGuidance =  static_cast<AscentGuidance*> (STS()->pSimpleGPC->FindSoftware( "AscentGuidance" ));
+		pAscentDAP =  static_cast<AscentDAP*> (STS()->pSimpleGPC->FindSoftware( "AscentDAP" ));
 		pAerojetDAP =  static_cast<AerojetDAP*> (STS()->pSimpleGPC->FindSoftware( "AerojetDAP" ));
 		pOMSBurnSoftware =  static_cast<OMSBurnSoftware*> (STS()->pSimpleGPC->FindSoftware( "OMSBurnSoftware" ));
 
@@ -736,12 +736,12 @@ namespace dps {
 
 	bool IDP::GetAutoThrottleState( void ) const
 	{
-		return pAscentGuidance->GetAutoThrottleState();
+		return pAscentDAP->GetAutoThrottleState();
 	}
 
-	VECTOR3 IDP::GetAttitudeErrors_AscentGuidance( void ) const
+	VECTOR3 IDP::GetAttitudeErrors_AscentDAP( void ) const
 	{
-		return pAscentGuidance->GetAttitudeErrors();
+		return pAscentDAP->GetAttitudeErrors();
 	}
 
 	VECTOR3 IDP::GetAttitudeErrors_AerojetDAP( void ) const
@@ -861,6 +861,11 @@ namespace dps {
 
 	double IDP::GetTargetHeading( void ) const
 	{
-		return pAscentGuidance->GetTargetHeading();
+		return pAscentDAP->GetTargetHeading();
+	}
+
+	bool IDP::GetFCSmode( void ) const
+	{
+		return pAscentDAP->GetFCSmode();
 	}
 };

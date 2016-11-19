@@ -56,7 +56,7 @@ namespace vc
 				ADI_STATIC( hDC );
 				ADI( hDC, attPitch, attRoll, attYaw );
 				ADI_RATE_A( hDC, av.x, av.z, av.y, adirate );
-				atterr = GetIDP()->GetAttitudeErrors_AscentGuidance();
+				atterr = GetIDP()->GetAttitudeErrors_AscentDAP();
 				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_ACCEL( hDC );
@@ -80,7 +80,7 @@ namespace vc
 				ADI_STATIC( hDC );
 				ADI( hDC, attPitch, attRoll, attYaw );
 				ADI_RATE_A( hDC, av.x, av.z, av.y, adirate );
-				atterr = GetIDP()->GetAttitudeErrors_AscentGuidance();
+				atterr = GetIDP()->GetAttitudeErrors_AscentDAP();
 				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_ACCEL( hDC );
@@ -204,7 +204,7 @@ namespace vc
 				ADI_STATIC( hDC );
 				ADI( hDC, attPitch, attRoll, attYaw );
 				ADI_RATE_A( hDC, av.x, av.z, av.y, adirate );
-				atterr = GetIDP()->GetAttitudeErrors_AscentGuidance();
+				atterr = GetIDP()->GetAttitudeErrors_AscentDAP();
 				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( hDC );
 				AEPFD_GMETER_ACCEL( hDC );
@@ -321,7 +321,7 @@ namespace vc
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
-				atterr = GetIDP()->GetAttitudeErrors_AscentGuidance();
+				atterr = GetIDP()->GetAttitudeErrors_AscentDAP();
 				ADI_ERROR_A( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_ACCEL( skp );
@@ -345,7 +345,7 @@ namespace vc
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
-				atterr = GetIDP()->GetAttitudeErrors_AscentGuidance();
+				atterr = GetIDP()->GetAttitudeErrors_AscentDAP();
 				ADI_ERROR_A( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_ACCEL( skp );
@@ -469,7 +469,7 @@ namespace vc
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
 				ADI_RATE_A( skp, av.x, av.z, av.y, adirate );
-				atterr = GetIDP()->GetAttitudeErrors_AscentGuidance();
+				atterr = GetIDP()->GetAttitudeErrors_AscentDAP();
 				ADI_ERROR_A( skp, atterr.x, atterr.z, atterr.y, adierr );
 				AEPFD_GMETER_STATIC( skp );
 				AEPFD_GMETER_ACCEL( skp );
@@ -4425,12 +4425,12 @@ namespace vc
 		TextOut( hDC, 404, 18, "ATT:", 4 );
 
 		SetTextColor( hDC, CR_WHITE );
-		if (1) TextOut( hDC, 85, 3, "Auto", 4 );// TODO get AscentDAP state
+		if (GetIDP()->GetFCSmode() == true) TextOut( hDC, 85, 3, "Auto", 4 );
 		else
 		{
 			SelectObject( hDC, gdiYellowPen );
 			SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
-			Rectangle( hDC, 16, 4, 132, 20 );
+			Rectangle( hDC, 16, 1, 132, 17 );
 			TextOut( hDC, 85, 3, "CSS", 3 );
 		}
 
@@ -4470,12 +4470,12 @@ namespace vc
 		skp->Text( 404, 18, "ATT:", 4 );
 
 		skp->SetTextColor( CR_WHITE );
-		if (1) skp->Text( 85, 3, "Auto", 4 );// TODO get AscentDAP state
+		if (GetIDP()->GetFCSmode() == true) skp->Text( 85, 3, "Auto", 4 );
 		else
 		{
 			skp->SetPen( skpYellowPen );
 			skp->SetBrush( NULL );
-			skp->Rectangle( 16, 4, 132, 20 );
+			skp->Rectangle( 16, 1, 132, 17 );
 			skp->Text( 85, 3, "CSS", 3 );
 		}
 

@@ -70,7 +70,7 @@ namespace dps
 	/**
 	 * @brief	Implementation of the MEC SOP software that runs in the GPCs.
 	 * 
-	 * This class recieves commands to the RSLS, SRB Sep Sequencer and ET Sep Sequencer, and outputs them to the MECs.
+	 * This class receives commands from the RSLS, SRB Sep Sequencer and ET Sep Sequencer, and outputs them to the MECs.
 	 */
 	class MEC_SOP:public SimpleGPCSoftware
 	{

@@ -41,10 +41,8 @@ namespace vc
 		
 		PushButtonIndicator *pPitchAuto;
 		PushButtonIndicator *pPitchCSS;
-		PBIDiscPortGroup PitchPortGroup;
 		PushButtonIndicator *pRollYawAuto;
 		PushButtonIndicator *pRollYawCSS;
-		PBIDiscPortGroup RollYawPortGroup;
 
 		StandardSwitchCover* pDragChuteJETTCover;
 
@@ -63,7 +61,6 @@ namespace vc
 		virtual void DefineVC();
 		virtual void RegisterVC();
 
-		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 	private:
 		void SetCommonPBIParameters(PushButtonIndicator* pPBI);
 	};

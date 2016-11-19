@@ -37,6 +37,10 @@ const double R2 = 0.093/MPS2FPS;
 const int NZ_VALUE_COUNT = 5;
 const double NZ_UPDATE_INTERVAL = 0.1;
 
+
+class RHC_SOP;
+
+
 /**
  * DAP during entry, TAEM and A/L phases (MM304 and MM305)
  * At the moment, only AOA autopilot during entry is working
@@ -152,8 +156,26 @@ private:
 	PIDControl Vel_Speedbrake; // converts speed error (KEAS) to speedbrake command; used in A/L phase
 	//PIDControl BodyFlap;
 	
-	DiscInPort PitchAuto, RollYawAuto;
-	DiscOutPort PitchCSSOut, RollYawCSSOut;
+	DiscInPort CDRPitchAuto;
+	DiscInPort PLTPitchAuto;
+	DiscInPort CDRPitchCSS;
+	DiscInPort PLTPitchCSS;
+	DiscInPort CDRRollYawAuto;
+	DiscInPort PLTRollYawAuto;
+	DiscInPort CDRRollYawCSS;
+	DiscInPort PLTRollYawCSS;
+
+	DiscOutPort CDRPitchAutoLT;
+	DiscOutPort PLTPitchAutoLT;
+	DiscOutPort CDRPitchCSSLT;
+	DiscOutPort PLTPitchCSSLT;
+	DiscOutPort CDRRollYawAutoLT;
+	DiscOutPort PLTRollYawAutoLT;
+	DiscOutPort CDRRollYawCSSLT;
+	DiscOutPort PLTRollYawCSSLT;
+	
+	//DiscInPort PitchAuto, RollYawAuto;
+	//DiscOutPort PitchCSSOut, RollYawCSSOut;
 	DiscInPort SpeedbrakeAuto;
 	DiscOutPort SpeedbrakeAutoOut;
 	DiscInPort SpdbkThrotPort;
@@ -166,6 +188,15 @@ private:
 	DiscInPort pHUDDCLT[2];
 	bool dclt_sw_on[2];
 	int declutter_level[2];
+
+	/**
+	 * If true, the FCS pitch channel is in AUTO mode. If false, the FCS pitch channel is in CSS mode.
+	 */
+	bool AutoFCSPitch;
+	/**
+	 * If true, the FCS roll channel is in AUTO mode. If false, the FCS roll channel is in CSS mode.
+	 */
+	bool AutoFCSRoll;
 
 	double tCSS;
 	double tGear;
@@ -183,6 +214,8 @@ private:
 	bool RotatingAxis[3]; // indicates if Orbiter is maneuvering around an axis (RCS)
 	
 	OBJHANDLE hEarth;
+
+	RHC_SOP* pRHC_SOP;
 
 	ENTRY_GUIDANCE_MODE EntryGuidanceMode;
 	VECTOR3 HAC_Center;

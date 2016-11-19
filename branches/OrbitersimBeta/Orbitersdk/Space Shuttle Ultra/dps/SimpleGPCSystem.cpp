@@ -1,7 +1,7 @@
 #include <cassert>
 #include "SimpleGPCSystem.h"
 #include "SimpleGPCSoftware.h"
-#include "AscentGuidance.h"
+#include "AscentDAP.h"
 #include "OrbitDAP.h"
 #include "OMSBurnSoftware.h"
 #include "StateVectorSoftware.h"
@@ -20,6 +20,10 @@
 #include "ATVC_SOP.h"
 #include "GeneralDisplays.h"
 #include "MEC_SOP.h"
+#include "RHC_RM.h"
+#include "THC_RM.h"
+#include "RHC_SOP.h"
+#include "THC_SOP.h"
 #include "../Atlantis.h"
 
 namespace dps
@@ -34,7 +38,7 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 	vSoftware.push_back( new SSME_Operations( this ) );
 	vSoftware.push_back( new SSME_SOP( this ) );
 	vSoftware.push_back( new RSLS_old( this ) );
-	vSoftware.push_back(new AscentGuidance(this));
+	vSoftware.push_back(new AscentDAP(this));
 	vSoftware.push_back(new OrbitDAP(this));
 	vSoftware.push_back(new StateVectorSoftware(this));
 	vSoftware.push_back(new OMSBurnSoftware(this));
@@ -48,6 +52,10 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 	vSoftware.push_back( new ATVC_SOP( this ) );
 	vSoftware.push_back( new GeneralDisplays( this ) );
 	vSoftware.push_back( new MEC_SOP( this ) );
+	vSoftware.push_back( new RHC_RM( this ) );
+	vSoftware.push_back( new THC_RM( this ) );
+	vSoftware.push_back( new RHC_SOP( this ) );
+	vSoftware.push_back( new THC_SOP( this ) );
 }
 
 SimpleGPCSystem::~SimpleGPCSystem()

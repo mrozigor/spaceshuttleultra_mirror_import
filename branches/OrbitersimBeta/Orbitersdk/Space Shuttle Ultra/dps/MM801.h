@@ -28,6 +28,9 @@ namespace dps
 			void PrintRudderPos(double pos, char* buff) const;
 			void PrintSpeedbrakePos(double pos, char* buff) const;
 
+			void ModeLT_On( void );
+			void ModeLT_Off( void );
+
 
 			DiscOutPort ElevonCommand;
 			DiscInPort ElevonCommandRead;
@@ -35,11 +38,21 @@ namespace dps
 			DiscOutPort AileronCommand;
 			DiscOutPort RudderCommand;
 
+			DiscOutPort CDRPitchAutoLT;
+			DiscOutPort CDRPitchCSSLT;
+			DiscOutPort CDRRollYawAutoLT;
+			DiscOutPort CDRRollYawCSSLT;
+			DiscOutPort PLTPitchAutoLT;
+			DiscOutPort PLTPitchCSSLT;
+			DiscOutPort PLTRollYawAutoLT;
+			DiscOutPort PLTRollYawCSSLT;
+
 			bool bFCSTestActive, bFCSTestEnding;
 			AEROSURFACE_DRIVE_TARGET ElevonTargetIdx;
 			AEROSURFACE_DRIVE_TARGET RudderTargetIdx;
 			AEROSURFACE_DRIVE_TARGET SpeedbrakeTargetIdx;
 			double ElevonTarget, RudderTarget, SpeedbrakeTarget;
+			bool ModeLT;
 	};
 
 

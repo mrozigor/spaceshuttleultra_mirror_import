@@ -1028,8 +1028,8 @@ private:
 
 	bool ControlRMS;
 	//Hand controller input
-	VECTOR3 THCInput, RHCInput;
-	VECTOR3 AltKybdInput; // uses arrow,PgUp/PgDn keys to provide translation inputs; axes correspond to RCS FWD SENSE
+	VECTOR3 RHCInput;
+	VECTOR3 AltKybdInput; // uses arrows, Ins and Del keys to provide translation inputs; axes correspond to RCS FWD SENSE
 	//Thruster commands
 	VECTOR3 TranslationCommand, RotationCommand;
 
@@ -1098,7 +1098,12 @@ private:
 	DiscInPort AftSense, AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
 
 	DiscOutPort SpdbkThrotPort;
-	DiscOutPort RHCInputPort[3], THCInputPort[3];
+	DiscOutPort RHCInputPort[3];
+	DiscOutPort LeftRHC[9];
+	DiscOutPort LeftTHC[18];
+	DiscOutPort RightRHC[9];
+	DiscOutPort AftRHC[9];
+	DiscOutPort AftTHC[18];
 	DiscInPort RotThrusterCommands[4], TransThrusterCommands[3];
 	//DiscInPort LeftElevonCommand, RightElevonCommand;
 	DiscInPort ElevonCommand, AileronCommand, RudderCommand;

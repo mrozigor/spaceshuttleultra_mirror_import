@@ -14,16 +14,16 @@ namespace vc
 		Add(pBodyFlap = new PushButtonIndicator(_sts, "F2_BODYFLAP_AUTO", true));
 		Add(pBodyFlapMan = new StandardLight(_sts, "F2_BODYFLAP_MAN"));
 		
-		Add(pPitchAuto = new PushButtonIndicator(_sts, "F2_PITCH_AUTO", true));
-		Add(pPitchCSS = new PushButtonIndicator(_sts, "F2_PITCH_CSS", true));
-		Add(pRollYawAuto = new PushButtonIndicator(_sts, "F2_RY_AUTO", true));
-		Add(pRollYawCSS = new PushButtonIndicator(_sts, "F2_RY_CSS", true));
+		Add( pPitchAuto = new PushButtonIndicator( _sts, "F2_PITCH_AUTO" ) );
+		Add( pPitchCSS = new PushButtonIndicator( _sts, "F2_PITCH_CSS" ) );
+		Add( pRollYawAuto = new PushButtonIndicator( _sts, "F2_RY_AUTO" ) );
+		Add( pRollYawCSS = new PushButtonIndicator( _sts, "F2_RY_CSS" ) );
 
 		Add( pDragChuteARMCover = new StandardSwitchCover( _sts, "Drag Chute ARM Cover" ) );
 		Add( pDragChuteDPYCover = new StandardSwitchCover( _sts, "Drag Chute DPY Cover" ) );
 
-		Add( pDragChuteARM = new PushButtonIndicator( _sts, "Drag Chute ARM", true ) );
-		Add( pDragChuteDPY = new PushButtonIndicator( _sts, "Drag Chute DPY", true ) );
+		Add( pDragChuteARM = new PushButtonIndicator( _sts, "Drag Chute ARM" ) );
+		Add( pDragChuteDPY = new PushButtonIndicator( _sts, "Drag Chute DPY" ) );
 
 		Add( pHUDMode = new StdSwitch3( _sts, "HUD Mode" ) );// HACK these 3 should be located on panel F6, but is here due to panel click areas
 		Add( pHUDBrightness = new RotaryDemuxSwitch( _sts, "HUD Brightness", 5 ) );
@@ -55,13 +55,15 @@ namespace vc
 		pBodyFlapMan->input.Connect(pBundle, 1); //MAN light; common to F2 and F4 PBIs
 		pBodyFlapMan->test.Connect(pBundle, 1); //MAN light; common to F2 and F4 PBIs
 		
-		pBundle=STS()->BundleManager()->CreateBundle("CSS_CONTROLS", 4);
-		pPitchAuto->ConnectAll(pBundle, 0);
-		pPitchCSS->ConnectAll(pBundle, 1);
-		PitchPortGroup.AddPorts(pBundle, 0, 1);
-		pRollYawAuto->ConnectAll(pBundle, 2);
-		pRollYawCSS->ConnectAll(pBundle, 3);
-		RollYawPortGroup.AddPorts(pBundle, 2, 3);
+		pBundle=STS()->BundleManager()->CreateBundle( "CSS_CONTROLS", 16 );
+		pPitchAuto->output.Connect( pBundle, 0 );
+		pPitchAuto->input.Connect( pBundle, 1 );
+		pPitchCSS->output.Connect( pBundle, 2 );
+		pPitchCSS->input.Connect( pBundle, 3 );
+		pRollYawAuto->output.Connect( pBundle, 4 );
+		pRollYawAuto->input.Connect( pBundle, 5 );
+		pRollYawCSS->output.Connect( pBundle, 6 );
+		pRollYawCSS->input.Connect( pBundle, 7 );
 
 		pBundle = STS()->BundleManager()->CreateBundle( "DRAG_CHUTE", 16 );
 		pDragChuteARM->input.Connect( pBundle, 0 );// arm light
@@ -87,14 +89,6 @@ namespace vc
 		pHUDBright->outputB.Connect( pBundle, 9 );// bright man day cdr
 		
 		AtlantisPanel::Realize();
-	}
-
-	void PanelF2::OnPreStep(double SimT, double DeltaT, double MJD)
-	{
-		PitchPortGroup.OnPreStep();
-		RollYawPortGroup.OnPreStep();
-
-		AtlantisPanel::OnPreStep(SimT, DeltaT, MJD);
 	}
 
 	void PanelF2::DefineVC()
@@ -128,18 +122,22 @@ namespace vc
 		pPitchAuto->AddAIDToRedrawEventList(AID_F2_P_AUTO);
 		SetCommonPBIParameters(pPitchAuto);
 		pPitchAuto->SetMouseRegion(0.414578f, 0.300987f, 0.468414f, 0.414815f);
+		pPitchAuto->SetMomentary( true );
 
 		pPitchCSS->AddAIDToRedrawEventList(AID_F2_P_CSS);
 		SetCommonPBIParameters(pPitchCSS);
 		pPitchCSS->SetMouseRegion(0.349629f, 0.374445f, 0.404706f, 0.487884f);
+		pPitchCSS->SetMomentary( true );
 
 		pRollYawAuto->AddAIDToRedrawEventList(AID_F2_RY_AUTO);		
 		SetCommonPBIParameters(pRollYawAuto);
 		pRollYawAuto->SetMouseRegion(0.445804f, 0.409961f, 0.499280f, 0.520422f);
+		pRollYawAuto->SetMomentary( true );
 
 		pRollYawCSS->AddAIDToRedrawEventList(AID_F2_RY_CSS);
 		SetCommonPBIParameters(pRollYawCSS);
 		pRollYawCSS->SetMouseRegion(0.383109f, 0.310907f, 0.436190f, 0.592650f);
+		pRollYawCSS->SetMomentary( true );
 
 		pDragChuteARM->AddAIDToRedrawEventList( AID_F2_DC_ARM );
 		pDragChuteARM->SetSourceImage( g_Param.pbi_lights );
