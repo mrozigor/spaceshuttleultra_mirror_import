@@ -1,6 +1,6 @@
 #include "GeneralDisplays.h"
 #include "IDP.h"
-#include "AscentGuidance.h"
+#include "AscentDAP.h"
 #include "SSME_Operations.h"
 #include "SRBSepSequence.h"
 //#include "ETSepSequence.h"
@@ -30,7 +30,7 @@ namespace dps
 
 	void GeneralDisplays::Realize()
 	{
-		pAscentGuidance = static_cast<AscentGuidance*> (FindSoftware( "AscentGuidance" ));
+		pAscentDAP = static_cast<AscentDAP*> (FindSoftware( "AscentDAP" ));
 		pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
 		pSRBSepSequence = static_cast<SRBSepSequence*> (FindSoftware( "SRBSepSequence" ));
 		//pETSepSequence = static_cast<ETSepSequence*> (FindSoftware( "ETSepSequence" ));
@@ -67,6 +67,19 @@ namespace dps
 		pBundle = BundleManager()->CreateBundle( "MPS_SENSORS", 2 );
 		dipMPSManifPressureSensor[0].Connect( pBundle, 0 );
 		dipMPSManifPressureSensor[1].Connect( pBundle, 1 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "LeftRHCTHC_A", 16 );
+		for (int i = 0; i < 9; i++) LeftRHC[i].Connect( pBundle, i );
+		for (int i = 9; i < 16; i++) LeftTHC[i - 9].Connect( pBundle, i );
+		pBundle = STS()->BundleManager()->CreateBundle( "LeftRHCTHC_B", 16 );
+		for (int i = 0; i < 11; i++) LeftTHC[i + 7].Connect( pBundle, i );
+		pBundle = STS()->BundleManager()->CreateBundle( "RightRHC", 16 );
+		for (int i = 0; i < 9; i++) RightRHC[i].Connect( pBundle, i );
+		pBundle = STS()->BundleManager()->CreateBundle( "AftRHCTHC_A", 16 );
+		for (int i = 0; i < 9; i++) AftRHC[i].Connect( pBundle, i );
+		for (int i = 9; i < 16; i++) AftTHC[i - 9].Connect( pBundle, i );
+		pBundle = STS()->BundleManager()->CreateBundle( "AftRHCTHC_B", 16 );
+		for (int i = 0; i < 11; i++) AftTHC[i + 7].Connect( pBundle, i );
 
 		// init He dP/dT calc
 		He_P[0] = dipHeSysPressureSensor[0].GetVoltage() * 1000;
@@ -209,6 +222,9 @@ namespace dps
 						case 19:
 							OnPaint_DISP19_PASS( pMDU );// GNC SYS SUMM 2
 							return true;
+						case 25:
+							OnPaint_SPEC25_PASS( pMDU );// RM ORBIT
+							return true;
 						case 55:
 							OnPaint_SPEC55_PASS( pMDU );// GPS STATUS
 							return true;
@@ -268,6 +284,9 @@ namespace dps
 							return true;
 						case 19:
 							OnPaint_DISP19_PASS( pMDU );// GNC SYS SUMM 2
+							return true;
+						case 43:
+							OnPaint_SPEC43_PASS( pMDU );// CONTROLLERS
 							return true;
 						case 55:
 							OnPaint_SPEC55_PASS( pMDU );// GPS STATUS
@@ -609,6 +628,318 @@ namespace dps
 
 
 		// TODO dynamic parts
+		return;
+	}
+
+	void GeneralDisplays::OnPaint_SPEC25_PASS( vc::MDU* pMDU ) const
+	{
+		PrintCommonHeader( "   RM ORBIT", pMDU );
+
+		// static parts (labels)
+		// THC
+		pMDU->mvprint( 3, 6, "THC TX TY TZ DES" );
+		pMDU->mvprint( 3, 8, "L 1" );
+		pMDU->mvprint( 17, 8, "1" );
+		pMDU->mvprint( 5, 9, "2" );
+		pMDU->mvprint( 17, 9, "2" );
+		pMDU->mvprint( 5, 10, "3" );
+		pMDU->mvprint( 17, 10, "3" );
+		pMDU->mvprint( 3, 12, "A 1" );
+		pMDU->mvprint( 17, 12, "4" );
+		pMDU->mvprint( 5, 13, "2" );
+		pMDU->mvprint( 17, 13, "5" );
+		pMDU->mvprint( 5, 14, "3" );
+		pMDU->mvprint( 17, 14, "6" );
+
+		// RHC
+		pMDU->mvprint( 23, 6, "RHC  R    P    Y   DES" );
+		pMDU->mvprint( 23, 8, "L 1" );
+		pMDU->mvprint( 43, 8, "7" );
+		pMDU->mvprint( 25, 9, "2" );
+		pMDU->mvprint( 43, 9, "8" );
+		pMDU->mvprint( 25, 10, "3" );
+		pMDU->mvprint( 43, 10, "9" );
+		pMDU->mvprint( 23, 12, "R 1" );
+		pMDU->mvprint( 42, 12, "10" );
+		pMDU->mvprint( 25, 13, "2" );
+		pMDU->mvprint( 42, 13, "11" );
+		pMDU->mvprint( 25, 14, "3" );
+		pMDU->mvprint( 42, 14, "12" );
+		pMDU->mvprint( 23, 16, "A 1" );
+		pMDU->mvprint( 42, 16, "13" );
+		pMDU->mvprint( 25, 17, "2" );
+		pMDU->mvprint( 42, 17, "14" );
+		pMDU->mvprint( 25, 18, "3" );
+		pMDU->mvprint( 42, 18, "15" );
+
+		pMDU->mvprint( 23, 23, "SW RM INH 16" );
+
+		// dynamic parts
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[0].GetVoltage(), LeftTHC[3].GetVoltage(), 7, 8 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[1].GetVoltage(), LeftTHC[4].GetVoltage(), 7, 9 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[2].GetVoltage(), LeftTHC[5].GetVoltage(), 7, 10 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[6].GetVoltage(), LeftTHC[9].GetVoltage(), 10, 8 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[7].GetVoltage(), LeftTHC[10].GetVoltage(), 10, 9 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[8].GetVoltage(), LeftTHC[11].GetVoltage(), 10, 10 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[12].GetVoltage(), LeftTHC[15].GetVoltage(), 13, 8 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[13].GetVoltage(), LeftTHC[16].GetVoltage(), 13, 9 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[14].GetVoltage(), LeftTHC[17].GetVoltage(), 13, 10 );
+
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[0].GetVoltage(), AftTHC[3].GetVoltage(), 7, 12 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[1].GetVoltage(), AftTHC[4].GetVoltage(), 7, 13 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[2].GetVoltage(), AftTHC[5].GetVoltage(), 7, 14 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[6].GetVoltage(), AftTHC[9].GetVoltage(), 10, 12 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[7].GetVoltage(), AftTHC[10].GetVoltage(), 10, 13 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[8].GetVoltage(), AftTHC[11].GetVoltage(), 10, 14 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[12].GetVoltage(), AftTHC[15].GetVoltage(), 13, 12 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[13].GetVoltage(), AftTHC[16].GetVoltage(), 13, 13 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[14].GetVoltage(), AftTHC[17].GetVoltage(), 13, 14 );
+
+		SPEC25_SPEC43_printRHC_RY( pMDU, LeftRHC[3].GetVoltage(), 27, 8 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, LeftRHC[4].GetVoltage(), 27, 9 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, LeftRHC[5].GetVoltage(), 27, 10 );
+		SPEC25_SPEC43_printRHC_P( pMDU, LeftRHC[0].GetVoltage(), 32, 8 );
+		SPEC25_SPEC43_printRHC_P( pMDU, LeftRHC[1].GetVoltage(), 32, 9 );
+		SPEC25_SPEC43_printRHC_P( pMDU, LeftRHC[2].GetVoltage(), 32, 10 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, LeftRHC[6].GetVoltage(), 37, 8 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, LeftRHC[7].GetVoltage(), 37, 9 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, LeftRHC[8].GetVoltage(), 37, 10 );
+
+		SPEC25_SPEC43_printRHC_RY( pMDU, RightRHC[3].GetVoltage(), 27, 12 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, RightRHC[4].GetVoltage(), 27, 13 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, RightRHC[5].GetVoltage(), 27, 14 );
+		SPEC25_SPEC43_printRHC_P( pMDU, RightRHC[0].GetVoltage(), 32, 12 );
+		SPEC25_SPEC43_printRHC_P( pMDU, RightRHC[1].GetVoltage(), 32, 13 );
+		SPEC25_SPEC43_printRHC_P( pMDU, RightRHC[2].GetVoltage(), 32, 14 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, RightRHC[6].GetVoltage(), 37, 12 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, RightRHC[7].GetVoltage(), 37, 13 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, RightRHC[8].GetVoltage(), 37, 14 );
+
+		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[3].GetVoltage(), 27, 16 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[4].GetVoltage(), 27, 17 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[5].GetVoltage(), 27, 18 );
+		SPEC25_SPEC43_printRHC_P( pMDU, AftRHC[0].GetVoltage(), 32, 16 );
+		SPEC25_SPEC43_printRHC_P( pMDU, AftRHC[1].GetVoltage(), 32, 17 );
+		SPEC25_SPEC43_printRHC_P( pMDU, AftRHC[2].GetVoltage(), 32, 18 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[6].GetVoltage(), 37, 16 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[7].GetVoltage(), 37, 17 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[8].GetVoltage(), 37, 18 );
+		return;
+	}
+
+	void GeneralDisplays::SPEC25_SPEC43_printTHC( vc::MDU* pMDU, double axis_plus, double axis_minus, int x, int y ) const
+	{
+		char ctmp[2];
+		ctmp[0] = ' ';
+		ctmp[1] = 0;
+		if ((axis_plus == 1.0) && (axis_minus == 0.0)) ctmp[0] = '+';
+		else if ((axis_plus == 0.0) && (axis_minus == 1.0)) ctmp[0] = '-';
+		pMDU->mvprint( x, y, ctmp );
+		return;
+	}
+
+	void GeneralDisplays::SPEC25_SPEC43_printRHC_P( vc::MDU* pMDU, double val, int x, int y ) const
+	{
+		char cbuf[16];
+		int itmp = 0;
+		char ctmp = 0;
+
+		itmp = min( (int)fabs( val * 100 ), 99 );
+		if (val > 0) ctmp = 'U';
+		else if (val < 0) ctmp = 'D';
+		else ctmp = ' ';
+		sprintf_s( cbuf, 16, "%c%02d", ctmp, itmp );
+		pMDU->mvprint( x, y, cbuf );
+		return;
+	}
+
+	void GeneralDisplays::SPEC25_SPEC43_printRHC_RY( vc::MDU* pMDU, double val, int x, int y ) const
+	{
+		char cbuf[16];
+		int itmp = 0;
+		char ctmp = 0;
+
+		itmp = min( (int)fabs( val * 100 ), 99 );
+		if (val > 0) ctmp = 'R';
+		else if (val < 0) ctmp = 'L';
+		else ctmp = ' ';
+		sprintf_s( cbuf, 16, "%c%02d", ctmp, itmp );
+		pMDU->mvprint( x, y, cbuf );
+		return;
+	}
+
+	void GeneralDisplays::OnPaint_SPEC43_PASS( vc::MDU* pMDU ) const
+	{
+		PrintCommonHeader( "  CONTROLLERS", pMDU );
+
+		// static parts (labels)
+		pMDU->mvprint( 6, 3, "TXTYTZDES" );
+		pMDU->mvprint( 5, 4, "1" );
+		pMDU->mvprint( 13, 4, "1" );
+		pMDU->mvprint( 4, 5, "L2" );
+		pMDU->mvprint( 13, 5, "2" );
+		pMDU->mvprint( 0, 6, "THC  3" );
+		pMDU->mvprint( 13, 6, "3" );
+		pMDU->mvprint( 5, 7, "1" );
+		pMDU->mvprint( 13, 7, "4" );
+		pMDU->mvprint( 4, 8, "A2" );
+		pMDU->mvprint( 13, 8, "5" );
+		pMDU->mvprint( 5, 9, "3" );
+		pMDU->mvprint( 13, 9, "6" );
+		pMDU->mvprint( 5, 10, "1" );
+		pMDU->mvprint( 13, 10, "7" );
+		pMDU->mvprint( 4, 11, "L2" );
+		pMDU->mvprint( 13, 11, "8" );
+		pMDU->mvprint( 5, 12, "3" );
+		pMDU->mvprint( 13, 12, "9" );
+		pMDU->mvprint( 0, 13, "SPD  1" );
+		pMDU->mvprint( 12, 13, "10" );
+		pMDU->mvprint( 0, 14, "BK  R2" );
+		pMDU->mvprint( 12, 14, "11" );
+		pMDU->mvprint( 5, 15, "3" );
+		pMDU->mvprint( 12, 15, "12" );
+		pMDU->mvprint( 5, 16, "1" );
+		pMDU->mvprint( 12, 16, "13" );
+		pMDU->mvprint( 4, 17, "L2" );
+		pMDU->mvprint( 12, 17, "14" );
+		pMDU->mvprint( 0, 18, "RUD  3" );
+		pMDU->mvprint( 12, 18, "15" );
+		pMDU->mvprint( 0, 19, "PED  1" );
+		pMDU->mvprint( 12, 19, "16" );
+		pMDU->mvprint( 4, 20, "R2" );
+		pMDU->mvprint( 12, 20, "17" );
+		pMDU->mvprint( 5, 21, "3" );
+		pMDU->mvprint( 12, 21, "18" );
+
+		pMDU->mvprint( 19, 6, "BDY FLP" );
+		pMDU->mvprint( 21, 7, "UPDNDES" );
+		pMDU->mvprint( 19, 8, "L1" );
+		pMDU->mvprint( 25, 8, "19" );
+		pMDU->mvprint( 16, 9, "SW  2" );
+		pMDU->mvprint( 25, 9, "20" );
+		pMDU->mvprint( 19, 10, "R1" );
+		pMDU->mvprint( 25, 10, "21" );
+		pMDU->mvprint( 20, 11, "2" );
+		pMDU->mvprint( 25, 11, "22" );
+
+		pMDU->mvprint( 37, 3, "R" );
+		pMDU->mvprint( 41, 3, "P" );
+		pMDU->mvprint( 45, 3, "Y  DES" );
+		pMDU->mvprint( 35, 4, "1" );
+		pMDU->mvprint( 48, 4, "23" );
+		pMDU->mvprint( 34, 5, "L2" );
+		pMDU->mvprint( 48, 5, "24" );
+		pMDU->mvprint( 35, 6, "3" );
+		pMDU->mvprint( 48, 6, "25" );
+		pMDU->mvprint( 35, 7, "1" );
+		pMDU->mvprint( 48, 7, "26" );
+		pMDU->mvprint( 29, 8, "RHC  R2" );
+		pMDU->mvprint( 48, 8, "27" );
+		pMDU->mvprint( 35, 9, "3" );
+		pMDU->mvprint( 48, 9, "28" );
+		pMDU->mvprint( 35, 10, "1" );
+		pMDU->mvprint( 48, 10, "29" );
+		pMDU->mvprint( 34, 11, "A2" );
+		pMDU->mvprint( 48, 11, "30" );
+		pMDU->mvprint( 35, 12, "3" );
+		pMDU->mvprint( 48, 12, "31" );
+		pMDU->mvprint( 34, 13, "L1" );
+		pMDU->mvprint( 48, 13, "32" );
+		pMDU->mvprint( 29, 14, "RHC   2" );
+		pMDU->mvprint( 48, 14, "33" );
+		pMDU->mvprint( 29, 15, "TRIM R1" );
+		pMDU->mvprint( 48, 15, "34" );
+		pMDU->mvprint( 35, 16, "2" );
+		pMDU->mvprint( 48, 16, "35" );
+		pMDU->mvprint( 34, 17, "L1" );
+		pMDU->mvprint( 48, 17, "36" );
+		pMDU->mvprint( 29, 18, "PNL   2" );
+		pMDU->mvprint( 48, 18, "37" );
+		pMDU->mvprint( 29, 19, "TRIM R1" );
+		pMDU->mvprint( 48, 19, "38" );
+		pMDU->mvprint( 35, 20, "2" );
+		pMDU->mvprint( 48, 20, "39" );
+
+		// static parts (lines)
+		pMDU->Line( 0, 56, 150, 56 );
+		pMDU->Line( 40, 98, 150, 98 );
+		pMDU->Line( 0, 140, 150, 140 );
+		pMDU->Line( 40, 182, 150, 182 );
+		pMDU->Line( 0, 224, 150, 224 );
+		pMDU->Line( 40, 266, 150, 266 );
+		pMDU->Line( 60, 42, 60, 308 );
+		pMDU->Line( 80, 42, 80, 140 );
+		pMDU->Line( 100, 42, 100, 140 );
+		pMDU->Line( 120, 42, 120, 308 );
+
+		pMDU->Line( 160, 112, 280, 112 );
+		pMDU->Line( 190, 140, 280, 140 );
+		pMDU->Line( 210, 98, 210, 168 );
+		pMDU->Line( 230, 98, 230, 168 );
+		pMDU->Line( 250, 98, 250, 168 );
+
+		pMDU->Line( 290, 56, 510, 56 );
+		pMDU->Line( 350, 98, 510, 98 );
+		pMDU->Line( 340, 140, 510, 140 );
+		pMDU->Line( 290, 182, 510, 182 );
+		pMDU->Line( 340, 210, 510, 210 );
+		pMDU->Line( 290, 238, 510, 238 );
+		pMDU->Line( 340, 266, 510, 266 );
+		pMDU->Line( 360, 42, 360, 294 );
+		pMDU->Line( 400, 42, 400, 294 );
+		pMDU->Line( 440, 42, 440, 294 );
+		pMDU->Line( 480, 42, 480, 294 );
+
+		// dynamic parts
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[0].GetVoltage(), LeftTHC[3].GetVoltage(), 6, 4 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[1].GetVoltage(), LeftTHC[4].GetVoltage(), 6, 5 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[2].GetVoltage(), LeftTHC[5].GetVoltage(), 6, 6 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[6].GetVoltage(), LeftTHC[9].GetVoltage(), 8, 4 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[7].GetVoltage(), LeftTHC[10].GetVoltage(), 8, 5 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[8].GetVoltage(), LeftTHC[11].GetVoltage(), 8, 6 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[12].GetVoltage(), LeftTHC[15].GetVoltage(), 10, 4 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[13].GetVoltage(), LeftTHC[16].GetVoltage(), 10, 5 );
+		SPEC25_SPEC43_printTHC( pMDU, LeftTHC[14].GetVoltage(), LeftTHC[17].GetVoltage(), 10, 6 );
+
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[0].GetVoltage(), AftTHC[3].GetVoltage(), 6, 7 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[1].GetVoltage(), AftTHC[4].GetVoltage(), 6, 8 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[2].GetVoltage(), AftTHC[5].GetVoltage(), 6, 9 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[6].GetVoltage(), AftTHC[9].GetVoltage(), 8, 7 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[7].GetVoltage(), AftTHC[10].GetVoltage(), 8, 8 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[8].GetVoltage(), AftTHC[11].GetVoltage(), 8, 9 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[12].GetVoltage(), AftTHC[15].GetVoltage(), 10, 7 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[13].GetVoltage(), AftTHC[16].GetVoltage(), 10, 8 );
+		SPEC25_SPEC43_printTHC( pMDU, AftTHC[14].GetVoltage(), AftTHC[17].GetVoltage(), 10, 9 );
+
+		SPEC25_SPEC43_printRHC_RY( pMDU, LeftRHC[3].GetVoltage(), 36, 4 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, LeftRHC[4].GetVoltage(), 36, 5 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, LeftRHC[5].GetVoltage(), 36, 6 );
+		SPEC25_SPEC43_printRHC_P( pMDU, LeftRHC[0].GetVoltage(), 40, 4 );
+		SPEC25_SPEC43_printRHC_P( pMDU, LeftRHC[1].GetVoltage(), 40, 5 );
+		SPEC25_SPEC43_printRHC_P( pMDU, LeftRHC[2].GetVoltage(), 40, 6 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, LeftRHC[6].GetVoltage(), 44, 4 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, LeftRHC[7].GetVoltage(), 44, 5 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, LeftRHC[8].GetVoltage(), 44, 6 );
+
+		SPEC25_SPEC43_printRHC_RY( pMDU, RightRHC[3].GetVoltage(), 36, 7 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, RightRHC[4].GetVoltage(), 36, 8 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, RightRHC[5].GetVoltage(), 36, 9 );
+		SPEC25_SPEC43_printRHC_P( pMDU, RightRHC[0].GetVoltage(), 40, 7 );
+		SPEC25_SPEC43_printRHC_P( pMDU, RightRHC[1].GetVoltage(), 40, 8 );
+		SPEC25_SPEC43_printRHC_P( pMDU, RightRHC[2].GetVoltage(), 40, 9 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, RightRHC[6].GetVoltage(), 44, 7 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, RightRHC[7].GetVoltage(), 44, 8 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, RightRHC[8].GetVoltage(), 44, 9 );
+
+		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[3].GetVoltage(), 36, 10 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[4].GetVoltage(), 36, 11 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[5].GetVoltage(), 36, 12 );
+		SPEC25_SPEC43_printRHC_P( pMDU, AftRHC[0].GetVoltage(), 40, 10 );
+		SPEC25_SPEC43_printRHC_P( pMDU, AftRHC[1].GetVoltage(), 40, 11 );
+		SPEC25_SPEC43_printRHC_P( pMDU, AftRHC[2].GetVoltage(), 40, 12 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[6].GetVoltage(), 44, 10 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[7].GetVoltage(), 44, 11 );
+		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[8].GetVoltage(), 44, 12 );
 		return;
 	}
 
@@ -2016,23 +2347,23 @@ namespace dps
 		// dynamic parts
 		char cbuf[64];
 
-		sprintf_s( cbuf, 64, "%3d", (int)pAscentGuidance->GetThrottleCommand() );
+		sprintf_s( cbuf, 64, "%3d", (int)pAscentDAP->GetThrottleCommand() );
 		pMDU->mvprint( 44, 17, cbuf );
 
 		if (pSRBSepSequence->GetPC50Flag() == true) pMDU->mvprint( 22, 9, "PC<50", dps::DEUATT_OVERBRIGHT | dps::DEUATT_FLASHING );
 
 		//if (pSRBSepSequence->GetSRBSEPINHFlag() == true) pMDU->mvprint( 10, 11, "SEP INH" );
 
-		if (pAscentGuidance->SERCenabled() == true) pMDU->mvprint( 9, 12, "ON", dps::DEUATT_OVERBRIGHT );
+		if (pAscentDAP->SERCenabled() == true) pMDU->mvprint( 9, 12, "ON", dps::DEUATT_OVERBRIGHT );
 
-		if (pAscentGuidance->GetEOVI( 1 ) != 0)
+		if (pAscentDAP->GetEOVI( 1 ) != 0)
 		{
-			sprintf_s( cbuf, 64, "1ST EO VI %5.0f", pAscentGuidance->GetEOVI( 1 ) );
+			sprintf_s( cbuf, 64, "1ST EO VI %5.0f", pAscentDAP->GetEOVI( 1 ) );
 			pMDU->mvprint( 34, 22, cbuf );
 		}
-		if (pAscentGuidance->GetEOVI( 2 ) != 0)
+		if (pAscentDAP->GetEOVI( 2 ) != 0)
 		{
-			sprintf_s( cbuf, 64, "2ND EO VI %5.0f", pAscentGuidance->GetEOVI( 2 ) );
+			sprintf_s( cbuf, 64, "2ND EO VI %5.0f", pAscentDAP->GetEOVI( 2 ) );
 			pMDU->mvprint( 34, 23, cbuf, dps::DEUATT_OVERBRIGHT );
 		}
 
@@ -2113,8 +2444,8 @@ namespace dps
 		// dynamic parts
 		char cbuf[64];
 		int tmp = 0;
-		double TgtSpd = pAscentGuidance->GetTgtSpd();
-		double inertialVelocity = pAscentGuidance->GetInertialVelocity();
+		double TgtSpd = pAscentDAP->GetTgtSpd();
+		double inertialVelocity = pAscentDAP->GetInertialVelocity();
 
 		// Vr scale
 		if (((TgtSpd * MPS2FPS) > 25000) && ((TgtSpd * MPS2FPS) < 26000))// TODO update for MECO speeds > 26K???
@@ -2132,7 +2463,7 @@ namespace dps
 		pMDU->Line( tmp - 6, 39, tmp + 6, 39, dps::DEUATT_OVERBRIGHT );
 		pMDU->Line( tmp + 6, 39, tmp, 47, dps::DEUATT_OVERBRIGHT );
 
-		sprintf_s( cbuf, 64, "%3d", (int)pAscentGuidance->GetThrottleCommand() );
+		sprintf_s( cbuf, 64, "%3d", (int)pAscentDAP->GetThrottleCommand() );
 		pMDU->mvprint( 44, 17, cbuf );
 
 		tmp = STS()->GetETPropellant();
@@ -2154,16 +2485,16 @@ namespace dps
 
 		//if (pETSepSequence->GetETSEPINHFlag() == true) pMDU->mvprint( 10, 11, "SEP INH" );
 
-		if (pAscentGuidance->SERCenabled() == true) pMDU->mvprint( 9, 12, "ON", dps::DEUATT_OVERBRIGHT );
+		if (pAscentDAP->SERCenabled() == true) pMDU->mvprint( 9, 12, "ON", dps::DEUATT_OVERBRIGHT );
 
-		if (pAscentGuidance->GetEOVI( 1 ) != 0)
+		if (pAscentDAP->GetEOVI( 1 ) != 0)
 		{
-			sprintf_s( cbuf, 64, "1ST EO VI %5.0f", pAscentGuidance->GetEOVI( 1 ) );
+			sprintf_s( cbuf, 64, "1ST EO VI %5.0f", pAscentDAP->GetEOVI( 1 ) );
 			pMDU->mvprint( 34, 22, cbuf );
 		}
-		if (pAscentGuidance->GetEOVI( 2 ) != 0)
+		if (pAscentDAP->GetEOVI( 2 ) != 0)
 		{
-			sprintf_s( cbuf, 64, "2ND EO VI %5.0f", pAscentGuidance->GetEOVI( 2 ) );
+			sprintf_s( cbuf, 64, "2ND EO VI %5.0f", pAscentDAP->GetEOVI( 2 ) );
 			pMDU->mvprint( 34, 23, cbuf, dps::DEUATT_OVERBRIGHT );
 		}
 		else pMDU->mvprint( 20, 22, "INH" );
@@ -2171,7 +2502,7 @@ namespace dps
 		if ((pSSME_Operations->GetMECOConfirmedFlag() == false) && (pSSME_Operations->GetMECOCommandFlag() == false))
 		{
 			// TGO
-			double timeRemaining = pAscentGuidance->GetTimeRemaining();
+			double timeRemaining = pAscentDAP->GetTimeRemaining();
 			tmp = Round( timeRemaining );
 			sprintf_s( cbuf, 64, "%2d", (tmp - (tmp % 60)) / 60 );
 			pMDU->mvprint( 42, 5, cbuf );
@@ -2207,7 +2538,7 @@ namespace dps
 		// HACK using constant 12º for SSME offset
 		// 30s predictor
 		double earthR = 20902200;//6371010 * MPS2FPS;
-		double thrustAcceleration = pAscentGuidance->GetThrustAcceleration();
+		double thrustAcceleration = pAscentDAP->GetThrustAcceleration();
 		double dv30 = thrustAcceleration * cos( STS()->GetSlipAngle() ) * 30 * MPS2FPS;
 		VHI += dv30;
 		Altitude += -LVLH_Vel.z * 30 + (((thrustAcceleration * sin( STS()->GetPitch() - (12 * RAD * sign( cos( STS()->GetBank() ) )) )) - G ) * 450 * MPS2FPS);

@@ -38,7 +38,7 @@ using namespace discsignals;
 
 namespace dps
 {
-	class AscentGuidance;
+	class AscentDAP;
 	class SSME_Operations;
 	class SRBSepSequence;
 	//class ETSepSequence;
@@ -46,7 +46,7 @@ namespace dps
 	class GeneralDisplays:public SimpleGPCSoftware
 	{
 		private:
-			AscentGuidance* pAscentGuidance;
+			AscentDAP* pAscentDAP;
 			SSME_Operations* pSSME_Operations;
 			SRBSepSequence* pSRBSepSequence;
 			//ETSepSequence* pETSepSequence;
@@ -60,6 +60,12 @@ namespace dps
 			DiscInPort dipHeSysPressureSensor[12];
 			DiscInPort dipMPSManifPressureSensor[2];
 
+			DiscInPort LeftRHC[9];
+			DiscInPort LeftTHC[18];
+			DiscInPort RightRHC[9];
+			DiscInPort AftRHC[9];
+			DiscInPort AftTHC[18];
+
 			double He_dPdT[3];
 			double He_P[3];
 			double He_T;
@@ -67,6 +73,8 @@ namespace dps
 			// PASS displays
 			void OnPaint_DISP18_PASS( vc::MDU* pMDU ) const;
 			void OnPaint_DISP19_PASS( vc::MDU* pMDU ) const;
+			void OnPaint_SPEC25_PASS( vc::MDU* pMDU ) const;
+			void OnPaint_SPEC43_PASS( vc::MDU* pMDU ) const;
 			void OnPaint_SPEC51_PASS( vc::MDU* pMDU ) const;
 			void OnPaint_SPEC53_PASS( vc::MDU* pMDU ) const;
 			void OnPaint_SPEC55_PASS( vc::MDU* pMDU ) const;
@@ -90,6 +98,10 @@ namespace dps
 			// item state lists for SPEC displays
 			bool ITEM_STATE_SPEC112[32];
 			bool ITEM_STATE_SPEC113[44];
+
+			void SPEC25_SPEC43_printTHC( vc::MDU* pMDU, double axis_plus, double axis_minus, int x, int y ) const;
+			void SPEC25_SPEC43_printRHC_P( vc::MDU* pMDU, double val, int x, int y ) const;
+			void SPEC25_SPEC43_printRHC_RY( vc::MDU* pMDU, double val, int x, int y ) const;
 		public:
 			GeneralDisplays( SimpleGPCSystem* _gpc );
 			~GeneralDisplays( void );

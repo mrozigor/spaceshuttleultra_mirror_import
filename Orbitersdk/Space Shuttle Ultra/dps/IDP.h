@@ -40,7 +40,7 @@ namespace dps {
 
 	class IO_Control;
 	class SSME_Operations;
-	class AscentGuidance;
+	class AscentDAP;
 	class AerojetDAP;
 	class OMSBurnSoftware;
 
@@ -106,7 +106,7 @@ namespace dps {
 
 		IO_Control* pIO_Control;
 		SSME_Operations* pSSME_Operations;
-		AscentGuidance* pAscentGuidance;
+		AscentDAP* pAscentDAP;
 		AerojetDAP* pAerojetDAP;
 		OMSBurnSoftware* pOMSBurnSoftware;
 
@@ -187,7 +187,7 @@ namespace dps {
 		int GetADIRate( void );
 		bool GetMECOConfirmedFlag( void ) const;
 		bool GetAutoThrottleState( void ) const;
-		VECTOR3 GetAttitudeErrors_AscentGuidance( void ) const;
+		VECTOR3 GetAttitudeErrors_AscentDAP( void ) const;
 		VECTOR3 GetAttitudeErrors_AerojetDAP( void ) const;
 		VECTOR3 GetAttitudeCommandErrors( void ) const;
 		bool GetAutoPitchState( void ) const;
@@ -212,5 +212,6 @@ namespace dps {
 		double GetdeltaAZLimit( double mach ) const;
 		double GetSelectedRunwayHeading( void ) const;
 		double GetTargetHeading( void ) const;
+		bool GetFCSmode( void ) const;
 	};
 };

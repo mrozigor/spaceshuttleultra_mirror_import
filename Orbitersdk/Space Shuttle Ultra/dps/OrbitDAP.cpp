@@ -2,6 +2,8 @@
 #include "IDP.h"
 #include <UltraMath.h>
 #include "../ParameterValues.h"
+#include "THC_SOP.h"
+
 
 namespace dps
 {
@@ -219,17 +221,23 @@ bool OrbitDAP::GetRHCRequiredRates()
 
 void OrbitDAP::HandleTHCInput(double DeltaT)
 {
+	int THC[3];
+	THC[0] = pTHC_SOP->GetXCommand();
+	THC[1] = pTHC_SOP->GetYCommand();
+	THC[2] = pTHC_SOP->GetZCommand();
+
 	for(int i=0;i<3;i++) {
-		if(abs(THCInput[i].GetVoltage())>0.01) {
+		if (THC[i] != 0)
+		{
 			//if PCT is in progress, disable it when THC is moved out of detent
 			if(PCTActive) StopPCT();
 
 			if(TransMode[i]==NORM) {
-				TransThrusterCommands[i].SetLine(static_cast<float>( sign(THCInput[i].GetVoltage()) ));
+				TransThrusterCommands[i].SetLine(static_cast<float>( sign( THC[i] ) ));
 			}
 			else if(TransMode[i]==TRANS_PULSE && !TransPulseInProg[i]) {
 				TransPulseInProg[i]=true;
-				TransPulseDV.data[i] = TransPulse*sign(THCInput[i].GetVoltage());
+				TransPulseDV.data[i] = TransPulse*sign( THC[i] );
 			}
 			else {
 				TransThrusterCommands[i].ResetLine();
@@ -256,9 +264,7 @@ void OrbitDAP::HandleTHCInput(double DeltaT)
 			}
 			else {
 				//if THC is in detent and pulse is complete, allow further pulses
-				if(abs(THCInput[i].GetVoltage())<0.01) {
-					TransPulseInProg[i]=false;
-				}
+				if (THC[i] == 0) TransPulseInProg[i]=false;
 				TransThrusterCommands[i].ResetLine();
 			}
 		}
@@ -489,14 +495,7 @@ void OrbitDAP::Realize()
 	pBundle=STS()->BundleManager()->CreateBundle("HC_INPUT", 16);
 	for(int i=0;i<3;i++) {
 		RHCInput[i].Connect(pBundle, i);
-		THCInput[i].Connect(pBundle, i+3);
 	}
-
-	pBundle = BundleManager()->CreateBundle("CSS_CONTROLS", 4);
-	PitchAuto.Connect(pBundle, 0);
-	PitchCSS.Connect(pBundle, 1);
-	RollYawAuto.Connect(pBundle, 2);
-	RollYawCSS.Connect(pBundle, 3);
 
 	pBundle=BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
 	PCTArmed.Connect(pBundle, 0);
@@ -507,6 +506,7 @@ void OrbitDAP::Realize()
 	port_PCTActive[1].Connect(pBundle, 1);
 	
 	pStateVector = static_cast<StateVectorSoftware*>(FindSoftware("StateVectorSoftware"));
+	pTHC_SOP = static_cast<THC_SOP*>(FindSoftware( "THC_SOP" ));
 
 	UpdateDAPParameters();
 }
@@ -624,12 +624,6 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	if(ControlMode == RCS) SetRates(degReqdRates, DeltaT);
 	else OMSTVC(ATT_ERR*0.1, DeltaT);
 
-	// set entry DAP mode PBIs to OFF
-	PitchAuto.ResetLine();
-	PitchCSS.ResetLine();
-	RollYawAuto.ResetLine();
-	RollYawCSS.ResetLine();
-
 	lastStepDeltaT = DeltaT;
 }
 
@@ -637,6 +631,15 @@ bool OrbitDAP::OnMajorModeChange(unsigned int newMajorMode)
 {
 	if(newMajorMode >= 104 && newMajorMode <= 303) {
 		// perform initialization
+
+		// turn FCS lights off
+		DiscreteBundle* pBundle = BundleManager()->CreateBundle( "CSS_CONTROLS", 16 );
+		DiscOutPort port;
+		for (int i = 1; i <= 15; i += 2)
+		{
+			port.Connect( pBundle, i );
+			port.ResetLine();
+		}
 		return true;
 	}
 	return false;

@@ -250,7 +250,7 @@
     <ClCompile Include="CRT.cpp" />
     <ClCompile Include="dps\AerojetDAP.cpp" />
     <ClCompile Include="dps\AODModule.cpp" />
-    <ClCompile Include="dps\AscentGuidance.cpp" />
+    <ClCompile Include="dps\AscentDAP.cpp" />
     <ClCompile Include="dps\ATVC_SOP.cpp" />
     <ClCompile Include="dps\ETSepSequence.cpp" />
     <ClCompile Include="dps\GeneralDisplays.cpp" />
@@ -266,6 +266,8 @@
     <ClCompile Include="dps\OMSBurnSoftware.cpp" />
     <ClCompile Include="dps\OrbitDAP.cpp" />
     <ClCompile Include="dps\OrbitTgtSoftware.cpp" />
+    <ClCompile Include="dps\RHC_RM.cpp" />
+    <ClCompile Include="dps\RHC_SOP.cpp" />
     <ClCompile Include="dps\RSLS.cpp" />
     <ClCompile Include="dps\SimpleGPC.cpp" />
     <ClCompile Include="dps\SimpleGPCSoftware.cpp" />
@@ -275,6 +277,8 @@
     <ClCompile Include="dps\SSME_SOP.cpp" />
     <ClCompile Include="dps\StateVectorSoftware.cpp" />
     <ClCompile Include="dps\Symbol.cpp" />
+    <ClCompile Include="dps\THC_RM.cpp" />
+    <ClCompile Include="dps\THC_SOP.cpp" />
     <ClCompile Include="dps\TransitionDAP.cpp" />
     <ClCompile Include="DragChute.cpp" />
     <ClCompile Include="eps\ACBus.cpp" />
@@ -424,7 +428,7 @@
     <ClInclude Include="comm\GCIL.h" />
     <ClInclude Include="CRT.h" />
     <ClInclude Include="dps\AerojetDAP.h" />
-    <ClInclude Include="dps\AscentGuidance.h" />
+    <ClInclude Include="dps\AscentDAP.h" />
     <ClInclude Include="dps\ATVC_SOP.h" />
     <ClInclude Include="dps\DPSArchitectureModel.h" />
     <ClInclude Include="dps\ETSepSequence.h" />
@@ -441,6 +445,8 @@
     <ClInclude Include="dps\OMSBurnSoftware.h" />
     <ClInclude Include="dps\OrbitDAP.h" />
     <ClInclude Include="dps\OrbitTgtSoftware.h" />
+    <ClInclude Include="dps\RHC_RM.h" />
+    <ClInclude Include="dps\RHC_SOP.h" />
     <ClInclude Include="dps\RSLS.h" />
     <ClInclude Include="dps\SimpleGPC.h" />
     <ClInclude Include="dps\SimpleGPCSoftware.h" />
@@ -452,6 +458,8 @@
     <ClInclude Include="dps\SSME_Operations.h" />
     <ClInclude Include="dps\SSME_SOP.h" />
     <ClInclude Include="dps\StateVectorSoftware.h" />
+    <ClInclude Include="dps\THC_RM.h" />
+    <ClInclude Include="dps\THC_SOP.h" />
     <ClInclude Include="dps\TransitionDAP.h" />
     <ClInclude Include="DragChute.h" />
     <ClInclude Include="eva_docking\TunnelAdapterAssembly.h" />

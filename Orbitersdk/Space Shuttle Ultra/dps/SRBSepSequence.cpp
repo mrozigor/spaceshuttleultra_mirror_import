@@ -1,7 +1,7 @@
 #include "SRBSepSequence.h"
 #include "..\Atlantis.h"
 #include "SSME_Operations.h"
-#include "AscentGuidance.h"
+#include "AscentDAP.h"
 #include "MEC_SOP.h"
 
 
@@ -69,7 +69,7 @@ namespace dps
 					pMEC_SOP->SetSRBSepSequencerFlag( MECSOP_SRBSEP_SRB_SEP_PICS_ARM );
 
 					// SRB nozzles to null
-					pAscentGuidance->NullSRBNozzles();
+					pAscentDAP->NullSRBNozzles();
 
 					if ((timeSRBSEPinit + SRB_SEP_CMD_DELAY) <= SimT)
 					{
@@ -123,7 +123,7 @@ namespace dps
 	void SRBSepSequence::Realize( void )
 	{
 		pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
-		pAscentGuidance = static_cast<AscentGuidance*> (FindSoftware( "AscentGuidance" ));
+		pAscentDAP = static_cast<AscentDAP*> (FindSoftware( "AscentDAP" ));
 		pMEC_SOP = static_cast<MEC_SOP*> (FindSoftware( "MEC_SOP" ));
 
 		DiscreteBundle* bundle = BundleManager()->CreateBundle( "C3_SEP", 4 );
