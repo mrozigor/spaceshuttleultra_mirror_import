@@ -54,6 +54,10 @@ namespace dps
 			bool DETENT_ROLL;
 			bool DETENT_YAW;
 
+			bool PAST_SOFTSTOP_PITCH;
+			bool PAST_SOFTSTOP_ROLL;
+			bool PAST_SOFTSTOP_YAW;
+
 			double RHC_P;
 			double RHC_R;
 			double RHC_Y;
@@ -81,6 +85,14 @@ namespace dps
 			bool GetPitchManTakeOver( void ) const;
 			bool GetRollManTakeOver( void ) const;
 			bool GetYawManTakeOver( void ) const;
+
+			bool GetPitchDetent( void ) const;
+			bool GetRollDetent( void ) const;
+			bool GetYawDetent( void ) const;
+
+			bool GetPitchPastSoftStop( void ) const;
+			bool GetRollPastSoftStop( void ) const;
+			bool GetYawPastSoftStop( void ) const;
 	};
 }
 

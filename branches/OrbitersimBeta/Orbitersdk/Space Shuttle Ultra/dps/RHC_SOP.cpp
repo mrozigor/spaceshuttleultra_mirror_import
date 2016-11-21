@@ -17,6 +17,10 @@ namespace dps
 		DETENT_ROLL = true;
 		DETENT_YAW = true;
 
+		PAST_SOFTSTOP_PITCH = false;
+		PAST_SOFTSTOP_ROLL = false;
+		PAST_SOFTSTOP_YAW = false;
+
 		RHC_P = 0;
 		RHC_R = 0;
 		RHC_Y = 0;
@@ -135,7 +139,7 @@ namespace dps
 		else DETENT_ROLL = true;
 		DETENT_YAW = true;
 
-		// FCS manual takeover
+		// FCS manual takeover (TODO is it 7º or 6º?)
 		if ((fabs( L_P ) > 7.0) || (fabs( R_P ) > 7.0)) FCS_MAN_TAKEOVER_PITCH = true;
 		else FCS_MAN_TAKEOVER_PITCH = false;
 		if ((fabs( L_R ) > 7.0) || (fabs( R_R ) > 7.0)) FCS_MAN_TAKEOVER_ROLL = true;
@@ -242,7 +246,13 @@ namespace dps
 			if ((fabs( L_Y ) > 7.0) || (fabs( R_Y ) > 7.0) || (fabs( A_Y ) > 7.0)) FCS_MAN_TAKEOVER_YAW = true;
 			else FCS_MAN_TAKEOVER_YAW = false;
 
-			// TODO sw softstop (for RCS accel, Trans and Orbit DAPs only)
+			// sw softstop (TODO no clue what the numbers are, using ~75% of axis deflection as previously used in OrbitDAP)
+			if ((fabs( L_P ) > 18.2) || (fabs( R_P ) > 18.2) || (fabs( A_P ) > 18.2)) PAST_SOFTSTOP_PITCH = true;
+			else PAST_SOFTSTOP_PITCH = false;
+			if ((fabs( L_R ) > 18.2) || (fabs( R_R ) > 18.2) || (fabs( A_R ) > 18.2)) PAST_SOFTSTOP_ROLL = true;
+			else PAST_SOFTSTOP_ROLL = false;
+			if ((fabs( L_Y ) > 10.7) || (fabs( R_Y ) > 10.7) || (fabs( A_Y ) > 10.7)) PAST_SOFTSTOP_YAW = true;
+			else PAST_SOFTSTOP_YAW = false;
 
 			// sum all RHC commands
 			RHC_P = L_P + R_P + A_P;
@@ -298,7 +308,7 @@ namespace dps
 			if ((fabs( L_Y ) >= 0.65) || (fabs( R_Y ) >= 0.65)) DETENT_YAW = false;
 			else DETENT_YAW = true;
 
-			// FCS manual takeover
+			// FCS manual takeover (TODO is it 7º or 6º?)
 			if ((fabs( L_P ) > 7.0) || (fabs( R_P ) > 7.0)) FCS_MAN_TAKEOVER_PITCH = true;
 			else FCS_MAN_TAKEOVER_PITCH = false;
 			if ((fabs( L_R ) > 7.0) || (fabs( R_R ) > 7.0)) FCS_MAN_TAKEOVER_ROLL = true;
@@ -306,7 +316,13 @@ namespace dps
 			if ((fabs( L_Y ) > 7.0) || (fabs( R_Y ) > 7.0)) FCS_MAN_TAKEOVER_YAW = true;
 			else FCS_MAN_TAKEOVER_YAW = false;
 
-			// TODO sw softstop (for RCS accel, Trans and Orbit DAPs only)
+			// sw softstop (TODO no clue what the numbers are, using ~75% of axis deflection as previously used in OrbitDAP)
+			if ((fabs( L_P ) > 18.2) || (fabs( R_P ) > 18.2)) PAST_SOFTSTOP_PITCH = true;
+			else PAST_SOFTSTOP_PITCH = false;
+			if ((fabs( L_R ) > 18.2) || (fabs( R_R ) > 18.2)) PAST_SOFTSTOP_ROLL = true;
+			else PAST_SOFTSTOP_ROLL = false;
+			if ((fabs( L_Y ) > 10.7) || (fabs( R_Y ) > 10.7)) PAST_SOFTSTOP_YAW = true;
+			else PAST_SOFTSTOP_YAW = false;
 
 			// sum all RHC commands
 			RHC_P = L_P + R_P;
@@ -344,5 +360,35 @@ namespace dps
 	bool RHC_SOP::GetYawManTakeOver( void ) const
 	{
 		return FCS_MAN_TAKEOVER_YAW;
+	}
+
+	bool RHC_SOP::GetPitchDetent( void ) const
+	{
+		return DETENT_PITCH;
+	}
+
+	bool RHC_SOP::GetRollDetent( void ) const
+	{
+		return DETENT_ROLL;
+	}
+
+	bool RHC_SOP::GetYawDetent( void ) const
+	{
+		return DETENT_YAW;
+	}
+
+	bool RHC_SOP::GetPitchPastSoftStop( void ) const
+	{
+		return PAST_SOFTSTOP_PITCH;
+	}
+
+	bool RHC_SOP::GetRollPastSoftStop( void ) const
+	{
+		return PAST_SOFTSTOP_ROLL;
+	}
+
+	bool RHC_SOP::GetYawPastSoftStop( void ) const
+	{
+		return PAST_SOFTSTOP_YAW;
 	}
 }
