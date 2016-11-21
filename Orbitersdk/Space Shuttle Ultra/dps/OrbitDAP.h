@@ -10,10 +10,6 @@
 
 namespace dps
 {
-
-const double RHC_SOFT_STOP = 0.75;
-const double RHC_DETENT = 0.01;
-
 const unsigned int convert[69] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
@@ -61,6 +57,7 @@ struct DAPConfig
 	}
 };
 
+class RHC_SOP;
 class THC_SOP;
 
 /**
@@ -146,7 +143,6 @@ private:
 	/*DiscInPort DAPSelect[2]; // A or B
 	DiscInPort DAPMode[3]; // PRI, ALT, VERN
 	DiscInPort DAPControlMode[4]; // AUTO, INRTL, LVLH, FREE*/
-	DiscInPort RHCInput[3];
 	DiscOutPort RotThrusterCommands[3];
 	DiscOutPort TransThrusterCommands[3]; // 0=X, 1=Y, 2=Z
 	DiscOutPort POMSGimbalCommand[2], YOMSGimbalCommand[2];
@@ -156,6 +152,7 @@ private:
 	//DiscOutPort port_PCTActive;
 	
 	StateVectorSoftware* pStateVector;
+	RHC_SOP *pRHC_SOP;
 	THC_SOP *pTHC_SOP;
 public:
 	OrbitDAP(SimpleGPCSystem* pGPC);

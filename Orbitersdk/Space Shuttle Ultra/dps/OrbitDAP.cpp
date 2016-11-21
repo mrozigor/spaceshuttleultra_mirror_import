@@ -2,6 +2,7 @@
 #include "IDP.h"
 #include <UltraMath.h>
 #include "../ParameterValues.h"
+#include "RHC_SOP.h"
 #include "THC_SOP.h"
 
 
@@ -198,21 +199,36 @@ void OrbitDAP::StartManeuver(const MATRIX3& tgtAtt, AttManeuver::TYPE type)
 bool OrbitDAP::GetRHCRequiredRates()
 {
 	bool outOfDetent = false;
+	double RHC[3];
+	RHC[0] = pRHC_SOP->GetPitchCommand();
+	RHC[1] = pRHC_SOP->GetYawCommand();
+	RHC[2] = pRHC_SOP->GetRollCommand();
+	bool RHCdetent[3];
+	RHCdetent[0] = pRHC_SOP->GetPitchDetent();
+	RHCdetent[1] = pRHC_SOP->GetYawDetent();
+	RHCdetent[2] = pRHC_SOP->GetRollDetent();
+	bool RHCpastsoftstop[3];
+	RHCpastsoftstop[0] = pRHC_SOP->GetPitchPastSoftStop();
+	RHCpastsoftstop[1] = pRHC_SOP->GetYawPastSoftStop();
+	RHCpastsoftstop[2] = pRHC_SOP->GetRollPastSoftStop();
+
 	for(unsigned int i=0;i<3;i++) {
-		if(abs(RHCInput[i].GetVoltage()) > RHC_DETENT) {
+		if (RHCdetent[i] == false)
+		{
 			outOfDetent = true;
-			if(abs(RHCInput[i].GetVoltage()) < RHC_SOFT_STOP) {
+			if (RHCpastsoftstop[i] == false)
+			{
 				if(RotMode[i]==DISC_RATE) { // DISC RATE
 					// if RHC was pushed past soft stop previously (high rotation rates), maintain high rotation rate; otherwise rotate at specified rate
-					degReqdRates.data[i] = max(degRotRate, abs(degAngularVelocity.data[i]))*sign(RHCInput[i].GetVoltage());
+					degReqdRates.data[i] = max(degRotRate, abs(degAngularVelocity.data[i]))*sign( RHC[i] );
 				}
 				else if(!RotPulseInProg[i]) { // PULSE
-					degReqdRates.data[i] = degReqdRates.data[i]+degRotPulse*sign(RHCInput[i].GetVoltage());
+					degReqdRates.data[i] = degReqdRates.data[i]+degRotPulse*sign( RHC[i] );
 					RotPulseInProg[i]=true;
 				}
 			}
 			else {
-				degReqdRates.data[i] = 1000*sign(RHCInput[i].GetVoltage());
+				degReqdRates.data[i] = 1000*sign( RHC[i] );
 			}
 		}
 	}
@@ -377,6 +393,11 @@ void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 	}
 	//if(ManeuverStatus==MNVR_IN_PROGRESS) Limits=Limits*5.0;
 
+	bool RHCdetent[3];
+	RHCdetent[0] = pRHC_SOP->GetPitchDetent();
+	RHCdetent[1] = pRHC_SOP->GetYawDetent();
+	RHCdetent[2] = pRHC_SOP->GetRollDetent();
+
 	for(unsigned int i=0;i<3;i++) {
 		if(abs(Error.data[i])>Limits.data[i]) {
 			//RotThrusterCommands[i].SetLine(static_cast<float>(MaxThrusterLevel*sign(Error.data[i])));
@@ -392,7 +413,7 @@ void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 			RotThrusterCommands[i].ResetLine();
 			NullingRates[i] = false;
 			//If RHC is out of detent, pretend pulse is still in progress
-			if(abs(RHCInput[i].GetVoltage())<RHC_DETENT) RotPulseInProg[i]=false;
+			if (RHCdetent[i] == true) RotPulseInProg[i]=false;
 		}
 	}
 
@@ -492,11 +513,6 @@ void OrbitDAP::Realize()
 		TransThrusterCommands[i].Connect(pBundle, i+3);
 	}
 
-	pBundle=STS()->BundleManager()->CreateBundle("HC_INPUT", 16);
-	for(int i=0;i<3;i++) {
-		RHCInput[i].Connect(pBundle, i);
-	}
-
 	pBundle=BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
 	PCTArmed.Connect(pBundle, 0);
 
@@ -506,6 +522,7 @@ void OrbitDAP::Realize()
 	port_PCTActive[1].Connect(pBundle, 1);
 	
 	pStateVector = static_cast<StateVectorSoftware*>(FindSoftware("StateVectorSoftware"));
+	pRHC_SOP = static_cast<RHC_SOP*>(FindSoftware( "RHC_SOP" ));
 	pTHC_SOP = static_cast<THC_SOP*>(FindSoftware( "THC_SOP" ));
 
 	UpdateDAPParameters();
