@@ -39,6 +39,7 @@ const double NZ_UPDATE_INTERVAL = 0.1;
 
 
 class RHC_SOP;
+class RPTA_SOP;
 
 
 /**
@@ -179,7 +180,6 @@ private:
 	DiscInPort SpeedbrakeAuto;
 	DiscOutPort SpeedbrakeAutoOut;
 	DiscInPort SpdbkThrotPort;
-	DiscInPort RHCInput[3];
 	DiscOutPort ThrusterCommands[3];
 	//DiscOutPort LeftElevonCommand, RightElevonCommand;
 	DiscOutPort ElevonCommand, AileronCommand, RudderCommand;
@@ -216,6 +216,7 @@ private:
 	OBJHANDLE hEarth;
 
 	RHC_SOP* pRHC_SOP;
+	RPTA_SOP* pRPTA_SOP;
 
 	ENTRY_GUIDANCE_MODE EntryGuidanceMode;
 	VECTOR3 HAC_Center;
@@ -448,7 +449,6 @@ public:
  	 */
 	double GetSelectedRunwayHeading( void ) const;
 private:
-	void SetThrusterLevels();
 	/**
 	 * Checks if any active thruster groups should be disabled.
 	 * Checks if any inactive control surfaces should be enabled.

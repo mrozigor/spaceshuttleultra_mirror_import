@@ -81,6 +81,13 @@ namespace dps
 		pBundle = STS()->BundleManager()->CreateBundle( "AftRHCTHC_B", 16 );
 		for (int i = 0; i < 11; i++) AftTHC[i + 7].Connect( pBundle, i );
 
+		pBundle = STS()->BundleManager()->CreateBundle( "RPTA", 16 );
+		for (int i = 0; i < 3; i++)
+		{
+			LeftRPTA[i].Connect( pBundle, i );
+			RightRPTA[i].Connect( pBundle, i + 3 );
+		}
+
 		// init He dP/dT calc
 		He_P[0] = dipHeSysPressureSensor[0].GetVoltage() * 1000;
 		He_P[1] = dipHeSysPressureSensor[1].GetVoltage() * 1000;
@@ -940,6 +947,28 @@ namespace dps
 		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[6].GetVoltage(), 44, 10 );
 		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[7].GetVoltage(), 44, 11 );
 		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[8].GetVoltage(), 44, 12 );
+
+		SPEC43_printRPTA( pMDU, LeftRPTA[0].GetVoltage(), 6, 16 );
+		SPEC43_printRPTA( pMDU, LeftRPTA[1].GetVoltage(), 6, 17 );
+		SPEC43_printRPTA( pMDU, LeftRPTA[2].GetVoltage(), 6, 18 );
+		SPEC43_printRPTA( pMDU, RightRPTA[0].GetVoltage(), 6, 19 );
+		SPEC43_printRPTA( pMDU, RightRPTA[1].GetVoltage(), 6, 20 );
+		SPEC43_printRPTA( pMDU, RightRPTA[2].GetVoltage(), 6, 21 );
+		return;
+	}
+
+	void GeneralDisplays::SPEC43_printRPTA( vc::MDU* pMDU, double val, int x, int y ) const
+	{
+		char cbuf[16];
+		int itmp = 0;
+		char ctmp = 0;
+
+		itmp = (int)fabs( val * 100 );
+		if (val > 0) ctmp = 'R';
+		else if (val < 0) ctmp = 'L';
+		else ctmp = ' ';
+		sprintf_s( cbuf, 16, "%c%03d", ctmp, itmp );
+		pMDU->mvprint( x, y, cbuf );
 		return;
 	}
 
