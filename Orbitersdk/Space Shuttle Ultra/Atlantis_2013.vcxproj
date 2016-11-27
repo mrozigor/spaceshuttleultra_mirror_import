@@ -268,6 +268,8 @@
     <ClCompile Include="dps\OrbitTgtSoftware.cpp" />
     <ClCompile Include="dps\RHC_RM.cpp" />
     <ClCompile Include="dps\RHC_SOP.cpp" />
+    <ClCompile Include="dps\RPTA_RM.cpp" />
+    <ClCompile Include="dps\RPTA_SOP.cpp" />
     <ClCompile Include="dps\RSLS.cpp" />
     <ClCompile Include="dps\SimpleGPC.cpp" />
     <ClCompile Include="dps\SimpleGPCSoftware.cpp" />
@@ -447,6 +449,8 @@
     <ClInclude Include="dps\OrbitTgtSoftware.h" />
     <ClInclude Include="dps\RHC_RM.h" />
     <ClInclude Include="dps\RHC_SOP.h" />
+    <ClInclude Include="dps\RPTA_RM.h" />
+    <ClInclude Include="dps\RPTA_SOP.h" />
     <ClInclude Include="dps\RSLS.h" />
     <ClInclude Include="dps\SimpleGPC.h" />
     <ClInclude Include="dps\SimpleGPCSoftware.h" />

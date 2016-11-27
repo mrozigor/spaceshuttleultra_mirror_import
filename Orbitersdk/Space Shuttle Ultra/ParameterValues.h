@@ -155,4 +155,7 @@ const int AftYawThrusters[2] = {5, 7};
 const int AftRollThrusters[2] = {9, 11};
 //RCS Thruster Groups
 
+const double RHC_RATE = 0.75;// 1/x seconds from detent to full deflection
+const double RPTA_RATE = 0.75;// 1/x seconds from detent to full deflection
+
 #endif //_PARAMETERVALUES_H_795497C2_2F91_464b_9F03_19F48E9366EE

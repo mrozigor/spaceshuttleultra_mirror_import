@@ -761,9 +761,18 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	// gpc
 	firstStep = true;
 
-
-	RHCInput = _V(0, 0, 0);
 	AltKybdInput = _V(0, 0, 0);
+	RPTAinput = 0.0;
+	LeftRHCpitch = 0.0;
+	LeftRHCroll = 0.0;
+	LeftRHCyaw = 0.0;
+	RightRHCpitch = 0.0;
+	RightRHCroll = 0.0;
+	RightRHCyaw = 0.0;
+	AftRHCpitch = 0.0;
+	AftRHCroll = 0.0;
+	AftRHCyaw = 0.0;
+	RPTApos = 0.0;
 
 	for (i = 0; i < 3; i++) {
 		lastRotCommand[i] = 0;
@@ -3192,9 +3201,9 @@ double Atlantis::GetPropellantLevel(PROPELLANT_HANDLE ph) const
 	return 100.0*(GetPropellantMass(ph) / GetPropellantMaxMass(ph));
 }
 
-void Atlantis::UpdateHandControllerSignals()
+void Atlantis::UpdateControllersSignals( double dt )
 {
-	//get THC and RHC input
+	// RHC and THC input (RMS included)
 	if (ControlRMS)
 	{
 		// use RHC/THC input to control RMS
@@ -3211,7 +3220,15 @@ void Atlantis::UpdateHandControllerSignals()
 			AftTHC[i * 2].ResetLine();
 			AftTHC[(i * 2) + 1].ResetLine();
 		}
-		for (int i = 0; i<3; i++) RHCInput.data[i] = 0.0;// TODO delete with old RHC code
+		LeftRHCpitch = 0.0;
+		LeftRHCroll = 0.0;
+		LeftRHCyaw = 0.0;
+		RightRHCpitch = 0.0;
+		RightRHCroll = 0.0;
+		RightRHCyaw = 0.0;
+		AftRHCpitch = 0.0;
+		AftRHCroll = 0.0;
+		AftRHCyaw = 0.0;
 
 		RMS_RHCInput[PITCH].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_PITCHUP) - GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)));
 		RMS_RHCInput[YAW].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)));
@@ -3248,40 +3265,9 @@ void Atlantis::UpdateHandControllerSignals()
 			}
 		}
 	}
-	else { // use RHC/THC input to control RCS
-		if (status == STATE_ORBITER && GetAltitude() < 100000.0) { // use Orbiter aerosurfaces, which will smoothly ramp between values, for entry
-			if ((VCMode == VC_CDR && CdrFltCntlrPwr) || (VCMode == VC_PLT && PltFltCntlrPwr)) { //forward RHC/THC
-				RHCInput.data[PITCH] = GetControlSurfaceLevel(AIRCTRL_ELEVATOR);
-				RHCInput.data[YAW] = GetControlSurfaceLevel(AIRCTRL_RUDDER);
-				RHCInput.data[ROLL] = GetControlSurfaceLevel(AIRCTRL_AILERON);
-			}
-			else RHCInput = _V(0, 0, 0);
-		}
-		else { // launch or in orbit - use Orbiter thrusters
-			if ((VCMode == VC_CDR && CdrFltCntlrPwr) || (VCMode == VC_PLT && PltFltCntlrPwr)) { //forward RHC/THC
-				RHCInput.data[PITCH] = GetThrusterGroupLevel(THGROUP_ATT_PITCHUP) - GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
-				RHCInput.data[YAW] = GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-				RHCInput.data[ROLL] = GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
-			}
-			else if ((VCMode != VC_MS1 && VCMode != VC_MS2) && AftFltCntlrPwr) { //aft RHC/THC
-				if (AftSense) { //-Z
-					RHCInput.data[PITCH] = GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN) - GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-					RHCInput.data[YAW] = GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT) - GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-					RHCInput.data[ROLL] = GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT) - GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
-				}
-				else { //-X
-					RHCInput.data[PITCH] = GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN) - GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-					RHCInput.data[YAW] = GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-					RHCInput.data[ROLL] = GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT) - GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-				}
-			}
-			else RHCInput = _V(0, 0, 0);
-		}
-
-		for (unsigned short i = 0; i < 3; i++) RHCInputPort[i].SetLine(static_cast<float>(RHCInput.data[i]));
-
-
-		/////////////////// new RHC & THC code ///////////////////
+	else
+	{
+		// use RHC/THC input to control FCS
 
 		// kill RMS input
 		for (int i = 0; i < 3; i++)
@@ -3290,22 +3276,17 @@ void Atlantis::UpdateHandControllerSignals()
 			RMS_THCInput[i].ResetLine();
 		}
 
+		double pitch;
+		double roll;
+		double yaw;
+
 		// left RHC & THC
 		if ((VCMode == VC_CDR) && (CdrFltCntlrPwr.IsSet()))
 		{
 			// power is on and user is "here", use input
-			double pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
-			LeftRHC[0].SetLine( static_cast<float>(pitch) );
-			LeftRHC[1].SetLine( static_cast<float>(pitch) );
-			LeftRHC[2].SetLine( static_cast<float>(pitch) );
-			double roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
-			LeftRHC[3].SetLine( static_cast<float>(roll) );
-			LeftRHC[4].SetLine( static_cast<float>(roll) );
-			LeftRHC[5].SetLine( static_cast<float>(roll) );
-			double yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
-			LeftRHC[6].SetLine( static_cast<float>(yaw) );
-			LeftRHC[7].SetLine( static_cast<float>(yaw) );
-			LeftRHC[8].SetLine( static_cast<float>(yaw) );
+			pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
+			roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
+			yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
 			
 			if (GetAttitudeMode() == RCS_ROT)
 			{
@@ -3474,15 +3455,9 @@ void Atlantis::UpdateHandControllerSignals()
 		else
 		{
 			// power is off or empty seat, no input
-			LeftRHC[0].ResetLine();
-			LeftRHC[1].ResetLine();
-			LeftRHC[2].ResetLine();
-			LeftRHC[3].ResetLine();
-			LeftRHC[4].ResetLine();
-			LeftRHC[5].ResetLine();
-			LeftRHC[6].ResetLine();
-			LeftRHC[7].ResetLine();
-			LeftRHC[8].ResetLine();
+			pitch = 0.0;
+			roll = 0.0;
+			yaw = 0.0;
 
 			LeftTHC[0].ResetLine();
 			LeftTHC[1].ResetLine();
@@ -3503,54 +3478,108 @@ void Atlantis::UpdateHandControllerSignals()
 			LeftTHC[16].ResetLine();
 			LeftTHC[17].ResetLine();
 		}
+		if (pitch > LeftRHCpitch)
+		{
+			LeftRHCpitch += RHC_RATE * dt;
+			if (LeftRHCpitch > pitch) LeftRHCpitch = pitch;
+		}
+		else if (pitch < LeftRHCpitch)
+		{
+			LeftRHCpitch -= RHC_RATE * dt;
+			if (LeftRHCpitch < pitch) LeftRHCpitch = pitch;
+		}
+		LeftRHC[0].SetLine( static_cast<float>(LeftRHCpitch) );
+		LeftRHC[1].SetLine( static_cast<float>(LeftRHCpitch) );
+		LeftRHC[2].SetLine( static_cast<float>(LeftRHCpitch) );
+		if (roll > LeftRHCroll)
+		{
+			LeftRHCroll += RHC_RATE * dt;
+			if (LeftRHCroll > roll) LeftRHCroll = roll;
+		}
+		else if (roll < LeftRHCroll)
+		{
+			LeftRHCroll -= RHC_RATE * dt;
+			if (LeftRHCroll < roll) LeftRHCroll = roll;
+		}
+		LeftRHC[3].SetLine( static_cast<float>(LeftRHCroll) );
+		LeftRHC[4].SetLine( static_cast<float>(LeftRHCroll) );
+		LeftRHC[5].SetLine( static_cast<float>(LeftRHCroll) );
+		if (yaw > LeftRHCyaw)
+		{
+			LeftRHCyaw += RHC_RATE * dt;
+			if (LeftRHCyaw > yaw) LeftRHCyaw = yaw;
+		}
+		else if (yaw < LeftRHCyaw)
+		{
+			LeftRHCyaw -= RHC_RATE * dt;
+			if (LeftRHCyaw < yaw) LeftRHCyaw = yaw;
+		}
+		LeftRHC[6].SetLine( static_cast<float>(LeftRHCyaw) );
+		LeftRHC[7].SetLine( static_cast<float>(LeftRHCyaw) );
+		LeftRHC[8].SetLine( static_cast<float>(LeftRHCyaw) );
 
 		// right RHC
 		if ((VCMode == VC_PLT) && (PltFltCntlrPwr.IsSet()))
 		{
 			// power is on and user is "here", use input
-			double pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
-			RightRHC[0].SetLine( static_cast<float>(pitch) );
-			RightRHC[1].SetLine( static_cast<float>(pitch) );
-			RightRHC[2].SetLine( static_cast<float>(pitch) );
-			double roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
-			RightRHC[3].SetLine( static_cast<float>(roll) );
-			RightRHC[4].SetLine( static_cast<float>(roll) );
-			RightRHC[5].SetLine( static_cast<float>(roll) );
-			double yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
-			RightRHC[6].SetLine( static_cast<float>(yaw) );
-			RightRHC[7].SetLine( static_cast<float>(yaw) );
-			RightRHC[8].SetLine( static_cast<float>(yaw) );
+			pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
+			roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
+			yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
 		}
 		else
 		{
 			// power is off or empty seat, no input
-			RightRHC[0].ResetLine();
-			RightRHC[1].ResetLine();
-			RightRHC[2].ResetLine();
-			RightRHC[3].ResetLine();
-			RightRHC[4].ResetLine();
-			RightRHC[5].ResetLine();
-			RightRHC[6].ResetLine();
-			RightRHC[7].ResetLine();
-			RightRHC[8].ResetLine();
+			pitch = 0.0;
+			roll = 0.0;
+			yaw = 0.0;
 		}
+		if (pitch > RightRHCpitch)
+		{
+			RightRHCpitch += RHC_RATE * dt;
+			if (RightRHCpitch > pitch) RightRHCpitch = pitch;
+		}
+		else if (pitch < RightRHCpitch)
+		{
+			RightRHCpitch -= RHC_RATE * dt;
+			if (RightRHCpitch < pitch) RightRHCpitch = pitch;
+		}
+		RightRHC[0].SetLine( static_cast<float>(RightRHCpitch) );
+		RightRHC[1].SetLine( static_cast<float>(RightRHCpitch) );
+		RightRHC[2].SetLine( static_cast<float>(RightRHCpitch) );
+		if (roll > RightRHCroll)
+		{
+			RightRHCroll += RHC_RATE * dt;
+			if (RightRHCroll > roll) RightRHCroll = roll;
+		}
+		else if (roll < RightRHCroll)
+		{
+			RightRHCroll -= RHC_RATE * dt;
+			if (RightRHCroll < roll) RightRHCroll = roll;
+		}
+		RightRHC[3].SetLine( static_cast<float>(RightRHCroll) );
+		RightRHC[4].SetLine( static_cast<float>(RightRHCroll) );
+		RightRHC[5].SetLine( static_cast<float>(RightRHCroll) );
+		if (yaw > RightRHCyaw)
+		{
+			RightRHCyaw += RHC_RATE * dt;
+			if (RightRHCyaw > yaw) RightRHCyaw = yaw;
+		}
+		else if (yaw < RightRHCyaw)
+		{
+			RightRHCyaw -= RHC_RATE * dt;
+			if (RightRHCyaw < yaw) RightRHCyaw = yaw;
+		}
+		RightRHC[6].SetLine( static_cast<float>(RightRHCyaw) );
+		RightRHC[7].SetLine( static_cast<float>(RightRHCyaw) );
+		RightRHC[8].SetLine( static_cast<float>(RightRHCyaw) );
 
 		// aft RHC & THC
 		if (((VCMode == VC_AFTPILOT) || (VCMode == VC_DOCKCAM)) && (AftFltCntlrPwr.IsSet()))
 		{
 			// power is on and user is "here", use input
-			double pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
-			AftRHC[0].SetLine( static_cast<float>(pitch) );
-			AftRHC[1].SetLine( static_cast<float>(pitch) );
-			AftRHC[2].SetLine( static_cast<float>(pitch) );
-			double roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
-			AftRHC[3].SetLine( static_cast<float>(roll) );
-			AftRHC[4].SetLine( static_cast<float>(roll) );
-			AftRHC[5].SetLine( static_cast<float>(roll) );
-			double yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
-			AftRHC[6].SetLine( static_cast<float>(yaw) );
-			AftRHC[7].SetLine( static_cast<float>(yaw) );
-			AftRHC[8].SetLine( static_cast<float>(yaw) );
+			pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
+			roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
+			yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
 
 			// connections below are due to physical orientation of aft THC
 			if (GetAttitudeMode() == RCS_ROT)
@@ -3720,15 +3749,9 @@ void Atlantis::UpdateHandControllerSignals()
 		else
 		{
 			// power is off or empty seat, no input
-			AftRHC[0].ResetLine();
-			AftRHC[1].ResetLine();
-			AftRHC[2].ResetLine();
-			AftRHC[3].ResetLine();
-			AftRHC[4].ResetLine();
-			AftRHC[5].ResetLine();
-			AftRHC[6].ResetLine();
-			AftRHC[7].ResetLine();
-			AftRHC[8].ResetLine();
+			pitch = 0.0;
+			roll = 0.0;
+			yaw = 0.0;
 
 			AftTHC[0].ResetLine();
 			AftTHC[1].ResetLine();
@@ -3749,7 +3772,87 @@ void Atlantis::UpdateHandControllerSignals()
 			AftTHC[16].ResetLine();
 			AftTHC[17].ResetLine();
 		}
+		if (pitch > AftRHCpitch)
+		{
+			AftRHCpitch += RHC_RATE * dt;
+			if (AftRHCpitch > pitch) AftRHCpitch = pitch;
+		}
+		else if (pitch < AftRHCpitch)
+		{
+			AftRHCpitch -= RHC_RATE * dt;
+			if (AftRHCpitch < pitch) AftRHCpitch = pitch;
+		}
+		AftRHC[0].SetLine( static_cast<float>(AftRHCpitch) );
+		AftRHC[1].SetLine( static_cast<float>(AftRHCpitch) );
+		AftRHC[2].SetLine( static_cast<float>(AftRHCpitch) );
+		if (roll > AftRHCroll)
+		{
+			AftRHCroll += RHC_RATE * dt;
+			if (AftRHCroll > roll) AftRHCroll = roll;
+		}
+		else if (roll < AftRHCroll)
+		{
+			AftRHCroll -= RHC_RATE * dt;
+			if (AftRHCroll < roll) AftRHCroll = roll;
+		}
+		AftRHC[3].SetLine( static_cast<float>(AftRHCroll) );
+		AftRHC[4].SetLine( static_cast<float>(AftRHCroll) );
+		AftRHC[5].SetLine( static_cast<float>(AftRHCroll) );
+		if (yaw > AftRHCyaw)
+		{
+			AftRHCyaw += RHC_RATE * dt;
+			if (AftRHCyaw > yaw) AftRHCyaw = yaw;
+		}
+		else if (yaw < AftRHCyaw)
+		{
+			AftRHCyaw -= RHC_RATE * dt;
+			if (AftRHCyaw < yaw) AftRHCyaw = yaw;
+		}
+		AftRHC[6].SetLine( static_cast<float>(AftRHCyaw) );
+		AftRHC[7].SetLine( static_cast<float>(AftRHCyaw) );
+		AftRHC[8].SetLine( static_cast<float>(AftRHCyaw) );
 	}
+
+	// RPTA input
+	double RPTAtmp = 0.0;
+	if ((VCMode == VC_CDR) || (VCMode == VC_PLT)) RPTAtmp = RPTAinput;
+	if (RPTAtmp > RPTApos)
+	{
+		RPTApos += RPTA_RATE * dt;
+		if (RPTApos > RPTAtmp) RPTApos = RPTAtmp;
+	}
+	else if (RPTAtmp < RPTApos)
+	{
+		RPTApos -= RPTA_RATE * dt;
+		if (RPTApos < RPTAtmp) RPTApos = RPTAtmp;
+	}
+	if (CdrFltCntlrPwr.IsSet())
+	{
+		LeftRPTA[0].SetLine( (float)RPTApos );
+		LeftRPTA[1].SetLine( (float)RPTApos );
+		LeftRPTA[2].SetLine( (float)RPTApos );
+	}
+	else
+	{
+		LeftRPTA[0].ResetLine();
+		LeftRPTA[1].ResetLine();
+		LeftRPTA[2].ResetLine();
+	}
+	if (PltFltCntlrPwr.IsSet())
+	{
+		RightRPTA[0].SetLine( (float)RPTApos );
+		RightRPTA[1].SetLine( (float)RPTApos );
+		RightRPTA[2].SetLine( (float)RPTApos );
+	}
+	else
+	{
+		RightRPTA[0].ResetLine();
+		RightRPTA[1].ResetLine();
+		RightRPTA[2].ResetLine();
+	}
+
+	// TODO SBTC input
+
 	// get SPDBK/THROT level
 	if (pSimpleGPC->GetMajorMode() == 102 || pSimpleGPC->GetMajorMode() == 103
 		|| pSimpleGPC->GetMajorMode() == 304 || pSimpleGPC->GetMajorMode() == 305)
@@ -4212,6 +4315,13 @@ void Atlantis::clbkPostCreation()
 		pBundle = bundleManager->CreateBundle( "AftRHCTHC_B", 16 );
 		for (int i = 0; i < 11; i++) AftTHC[i + 7].Connect( pBundle, i );
 
+		pBundle = bundleManager->CreateBundle( "RPTA", 16 );
+		for (int i = 0; i < 3; i++)
+		{
+			LeftRPTA[i].Connect( pBundle, i );
+			RightRPTA[i].Connect( pBundle, i + 3 );
+		}
+
 		pBundle = bundleManager->CreateBundle("RMS_MODE", 16);
 		RMSSpeedIn.Connect(pBundle, 12);
 		RMSSpeedOut.Connect(pBundle, 12);
@@ -4442,7 +4552,7 @@ void Atlantis::clbkPreStep(double simT, double simDT, double mjd)
 		// disable all Orbitersim autopilots
 		for (int i = NAVMODE_KILLROT; i <= NAVMODE_HOLDALT; i++) DeactivateNavmode(i);
 
-		UpdateHandControllerSignals();
+		UpdateControllersSignals( simDT );
 
 
 
@@ -5765,6 +5875,10 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 				RMSGrapple.ResetLine();
 				RMSRelease.ResetLine();
 				return 1;
+			case OAPI_KEY_K:
+			case OAPI_KEY_L:
+				RPTAinput = 0.0;
+				return 1;
 			default:
 				return 0;
 			}
@@ -5863,6 +5977,12 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 		case OAPI_KEY_PERIOD:
 			// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
 			if (!Playback() && !GroundContact() && pSimpleGPC->GetMajorMode() >= 304) IncThrusterGroupLevel(THGROUP_MAIN, 0.05);
+			return 1;
+		case OAPI_KEY_K:
+			RPTAinput = -1.0;
+			return 1;
+		case OAPI_KEY_L:
+			RPTAinput = 1.0;
 			return 1;
 		case OAPI_KEY_G:
 			DeployLandingGear();

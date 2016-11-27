@@ -114,29 +114,6 @@ void AscentDAP::Realize()
 	PLTRollYawCSS.Connect( pBundle, 14 );
 	PLTRollYawCSSLT.Connect( pBundle, 15 );
 
-	if (AutoFCS == false)
-	{
-		CDRPitchAutoLT.ResetLine();
-		PLTPitchAutoLT.ResetLine();
-		CDRRollYawAutoLT.ResetLine();
-		PLTRollYawAutoLT.ResetLine();
-		CDRPitchCSSLT.SetLine();
-		PLTPitchCSSLT.SetLine();
-		CDRRollYawCSSLT.SetLine();
-		PLTRollYawCSSLT.SetLine();
-	}
-	else
-	{
-		CDRPitchAutoLT.SetLine();
-		PLTPitchAutoLT.SetLine();
-		CDRRollYawAutoLT.SetLine();
-		PLTRollYawAutoLT.SetLine();
-		CDRPitchCSSLT.ResetLine();
-		PLTPitchCSSLT.ResetLine();
-		CDRRollYawCSSLT.ResetLine();
-		PLTRollYawCSSLT.ResetLine();
-	}
-
 	pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
 	pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
 	pATVC_SOP = static_cast<ATVC_SOP*> (FindSoftware( "ATVC_SOP" ));
@@ -241,8 +218,43 @@ bool AscentDAP::OnMajorModeChange(unsigned int newMajorMode)
 	if(newMajorMode == 102 || newMajorMode == 103) {
 		if(newMajorMode == 102) InitializeAutopilot();
 		else if(newMajorMode == 103) tSRBSep = STS()->GetMET();
+		if (AutoFCS == false)
+		{
+			CDRPitchAutoLT.ResetLine();
+			PLTPitchAutoLT.ResetLine();
+			CDRRollYawAutoLT.ResetLine();
+			PLTRollYawAutoLT.ResetLine();
+			CDRPitchCSSLT.SetLine();
+			PLTPitchCSSLT.SetLine();
+			CDRRollYawCSSLT.SetLine();
+			PLTRollYawCSSLT.SetLine();
+		}
+		else
+		{
+			CDRPitchAutoLT.SetLine();
+			PLTPitchAutoLT.SetLine();
+			CDRRollYawAutoLT.SetLine();
+			PLTRollYawAutoLT.SetLine();
+			CDRPitchCSSLT.ResetLine();
+			PLTPitchCSSLT.ResetLine();
+			CDRRollYawCSSLT.ResetLine();
+			PLTRollYawCSSLT.ResetLine();
+		}
 		return true;
 	}
+	else if (newMajorMode == 101)
+	{
+		// turn on FCS auto lights prelaunch
+		CDRPitchAutoLT.SetLine();
+		PLTPitchAutoLT.SetLine();
+		CDRRollYawAutoLT.SetLine();
+		PLTRollYawAutoLT.SetLine();
+		CDRPitchCSSLT.ResetLine();
+		PLTPitchCSSLT.ResetLine();
+		CDRRollYawCSSLT.ResetLine();
+		PLTRollYawCSSLT.ResetLine();
+	}
+
 	return false;
 }
 

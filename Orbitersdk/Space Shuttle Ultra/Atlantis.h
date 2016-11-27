@@ -753,9 +753,9 @@ private:
 	void CreateDummyThrusters();
 
 	/**
-	 * Updates discrete port values for all hand controllers (RHC, THC, SPDBK/THROT).
+	 * Updates discrete port values for all controllers (RHC, THC, RPTA and SBTC).
 	 */
-	void UpdateHandControllerSignals();
+	void UpdateControllersSignals( double dt );
 
 	/**
 	 * Calculates direction in which SSMEs/SRBs must thrust to point through CoG
@@ -1027,9 +1027,20 @@ private:
 	bool RMS, STBDMPM;
 
 	bool ControlRMS;
-	//Hand controller input
-	VECTOR3 RHCInput;
+	// controller inputs
 	VECTOR3 AltKybdInput; // uses arrows, Ins and Del keys to provide translation inputs; axes correspond to RCS FWD SENSE
+	double RPTAinput;
+	double LeftRHCpitch;
+	double LeftRHCroll;
+	double LeftRHCyaw;
+	double RightRHCpitch;
+	double RightRHCroll;
+	double RightRHCyaw;
+	double AftRHCpitch;
+	double AftRHCroll;
+	double AftRHCyaw;
+	double RPTApos;
+
 	//Thruster commands
 	VECTOR3 TranslationCommand, RotationCommand;
 
@@ -1101,7 +1112,9 @@ private:
 	DiscOutPort RHCInputPort[3];
 	DiscOutPort LeftRHC[9];
 	DiscOutPort LeftTHC[18];
+	DiscOutPort LeftRPTA[3];
 	DiscOutPort RightRHC[9];
+	DiscOutPort RightRPTA[3];
 	DiscOutPort AftRHC[9];
 	DiscOutPort AftTHC[18];
 	DiscInPort RotThrusterCommands[4], TransThrusterCommands[3];

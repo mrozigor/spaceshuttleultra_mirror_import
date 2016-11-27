@@ -65,6 +65,8 @@ namespace dps
 			DiscInPort RightRHC[9];
 			DiscInPort AftRHC[9];
 			DiscInPort AftTHC[18];
+			DiscInPort LeftRPTA[3];
+			DiscInPort RightRPTA[3];
 
 			double He_dPdT[3];
 			double He_P[3];
@@ -102,6 +104,7 @@ namespace dps
 			void SPEC25_SPEC43_printTHC( vc::MDU* pMDU, double axis_plus, double axis_minus, int x, int y ) const;
 			void SPEC25_SPEC43_printRHC_P( vc::MDU* pMDU, double val, int x, int y ) const;
 			void SPEC25_SPEC43_printRHC_RY( vc::MDU* pMDU, double val, int x, int y ) const;
+			void SPEC43_printRPTA( vc::MDU* pMDU, double val, int x, int y ) const;
 		public:
 			GeneralDisplays( SimpleGPCSystem* _gpc );
 			~GeneralDisplays( void );

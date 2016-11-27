@@ -22,8 +22,10 @@
 #include "MEC_SOP.h"
 #include "RHC_RM.h"
 #include "THC_RM.h"
+#include "RPTA_RM.h"
 #include "RHC_SOP.h"
 #include "THC_SOP.h"
+#include "RPTA_SOP.h"
 #include "../Atlantis.h"
 
 namespace dps
@@ -54,8 +56,10 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 	vSoftware.push_back( new MEC_SOP( this ) );
 	vSoftware.push_back( new RHC_RM( this ) );
 	vSoftware.push_back( new THC_RM( this ) );
+	vSoftware.push_back( new RPTA_RM( this ) );
 	vSoftware.push_back( new RHC_SOP( this ) );
 	vSoftware.push_back( new THC_SOP( this ) );
+	vSoftware.push_back( new RPTA_SOP( this ) );
 }
 
 SimpleGPCSystem::~SimpleGPCSystem()

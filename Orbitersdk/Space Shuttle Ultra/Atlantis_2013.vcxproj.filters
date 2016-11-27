@@ -527,6 +527,12 @@
     <ClCompile Include="dps\AscentDAP.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="dps\RPTA_RM.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RPTA_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -1049,6 +1055,12 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\AscentDAP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\RPTA_SOP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\RPTA_RM.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

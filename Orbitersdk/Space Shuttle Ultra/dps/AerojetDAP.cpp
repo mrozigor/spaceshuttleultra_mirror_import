@@ -1,6 +1,7 @@
 #include "AerojetDAP.h"
 #include "../Atlantis.h"
 #include "RHC_SOP.h"
+#include "RPTA_SOP.h"
 #include "IDP.h"
 #include <UltraMath.h>
 #include "../ParameterValues.h"
@@ -246,9 +247,6 @@ AerojetDAP::~AerojetDAP()
 void AerojetDAP::Realize()
 {
 	DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("HC_INPUT", 16);
-	for(int i=0;i<3;i++) {
-		RHCInput[i].Connect(pBundle, i);
-	}
 	SpdbkThrotPort.Connect(pBundle, 6);	
 
 	pBundle=STS()->BundleManager()->CreateBundle("AEROSURFACE_CMD", 16);
@@ -281,35 +279,6 @@ void AerojetDAP::Realize()
 	PLTRollYawCSS.Connect( pBundle, 14 );
 	PLTRollYawCSSLT.Connect( pBundle, 15 );
 
-	if (AutoFCSPitch == false)
-	{
-		CDRPitchAutoLT.ResetLine();
-		PLTPitchAutoLT.ResetLine();
-		CDRPitchCSSLT.SetLine();
-		PLTPitchCSSLT.SetLine();
-	}
-	else
-	{
-		CDRPitchAutoLT.SetLine();
-		PLTPitchAutoLT.SetLine();
-		CDRPitchCSSLT.ResetLine();
-		PLTPitchCSSLT.ResetLine();
-	}
-	if (AutoFCSRoll == false)
-	{
-		CDRRollYawAutoLT.ResetLine();
-		PLTRollYawAutoLT.ResetLine();
-		CDRRollYawCSSLT.SetLine();
-		PLTRollYawCSSLT.SetLine();
-	}
-	else
-	{
-		CDRRollYawAutoLT.SetLine();
-		PLTRollYawAutoLT.SetLine();
-		CDRRollYawCSSLT.ResetLine();
-		PLTRollYawCSSLT.ResetLine();
-	}
-
 	pBundle=STS()->BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
 	SpeedbrakeAuto.Connect(pBundle, 0);
 	SpeedbrakeAutoOut.Connect(pBundle, 0);
@@ -323,6 +292,8 @@ void AerojetDAP::Realize()
 	pHUDDCLT[1].Connect( pBundle, 1 );
 
 	pRHC_SOP = static_cast<RHC_SOP*> (FindSoftware( "RHC_SOP" ));
+	
+	pRPTA_SOP = static_cast<RPTA_SOP*> (FindSoftware( "RPTA_SOP" ));
 	
 	hEarth = STS()->GetGravityRef();
 	InitializeRunwayData();
@@ -433,7 +404,6 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		GetAttitudeData(DeltaT);
 
 		CheckControlActivation();
-		//SetThrusterLevels();
 
 		if(STS()->GetMachNumber() < 2.5) SetMajorMode(305);
 		
@@ -479,6 +449,11 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		SetAerosurfaceCommands(DeltaT);
 		SetSpeedbrakeCommand(TotalRange, DeltaT);
 
+		if ((AutoFCSRoll == false) && (AerosurfacesActive[YAW] == true))
+		{
+			RudderCommand.SetLine( (float)(pRPTA_SOP->GetYawCommand() / 22.8) );
+		}
+
 		// save data for displays
 		ET_Mach = STS()->GetAirspeed() * MPS2FPS * 0.001;
 		ETVS_Range = GetRangeToRunway();
@@ -503,10 +478,10 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			// load relief
 			ElevonCommand.SetLine(static_cast<float>(10.0/33.0)); // elevons should be 10 deg down
 			AileronCommand.SetLine(0.0f);
-			if ((airspeed * MPS2KTS) > 100) RudderCommand.SetLine( RHCInput[YAW].GetVoltage() );// rudder available above 100 KGS
+			if ((airspeed * MPS2KTS) > 100) RudderCommand.SetLine( (float)(pRPTA_SOP->GetYawCommand() / 22.8) );// rudder available above 100 KGS
 			else RudderCommand.SetLine(0.0f);
 			//Nosewheel steering
-			double steerforce = min( 120000, 120000 * (airspeed / 50.0) ) * RHCInput[YAW].GetVoltage();
+			double steerforce = min( 120000, 120000 * (airspeed / 50.0) ) * (pRPTA_SOP->GetYawCommand() / 22.8);
 			STS()->AddForce(_V(steerforce, 0, 0), _V(0, 0, 14.9));
 		}
 		else {
@@ -516,7 +491,6 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			GetAttitudeData(DeltaT);
 
 			CheckControlActivation();
-			//SetThrusterLevels();
 
 			// calculate dynamic pressure profile
 			double qbar = STS()->GetDynPressure()*PA2PSF;
@@ -591,11 +565,16 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			SetAerosurfaceCommands(DeltaT);
 			SetSpeedbrakeCommand(TotalRange, DeltaT);
 
+			if (AutoFCSRoll == false)
+			{
+				RudderCommand.SetLine( (float)(pRPTA_SOP->GetYawCommand() / 22.8) );
+			}
+
 			// check for weight-on-weels
 			if(STS()->GroundContact()) {
 				bWOW = true;
 				// use rudder to steer shuttle after touchdown
-				RudderCommand.SetLine(RHCInput[YAW].GetVoltage());
+				//RudderCommand.SetLine( (float)(pRPTA_SOP->GetYawCommand() / 22.8) );
 				// check for weight-on-nose-gear
 				if(STS()->GetPitch() < -3.0*RAD) {
 					bWONG = true;
@@ -665,6 +644,34 @@ bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 			filteredQBar = STS()->GetDynPressure()*PA2PSF;
 			// reduce roll gains 
 			Roll_AileronRoll.SetGains(0.05, 0.00, 0.01);
+			if (AutoFCSPitch == false)
+			{
+				CDRPitchAutoLT.ResetLine();
+				PLTPitchAutoLT.ResetLine();
+				CDRPitchCSSLT.SetLine();
+				PLTPitchCSSLT.SetLine();
+			}
+			else
+			{
+				CDRPitchAutoLT.SetLine();
+				PLTPitchAutoLT.SetLine();
+				CDRPitchCSSLT.ResetLine();
+				PLTPitchCSSLT.ResetLine();
+			}
+			if (AutoFCSRoll == false)
+			{
+				CDRRollYawAutoLT.ResetLine();
+				PLTRollYawAutoLT.ResetLine();
+				CDRRollYawCSSLT.SetLine();
+				PLTRollYawCSSLT.SetLine();
+			}
+			else
+			{
+				CDRRollYawAutoLT.SetLine();
+				PLTRollYawAutoLT.SetLine();
+				CDRRollYawCSSLT.ResetLine();
+				PLTRollYawCSSLT.ResetLine();
+			}
 		}
 		else
 		{
@@ -681,6 +688,37 @@ bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 				PLTRollYawAutoLT.SetLine();
 				CDRRollYawCSSLT.ResetLine();
 				PLTRollYawCSSLT.ResetLine();
+			}
+			else
+			{
+				if (AutoFCSPitch == false)
+				{
+					CDRPitchAutoLT.ResetLine();
+					PLTPitchAutoLT.ResetLine();
+					CDRPitchCSSLT.SetLine();
+					PLTPitchCSSLT.SetLine();
+				}
+				else
+				{
+					CDRPitchAutoLT.SetLine();
+					PLTPitchAutoLT.SetLine();
+					CDRPitchCSSLT.ResetLine();
+					PLTPitchCSSLT.ResetLine();
+				}
+				if (AutoFCSRoll == false)
+				{
+					CDRRollYawAutoLT.ResetLine();
+					PLTRollYawAutoLT.ResetLine();
+					CDRRollYawCSSLT.SetLine();
+					PLTRollYawCSSLT.SetLine();
+				}
+				else
+				{
+					CDRRollYawAutoLT.SetLine();
+					PLTRollYawAutoLT.SetLine();
+					CDRRollYawCSSLT.ResetLine();
+					PLTRollYawCSSLT.ResetLine();
+				}
 			}
 		}
 		return true;
@@ -2883,62 +2921,6 @@ void AerojetDAP::SetSpeedbrakeCommand(double range, double DeltaT)
 	else STS()->SetSpeedbrake(1.0f-SpdbkThrotPort.GetVoltage()); // full throttle corresponds to closed speedbrake
 }
 
-void AerojetDAP::SetThrusterLevels()
-{
-	//for the moment, use RHC input to control thruster firings
-	for(unsigned short i=0;i<3;i++) {
-		if(ThrustersActive[i]) {
-			if(RHCInput[i].GetVoltage()>0.01) {
-				ThrusterCommands[i].SetLine(1.0f);
-			}
-			else if(RHCInput[i].GetVoltage()<-0.01) {
-				ThrusterCommands[i].SetLine(-1.0f);
-			}
-			else {
-				ThrusterCommands[i].ResetLine();
-			}
-		}
-		else {
-			ThrusterCommands[i].ResetLine();
-		}
-	}
-	/*if(PitchActive) {
-		if(RHCInput[PITCH].GetVoltage()>0.01) {
-			ThrusterCommands[PITCH].SetLine(1.0f);
-		}
-		else if(RHCInput[PITCH].GetVoltage()<-0.01) {
-			ThrusterCommands[PITCH].SetLine(-1.0f);
-		}
-		else {
-			ThrusterCommands[PITCH].ResetLine();
-		}
-	}
-	else {
-	}
-
-	if(YawActive) {
-		if(RHCInput.data[YAW]>0.01) {
-		}
-		else if(RHCInput.data[YAW]<-0.01) {
-		}
-		else {
-		}
-	}
-	else {
-	}
-
-	if(RollActive) {
-		if(RHCInput.data[ROLL]>0.01) {
-		}
-		else if(RHCInput.data[ROLL]<-0.01) {
-		}
-		else {
-		}
-	}
-	else {
-	}*/
-}
-
 double AerojetDAP::GetThrusterCommand(AXIS axis, double DeltaT)
 {
 	//const double RATE_DEADBAND = max(0.05, RotationRateChange(OrbiterMass, PMI.data[axis], RCSTorque.data[axis], DeltaT));
@@ -2989,13 +2971,13 @@ void AerojetDAP::CheckControlActivation()
 
 double AerojetDAP::CSSPitchInput(double DeltaT)
 {
-	return RHCInput[PITCH].GetVoltage()*6.0 + STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*2.5;
+	return (pRHC_SOP->GetPitchCommand() / 24.3) * 6.0 + STS()->GetControlSurfaceLevel( AIRCTRL_ELEVATORTRIM ) * 2.5;
 }
 
 
 double AerojetDAP::CSSRollInput(double DeltaT)
 {
-	return RHCInput[ROLL].GetVoltage()*5.0;
+	return (pRHC_SOP->GetRollCommand() / 24.3) * 5.0;
 }
 
 void AerojetDAP::GetAttitudeData(double DeltaT)
