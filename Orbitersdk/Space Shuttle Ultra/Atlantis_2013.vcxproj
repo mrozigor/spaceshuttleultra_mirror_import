@@ -271,6 +271,8 @@
     <ClCompile Include="dps\RPTA_RM.cpp" />
     <ClCompile Include="dps\RPTA_SOP.cpp" />
     <ClCompile Include="dps\RSLS.cpp" />
+    <ClCompile Include="dps\SBTC_RM.cpp" />
+    <ClCompile Include="dps\SBTC_SOP.cpp" />
     <ClCompile Include="dps\SimpleGPC.cpp" />
     <ClCompile Include="dps\SimpleGPCSoftware.cpp" />
     <ClCompile Include="dps\SimpleGPCSystem.cpp" />
@@ -452,6 +454,8 @@
     <ClInclude Include="dps\RPTA_RM.h" />
     <ClInclude Include="dps\RPTA_SOP.h" />
     <ClInclude Include="dps\RSLS.h" />
+    <ClInclude Include="dps\SBTC_RM.h" />
+    <ClInclude Include="dps\SBTC_SOP.h" />
     <ClInclude Include="dps\SimpleGPC.h" />
     <ClInclude Include="dps\SimpleGPCSoftware.h" />
     <ClInclude Include="dps\SimpleGPCSystem.h" />

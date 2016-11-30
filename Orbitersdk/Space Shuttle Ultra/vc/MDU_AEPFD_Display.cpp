@@ -67,12 +67,6 @@ namespace vc
 				break;
 			case 103:
 				AEPFD_Header_AscentDAP( hDC, 103, adiatt );
-				if (GetIDP()->GetMECOConfirmedFlag() == true)
-				{
-					SelectObject( hDC, gdiBlackPen );
-					SelectObject( hDC, gdiBlackBrush );
-					Rectangle( hDC, 22, 18, 132, 32 );// "hide" throttle
-				}
 				Tape_MV_KEAS( hDC, 'I', vi );
 				Tape_Alpha( hDC, 0 );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
@@ -332,12 +326,6 @@ namespace vc
 				break;
 			case 103:
 				AEPFD_Header_AscentDAP( skp, 103, adiatt );
-				if (GetIDP()->GetMECOConfirmedFlag() == true)
-				{
-					skp->SetPen( skpBlackPen );
-					skp->SetBrush( skpBlackBrush );
-					skp->Rectangle( 22, 18, 132, 32 );// "hide" throttle
-				}
 				Tape_MV_KEAS( skp, 'I', vi );
 				Tape_Alpha( skp, 0 );
 				Tape_H_Hdot( skp, Altitude_ft, vel.y );
@@ -4420,7 +4408,7 @@ namespace vc
 
 		TextOut( hDC, 413, 3, "MM:", 3 );
 		
-		TextOut( hDC, 22, 18, "Throt:", 6 );
+		if (GetIDP()->GetMECOConfirmedFlag() == false) TextOut( hDC, 22, 18, "Throt:", 6 );
 
 		TextOut( hDC, 404, 18, "ATT:", 4 );
 
@@ -4442,13 +4430,16 @@ namespace vc
 		else sprintf_s( cbuf, 8, "%d", MM );// NOM
 		TextOut( hDC, 449, 3, cbuf, strlen( cbuf ) );
 
-		if (GetIDP()->GetAutoThrottleState() == true) TextOut( hDC, 85, 18, "Auto", 4 );
-		else
+		if (GetIDP()->GetMECOConfirmedFlag() == false)
 		{
-			SelectObject( hDC, gdiYellowPen );
-			SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
-			Rectangle( hDC, 16, 16, 132, 32 );
-			TextOut( hDC, 85, 18, "MAN", 3 );
+			if (GetIDP()->GetAutoThrottleState() == true) TextOut( hDC, 85, 18, "Auto", 4 );
+			else
+			{
+				SelectObject( hDC, gdiYellowPen );
+				SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
+				Rectangle( hDC, 16, 16, 132, 32 );
+				TextOut( hDC, 85, 18, "MAN", 3 );
+			}
 		}
 
 		if (adiatt == 2) TextOut( hDC, 449, 18, "Inrtl", 5 );
@@ -4465,7 +4456,7 @@ namespace vc
 
 		skp->Text( 413, 3, "MM:", 3 );
 		
-		skp->Text( 22, 18, "Throt:", 6 );
+		if (GetIDP()->GetMECOConfirmedFlag() == false) skp->Text( 22, 18, "Throt:", 6 );
 
 		skp->Text( 404, 18, "ATT:", 4 );
 
@@ -4487,13 +4478,16 @@ namespace vc
 		else sprintf_s( cbuf, 8, "%d", MM );// NOM
 		skp->Text( 449, 3, cbuf, strlen( cbuf ) );
 
-		if (GetIDP()->GetAutoThrottleState() == true) skp->Text( 85, 18, "Auto", 4 );
-		else
+		if (GetIDP()->GetMECOConfirmedFlag() == false) 
 		{
-			skp->SetPen( skpYellowPen );
-			skp->SetBrush( NULL );
-			skp->Rectangle( 16, 19, 132, 35 );
-			skp->Text( 85, 21, "MAN", 3 );
+			if (GetIDP()->GetAutoThrottleState() == true) skp->Text( 85, 18, "Auto", 4 );
+			else
+			{
+				skp->SetPen( skpYellowPen );
+				skp->SetBrush( NULL );
+				skp->Rectangle( 16, 19, 132, 35 );
+				skp->Text( 85, 21, "MAN", 3 );
+			}
 		}
 
 		if (adiatt == 2) skp->Text( 449, 18, "Inrtl", 5 );

@@ -763,6 +763,8 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 	AltKybdInput = _V(0, 0, 0);
 	RPTAinput = 0.0;
+	SBTCTOinput = false;
+	SBTCinput = 0.0;
 	LeftRHCpitch = 0.0;
 	LeftRHCroll = 0.0;
 	LeftRHCyaw = 0.0;
@@ -773,6 +775,8 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	AftRHCroll = 0.0;
 	AftRHCyaw = 0.0;
 	RPTApos = 0.0;
+	LeftSBTCpos = 1.0;// default is full forward
+	RightSBTCpos = 1.0;// default is full forward
 
 	for (i = 0; i < 3; i++) {
 		lastRotCommand[i] = 0;
@@ -1199,7 +1203,7 @@ void Atlantis::SetOrbiterConfiguration(void)
 		th_oms[0] = CreateThruster(L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 		th_oms[1] = CreateThruster(R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 		bOMSDefined = true;
-		//thg_main = CreateThrusterGroup (th_oms, 2, THGROUP_MAIN);
+
 		SURFHANDLE tex_oms = oapiRegisterExhaustTexture("SSU\\OMSExhaust");
 		for (i = 0; i < 2; i++) {
 			AddExhaust(th_oms[i], 0, 1.5, 1.25, tex_oms);
@@ -1674,9 +1678,6 @@ void Atlantis::CreateDummyThrusters()
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_LEFT);
 	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_RIGHT);
-	// SPDBK/THROT
-	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
-	CreateThrusterGroup(&thTmp, 1, THGROUP_MAIN);
 
 	bControllerThrustersDefined = true;
 }
@@ -2147,6 +2148,17 @@ void Atlantis::DefineAnimations(void)
 
 	pSTYDoorMotor->SetObjectAnim(anim_styd);
 
+
+	// SBTCs
+	static UINT LeftSBTC_GRP[1] = {GRP_CDR_SBTC_VC};
+	anim_leftsbtc = CreateAnimation( 0.5 );
+	static MGROUP_ROTATE LeftSBTC( mesh_vc, LeftSBTC_GRP, 1, _V( 0, 1.6685, 14.2797 ), _V( 1, 0, 0 ), static_cast<float>(60.0 * RAD) );
+	AddAnimationComponent( anim_leftsbtc, 0, 1, &LeftSBTC );
+
+	static UINT RightSBTC_GRP[1] = {GRP_PLT_SBTC_VC};
+	anim_rightsbtc = CreateAnimation( 0.5 );
+	static MGROUP_ROTATE RightSBTC( mesh_vc, RightSBTC_GRP, 1, _V( 0, 1.6115, 14.2286 ), _V( 1, 0, 0 ), static_cast<float>(60.0 * RAD) );
+	AddAnimationComponent( anim_rightsbtc, 0, 1, &RightSBTC );
 
 	EndLoggingAnims();
 }
@@ -3851,17 +3863,87 @@ void Atlantis::UpdateControllersSignals( double dt )
 		RightRPTA[2].ResetLine();
 	}
 
-	// TODO SBTC input
-
-	// get SPDBK/THROT level
-	if (pSimpleGPC->GetMajorMode() == 102 || pSimpleGPC->GetMajorMode() == 103
-		|| pSimpleGPC->GetMajorMode() == 304 || pSimpleGPC->GetMajorMode() == 305)
+	// SBTC input
+	if (VCMode == VC_CDR)
 	{
-		SpdbkThrotPort.SetLine(static_cast<float>(GetThrusterGroupLevel(THGROUP_MAIN)));
+		LeftSBTCpos = range( 0.0, LeftSBTCpos + SBTCinput, 1.0 );
 	}
-	else {
-		SpdbkThrotPort.ResetLine();
+	else if (VCMode == VC_PLT)
+	{
+		RightSBTCpos = range( 0.0, RightSBTCpos + SBTCinput, 1.0 );
 	}
+	SBTCinput = 0.0;
+
+	if (CdrFltCntlrPwr.IsSet())
+	{
+		LeftSBTC[0].SetLine( (float)LeftSBTCpos );
+		LeftSBTC[1].SetLine( (float)LeftSBTCpos );
+		LeftSBTC[2].SetLine( (float)LeftSBTCpos );
+	}
+	else
+	{
+		LeftSBTC[0].ResetLine();
+		LeftSBTC[1].ResetLine();
+		LeftSBTC[2].ResetLine();
+	}
+	SetAnimation( anim_leftsbtc, LeftSBTCpos );
+	if (PltFltCntlrPwr.IsSet())
+	{
+		RightSBTC[0].SetLine( (float)RightSBTCpos );
+		RightSBTC[1].SetLine( (float)RightSBTCpos );
+		RightSBTC[2].SetLine( (float)RightSBTCpos );
+	}
+	else
+	{
+		RightSBTC[0].ResetLine();
+		RightSBTC[1].ResetLine();
+		RightSBTC[2].ResetLine();
+	}
+	SetAnimation( anim_rightsbtc, RightSBTCpos );
+	if ((VCMode == VC_CDR) && (CdrFltCntlrPwr.IsSet()))
+	{
+		if (SBTCTOinput)
+		{
+			LeftSBTC[3].SetLine( 1.0f );
+			LeftSBTC[4].SetLine( 1.0f );
+			LeftSBTC[5].SetLine( 1.0f );
+		}
+		else
+		{
+			LeftSBTC[3].ResetLine();
+			LeftSBTC[4].ResetLine();
+			LeftSBTC[5].ResetLine();
+		}
+	}
+	else
+	{
+		LeftSBTC[3].ResetLine();
+		LeftSBTC[4].ResetLine();
+		LeftSBTC[5].ResetLine();
+	}
+	if ((VCMode == VC_PLT) && (PltFltCntlrPwr.IsSet()))
+	{
+		if (SBTCTOinput)
+		{
+			RightSBTC[3].SetLine( 1.0f );
+			RightSBTC[4].SetLine( 1.0f );
+			RightSBTC[5].SetLine( 1.0f );
+		}
+		else
+		{
+			RightSBTC[3].ResetLine();
+			RightSBTC[4].ResetLine();
+			RightSBTC[5].ResetLine();
+		}
+	}
+	else
+	{
+		RightSBTC[3].ResetLine();
+		RightSBTC[4].ResetLine();
+		RightSBTC[5].ResetLine();
+	}
+
+	return;
 }
 
 void Atlantis::clbkSetClassCaps(FILEHANDLE cfg)
@@ -3983,6 +4065,14 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			}
 
 			if (pMission->HasDragChute()) psubsystems->AddSubsystem( pDragChute = new DragChute( psubsystems ) );
+		}
+		else if (!_strnicmp( line, "SBTC", 4 ))
+		{
+			double left = 0.0;
+			double right = 0.0;
+			sscanf( line + 4, "%lf %lf", &left, &right );
+			if ((left >= 0.0) && (left <= 1.0)) LeftSBTCpos = left;
+			if ((right >= 0.0) && (right <= 1.0)) RightSBTCpos = right;
 		}
 		else if (!_strnicmp(line, "SPEEDBRAKE", 10))
 		{
@@ -4109,6 +4199,12 @@ void Atlantis::clbkSaveState(FILEHANDLE scn)
 	// custom parameters
 	oapiWriteScenario_int(scn, "CONFIGURATION", status);
 	oapiWriteScenario_int(scn, "VC_POS", VCMode);
+	
+	if ((LeftSBTCpos != 1.0) || (RightSBTCpos != 1.0))
+	{
+		sprintf( cbuf, "%0.2f %0.2f", LeftSBTCpos, RightSBTCpos );
+		oapiWriteScenario_string( scn, "SBTC", cbuf );
+	}
 
 	if (spdb_status != AnimState::CLOSED)
 	{
@@ -4244,32 +4340,10 @@ void Atlantis::clbkPostCreation()
 		BodyFlapAutoOut.Connect(pBundle, 0);
 		BodyFlapManOut.Connect(pBundle, 1);
 
-		pBundle = BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
-		SpdbkThrotAutoIn.Connect(pBundle, 0);
-		SpdbkThrotCDROut.Connect(pBundle, 1);
-		SpdbkThrotPLTOut.Connect(pBundle, 2);
-		// if neither MAN port is set, set AUTO port
-		DiscInPort SpdbkThrotCDRIn, SpdbkThrotPLTIn;
-		SpdbkThrotCDRIn.Connect(pBundle, 1);
-		SpdbkThrotPLTIn.Connect(pBundle, 2);
-		if (!SpdbkThrotCDRIn && !SpdbkThrotPLTIn) {
-			DiscOutPort SpdbkThrotAutoOut;
-			SpdbkThrotAutoOut.Connect(pBundle, 0);
-			SpdbkThrotAutoOut.SetLine();
-		}
-
 		pBundle = BundleManager()->CreateBundle("Controllers", 16);
-		AftSense.Connect(pBundle, 0);
 		CdrFltCntlrPwr.Connect(pBundle, 1);
 		PltFltCntlrPwr.Connect(pBundle, 2);
 		AftFltCntlrPwr.Connect(pBundle, 3);
-
-		pBundle = bundleManager->CreateBundle("HC_INPUT", 16);
-		for (int i = 0; i < 3; i++) {
-			RHCInputPort[i].Connect(pBundle, i);
-			RHCInputPort[i].SetLine(0.0f);
-		}
-		SpdbkThrotPort.Connect(pBundle, 6);
 
 		pBundle = bundleManager->CreateBundle("AEROSURFACE_CMD", 16);
 		//LeftElevonCommand.Connect(pBundle, 0);
@@ -4321,6 +4395,11 @@ void Atlantis::clbkPostCreation()
 			LeftRPTA[i].Connect( pBundle, i );
 			RightRPTA[i].Connect( pBundle, i + 3 );
 		}
+
+		pBundle = bundleManager->CreateBundle( "LeftSBTC", 16 );
+		for (int i = 0; i < 6; i++) LeftSBTC[i].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "RightSBTC", 16 );
+		for (int i = 0; i < 6; i++) RightSBTC[i].Connect( pBundle, i );
 
 		pBundle = bundleManager->CreateBundle("RMS_MODE", 16);
 		RMSSpeedIn.Connect(pBundle, 12);
@@ -4892,8 +4971,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 {
 	static bool ___PostStep_flag = false;
 	
-	double airspeed;
-	
 	try
 	{
 		//Stopwatch st, stSub;
@@ -4916,11 +4993,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 		//stSub.Start();
 		psubsystems->PostStep(simt, simdt, mjd);
 		//double subTime = stSub.Stop();
-
-		if (!___PostStep_flag)
-		{
-			oapiWriteLog("(Atlantis::clbkPostStep) Processing DAP.");
-		}
 
 		if (!___PostStep_flag)
 		{
@@ -5039,14 +5111,10 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 			}
 
 			//deploy gear
-			airspeed = GetAirspeed();
 			if (GetAltitude( ALTMODE_GROUND ) < 92.44 && gear_status.action == AnimState::CLOSED) {
 				DeployLandingGear();
 			}
 			else if (GetAltitude( ALTMODE_GROUND ) < 609.6) ArmGear();
-
-			if (GroundContact())
-				if (airspeed > 1.0) SetThrusterGroupLevel(THGROUP_MAIN, 0.0); // if main thrust is nonzero, shuttle will never come to a complete stop
 
 			//handle body flap and speedbrake PBIs
 			if ((int)(pSimpleGPC->GetMajorMode() / 100) == 3) //Entry
@@ -5054,21 +5122,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 				//if flap is in AUTO mode, reset MAN line; otherwise set MAN line
 				if (BodyFlapAutoIn) BodyFlapManOut.ResetLine();
 				else BodyFlapManOut.SetLine();
-
-				if (!SpdbkThrotAutoIn) {
-					if (VCMode == VC_PLT) {
-						SpdbkThrotPLTOut.SetLine();
-						SpdbkThrotCDROut.ResetLine();
-					}
-					else {
-						SpdbkThrotCDROut.SetLine();
-						SpdbkThrotPLTOut.ResetLine();
-					}
-				}
-				else {
-					SpdbkThrotCDROut.ResetLine();
-					SpdbkThrotPLTOut.ResetLine();
-				}
 			}
 			//else if(pSimpleGPC->GetMajorMode() < 200) //LAUNCH
 			//{
@@ -5083,14 +5136,12 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 
 		if (spdb_status >= AnimState::CLOSING && panelr2->HydraulicPressure()) {
 			double da = simdt * SPEEDBRAKE_OPERATING_SPEED;
-			double tgt = spdb_tgt; // once speedbrake has been opened, limit position to >15%
-			if (GetMachNumber() < 10.0) tgt = max(spdb_tgt, 0.15); // once speedbrake has been opened, limit position to >15%
 			if (spdb_status == AnimState::CLOSING) { // retract brake
-				if (spdb_proc > tgt) spdb_proc = max(tgt, spdb_proc - da);
+				if (spdb_proc > spdb_tgt) spdb_proc = max(spdb_tgt, spdb_proc - da);
 				else                 spdb_status = AnimState::CLOSED;
 			}
 			else {                           // deploy antenna
-				if (spdb_proc < tgt) spdb_proc = min(tgt, spdb_proc + da);
+				if (spdb_proc < spdb_tgt) spdb_proc = min(spdb_tgt, spdb_proc + da);
 				else                 spdb_status = AnimState::OPEN;
 			}
 			SetAnimation(anim_spdb, spdb_proc);
@@ -5201,12 +5252,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 		//sprintf_s(oapiDebugString(), 255, "PostStep time: %f", time);
 		//oapiWriteLog(oapiDebugString());
 
-		if (!___PostStep_flag)
-		{
-			oapiWriteLog("(Atlantis::clbkPostStep) Leaving.");
-			___PostStep_flag = true;
-		}
-
 
 		/*if(simt - tt >= 5)
 		{
@@ -5268,6 +5313,11 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 		//sprintf_s(oapiDebugString(), 255, "PostStep time: %f Subsystem time: %f", time, subTime);
 		//sprintf(oapiDebugString(),"Heating scalar %lf",heating_scalar);
 
+		if (!___PostStep_flag)
+		{
+			oapiWriteLog("(Atlantis::clbkPostStep) Leaving.");
+			___PostStep_flag = true;
+		}
 	}
 	catch (std::exception &e)
 	{
@@ -5445,7 +5495,7 @@ bool Atlantis::clbkLoadVC(int id)
 			DisplayCameraLabel( VC_LBL_CDR );
 			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_CDR );
 			SetCameraDefaultDirection( VC_DIR_CDR );
-			SetCameraRotationRange( 144 * RAD, 144 * RAD, 100 * RAD, 50 * RAD );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 100 * RAD, 75 * RAD );
 			SetCameraMovement( VC_OFS_CDR_F, VC_AZ_CDR_F, VC_EL_CDR_F, VC_OFS_CDR_L, VC_AZ_CDR_L, VC_EL_CDR_L, VC_OFS_CDR_R, VC_AZ_CDR_R, VC_EL_CDR_R );
 
 			if (bHasODS) oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_DOCKCAM, VC_MS2);
@@ -5879,6 +5929,9 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 			case OAPI_KEY_L:
 				RPTAinput = 0.0;
 				return 1;
+			case OAPI_KEY_MINUS:
+				SBTCTOinput = false;
+				return 1;
 			default:
 				return 0;
 			}
@@ -5970,14 +6023,10 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 		case OAPI_KEY_8:
 			ToggleGrapple();
 			return 1;
-		case OAPI_KEY_COMMA:
-			// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
-			if (!Playback() && !GroundContact() && pSimpleGPC->GetMajorMode() >= 304) IncThrusterGroupLevel(THGROUP_MAIN, -0.05);
+		/*case OAPI_KEY_COMMA:
 			return 1;
 		case OAPI_KEY_PERIOD:
-			// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
-			if (!Playback() && !GroundContact() && pSimpleGPC->GetMajorMode() >= 304) IncThrusterGroupLevel(THGROUP_MAIN, 0.05);
-			return 1;
+			return 1;*/
 		case OAPI_KEY_K:
 			RPTAinput = -1.0;
 			return 1;
@@ -6008,6 +6057,15 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 		case OAPI_KEY_MULTIPLY: // NUMPAD *
 			for (int i = 0; i < 3; i++) SSMEPBAnalog[i].SetLine();
 			return 0; // this key is used by Orbitersim, so make sure Orbitersim processes it as well
+		case OAPI_KEY_ADD:
+			SBTCinput = -0.05;// back
+			return 0;
+		case OAPI_KEY_SUBTRACT:
+			SBTCinput = 0.05;// forward
+			return 1;
+		case OAPI_KEY_MINUS:
+			SBTCTOinput = true;
+			return 1;
 		}
 	}
 	return 0;

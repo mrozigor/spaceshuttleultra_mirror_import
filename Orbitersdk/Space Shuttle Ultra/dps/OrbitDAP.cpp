@@ -514,7 +514,8 @@ void OrbitDAP::Realize()
 	}
 
 	pBundle=BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
-	PCTArmed.Connect(pBundle, 0);
+	CDR_SPDBK_THROT.Connect( pBundle, 0 );
+	PLT_SPDBK_THROT.Connect( pBundle, 3 );
 
 	pBundle=BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);
 	BodyFlapAuto.Connect(pBundle, 0);
@@ -530,6 +531,8 @@ void OrbitDAP::Realize()
 
 void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 {
+	if (CDR_SPDBK_THROT.IsSet() || PLT_SPDBK_THROT.IsSet()) PCTArmed = true;
+
 	GetAttitudeData();
 
 	for(int i=0;i<24;i++) {

@@ -56,6 +56,7 @@ class SSME_Operations;
 class ATVC_SOP;
 class SRBSepSequence;
 class RHC_SOP;
+class SBTC_SOP;
 
 /**
  * Controls shuttle during ascent (first and second stage).
@@ -101,7 +102,7 @@ public:
 	 */
 	bool GetFCSmode( void ) const;
 
-	double GetThrottleCommand( void ) const;
+	double GetAutoThrottleCommand( void ) const;
 	bool SERCenabled( void ) const;
 	double GetEOVI( int EO ) const;
 	double GetTgtSpd( void ) const;
@@ -141,9 +142,13 @@ private:
 	 */
 	void SecondStageRateCommand();
 	/**
-	 * Sets SSME throttle value.
+	 * Sets SSME throttle value during first stage.
 	 */
-	void Throttle(double dt);
+	void FirstStageThrottle( double dt );
+	/**
+	 * Sets SSME throttle value during second stage.
+	 */
+	void SecondStageThrottle( double dt );
 
 	/**
 	 * Calculates heading required to reach target inclination.
@@ -200,10 +205,6 @@ private:
 	discsignals::DiscOutPort CDRRollYawCSSLT;
 	discsignals::DiscOutPort PLTRollYawCSSLT;
 
-	discsignals::DiscInPort SpdbkThrotPort;
-	discsignals::DiscInPort SpdbkThrotAutoIn;
-	discsignals::DiscOutPort SpdbkThrotAutoOut;
-	discsignals::DiscOutPort SpdbkThrotPLT;
 	// ports for commanding thrusters
 	discsignals::DiscOutPort OMSCommand[2];
 	discsignals::DiscOutPort SERC;
@@ -212,8 +213,6 @@ private:
 	 * If true, the FCS is in AUTO mode. If false, the FCS is in CSS mode.
 	 */
 	bool AutoFCS;
-
-	double lastSBTCCommand;
 
 	/**
 	 * Vehicle rates calculated by guidance
@@ -260,6 +259,7 @@ private:
 	ATVC_SOP* pATVC_SOP;
 	SRBSepSequence* pSRBSepSequence;
 	RHC_SOP* pRHC_SOP;
+	SBTC_SOP* pSBTC_SOP;
 	
 	double throttlecmd;// SSME commaded throttle
 	bool glimiting;// g limiting in progress

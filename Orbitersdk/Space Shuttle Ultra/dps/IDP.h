@@ -193,6 +193,7 @@ namespace dps {
 		bool GetAutoPitchState( void ) const;
 		bool GetAutoRollYawState( void ) const;
 		bool GetAutoSpeedbrakeState( void ) const;
+		double GetAutoSpeedbrakeCommand( void ) const;
 		bool GetWOW( void ) const;
 		double GetNZError( void ) const;
 		bool GetPrefinalState( void ) const;

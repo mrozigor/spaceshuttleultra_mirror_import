@@ -46,6 +46,10 @@ namespace dps
 			DiscOutPort PLTPitchCSSLT;
 			DiscOutPort PLTRollYawAutoLT;
 			DiscOutPort PLTRollYawCSSLT;
+			DiscOutPort CDRSbdbkThrotAutoLT;
+			DiscOutPort CDRSbdbkThrotManLT;
+			DiscOutPort PLTSbdbkThrotAutoLT;
+			DiscOutPort PLTSbdbkThrotManLT;
 
 			bool bFCSTestActive, bFCSTestEnding;
 			AEROSURFACE_DRIVE_TARGET ElevonTargetIdx;

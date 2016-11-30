@@ -9,10 +9,10 @@ namespace vc
 	PanelF2::PanelF2(Atlantis* _sts)
 		: AtlantisPanel(_sts, "F2")
 	{
-		Add(pSbdbkThrot = new PushButtonIndicator(_sts, "F2_SPDBKTHROT_AUTO", true));
-		Add(pSbdbkThrotMan = new StandardLight(_sts, "F2_SPDBKTHROT_MAN"));
-		Add(pBodyFlap = new PushButtonIndicator(_sts, "F2_BODYFLAP_AUTO", true));
-		Add(pBodyFlapMan = new StandardLight(_sts, "F2_BODYFLAP_MAN"));
+		Add( pSbdbkThrot = new PushButtonIndicator( _sts, "F2_SPDBKTHROT_AUTO" ) );
+		Add( pSbdbkThrotMan = new StandardLight( _sts, "F2_SPDBKTHROT_MAN" ) );
+		Add( pBodyFlap = new PushButtonIndicator( _sts, "F2_BODYFLAP_AUTO" ) );
+		Add( pBodyFlapMan = new StandardLight( _sts, "F2_BODYFLAP_MAN" ) );
 		
 		Add( pPitchAuto = new PushButtonIndicator( _sts, "F2_PITCH_AUTO" ) );
 		Add( pPitchCSS = new PushButtonIndicator( _sts, "F2_PITCH_CSS" ) );
@@ -46,9 +46,9 @@ namespace vc
 	void PanelF2::Realize()
 	{
 		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
-		pSbdbkThrot->ConnectAll(pBundle, 0); //AUTO light; common to F2 and F4 PBIs
-		pSbdbkThrotMan->input.Connect(pBundle, 1); //MAN light; F2 PBI only
-		pSbdbkThrotMan->test.Connect(pBundle, 1); //MAN light; F2 PBI only
+		pSbdbkThrot->output.Connect( pBundle, 0 );// CDR PBI
+		pSbdbkThrot->input.Connect( pBundle, 1 );// CDR AUTO LT
+		pSbdbkThrotMan->input.Connect( pBundle, 2 );// CDR MAN LT
 
 		pBundle=STS()->BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);
 		pBodyFlap->ConnectAll(pBundle, 0); //AUTO light; common to F2 and F4 PBIs
@@ -98,7 +98,7 @@ namespace vc
 		pSbdbkThrot->AddAIDToRedrawEventList(AID_F2_ST_AUTO);
 		SetCommonPBIParameters(pSbdbkThrot);
 		pSbdbkThrot->SetMouseRegion(0.181085f, 0.579283f, 0.235243f, 0.687911f);
-		pSbdbkThrot->AllowReset(false);
+		pSbdbkThrot->SetMomentary( true );
 
 		pSbdbkThrotMan->AddAIDToRedrawEventList(AID_F2_ST_MAN);
 		pSbdbkThrotMan->SetSourceImage(g_Param.pbi_lights);

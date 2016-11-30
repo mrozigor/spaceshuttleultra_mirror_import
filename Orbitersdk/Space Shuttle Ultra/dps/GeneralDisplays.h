@@ -67,6 +67,8 @@ namespace dps
 			DiscInPort AftTHC[18];
 			DiscInPort LeftRPTA[3];
 			DiscInPort RightRPTA[3];
+			DiscInPort LeftSBTC[3];
+			DiscInPort RightSBTC[3];
 
 			double He_dPdT[3];
 			double He_P[3];
