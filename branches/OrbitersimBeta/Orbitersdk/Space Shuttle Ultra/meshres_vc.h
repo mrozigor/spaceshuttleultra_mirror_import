@@ -1,13 +1,13 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Tue Aug 16 11:36:18 2016
+// Date of conversion : Wed Nov 30 15:46:12 2016
 
 // Input file: VC.msh
 // ======================================================
 
 #pragma once
 
-const unsigned int NUMGRP_VC = 1375;
+const unsigned int NUMGRP_VC = 1377;
 
 const unsigned int GRP_080_COCKPIT_VC	=	0;	//080 cockpit
 const unsigned int GRP_081_COCKPIT_VC	=	1;	//081 cockpit
@@ -1384,4 +1384,6 @@ const unsigned int GRP_A1U_TB_SCANWARN_VC	=	1371;	//A1U_TB_SCANWARN
 const unsigned int GRP_A1U_TB_TRACK_VC	=	1372;	//A1U_TB_TRACK
 const unsigned int GRP_A1U_TB_SEARCH_VC	=	1373;	//A1U_TB_SEARCH
 const unsigned int GRP_A1_SHADOW_VC	=	1374;	//A1 shadow
+const unsigned int GRP_CDR_SBTC_VC	=	1375;	//CDR_SBTC
+const unsigned int GRP_PLT_SBTC_VC	=	1376;	//PLT_SBTC
 
