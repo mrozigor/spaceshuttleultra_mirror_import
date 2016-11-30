@@ -2065,7 +2065,7 @@ namespace vc
 		SelectObject( hDC, gdiCyanPen );
 		SelectObject( hDC, gdiCyanBrush );
 		SetTextColor( hDC, CR_CYAN );
-		dNum = range( 0, STS()->spdb_tgt * 100, 100 );
+		dNum = range( 0, GetIDP()->GetAutoSpeedbrakeCommand(), 100 );
 		sprintf_s( cbuf, 8, "%03.0lf", dNum );
 		TextOut( hDC, 459, 361, cbuf, strlen( cbuf ) );
 		nPos = Round( 270 + (2.28 * dNum) );
@@ -2465,7 +2465,7 @@ namespace vc
 		skp->SetPen( skpCyanPen );
 		skp->SetBrush( skpCyanBrush );
 		skp->SetTextColor( CR_CYAN );
-		dNum = range( 0, STS()->spdb_tgt * 100, 100 );
+		dNum = range( 0, GetIDP()->GetAutoSpeedbrakeCommand(), 100 );
 		sprintf_s( cbuf, 8, "%03.0lf", dNum );
 		skp->Text( 459, 361, cbuf, strlen( cbuf ) );
 		nPos = Round( 270 + (2.28 * dNum) );

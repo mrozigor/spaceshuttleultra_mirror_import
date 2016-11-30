@@ -40,6 +40,7 @@ const double NZ_UPDATE_INTERVAL = 0.1;
 
 class RHC_SOP;
 class RPTA_SOP;
+class SBTC_SOP;
 
 
 /**
@@ -54,6 +55,7 @@ private:
 	typedef enum {L, R} HAC_SIDE;
 	typedef enum {OVHD, STRT} HAC_DIRECTION;
 	typedef enum {NOM, SHORT, ELS} SB_CONTROL_LOGIC;
+	typedef enum {AUTO, MAN_CDR, MAN_PLT} SPEEDBRAKE_STATE;
 
 	class LandingSiteData
 	{
@@ -175,11 +177,14 @@ private:
 	DiscOutPort CDRRollYawCSSLT;
 	DiscOutPort PLTRollYawCSSLT;
 	
-	//DiscInPort PitchAuto, RollYawAuto;
-	//DiscOutPort PitchCSSOut, RollYawCSSOut;
-	DiscInPort SpeedbrakeAuto;
-	DiscOutPort SpeedbrakeAutoOut;
-	DiscInPort SpdbkThrotPort;
+	DiscInPort CDR_SPDBK_THROT;
+	DiscInPort PLT_SPDBK_THROT;
+
+	DiscOutPort CDR_SPDBK_THROT_AUTO_LT;
+	DiscOutPort CDR_SPDBK_THROT_MAN_LT;
+	DiscOutPort PLT_SPDBK_THROT_AUTO_LT;
+	DiscOutPort PLT_SPDBK_THROT_MAN_LT;
+
 	DiscOutPort ThrusterCommands[3];
 	//DiscOutPort LeftElevonCommand, RightElevonCommand;
 	DiscOutPort ElevonCommand, AileronCommand, RudderCommand;
@@ -198,10 +203,11 @@ private:
 	 */
 	bool AutoFCSRoll;
 
+	SPEEDBRAKE_STATE SpeedbrakeState;
+	double AutoSpeedbrakeCommand;
+
 	double tCSS;
 	double tGear;
-
-	double lastSBTCCommand; // used to check if speedbrake has moved
 	
 	bool ThrustersActive[3]; // indicates if each set of thrusters (pitch, yaw, roll) is active
 	bool AerosurfacesActive[3];
@@ -217,6 +223,7 @@ private:
 
 	RHC_SOP* pRHC_SOP;
 	RPTA_SOP* pRPTA_SOP;
+	SBTC_SOP* pSBTC_SOP;
 
 	ENTRY_GUIDANCE_MODE EntryGuidanceMode;
 	VECTOR3 HAC_Center;
@@ -334,6 +341,12 @@ public:
 	 * @return	true if AUTO, false if MAN
 	 */
 	bool GetAutoSpeedbrakeState( void ) const;
+
+	/**
+	 * Gets current auto speedrake command.
+	 * @return	auto speedrake command, bewteen 0% and 100%
+	 */
+	double GetAutoSpeedbrakeCommand( void ) const;
 
 	/**
 	 * Gets current target runway.
@@ -503,7 +516,7 @@ private:
 	void SetAerosurfaceCommands(double DeltaT);
 	/**
 	 * Uses either AUTO guidance or SBTC command to set speedbrake position.
-	 * Checks for manual speedbrake takeover (i.e. SBTC moved)
+	 * Checks for manual speedbrake takeover.
 	 */
 	void SetSpeedbrakeCommand(double range, double DeltaT);
 	/**

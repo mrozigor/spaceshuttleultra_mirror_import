@@ -43,6 +43,12 @@ namespace dps
 		PLTPitchCSSLT.Connect( pBundle, 11 );
 		PLTRollYawAutoLT.Connect( pBundle, 13 );
 		PLTRollYawCSSLT.Connect( pBundle, 15 );
+
+		pBundle = BundleManager()->CreateBundle( "SPDBKTHROT_CONTROLS", 16 );
+		CDRSbdbkThrotAutoLT.Connect( pBundle, 1 );// CDR AUTO LT
+		CDRSbdbkThrotManLT.Connect( pBundle, 2 );// CDR MAN LT
+		PLTSbdbkThrotAutoLT.Connect( pBundle, 4 );// PLT AUTO LT
+		PLTSbdbkThrotManLT.Connect( pBundle, 5 );// PLT MAN LT
 	}
 
 	bool MM801::OnMajorModeChange(unsigned int newMajorMode)
@@ -319,6 +325,10 @@ namespace dps
 		PLTPitchCSSLT.SetLine();
 		PLTRollYawAutoLT.SetLine();
 		PLTRollYawCSSLT.SetLine();
+		CDRSbdbkThrotAutoLT.SetLine();
+		CDRSbdbkThrotManLT.SetLine();
+		PLTSbdbkThrotAutoLT.SetLine();
+		PLTSbdbkThrotManLT.SetLine();
 		return;
 	}
 
@@ -332,6 +342,10 @@ namespace dps
 		PLTPitchCSSLT.ResetLine();
 		PLTRollYawAutoLT.ResetLine();
 		PLTRollYawCSSLT.ResetLine();
+		CDRSbdbkThrotAutoLT.ResetLine();
+		CDRSbdbkThrotManLT.ResetLine();
+		PLTSbdbkThrotAutoLT.ResetLine();
+		PLTSbdbkThrotManLT.ResetLine();
 		return;
 	}
 };

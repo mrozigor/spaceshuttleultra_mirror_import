@@ -6,6 +6,7 @@
 #include "ATVC_SOP.h"
 #include "SRBSepSequence.h"
 #include "RHC_SOP.h"
+#include "SBTC_SOP.h"
 #include "IDP.h"
 #include "assert.h"
 
@@ -15,7 +16,6 @@ namespace dps
 AscentDAP::AscentDAP(SimpleGPCSystem* _gpc)
 : SimpleGPCSoftware(_gpc, "AscentDAP"),
   hEarth(NULL),
-  lastSBTCCommand(0.0),
   stage1GuidanceVelTable(DEFAULT_STAGE1_GUIDANCE_TABLE_VEL, DEFAULT_STAGE1_GUIDANCE_TABLE_VEL+STAGE1_GUIDANCE_TABLE_SIZE),
   stage1GuidancePitchTable(DEFAULT_STAGE1_GUIDANCE_TABLE_PITCH, DEFAULT_STAGE1_GUIDANCE_TABLE_PITCH+STAGE1_GUIDANCE_TABLE_SIZE),
   tLastMajorCycle(-1.0)
@@ -84,15 +84,6 @@ void AscentDAP::Realize()
 	pBundle = BundleManager()->CreateBundle("ROMS", 5);
 	OMSCommand[RIGHT].Connect(pBundle, 2);
 
-	pBundle=BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
-	SpdbkThrotAutoIn.Connect(pBundle, 0);
-	SpdbkThrotAutoOut.Connect(pBundle, 0);
-	SpdbkThrotPLT.Connect(pBundle, 2);
-	SpdbkThrotAutoOut.SetLine(); // default to auto throttling
-
-	pBundle=STS()->BundleManager()->CreateBundle("HC_INPUT", 16);
-	SpdbkThrotPort.Connect(pBundle, 6);
-
 	pBundle = STS()->BundleManager()->CreateBundle( "THRUSTER_CMD", 16 );
 	SERC.Connect( pBundle, 6 );
 
@@ -119,43 +110,60 @@ void AscentDAP::Realize()
 	pATVC_SOP = static_cast<ATVC_SOP*> (FindSoftware( "ATVC_SOP" ));
 	pSRBSepSequence = static_cast<SRBSepSequence*> (FindSoftware( "SRBSepSequence" ));
 	pRHC_SOP = static_cast<RHC_SOP*> (FindSoftware( "RHC_SOP" ));
+	pSBTC_SOP = static_cast<SBTC_SOP*> (FindSoftware( "SBTC_SOP" ));
 }
 
 void AscentDAP::OnPreStep( double SimT, double DeltaT, double MJD )
 {
-	// check if AUTO or CSS
-	if (AutoFCS == true)
+	if (!pSSME_Operations->GetMECOConfirmedFlag())
 	{
-		if (CDRPitchCSS.IsSet() || CDRRollYawCSS.IsSet() || PLTPitchCSS.IsSet() || PLTRollYawCSS.IsSet())
+		// check if AUTO or CSS
+		if (AutoFCS == true)
 		{
-			// to CSS
-			AutoFCS = false;
-			CDRPitchAutoLT.ResetLine();
-			PLTPitchAutoLT.ResetLine();
-			CDRRollYawAutoLT.ResetLine();
-			PLTRollYawAutoLT.ResetLine();
-			CDRPitchCSSLT.SetLine();
-			PLTPitchCSSLT.SetLine();
-			CDRRollYawCSSLT.SetLine();
-			PLTRollYawCSSLT.SetLine();
+			if (CDRPitchCSS.IsSet() || CDRRollYawCSS.IsSet() || PLTPitchCSS.IsSet() || PLTRollYawCSS.IsSet())
+			{
+				// to CSS
+				AutoFCS = false;
+				CDRPitchAutoLT.ResetLine();
+				PLTPitchAutoLT.ResetLine();
+				CDRRollYawAutoLT.ResetLine();
+				PLTRollYawAutoLT.ResetLine();
+				CDRPitchCSSLT.SetLine();
+				PLTPitchCSSLT.SetLine();
+				CDRRollYawCSSLT.SetLine();
+				PLTRollYawCSSLT.SetLine();
+			}
+		}
+		else
+		{
+			if (CDRPitchAuto.IsSet() || CDRRollYawAuto.IsSet() || PLTPitchAuto.IsSet() || PLTRollYawAuto.IsSet())
+			{
+				// to AUTO
+				AutoFCS = true;
+				CDRPitchAutoLT.SetLine();
+				PLTPitchAutoLT.SetLine();
+				CDRRollYawAutoLT.SetLine();
+				PLTRollYawAutoLT.SetLine();
+				CDRPitchCSSLT.ResetLine();
+				PLTPitchCSSLT.ResetLine();
+				CDRRollYawCSSLT.ResetLine();
+				PLTRollYawCSSLT.ResetLine();
+			}
 		}
 	}
 	else
 	{
-		if (CDRPitchAuto.IsSet() || CDRRollYawAuto.IsSet() || PLTPitchAuto.IsSet() || PLTRollYawAuto.IsSet())
-		{
-			// to AUTO
-			AutoFCS = true;
-			CDRPitchAutoLT.SetLine();
-			PLTPitchAutoLT.SetLine();
-			CDRRollYawAutoLT.SetLine();
-			PLTRollYawAutoLT.SetLine();
-			CDRPitchCSSLT.ResetLine();
-			PLTPitchCSSLT.ResetLine();
-			CDRRollYawCSSLT.ResetLine();
-			PLTRollYawCSSLT.ResetLine();
-		}
+		// turn off FCS lights
+		CDRPitchAutoLT.ResetLine();
+		PLTPitchAutoLT.ResetLine();
+		CDRRollYawAutoLT.ResetLine();
+		PLTRollYawAutoLT.ResetLine();
+		CDRPitchCSSLT.ResetLine();
+		PLTPitchCSSLT.ResetLine();
+		CDRRollYawCSSLT.ResetLine();
+		PLTRollYawCSSLT.ResetLine();
 	}
+
 	VECTOR3 degReqdRates;
 
 	switch (GetMajorMode())
@@ -188,6 +196,18 @@ void AscentDAP::OnPreStep( double SimT, double DeltaT, double MJD )
 					// CSS
 					// TODO when RHCs in detent, hold attitude when rates fall below 3º/s
 					degReqdRates = _V( range( -12, pRHC_SOP->GetPitchCommand() * 0.5, 12 ), -range( -6, pRHC_SOP->GetYawCommand() * 0.5, 6 ), range( -12, pRHC_SOP->GetRollCommand() * 0.5, 12 ) );
+				}
+
+				// OMS Assist
+				if ((STS()->GetMET() >= (tSRBSep + 10)) && (STS()->GetMET() < (tSRBSep + 10 + OMSAssistDuration)))
+				{
+					OMSCommand[LEFT].SetLine();
+					OMSCommand[RIGHT].SetLine();
+				}
+				else
+				{
+					OMSCommand[LEFT].ResetLine();
+					OMSCommand[RIGHT].ResetLine();
 				}
 			}
 			else
@@ -278,7 +298,7 @@ void AscentDAP::OnSaveState(FILEHANDLE scn) const
 void AscentDAP::FirstStageGuidance( double dt )
 {
 	STS()->CalcSSMEThrustAngles(0, ThrAngleP, ThrAngleY);
-	Throttle( dt );
+	FirstStageThrottle( dt );
 	FirstStageRateCommand();
 	return;
 }
@@ -295,7 +315,7 @@ void AscentDAP::SecondStageGuidance( double dt )
 			tLastMajorCycle = STS()->GetMET();
 		}
 		SecondStageRateCommand();
-		Throttle( dt );
+		SecondStageThrottle( dt );
 	}
 	return;
 }
@@ -615,10 +635,8 @@ void AscentDAP::SecondStageRateCommand()
 	}
 }
 
-void AscentDAP::Throttle(double DeltaT)
+void AscentDAP::FirstStageThrottle( double DeltaT )
 {
-	double SBTCCommand = (MaxThrust-67.0)*SpdbkThrotPort.GetVoltage() + 67.0;
-
 	// detect EO
 	for (int i = 0; i < 3; i++)
 	{
@@ -647,109 +665,108 @@ void AscentDAP::Throttle(double DeltaT)
 	}
 
 	// SERC
-	switch (GetMajorMode())
+	if ((NSSME == 1) && (pSRBSepSequence->GetPC50Flag() == true))// enable SERC in MM102 only at SRB tailoff
 	{
-		case 102:
-			if ((NSSME == 1) && (pSRBSepSequence->GetPC50Flag() == true))// enable SERC in MM102 only at SRB tailoff
-			{
-				enaSERC = true;
-			}
-			break;
-		case 103:
-			if (NSSME == 1)// enable SERC automatically in MM103
-			{// TODO enable SERC when "sensed acceleration falls below a predefined limit"
-				enaSERC = true;
-			}
-			break;
+		enaSERC = true;
+	}
+
+	// calc and set SSME throttle
+	AdaptiveGuidanceThrottling();
+	if (STS()->GetAirspeed() >= QPOLY[J])
+	{
+		throttlecmd = THROT[J];
+		J++;
+	}
+	if (pSBTC_SOP->GetManThrottle() == false) pSSME_SOP->SetThrottlePercent( throttlecmd );
+	return;
+}
+
+void AscentDAP::SecondStageThrottle( double DeltaT )
+{
+	// detect EO
+	for (int i = 0; i < 3; i++)
+	{
+		if (MEFail[i] != pSSME_Operations->GetFailFlag( i + 1 ))
+		{
+			MEFail[i] = true;
+			NSSME--;
+			// record EO VI
+			VECTOR3 v3vi;
+			STS()->GetRelativeVel( STS()->GetSurfaceRef(), v3vi );
+			double vi = length( v3vi ) * MPS2FPS;
+			if (NSSME == 2) EOVI[0] = vi;
+			else if (NSSME == 1) EOVI[1] = vi;
+			// update 1º stage throttle table to not throttle
+			THROT[1] = THROT[0];
+			THROT[2] = THROT[0];
+			AGT_done = true;// don't do AGT
+			glimiting = false;// reset g-limiting
+			dt_thrt_glim = -2;// HACK delay g-limiting action by 2sec (if it re-triggers) to account for failed engine tailoff thrust
+			// throttle to mission power level
+			throttlecmd = THROT[0];
+			if (J > 0) J--;
+			// update MECO targets
+			if (NSSME > 0) TgtSpd = STS()->pMission->GetMECOVel() - (SSMETailoffDV[NSSME - 1] / MPS2FPS);
+		}
+	}
+
+	// SERC
+	if (NSSME == 1)// enable SERC automatically in MM103
+	{// TODO enable SERC when "sensed acceleration falls below a predefined limit"
+		enaSERC = true;
 	}
 
 	// low-level sensor arm
 	if (STS()->GetMass() < (LOWLEVEL_ARM_MASS * LBM)) pSSME_Operations->SetLowLevelSensorArmFlag();
 
+	// check for MECO
+	if ((inertialVelocity >= TgtSpd) && (pSBTC_SOP->GetManThrottle() == false))
+	{
+		//reached target speed
+		if (pSSME_Operations->GetMECOCommandFlag() == false)
+		{
+			pSSME_Operations->SetMECOCommandFlag();
 
-	if(SpdbkThrotAutoIn) { // auto throttling
-		// check for manual takeover
-		if(Eq(STS()->GetSSMEThrustLevel(0), SBTCCommand, 4.0) && !Eq(SBTCCommand, lastSBTCCommand, 1e-2)) {
-			SpdbkThrotAutoOut.ResetLine();
-			SpdbkThrotPLT.SetLine();
-		}
-		else SpdbkThrotPLT.ResetLine();
-
-		switch(GetMajorMode()) {
-			case 102: // STAGE 1
-				AdaptiveGuidanceThrottling();
-				
-				if (STS()->GetAirspeed() >= QPOLY[J])
-				{
-					throttlecmd = THROT[J];
-					pSSME_SOP->SetThrottlePercent( throttlecmd );
-					J++;
-				}
-				break;
-			case 103: // STAGE 3
-				//OMS Assist
-				if ((STS()->GetMET() >= (tSRBSep + 10)) && (STS()->GetMET() < (tSRBSep + 10 + OMSAssistDuration)))
-				{
-					OMSCommand[LEFT].SetLine();
-					OMSCommand[RIGHT].SetLine();
-				}
-				else
-				{
-					OMSCommand[LEFT].ResetLine();
-					OMSCommand[RIGHT].ResetLine();
-				}
-
-				if(inertialVelocity>=TgtSpd) {
-					//reached target speed
-					if (pSSME_Operations->GetMECOCommandFlag() == false)
-					{
-						pSSME_Operations->SetMECOCommandFlag();
-
-						char buffer[64];
-						sprintf_s( buffer, 64, "MECO @ MET %.2f", STS()->GetMET() );
-						oapiWriteLog( buffer );
-						return;
-					}
-				}
-
-				// g limiting
-				if (thrustAcceleration > ALIM2) glimiting = true;
-				if ((glimiting == true) && (thrustAcceleration > ALIM1))
-				{
-					// TODO use correct MPL value below
-					if (throttlecmd != 67)// if at MPL can't do more
-					{
-						if (dt_thrt_glim >= 0.1)// wait while throttling (10%/sec throttle change = 0.1s delay)
-						{
-							throttlecmd--;// throttle back 1%
-							throttlecmd = (double)Round( throttlecmd );// round avoid x.5% cmds
-							if (throttlecmd < 67) throttlecmd = 67;// don't go below MPL because it won't work
-							pSSME_SOP->SetThrottlePercent( throttlecmd );
-							dt_thrt_glim = 0;// reset
-						}
-						else dt_thrt_glim += DeltaT;
-					}
-				}
-
-				// fine count
-				// HACK only throttle back, no real count for now
-				if ((timeRemaining <= 6) && (finecount == false))
-				{
-					throttlecmd = finecountthrottle[NSSME - 1];
-					pSSME_SOP->SetThrottlePercent( throttlecmd );
-					finecount = true;
-					char buffer[64];
-					sprintf_s( buffer, 64, "Fine Count (throttle to %.0f%%) @ MET %.2f", throttlecmd, STS()->GetMET() );
-					oapiWriteLog( buffer );
-				}
-				break;
+			char buffer[64];
+			sprintf_s( buffer, 64, "MECO @ MET %.2f", STS()->GetMET() );
+			oapiWriteLog( buffer );
+			return;
 		}
 	}
-	else { // manual throttling
-		pSSME_SOP->SetThrottlePercent( Round( 2 * SBTCCommand ) * 0.5 );// rounded to the nearest 0.5%
+
+	// calc and set SSME throttle
+	// g limiting
+	if (thrustAcceleration > ALIM2) glimiting = true;
+	if ((glimiting == true) && (thrustAcceleration > ALIM1))
+	{
+		// TODO use correct MPL value below
+		if (throttlecmd != 67)// if at MPL can't do more
+		{
+			if (dt_thrt_glim >= 0.1)// wait while throttling (10%/sec throttle change = 0.1s delay)
+			{
+				throttlecmd--;// throttle back 1%
+				throttlecmd = (double)Round( throttlecmd );// round avoid x.5% cmds
+				if (throttlecmd < 67) throttlecmd = 67;// don't go below MPL because it won't work
+				dt_thrt_glim = 0;// reset
+			}
+			else dt_thrt_glim += DeltaT;
+		}
 	}
-	
-	lastSBTCCommand = SBTCCommand;
+
+	// fine count
+	// HACK only throttle back, no real count for now
+	if ((timeRemaining <= 6) && (finecount == false))
+	{
+		throttlecmd = finecountthrottle[NSSME - 1];
+		finecount = true;
+		char buffer[64];
+		sprintf_s( buffer, 64, "Fine Count (throttle to %.0f%%) @ MET %.2f", throttlecmd, STS()->GetMET() );
+		oapiWriteLog( buffer );
+	}
+
+	if (pSBTC_SOP->GetManThrottle() == false) pSSME_SOP->SetThrottlePercent( throttlecmd );
+	//else pSBTC_SOP->GetManThrottleCommand();
+	return;
 }
 
 void AscentDAP::MajorCycle()
@@ -948,7 +965,7 @@ void AscentDAP::NullSRBNozzles( void )
 
 bool AscentDAP::GetAutoThrottleState( void ) const
 {
-	return SpdbkThrotAutoIn.IsSet();
+	return !pSBTC_SOP->GetManThrottle();
 }
 
 VECTOR3 AscentDAP::GetAttitudeErrors( void ) const
@@ -957,7 +974,7 @@ VECTOR3 AscentDAP::GetAttitudeErrors( void ) const
 	return degReqdRatesGuidance;
 }
 
-double AscentDAP::GetThrottleCommand( void ) const
+double AscentDAP::GetAutoThrottleCommand( void ) const
 {
 	return throttlecmd;
 }

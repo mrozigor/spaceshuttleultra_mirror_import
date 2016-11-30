@@ -146,7 +146,9 @@ private:
 	DiscOutPort RotThrusterCommands[3];
 	DiscOutPort TransThrusterCommands[3]; // 0=X, 1=Y, 2=Z
 	DiscOutPort POMSGimbalCommand[2], YOMSGimbalCommand[2];
-	DiscInPort PCTArmed;
+	DiscInPort CDR_SPDBK_THROT;
+	DiscInPort PLT_SPDBK_THROT;
+	bool PCTArmed;
 	DiscInPort BodyFlapAuto; // used to trigger PCT
 	DiscOutPort port_PCTActive[2]; // PBIs indicating is PCT is in progress
 	//DiscOutPort port_PCTActive;

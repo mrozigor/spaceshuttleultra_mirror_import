@@ -820,6 +820,10 @@ private:
 	UINT anim_gear;                            // handle for landing gear animation
 	UINT anim_stzd;							   // handle for +Z Star Tracker Door animation
 	UINT anim_styd;							   // handle for -Y Star Tracker Door animation
+
+	// SBTCs animations
+	UINT anim_leftsbtc;
+	UINT anim_rightsbtc;
 	
 	//SSME GIMBAL ANIMATIONS
 	UINT anim_ssmeTyaw;
@@ -1030,6 +1034,8 @@ private:
 	// controller inputs
 	VECTOR3 AltKybdInput; // uses arrows, Ins and Del keys to provide translation inputs; axes correspond to RCS FWD SENSE
 	double RPTAinput;
+	bool SBTCTOinput;
+	double SBTCinput;
 	double LeftRHCpitch;
 	double LeftRHCroll;
 	double LeftRHCyaw;
@@ -1040,6 +1046,8 @@ private:
 	double AftRHCroll;
 	double AftRHCyaw;
 	double RPTApos;
+	double LeftSBTCpos;
+	double RightSBTCpos;
 
 	//Thruster commands
 	VECTOR3 TranslationCommand, RotationCommand;
@@ -1102,14 +1110,10 @@ private:
 	int lastRMSSJCommand; // -1, 0 or 1
 
 	//DiscPorts
-	DiscInPort SpdbkThrotAutoIn;
-	DiscOutPort SpdbkThrotCDROut, SpdbkThrotPLTOut;
 	DiscInPort BodyFlapAutoIn;
 	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
-	DiscInPort AftSense, AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
+	DiscInPort AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
 
-	DiscOutPort SpdbkThrotPort;
-	DiscOutPort RHCInputPort[3];
 	DiscOutPort LeftRHC[9];
 	DiscOutPort LeftTHC[18];
 	DiscOutPort LeftRPTA[3];
@@ -1117,6 +1121,8 @@ private:
 	DiscOutPort RightRPTA[3];
 	DiscOutPort AftRHC[9];
 	DiscOutPort AftTHC[18];
+	DiscOutPort LeftSBTC[6];
+	DiscOutPort RightSBTC[6];
 	DiscInPort RotThrusterCommands[4], TransThrusterCommands[3];
 	//DiscInPort LeftElevonCommand, RightElevonCommand;
 	DiscInPort ElevonCommand, AileronCommand, RudderCommand;

@@ -769,6 +769,11 @@ namespace dps {
 		return pAerojetDAP->GetAutoSpeedbrakeState();
 	}
 
+	double IDP::GetAutoSpeedbrakeCommand( void ) const
+	{
+		return pAerojetDAP->GetAutoSpeedbrakeCommand();
+	}
+
 	bool IDP::GetWOW( void ) const
 	{
 		return pAerojetDAP->GetWOW();

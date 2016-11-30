@@ -88,6 +88,11 @@ namespace dps
 			RightRPTA[i].Connect( pBundle, i + 3 );
 		}
 
+		pBundle = STS()->BundleManager()->CreateBundle( "LeftSBTC", 16 );
+		for (int i = 0; i < 3; i++) LeftSBTC[i].Connect( pBundle, i );
+		pBundle = STS()->BundleManager()->CreateBundle( "RightSBTC", 16 );
+		for (int i = 0; i < 3; i++) RightSBTC[i].Connect( pBundle, i );
+
 		// init He dP/dT calc
 		He_P[0] = dipHeSysPressureSensor[0].GetVoltage() * 1000;
 		He_P[1] = dipHeSysPressureSensor[1].GetVoltage() * 1000;
@@ -947,6 +952,20 @@ namespace dps
 		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[6].GetVoltage(), 44, 10 );
 		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[7].GetVoltage(), 44, 11 );
 		SPEC25_SPEC43_printRHC_RY( pMDU, AftRHC[8].GetVoltage(), 44, 12 );
+
+		char cbuf[8];
+		sprintf_s( cbuf, 8, "%03.0f", LeftSBTC[0].GetVoltage() * 100 );
+		pMDU->mvprint( 7, 10, cbuf );
+		sprintf_s( cbuf, 8, "%03.0f", LeftSBTC[1].GetVoltage() * 100 );
+		pMDU->mvprint( 7, 11, cbuf );
+		sprintf_s( cbuf, 8, "%03.0f", LeftSBTC[2].GetVoltage() * 100 );
+		pMDU->mvprint( 7, 12, cbuf );
+		sprintf_s( cbuf, 8, "%03.0f", RightSBTC[0].GetVoltage() * 100 );
+		pMDU->mvprint( 7, 13, cbuf );
+		sprintf_s( cbuf, 8, "%03.0f", RightSBTC[1].GetVoltage() * 100 );
+		pMDU->mvprint( 7, 14, cbuf );
+		sprintf_s( cbuf, 8, "%03.0f", RightSBTC[2].GetVoltage() * 100 );
+		pMDU->mvprint( 7, 15, cbuf );
 
 		SPEC43_printRPTA( pMDU, LeftRPTA[0].GetVoltage(), 6, 16 );
 		SPEC43_printRPTA( pMDU, LeftRPTA[1].GetVoltage(), 6, 17 );
@@ -2376,7 +2395,7 @@ namespace dps
 		// dynamic parts
 		char cbuf[64];
 
-		sprintf_s( cbuf, 64, "%3d", (int)pAscentDAP->GetThrottleCommand() );
+		sprintf_s( cbuf, 64, "%3d", (int)pAscentDAP->GetAutoThrottleCommand() );
 		pMDU->mvprint( 44, 17, cbuf );
 
 		if (pSRBSepSequence->GetPC50Flag() == true) pMDU->mvprint( 22, 9, "PC<50", dps::DEUATT_OVERBRIGHT | dps::DEUATT_FLASHING );
@@ -2492,7 +2511,7 @@ namespace dps
 		pMDU->Line( tmp - 6, 39, tmp + 6, 39, dps::DEUATT_OVERBRIGHT );
 		pMDU->Line( tmp + 6, 39, tmp, 47, dps::DEUATT_OVERBRIGHT );
 
-		sprintf_s( cbuf, 64, "%3d", (int)pAscentDAP->GetThrottleCommand() );
+		sprintf_s( cbuf, 64, "%3d", (int)pAscentDAP->GetAutoThrottleCommand() );
 		pMDU->mvprint( 44, 17, cbuf );
 
 		tmp = STS()->GetETPropellant();

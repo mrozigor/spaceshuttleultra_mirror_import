@@ -2,6 +2,7 @@
 #include "../Atlantis.h"
 #include "RHC_SOP.h"
 #include "RPTA_SOP.h"
+#include "SBTC_SOP.h"
 #include "IDP.h"
 #include <UltraMath.h>
 #include "../ParameterValues.h"
@@ -162,7 +163,6 @@ Roll_AileronRoll(0.20, 0.00, 0.10, -1.0, 1.0),
 Yaw_RudderYaw(0.50, 0.00, 0.10, -1.0, 1.0),
 QBar_Speedbrake(1.5, 0.0, 0.1, -100.0, 100.0, -200.0, 200.0),
 Vel_Speedbrake(2.5, 0.0, 0.2, -100.0, 100.0, -200.0, 200.0),
-lastSBTCCommand(1.0),
 EntryGuidanceMode(PREENTRY),
 referenceDrag23(19.38/MPS2FPS), constDragStartVel(VQ),
 tgtAltAveraging(5.0), vspeedAveraging(10.0),  vaccAveraging(20.0), vspeedUpdateSimT(-1.0), vaccUpdateSimT(-1.0),
@@ -235,6 +235,9 @@ HUDFlashTime(0.0), bHUDFlasher(true), SITE_ID(0), SEC(false)
 	AutoFCSPitch = true;
 	AutoFCSRoll = true;
 
+	SpeedbrakeState = AUTO;
+	AutoSpeedbrakeCommand = 0.0;
+
 	tCSS = -1;
 	tGear = -1;
 }
@@ -246,10 +249,7 @@ AerojetDAP::~AerojetDAP()
 
 void AerojetDAP::Realize()
 {
-	DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("HC_INPUT", 16);
-	SpdbkThrotPort.Connect(pBundle, 6);	
-
-	pBundle=STS()->BundleManager()->CreateBundle("AEROSURFACE_CMD", 16);
+	DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("AEROSURFACE_CMD", 16);
 	//LeftElevonCommand.Connect(pBundle, 0);
 	//RightElevonCommand.Connect(pBundle, 1);
 	ElevonCommand.Connect(pBundle, 0);
@@ -280,8 +280,12 @@ void AerojetDAP::Realize()
 	PLTRollYawCSSLT.Connect( pBundle, 15 );
 
 	pBundle=STS()->BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
-	SpeedbrakeAuto.Connect(pBundle, 0);
-	SpeedbrakeAutoOut.Connect(pBundle, 0);
+	CDR_SPDBK_THROT.Connect( pBundle, 0 );// HACK should first go to switch RM
+	CDR_SPDBK_THROT_AUTO_LT.Connect( pBundle, 1 );
+	CDR_SPDBK_THROT_MAN_LT.Connect( pBundle, 2 );
+	PLT_SPDBK_THROT.Connect( pBundle, 3 );// HACK should first go to switch RM
+	PLT_SPDBK_THROT_AUTO_LT.Connect( pBundle, 4 );
+	PLT_SPDBK_THROT_MAN_LT.Connect( pBundle, 5 );
 
 	pBundle = STS()->BundleManager()->CreateBundle( "HUD_CDR", 16 );
 	HUDPower[0].Connect( pBundle, 0 );
@@ -294,6 +298,8 @@ void AerojetDAP::Realize()
 	pRHC_SOP = static_cast<RHC_SOP*> (FindSoftware( "RHC_SOP" ));
 	
 	pRPTA_SOP = static_cast<RPTA_SOP*> (FindSoftware( "RPTA_SOP" ));
+
+	pSBTC_SOP = static_cast<SBTC_SOP*> (FindSoftware( "SBTC_SOP" ));
 	
 	hEarth = STS()->GetGravityRef();
 	InitializeRunwayData();
@@ -306,7 +312,6 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	// on first step, Orbiter gives some incorrect data, so ignore this step
 	if(bFirstStep) {
 		filteredQBar = STS()->GetDynPressure()*PA2PSF;
-		lastSBTCCommand = SpdbkThrotPort.GetVoltage();
 		bFirstStep = false;
 		bSecondStep = true;
 		return;
@@ -644,6 +649,7 @@ bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 			filteredQBar = STS()->GetDynPressure()*PA2PSF;
 			// reduce roll gains 
 			Roll_AileronRoll.SetGains(0.05, 0.00, 0.01);
+
 			if (AutoFCSPitch == false)
 			{
 				CDRPitchAutoLT.ResetLine();
@@ -672,6 +678,28 @@ bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 				CDRRollYawCSSLT.ResetLine();
 				PLTRollYawCSSLT.ResetLine();
 			}
+
+			if (SpeedbrakeState == MAN_CDR)
+			{
+				CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+				PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+				CDR_SPDBK_THROT_MAN_LT.SetLine();
+				PLT_SPDBK_THROT_MAN_LT.ResetLine();
+			}
+			else if (SpeedbrakeState == MAN_PLT)
+			{
+				CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+				PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+				CDR_SPDBK_THROT_MAN_LT.ResetLine();
+				PLT_SPDBK_THROT_MAN_LT.SetLine();
+			}
+			else
+			{
+				CDR_SPDBK_THROT_AUTO_LT.SetLine();
+				PLT_SPDBK_THROT_AUTO_LT.SetLine();
+				CDR_SPDBK_THROT_MAN_LT.ResetLine();
+				PLT_SPDBK_THROT_MAN_LT.ResetLine();
+			}
 		}
 		else
 		{
@@ -688,6 +716,12 @@ bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 				PLTRollYawAutoLT.SetLine();
 				CDRRollYawCSSLT.ResetLine();
 				PLTRollYawCSSLT.ResetLine();
+
+				SpeedbrakeState = AUTO;
+				CDR_SPDBK_THROT_AUTO_LT.SetLine();
+				PLT_SPDBK_THROT_AUTO_LT.SetLine();
+				CDR_SPDBK_THROT_MAN_LT.ResetLine();
+				PLT_SPDBK_THROT_MAN_LT.ResetLine();
 			}
 			else
 			{
@@ -718,6 +752,28 @@ bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 					PLTRollYawAutoLT.SetLine();
 					CDRRollYawCSSLT.ResetLine();
 					PLTRollYawCSSLT.ResetLine();
+				}
+
+				if (SpeedbrakeState == MAN_CDR)
+				{
+					CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+					PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+					CDR_SPDBK_THROT_MAN_LT.SetLine();
+					PLT_SPDBK_THROT_MAN_LT.ResetLine();
+				}
+				else if (SpeedbrakeState == MAN_PLT)
+				{
+					CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+					PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+					CDR_SPDBK_THROT_MAN_LT.ResetLine();
+					PLT_SPDBK_THROT_MAN_LT.SetLine();
+				}
+				else
+				{
+					CDR_SPDBK_THROT_AUTO_LT.SetLine();
+					PLT_SPDBK_THROT_AUTO_LT.SetLine();
+					CDR_SPDBK_THROT_MAN_LT.ResetLine();
+					PLT_SPDBK_THROT_MAN_LT.ResetLine();
 				}
 			}
 		}
@@ -1197,6 +1253,13 @@ bool AerojetDAP::OnParseLine(const char* keyword, const char* value)
 		else AutoFCSRoll = true;
 		return true;
 	}
+	if (!_strnicmp( keyword, "SPEEDBRAKE_STATE", 16 ))
+	{
+		if (!_strnicmp( value, "CDR", 3 )) SpeedbrakeState = MAN_CDR;
+		else if (!_strnicmp( value, "PLT", 3 )) SpeedbrakeState = MAN_PLT;
+		else SpeedbrakeState = AUTO;
+		return true;
+	}
 	return false;
 }
 
@@ -1213,6 +1276,9 @@ void AerojetDAP::OnSaveState(FILEHANDLE scn) const
 	oapiWriteScenario_int( scn, "SB_CONTROL_LOGIC", static_cast<int>(SBControlLogic) );
 	if (AutoFCSPitch == false) oapiWriteScenario_string( scn, "FCS_PITCH", "CSS" );
 	if (AutoFCSRoll == false) oapiWriteScenario_string( scn, "FCS_ROLL", "CSS" );
+	if (SpeedbrakeState == MAN_CDR) oapiWriteScenario_string( scn, "SPEEDBRAKE_STATE", "CDR" );
+	else if (SpeedbrakeState == MAN_PLT) oapiWriteScenario_string( scn, "SPEEDBRAKE_STATE", "PLT" );
+	return;
 }
 
 void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
@@ -2910,15 +2976,87 @@ void AerojetDAP::SetAerosurfaceCommands(double DeltaT)
 
 void AerojetDAP::SetSpeedbrakeCommand(double range, double DeltaT)
 {
-	if(SpeedbrakeAuto) {
-		// check for manual takeover
-		if(!bSecondStep && !Eq(SpdbkThrotPort.GetVoltage(), lastSBTCCommand, 0.01)) SpeedbrakeAutoOut.ResetLine();
-		lastSBTCCommand = SpdbkThrotPort.GetVoltage();
-		
-		if(bWOW) STS()->SetSpeedbrake(1.0);
-		else STS()->SetSpeedbrake(CalculateSpeedbrakeCommand(range, DeltaT)/100.0);
+	double speedbrakeCMD = 0.0;
+
+	// calc auto comand
+	if (bWOW) AutoSpeedbrakeCommand = 1.0;
+	else AutoSpeedbrakeCommand = CalculateSpeedbrakeCommand( range, DeltaT ) / 100.0;
+
+	// AUTO/MAN logic
+	if (SpeedbrakeState == AUTO)
+	{
+		if (pSBTC_SOP->GetCDRTakeover() == true)
+		{
+			// go cdr
+			SpeedbrakeState = MAN_CDR;
+			CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+			PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+			CDR_SPDBK_THROT_MAN_LT.SetLine();
+			PLT_SPDBK_THROT_MAN_LT.ResetLine();
+			speedbrakeCMD = pSBTC_SOP->GetManSpeedbrakeCommand() / 98.6;
+		}
+		else if (pSBTC_SOP->GetPLTTakeover() == true)
+		{
+			// go plt
+			SpeedbrakeState = MAN_PLT;
+			CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+			PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+			CDR_SPDBK_THROT_MAN_LT.ResetLine();
+			PLT_SPDBK_THROT_MAN_LT.SetLine();
+			speedbrakeCMD = pSBTC_SOP->GetManSpeedbrakeCommand() / 98.6;
+		}
+		else
+		{
+			// auto
+			speedbrakeCMD = AutoSpeedbrakeCommand;
+		}
 	}
-	else STS()->SetSpeedbrake(1.0f-SpdbkThrotPort.GetVoltage()); // full throttle corresponds to closed speedbrake
+	else
+	{
+		if (CDR_SPDBK_THROT.IsSet() || PLT_SPDBK_THROT.IsSet())
+		{
+			// go auto
+			SpeedbrakeState = AUTO;
+			CDR_SPDBK_THROT_AUTO_LT.SetLine();
+			PLT_SPDBK_THROT_AUTO_LT.SetLine();
+			CDR_SPDBK_THROT_MAN_LT.ResetLine();
+			PLT_SPDBK_THROT_MAN_LT.ResetLine();
+			speedbrakeCMD = AutoSpeedbrakeCommand;
+		}
+		else if (pSBTC_SOP->GetCDRTakeover() == true)
+		{
+			// go cdr
+			SpeedbrakeState = MAN_CDR;
+			CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+			PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+			CDR_SPDBK_THROT_MAN_LT.SetLine();
+			PLT_SPDBK_THROT_MAN_LT.ResetLine();
+			speedbrakeCMD = pSBTC_SOP->GetManSpeedbrakeCommand() / 98.6;
+		}
+		else if (pSBTC_SOP->GetPLTTakeover() == true)
+		{
+			// go plt
+			SpeedbrakeState = MAN_PLT;
+			CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+			PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+			CDR_SPDBK_THROT_MAN_LT.ResetLine();
+			PLT_SPDBK_THROT_MAN_LT.SetLine();
+			speedbrakeCMD = pSBTC_SOP->GetManSpeedbrakeCommand() / 98.6;
+		}
+		else
+		{
+			// man
+			speedbrakeCMD = pSBTC_SOP->GetManSpeedbrakeCommand() / 98.6;
+		}
+	}
+
+	// limit limit to >=15% if M>0.6
+	if ((STS()->GetMachNumber() > 0.6) && (STS()->GetMachNumber() < 9.814815))// use M9.8 instead of M10 so initial ramp occurs
+		speedbrakeCMD = max( speedbrakeCMD, 0.15 );
+
+	// set command
+	STS()->SetSpeedbrake( speedbrakeCMD );
+	return;
 }
 
 double AerojetDAP::GetThrusterCommand(AXIS axis, double DeltaT)
@@ -3873,7 +4011,12 @@ bool AerojetDAP::GetAutoRollYawState( void ) const
 
 bool AerojetDAP::GetAutoSpeedbrakeState( void ) const
 {
-	return SpeedbrakeAuto.IsSet();
+	return (SpeedbrakeState == AUTO);
+}
+
+double AerojetDAP::GetAutoSpeedbrakeCommand( void ) const
+{
+	return AutoSpeedbrakeCommand * 100.0;
 }
 
 const std::string& AerojetDAP::GetSelectedRunway( void ) const
