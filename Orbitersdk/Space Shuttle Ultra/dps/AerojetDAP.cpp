@@ -572,7 +572,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 
 			if (AutoFCSRoll == false)
 			{
-				RudderCommand.SetLine( (float)(pRPTA_SOP->GetYawCommand() / 22.8) );
+				RudderCommand.SetLine( (float)range( -1.0, rudderPos + (pRPTA_SOP->GetYawCommand() / 22.8), 1.0 ) );
 			}
 
 			// check for weight-on-weels
