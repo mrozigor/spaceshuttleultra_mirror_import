@@ -225,12 +225,6 @@
     <None Include="..\..\Meshes\SSU\VC.msh" />
     <None Include="..\..\Scenarios\(Current state).scn" />
     <None Include="Bitmaps\DEU_Raw_overbright.bmp" />
-    <None Include="ClassDiagram1.cd" />
-    <None Include="ClassDiagram2.cd" />
-    <None Include="ClassDiagram3.cd" />
-    <None Include="ClassDiagram4.cd" />
-    <None Include="ClassDiagram5.cd" />
-    <None Include="ClassDiagram6.cd" />
     <None Include="Bitmaps\clocknums.bmp" />
     <None Include="Bitmaps\DEU_Raw.bmp" />
     <None Include="Bitmaps\digits.bmp" />
@@ -617,7 +611,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Bitmaps\A8lights.bmp" />
     <Image Include="Bitmaps\DEU_Raw_fault.bmp" />
+    <Image Include="Bitmaps\SSME_lights.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

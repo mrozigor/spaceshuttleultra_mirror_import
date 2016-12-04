@@ -29,7 +29,6 @@
 #include "meshres_KU.h"
 #include "resource.h"
 #include "AtlantisSubsystemDirector.h"
-#include "dps/AerojetDAP.h"
 #include "dps/AP101S.h"
 #include "dps/IDP.h"
 #include "dps/MasterTimingUnit.h"
@@ -114,13 +113,6 @@ extern int GrowStack();
 // Global (class-wide) parameters
 
 GDIParams g_Param;
-
-HELPCONTEXT g_hc = {
-	"html/vessels/Atlantis.chm",
-	0,
-	"html/vessels/Atlantis.chm::/Atlantis.hhc",
-	"html/vessels/Atlantis.chm::/Atlantis.hhk"
-};
 
 std::ofstream animlog;
 
@@ -541,8 +533,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 	psubsystems->AddSubsystem(pPayloadBay = new PayloadBay(psubsystems));
 
-	//psubsystems->AddSubsystem(new dps::AerojetDAP(psubsystems));
-
 	pDeployedAssembly = NULL;
 
 	pRMS = NULL; //don't create RMS unless it is used on the shuttle
@@ -630,9 +620,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	ph_controller = NULL;
 	ph_mps = NULL;
 	ph_srb = NULL;
-	thg_main = NULL;
-	thg_retro = NULL;
-	thg_srb = NULL;
 
 	LOXmass = 0;
 	LH2mass = 0;
@@ -1007,7 +994,6 @@ void Atlantis::SetLaunchConfiguration(void)
 	// SRBs
 	th_srb[0] = CreateThruster(LSRB_OFFSET + _V(0.0, 0.0, -21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
 	th_srb[1] = CreateThruster(RSRB_OFFSET + _V(0.0, 0.0, -21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
-	thg_srb = CreateThrusterGroup(th_srb, 2, THGROUP_USER);
 	SURFHANDLE tex = oapiRegisterExhaustTexture("Exhaust2");
 	srb_exhaust.tex = oapiRegisterParticleTexture("SSU\\SRB_exhaust");
 	srb_contrail.tex = oapiRegisterParticleTexture("SSU\\SRB_contrail");
@@ -2465,7 +2451,8 @@ void Atlantis::SeparateBoosters(double met)
 
 	// Remove SRB's from Shuttle instance
 	DelPropellantResource(ph_srb);
-	DelThrusterGroup(thg_srb, THGROUP_USER, true);
+	DelThruster( th_srb[0] );
+	DelThruster( th_srb[1] );
 	for (int i = 0; i < 2; i++)
 	{
 		DelExhaustStream(pshSlag1[i]);
