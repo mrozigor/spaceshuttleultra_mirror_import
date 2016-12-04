@@ -33,12 +33,6 @@
       <Filter>Meshes</Filter>
     </None>
     <None Include="..\..\Scenarios\(Current state).scn" />
-    <None Include="ClassDiagram1.cd" />
-    <None Include="ClassDiagram2.cd" />
-    <None Include="ClassDiagram3.cd" />
-    <None Include="ClassDiagram4.cd" />
-    <None Include="ClassDiagram5.cd" />
-    <None Include="ClassDiagram6.cd" />
     <None Include="Bitmaps\clocknums.bmp" />
     <None Include="Bitmaps\DEU_Raw.bmp" />
     <None Include="Bitmaps\digits.bmp" />
@@ -1081,5 +1075,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Bitmaps\DEU_Raw_fault.bmp" />
+    <Image Include="Bitmaps\SSME_lights.bmp" />
+    <Image Include="Bitmaps\A8lights.bmp" />
   </ItemGroup>
 </Project>

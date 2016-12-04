@@ -1002,7 +1002,6 @@ private:
 	std::vector<PSTREAM_HANDLE> vExStreamRCS;  // RCS exhaust stream
 	PARTICLESTREAMSPEC RCS_PSSpec;
 	SURFHANDLE RCS_Exhaust_tex;
-	THGROUP_HANDLE thg_main, thg_srb, thg_retro;          // handles for thruster groups
 	CTRLSURFHANDLE hrudder, hlaileron, hraileron, helevator, hbodyflap;
 	AIRFOILHANDLE hStackAirfoil;
 	bool ControlSurfacesEnabled;
