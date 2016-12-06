@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MECOTool", "MECOTool.vcproj", "{F71F0ADF-56F8-427B-90F0-8367D03B4679}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F71F0ADF-56F8-427B-90F0-8367D03B4679}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F71F0ADF-56F8-427B-90F0-8367D03B4679}.Debug|Win32.Build.0 = Debug|Win32
+		{F71F0ADF-56F8-427B-90F0-8367D03B4679}.Release|Win32.ActiveCfg = Release|Win32
+		{F71F0ADF-56F8-427B-90F0-8367D03B4679}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
