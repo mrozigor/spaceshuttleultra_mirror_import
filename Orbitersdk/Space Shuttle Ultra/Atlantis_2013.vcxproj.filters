@@ -327,9 +327,6 @@
     <ClCompile Include="dps\RSLS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="commGCIL.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="dps\MMU.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -478,10 +475,15 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelL10.cpp" />
-    <ClCompile Include="vc\PanelL12U.cpp" />
     <ClCompile Include="comm\ElectronicsAssembly1.cpp" />
     <ClCompile Include="comm\ElectronicsAssembly2.cpp" />
     <ClCompile Include="comm\GCIL.cpp" />
+    <ClCompile Include="vc\PanelL12U_Centaur.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelL12U_IUS.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -932,6 +934,12 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="comm\GCIL.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelL12U_Centaur.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelL12U_IUS.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
