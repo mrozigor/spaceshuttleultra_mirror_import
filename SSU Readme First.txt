@@ -5,6 +5,7 @@ Installation:
 	OrbiterSound 4.0 (http://orbiter.dansteph.com/index.php?disp=d)
 	KSC hires tiles (http://www.orbithangar.com/searchid.php?ID=5583)
 	Vandenberg AFB (http://www.orbithangar.com/searchid.php?ID=2380)
+	Antelope Valley scenery pack (http://orbit.medphys.ucl.ac.uk/mirrors/orbiter_radio/tex_mirror.html)
 2. Extract files into Orbiter folder, overwriting any existing files.
 
 3. Install the "SSU_Font_A" and "SSU_Font_B" fonts, located in the Orbiter base directory, by opening it and selecting install. After installation the files can be deleted.
