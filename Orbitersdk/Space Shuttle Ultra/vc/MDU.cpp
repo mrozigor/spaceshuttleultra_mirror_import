@@ -287,6 +287,7 @@ namespace vc
 			{
 				//sprintf_s(oapiDebugString(), 80, "MDU %s POWER ON/OFF", GetQualifiedIdentifier().c_str());
 				oapiSendMFDKey(usMDUID, OAPI_KEY_ESCAPE);
+				if (oapiGetMFDMode( usMDUID ) != 0) oapiOpenMFD( 1000, usMDUID );
 			}
 		}
 		else if(y >= btnPwrYmin && y<= btnPwrYmax && x >= btnPwrXmin && x <= btnPwrXmax)

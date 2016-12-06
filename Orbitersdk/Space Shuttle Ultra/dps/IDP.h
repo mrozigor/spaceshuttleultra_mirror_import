@@ -42,6 +42,7 @@ namespace dps {
 	class SSME_Operations;
 	class AscentDAP;
 	class AerojetDAP;
+	class Landing_SOP;
 	class OMSBurnSoftware;
 
 	const char DEUATT_NORMAL = 0;
@@ -108,6 +109,7 @@ namespace dps {
 		SSME_Operations* pSSME_Operations;
 		AscentDAP* pAscentDAP;
 		AerojetDAP* pAerojetDAP;
+		Landing_SOP* pLanding_SOP;
 		OMSBurnSoftware* pOMSBurnSoftware;
 
 		

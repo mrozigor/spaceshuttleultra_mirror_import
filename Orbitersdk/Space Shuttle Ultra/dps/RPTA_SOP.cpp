@@ -1,6 +1,4 @@
 #include "RPTA_SOP.h"
-#include "..\Atlantis.h"
-#include "..\AtlantisSubsystemDirector.h"
 #include "RPTA_RM.h"
 #include "assert.h"
 

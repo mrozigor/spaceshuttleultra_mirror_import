@@ -40,6 +40,7 @@ void DragChute::Realize()
 void DragChute::OnPreStep( double SimT, double DeltaT, double MJD )
 {
 	double airspeed = STS()->GetAirspeed();
+	double groundspeed = STS()->GetGroundspeed();
 
 	switch (DragChuteState)
 	{
@@ -74,7 +75,7 @@ void DragChute::OnPreStep( double SimT, double DeltaT, double MJD )
 			if ((SimT - DragChuteDeployTime) > CHUTE_INFLATE_TIME) DragChuteState = INFLATED;
 			break;
 		case INFLATED:
-			if ((airspeed < CHUTE_JETTISON_SPEED) || (airspeed > CHUTE_FAIL_SPEED) || DragChuteJETT[0].IsSet() || DragChuteJETT[1].IsSet())
+			if ((groundspeed < CHUTE_JETTISON_SPEED) || (airspeed > CHUTE_FAIL_SPEED) || DragChuteJETT[0].IsSet() || DragChuteJETT[1].IsSet())
 			{
 				STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_NEVER );
 

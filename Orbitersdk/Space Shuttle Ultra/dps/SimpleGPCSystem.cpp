@@ -28,6 +28,7 @@
 #include "THC_SOP.h"
 #include "RPTA_SOP.h"
 #include "SBTC_SOP.h"
+#include "Landing_SOP.h"
 #include "../Atlantis.h"
 
 namespace dps
@@ -64,6 +65,7 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 	vSoftware.push_back( new THC_SOP( this ) );
 	vSoftware.push_back( new RPTA_SOP( this ) );
 	vSoftware.push_back( new SBTC_SOP( this ) );
+	vSoftware.push_back( new Landing_SOP( this ) );
 }
 
 SimpleGPCSystem::~SimpleGPCSystem()

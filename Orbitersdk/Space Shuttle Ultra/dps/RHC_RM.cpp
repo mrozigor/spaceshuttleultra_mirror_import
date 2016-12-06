@@ -1,6 +1,5 @@
 #include "RHC_RM.h"
-#include "..\Atlantis.h"
-#include "..\AtlantisSubsystemDirector.h"
+#include "UltraMath.h"
 #include "assert.h"
 
 
@@ -38,11 +37,11 @@ namespace dps
 
 	void RHC_RM::Realize( void )
 	{
-		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "LeftRHCTHC_A", 16 );
+		DiscreteBundle* pBundle = BundleManager()->CreateBundle( "LeftRHCTHC_A", 16 );
 		for (int i = 0; i < 9; i++) LeftRHC[i].Connect( pBundle, i );
-		pBundle = STS()->BundleManager()->CreateBundle( "RightRHC", 16 );
+		pBundle = BundleManager()->CreateBundle( "RightRHC", 16 );
 		for (int i = 0; i < 9; i++) RightRHC[i].Connect( pBundle, i );
-		pBundle = STS()->BundleManager()->CreateBundle( "AftRHCTHC_A", 16 );
+		pBundle = BundleManager()->CreateBundle( "AftRHCTHC_A", 16 );
 		for (int i = 0; i < 9; i++) AftRHC[i].Connect( pBundle, i );
 		return;
 	}

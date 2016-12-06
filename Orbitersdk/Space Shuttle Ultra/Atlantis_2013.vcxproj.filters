@@ -533,6 +533,9 @@
     <ClCompile Include="dps\SBTC_SOP.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="dps\Landing_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -1067,6 +1070,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\SBTC_SOP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\Landing_SOP.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

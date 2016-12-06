@@ -41,6 +41,7 @@ const double NZ_UPDATE_INTERVAL = 0.1;
 class RHC_SOP;
 class RPTA_SOP;
 class SBTC_SOP;
+class Landing_SOP;
 
 
 /**
@@ -140,9 +141,6 @@ private:
 
 	bool bFirstStep, bSecondStep;
 
-	bool bWOW;
-	bool bWONG;
-
 	// Orbiter data
 	double OrbiterMass;
 	VECTOR3 PMI;
@@ -190,7 +188,13 @@ private:
 	DiscOutPort ElevonCommand, AileronCommand, RudderCommand;
 
 	DiscInPort HUDPower[2];
-	DiscInPort pHUDDCLT[2];
+	DiscInPort HUDBrightCDR[5];
+	DiscInPort HUDBrightNightCDR;
+	DiscInPort HUDBrightDayCDR;
+	DiscInPort HUDBrightPLT[5];
+	DiscInPort HUDBrightNightPLT;
+	DiscInPort HUDBrightDayPLT;
+	DiscInPort HUDDCLT[2];
 	bool dclt_sw_on[2];
 	int declutter_level[2];
 
@@ -224,6 +228,7 @@ private:
 	RHC_SOP* pRHC_SOP;
 	RPTA_SOP* pRPTA_SOP;
 	SBTC_SOP* pSBTC_SOP;
+	Landing_SOP* pLanding_SOP;
 
 	ENTRY_GUIDANCE_MODE EntryGuidanceMode;
 	VECTOR3 HAC_Center;
@@ -389,12 +394,6 @@ public:
 	 * @return	vertical accelaration (fps^2)
 	 */
 	double GetVacc( void ) const;
-
-	/**
-	 * Gets WOW indication.
-	 * @return	true if WOW indication has been set
-	 */
-	bool GetWOW( void ) const;
 
 	/**
 	 * Gets current vehicle attitude errors (deg).
