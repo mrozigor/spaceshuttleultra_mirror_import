@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2013 for Windows Desktop
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atlantis", "Atlantis_2013.vcxproj", "{12E6EB1C-F63C-4D3E-9710-12E3A564EBB4}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -54,7 +54,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSU_SLC6", "SLC6\SSU_SLC6_2
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSU_Centaur", "Centaur\SSU_Centaur\SSU_Centaur_2013.vcxproj", "{7D997EE8-F918-4635-AF54-ACA3B5F95C36}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSU_CISS", "Centaur\SSU_CISS\SSU_CISS_2013.vcxproj", "{27E1127D-4C3C-4A55-BA90-C7B68F2D65DC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSU_IUS", "IUS\SSU_IUS_2013.vcxproj", "{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -165,12 +165,12 @@ Global
 		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Debug|Win32.Build.0 = Debug|Win32
 		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Release|Win32.ActiveCfg = Release|Win32
 		{7D997EE8-F918-4635-AF54-ACA3B5F95C36}.Release|Win32.Build.0 = Release|Win32
-		{27E1127D-4C3C-4A55-BA90-C7B68F2D65DC}.Analysis (Debug)|Win32.ActiveCfg = Debug|Win32
-		{27E1127D-4C3C-4A55-BA90-C7B68F2D65DC}.Analysis (Debug)|Win32.Build.0 = Debug|Win32
-		{27E1127D-4C3C-4A55-BA90-C7B68F2D65DC}.Debug|Win32.ActiveCfg = Debug|Win32
-		{27E1127D-4C3C-4A55-BA90-C7B68F2D65DC}.Debug|Win32.Build.0 = Debug|Win32
-		{27E1127D-4C3C-4A55-BA90-C7B68F2D65DC}.Release|Win32.ActiveCfg = Release|Win32
-		{27E1127D-4C3C-4A55-BA90-C7B68F2D65DC}.Release|Win32.Build.0 = Release|Win32
+		{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}.Analysis (Debug)|Win32.ActiveCfg = Debug|Win32
+		{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}.Analysis (Debug)|Win32.Build.0 = Debug|Win32
+		{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}.Debug|Win32.Build.0 = Debug|Win32
+		{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}.Release|Win32.ActiveCfg = Release|Win32
+		{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
