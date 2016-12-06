@@ -3,6 +3,7 @@
 #include "RHC_SOP.h"
 #include "RPTA_SOP.h"
 #include "SBTC_SOP.h"
+#include "Landing_SOP.h"
 #include "IDP.h"
 #include <UltraMath.h>
 #include "../ParameterValues.h"
@@ -149,7 +150,7 @@ VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad)
 
 AerojetDAP::AerojetDAP(SimpleGPCSystem* _gpc)
 : SimpleGPCSoftware(_gpc, "AerojetDAP"),
-bFirstStep(true), bSecondStep(false), bWOW(false), bWONG(false), OrbiterMass(93000.0),
+bFirstStep(true), bSecondStep(false), OrbiterMass(93000.0),
 //AOA_ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
 //Rate_ElevonPitch(0.75, 0.001, 0.005, -0.75, 0.75, -60.0, 60.0),
 //Pitch_ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0),
@@ -289,17 +290,33 @@ void AerojetDAP::Realize()
 
 	pBundle = STS()->BundleManager()->CreateBundle( "HUD_CDR", 16 );
 	HUDPower[0].Connect( pBundle, 0 );
-	pHUDDCLT[0].Connect( pBundle, 1 );
+	HUDDCLT[0].Connect( pBundle, 1 );
+	HUDBrightCDR[0].Connect( pBundle, 3 );
+	HUDBrightCDR[1].Connect( pBundle, 4 );
+	HUDBrightCDR[2].Connect( pBundle, 5 );
+	HUDBrightCDR[3].Connect( pBundle, 6 );
+	HUDBrightCDR[4].Connect( pBundle, 7 );
+	HUDBrightNightCDR.Connect( pBundle, 8 );
+	HUDBrightDayCDR.Connect( pBundle, 9 );
 
 	pBundle = STS()->BundleManager()->CreateBundle( "HUD_PLT", 16 );
 	HUDPower[1].Connect( pBundle, 0 );
-	pHUDDCLT[1].Connect( pBundle, 1 );
+	HUDDCLT[1].Connect( pBundle, 1 );
+	HUDBrightPLT[0].Connect( pBundle, 3 );
+	HUDBrightPLT[1].Connect( pBundle, 4 );
+	HUDBrightPLT[2].Connect( pBundle, 5 );
+	HUDBrightPLT[3].Connect( pBundle, 6 );
+	HUDBrightPLT[4].Connect( pBundle, 7 );
+	HUDBrightNightPLT.Connect( pBundle, 8 );
+	HUDBrightDayPLT.Connect( pBundle, 9 );
 
 	pRHC_SOP = static_cast<RHC_SOP*> (FindSoftware( "RHC_SOP" ));
 	
 	pRPTA_SOP = static_cast<RPTA_SOP*> (FindSoftware( "RPTA_SOP" ));
 
 	pSBTC_SOP = static_cast<SBTC_SOP*> (FindSoftware( "SBTC_SOP" ));
+
+	pLanding_SOP = static_cast<Landing_SOP*> (FindSoftware( "Landing_SOP" ));
 	
 	hEarth = STS()->GetGravityRef();
 	InitializeRunwayData();
@@ -477,7 +494,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		break;
 		}
 	case 305:
-		if(bWONG) {
+		if (pLanding_SOP->GetGSENBL() == true) {
 			//oapiWriteLog("WONG");
 			double airspeed=STS()->GetAirspeed();
 			// load relief
@@ -488,6 +505,12 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			//Nosewheel steering
 			double steerforce = min( 120000, 120000 * (airspeed / 50.0) ) * (pRPTA_SOP->GetYawCommand() / 22.8);
 			STS()->AddForce(_V(steerforce, 0, 0), _V(0, 0, 14.9));
+			// set pitch (back) to AUTO
+			AutoFCSPitch = true;
+			CDRPitchAutoLT.SetLine();
+			PLTPitchAutoLT.SetLine();
+			CDRPitchCSSLT.ResetLine();
+			PLTPitchCSSLT.ResetLine();
 		}
 		else {
 			//oapiWriteLog("No WONG");
@@ -575,20 +598,14 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 				RudderCommand.SetLine( (float)range( -1.0, rudderPos + (pRPTA_SOP->GetYawCommand() / 22.8), 1.0 ) );
 			}
 
-			// check for weight-on-weels
-			if(STS()->GroundContact()) {
-				bWOW = true;
-				// use rudder to steer shuttle after touchdown
-				//RudderCommand.SetLine( (float)(pRPTA_SOP->GetYawCommand() / 22.8) );
-				// check for weight-on-nose-gear
-				if(STS()->GetPitch() < -3.0*RAD) {
-					bWONG = true;
-					// set default positions of control surfaces to zero
-					STS()->SetControlSurfaceLevel(AIRCTRL_RUDDERTRIM, 0.0);
-					STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, 0.0);
-					STS()->SetControlSurfaceLevel(AIRCTRL_ELEVATOR, 0.0);
-					STS()->SetControlSurfaceLevel(AIRCTRL_AILERON, 0.0);
-				}
+			// check for weight-on-nose-gear
+			if (pLanding_SOP->GetWONG() == true)
+			{
+				// set default positions of control surfaces to zero
+				STS()->SetControlSurfaceLevel(AIRCTRL_RUDDERTRIM, 0.0);
+				STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, 0.0);
+				STS()->SetControlSurfaceLevel(AIRCTRL_ELEVATOR, 0.0);
+				STS()->SetControlSurfaceLevel(AIRCTRL_AILERON, 0.0);
 			}
 
 			// save data for displays
@@ -598,9 +615,10 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		break;
 	}
 
+	// HUD
 	for (int i = 0; i < 2; i++)
 	{
-		if (HUDPower[i].IsSet() && pHUDDCLT[i].IsSet())
+		if (HUDPower[i].IsSet() && HUDDCLT[i].IsSet())
 		{
 			if (!dclt_sw_on[i])
 			{
@@ -610,6 +628,59 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			}
 		}
 		else dclt_sw_on[i] = false;
+	}
+	// if in PLT seat use PLT settings, otherwise use CDR
+	if (STS()->VCMode == 1)// VC_PLT
+	{
+		if (HUDBrightNightPLT.IsSet())// night: 10, 20, 30, 40, 50
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				if (HUDBrightPLT[i].IsSet())
+				{
+					oapiSetHUDIntensity( (i + 1) * 0.1 );
+					break;
+				}
+			}
+		}
+		else if (HUDBrightDayPLT.IsSet())// day: 60, 70, 80, 90, 100
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				if (HUDBrightPLT[i].IsSet())
+				{
+					oapiSetHUDIntensity( ((i + 1) * 0.1) + 0.5 );
+					break;
+				}
+			}
+		}
+		else oapiSetHUDIntensity( 0.55 );// auto: 55
+	}
+	else
+	{
+		if (HUDBrightNightCDR.IsSet())// night: 10, 20, 30, 40, 50
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				if (HUDBrightCDR[i].IsSet())
+				{
+					oapiSetHUDIntensity( (i + 1) * 0.1 );
+					break;
+				}
+			}
+		}
+		else if (HUDBrightDayCDR.IsSet())// day: 60, 70, 80, 90, 100
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				if (HUDBrightCDR[i].IsSet())
+				{
+					oapiSetHUDIntensity( ((i + 1) * 0.1) + 0.5 );
+					break;
+				}
+			}
+		}
+		else oapiSetHUDIntensity( 0.55 );// auto: 55
 	}
 
 	if (tCSS == -1)
@@ -905,7 +976,7 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 			else if (STS()->GetGearState()==AnimState::OPENING) skp->Text(hps->CX-60, hps->CY+5, "//GR//", 6);
 
 			// guidance mode
-			if (!bWOW)
+			if (pLanding_SOP->GetWOWLON() == false)
 			{
 				switch(TAEMGuidanceMode) {
 				case ACQ:
@@ -964,7 +1035,7 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 					glideslope_center_x = HUD_Center_X + (glideslope_center_x-HUD_Center_X)/prfnlBankFader;
 					glideslope_center_y = HUD_Center_Y + (glideslope_center_y-HUD_Center_Y)/prfnlBankFader;
 				}
-				if (!bWOW) skp->Ellipse(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
+				if (pLanding_SOP->GetWOWLON() == false) skp->Ellipse(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
 			}
 			else {
 				// before PRFNL mode, we have square at center of HUD
@@ -973,7 +1044,7 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 				skp->Rectangle(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
 			}
 			// lines are the same for both VV and center square modes
-			if (!bWOW)
+			if (pLanding_SOP->GetWOWLON() == false)
 			{
 				skp->Line(Round(glideslope_center_x)-10, Round(glideslope_center_y), Round(glideslope_center_x)-5, Round(glideslope_center_y));
 				skp->Line(Round(glideslope_center_x)+9, Round(glideslope_center_y), Round(glideslope_center_x)+4, Round(glideslope_center_y));
@@ -1027,7 +1098,7 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 			}
 
 			// css status
-			if (!bWOW)
+			if (pLanding_SOP->GetWOWLON() == false)
 			{
 				if (tCSS > 0)
 				{
@@ -1115,12 +1186,12 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 
 			// alt/vel
 			double keas = STS()->GetKEAS();
-			double alt = (int)(STS()->GetAltitude()*3.280833)-17;
+			double alt = (int)(STS()->GetAltitude()* MPS2FPS)-17;
 			if (dclt == 2)
 			{
 				// numeric
 				sprintf_s(cbuf, 255, "%3.0f", keas);
-				if (!bWOW)
+				if (pLanding_SOP->GetWOWLON() == false)
 				{
 					skp->Text( (int)glideslope_center_x - 45, (int)glideslope_center_y - 15, cbuf, strlen( cbuf ) );
 
@@ -1132,11 +1203,11 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 					sprintf_s( cbuf, 255, "%d", tmpalt );
 					skp->Text( (int)glideslope_center_x + 25, (int)glideslope_center_y - 15, cbuf, strlen( cbuf ) );
 				}
-				else if (!bWONG) skp->Text( hps->CX - 26, hps->CY - 14, cbuf, strlen( cbuf ) );
+				else if (pLanding_SOP->GetGSENBL() == false) skp->Text( hps->CX - 26, hps->CY - 14, cbuf, strlen( cbuf ) );
 				else
 				{
 					skp->Text( hps->CX - 40, hps->CY - 14, "G", 1 );
-					sprintf_s(cbuf, 255, "%3.0f", keas);// TODO ground speed
+					sprintf_s(cbuf, 255, "%3.0f", STS()->GetGroundspeed() * MPS2KTS );
 					skp->Text( hps->CX - 26, hps->CY - 14, cbuf, strlen( cbuf ) );
 				}
 			}
@@ -2979,7 +3050,7 @@ void AerojetDAP::SetSpeedbrakeCommand(double range, double DeltaT)
 	double speedbrakeCMD = 0.0;
 
 	// calc auto comand
-	if (bWOW) AutoSpeedbrakeCommand = 1.0;
+	if (pLanding_SOP->GetWOWLON() == true) AutoSpeedbrakeCommand = 1.0;
 	else AutoSpeedbrakeCommand = CalculateSpeedbrakeCommand( range, DeltaT ) / 100.0;
 
 	// AUTO/MAN logic
@@ -3050,8 +3121,8 @@ void AerojetDAP::SetSpeedbrakeCommand(double range, double DeltaT)
 		}
 	}
 
-	// limit limit to >=15% if M>0.6
-	if ((STS()->GetMachNumber() > 0.6) && (STS()->GetMachNumber() < 9.814815))// use M9.8 instead of M10 so initial ramp occurs
+	// limit to >=15% if M>0.6 for stability, and keep limit below to prevent damage
+	if ((STS()->GetMachNumber() < 9.814815))// use M9.8 instead of M10 so initial ramp occurs
 		speedbrakeCMD = max( speedbrakeCMD, 0.15 );
 
 	// set command
@@ -4140,11 +4211,6 @@ double AerojetDAP::GetVacc( void ) const
 	mag = length(spd_vec2);
 	vacc += mag * mag / radius;
 	return vacc * MPS2FPS;
-}
-
-bool AerojetDAP::GetWOW( void ) const
-{
-	return bWONG;
 }
 
 VECTOR3 AerojetDAP::GetAttitudeErrors( void ) const

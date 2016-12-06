@@ -4,6 +4,7 @@
 #include "SSME_Operations.h"
 #include "AscentDAP.h"
 #include "AerojetDAP.h"
+#include "Landing_SOP.h"
 #include "OMSBurnSoftware.h"
 
 
@@ -37,6 +38,7 @@ namespace dps {
 		pSSME_Operations =  static_cast<SSME_Operations*> (STS()->pSimpleGPC->FindSoftware( "SSME_Operations" ));
 		pAscentDAP =  static_cast<AscentDAP*> (STS()->pSimpleGPC->FindSoftware( "AscentDAP" ));
 		pAerojetDAP =  static_cast<AerojetDAP*> (STS()->pSimpleGPC->FindSoftware( "AerojetDAP" ));
+		pLanding_SOP =  static_cast<Landing_SOP*> (STS()->pSimpleGPC->FindSoftware( "Landing_SOP" ));
 		pOMSBurnSoftware =  static_cast<OMSBurnSoftware*> (STS()->pSimpleGPC->FindSoftware( "OMSBurnSoftware" ));
 
 		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "C2_R11_IDP", 14 );
@@ -776,7 +778,7 @@ namespace dps {
 
 	bool IDP::GetWOW( void ) const
 	{
-		return pAerojetDAP->GetWOW();
+		return pLanding_SOP->GetWOWLON();
 	}
 
 	double IDP::GetNZError( void ) const

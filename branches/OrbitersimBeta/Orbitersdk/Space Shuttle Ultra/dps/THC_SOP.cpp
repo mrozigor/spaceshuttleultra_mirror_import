@@ -1,6 +1,4 @@
 #include "THC_SOP.h"
-#include "..\Atlantis.h"
-#include "..\AtlantisSubsystemDirector.h"
 #include "THC_RM.h"
 #include "assert.h"
 

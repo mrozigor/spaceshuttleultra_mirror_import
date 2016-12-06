@@ -1,6 +1,4 @@
 #include "RHC_SOP.h"
-#include "..\Atlantis.h"
-#include "..\AtlantisSubsystemDirector.h"
 #include "RHC_RM.h"
 #include "assert.h"
 

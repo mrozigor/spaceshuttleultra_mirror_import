@@ -1,6 +1,5 @@
 #include "SBTC_RM.h"
-#include "..\Atlantis.h"
-#include "..\AtlantisSubsystemDirector.h"
+#include "UltraMath.h"
 #include "assert.h"
 
 
@@ -25,9 +24,9 @@ namespace dps
 
 	void SBTC_RM::Realize( void )
 	{
-		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "LeftSBTC", 16 );
+		DiscreteBundle* pBundle = BundleManager()->CreateBundle( "LeftSBTC", 16 );
 		for (int i = 0; i < 6; i++) LeftSBTC[i].Connect( pBundle, i );
-		pBundle = STS()->BundleManager()->CreateBundle( "RightSBTC", 16 );
+		pBundle = BundleManager()->CreateBundle( "RightSBTC", 16 );
 		for (int i = 0; i < 6; i++) RightSBTC[i].Connect( pBundle, i );
 		return;
 	}

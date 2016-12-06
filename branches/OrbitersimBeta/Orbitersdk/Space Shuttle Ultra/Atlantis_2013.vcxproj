@@ -252,6 +252,7 @@
     <ClCompile Include="dps\HALS_Types.cpp" />
     <ClCompile Include="dps\IOModule.cpp" />
     <ClCompile Include="dps\IO_Control.cpp" />
+    <ClCompile Include="dps\Landing_SOP.cpp" />
     <ClCompile Include="dps\MEC_SOP.cpp" />
     <ClCompile Include="dps\MM801.cpp" />
     <ClCompile Include="dps\MMU.cpp" />
@@ -435,6 +436,7 @@
     <ClInclude Include="dps\HALS_Types.h" />
     <ClInclude Include="dps\IOModule.h" />
     <ClInclude Include="dps\IO_Control.h" />
+    <ClInclude Include="dps\Landing_SOP.h" />
     <ClInclude Include="dps\MDM.h" />
     <ClInclude Include="dps\MEC_SOP.h" />
     <ClInclude Include="dps\MM801.h" />

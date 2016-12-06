@@ -1,6 +1,4 @@
 #include "THC_RM.h"
-#include "..\Atlantis.h"
-#include "..\AtlantisSubsystemDirector.h"
 #include "assert.h"
 
 
@@ -31,13 +29,13 @@ namespace dps
 
 	void THC_RM::Realize( void )
 	{
-		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "LeftRHCTHC_A", 16 );
+		DiscreteBundle* pBundle = BundleManager()->CreateBundle( "LeftRHCTHC_A", 16 );
 		for (int i = 9; i < 16; i++) LeftTHC[i - 9].Connect( pBundle, i );
-		pBundle = STS()->BundleManager()->CreateBundle( "LeftRHCTHC_B", 16 );
+		pBundle = BundleManager()->CreateBundle( "LeftRHCTHC_B", 16 );
 		for (int i = 0; i < 11; i++) LeftTHC[i + 7].Connect( pBundle, i );
-		pBundle = STS()->BundleManager()->CreateBundle( "AftRHCTHC_A", 16 );
+		pBundle = BundleManager()->CreateBundle( "AftRHCTHC_A", 16 );
 		for (int i = 9; i < 16; i++) AftTHC[i - 9].Connect( pBundle, i );
-		pBundle = STS()->BundleManager()->CreateBundle( "AftRHCTHC_B", 16 );
+		pBundle = BundleManager()->CreateBundle( "AftRHCTHC_B", 16 );
 		for (int i = 0; i < 11; i++) AftTHC[i + 7].Connect( pBundle, i );
 		return;
 	}

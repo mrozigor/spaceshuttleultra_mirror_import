@@ -1,6 +1,4 @@
 #include "SBTC_SOP.h"
-#include "..\Atlantis.h"
-#include "..\AtlantisSubsystemDirector.h"
 #include "SBTC_RM.h"
 #include "SSME_SOP.h"
 #include "AscentDAP.h"

@@ -1,6 +1,5 @@
 #include "RPTA_RM.h"
-#include "..\Atlantis.h"
-#include "..\AtlantisSubsystemDirector.h"
+#include "UltraMath.h"
 #include "assert.h"
 
 
@@ -23,7 +22,7 @@ namespace dps
 
 	void RPTA_RM::Realize( void )
 	{
-		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "RPTA", 16 );
+		DiscreteBundle* pBundle = BundleManager()->CreateBundle( "RPTA", 16 );
 		for (int i = 0; i < 3; i++)
 		{
 			LeftRPTA[i].Connect( pBundle, i );

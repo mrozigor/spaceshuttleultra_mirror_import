@@ -259,17 +259,6 @@ namespace SSUWorkbench.model
 			file.WriteLine( "BEGIN_SHIPS" );
 			// TODO ships
 			file.WriteLine( "END_SHIPS" );
-			//file.WriteLine( "" );
-
-			////////////////// extmfd //////////////////
-			/*file.WriteLine( "BEGIN_DX9ExtMFD" );
-			file.WriteLine( "END" );
-			//file.WriteLine( "" );
-
-			////////////////// extmfd //////////////////
-			file.WriteLine( "BEGIN_ExtMFD" );
-			file.WriteLine( "END" );
-			//file.WriteLine( "" );*/
 
 			file.Close();
 
