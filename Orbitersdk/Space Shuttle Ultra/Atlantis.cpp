@@ -1998,9 +1998,9 @@ void Atlantis::DefineAnimations(void)
 	static UINT ETUmbLGrp[1] = { GRP_ET_DOOR_LEFT };
 	static UINT ETUmbRGrp[1] = { GRP_ET_DOOR_RIGHT };
 	static MGROUP_ROTATE EtumbdoorL(midx, ETUmbLGrp, 1,
-		_V(-1.323, -3.961, -9.49), _V(0.0, -0.0700974159956, 0.997540150706), (float)(+180.0*RAD));
+		_V(-1.3799, -3.9429, -9.5059), _V(0.0, -0.0700974159956, 0.997540150706), (float)(+182.0*RAD));
 	static MGROUP_ROTATE EtumbdoorR(midx, ETUmbRGrp, 1,
-		_V(1.323, -3.961, -9.49), _V(0.0, -0.0700974159956, 0.997540150706), (float)(-180.0*RAD));
+		_V(1.3799, -3.9429, -9.5059), _V(0.0, -0.0700974159956, 0.997540150706), (float)(-182.0*RAD));
 
 	static VECTOR3 etumbdoor_dummyvec[8];
 	static UINT ETUmbLDDMAftGrp[1] = { GRP_ET_DOOR_LEFT_DDM_ARM_AFT };
