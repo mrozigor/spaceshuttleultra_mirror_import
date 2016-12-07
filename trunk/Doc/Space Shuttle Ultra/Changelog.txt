@@ -1,3 +1,10 @@
+*** Major changes from SSU 4.0 ***
+
+corrected main gear wheel well visibility issue
+corrected the animation of the SSMEs
+improved the animation of the ET umbilical doors
+
+
 *** Major changes from SSU 3.0 ***
 
 corrected orbiter vehicle textures
