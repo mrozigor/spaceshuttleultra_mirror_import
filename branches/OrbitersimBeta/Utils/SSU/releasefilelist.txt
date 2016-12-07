@@ -509,9 +509,3 @@ Textures\VandenbergAFB\SLC-6_STS_general_tex.dds
 Textures\VandenbergAFB\slc6_org.dds
 Textures\VandenbergAFB\VAFB_SLC6_MSTtex.dds
 Textures\VandenbergAFB\VLS_OMCF_accesspath.dds
-Textures\Earth\Surf\13\000156\000175.dds
-Textures\Earth\Surf\13\000156\000176.dds
-Textures\Earth\Surf\13\000156\000177.dds
-Textures\Earth\Surf\16\000157\000175.dds
-Textures\Earth\Surf\16\000157\000176.dds
-Textures\Earth\Surf\16\000157\000177.dds
