@@ -416,6 +416,7 @@ Textures\SSU\panelL10_IUS.dds
 Textures\SSU\panelR4.dds
 Textures\SSU\PORT_OMSpod.dds
 Textures\SSU\PORT_OMSpod_spec.dds
+Textures\SSU\PORT_OMSpod_norm.dds
 Textures\SSU\ps-rcs2.dds
 Textures\SSU\R10_L9.dds
 Textures\SSU\R11.dds
@@ -450,6 +451,7 @@ Textures\SSU\SSUbay_spec.dds
 Textures\SSU\SSU_Bridgerail.dds
 Textures\SSU\STBD_OMSpod.dds
 Textures\SSU\STBD_OMSpod_spec.dds
+Textures\SSU\STBD_OMSpod_norm.dds
 Textures\SSU\STScargobay.dds
 Textures\SSU\STSinstruments.dds
 Textures\SSU\stsvc01.dds
