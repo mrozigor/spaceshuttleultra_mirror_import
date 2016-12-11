@@ -81,7 +81,7 @@ Doc\Space Shuttle Ultra\Changelog.txt
 Doc\Space Shuttle Ultra\Compiling SSU.txt
 Doc\Space Shuttle Ultra\GPL.txt
 Doc\Space Shuttle Ultra\MPS scenario file samples.doc
-Doc\Space Shuttle Ultra\SSU Ops Manual V4.1.pdf
+Doc\Space Shuttle Ultra\SSU Ops Manual V4.2.pdf
 Doc\Space Shuttle Ultra\Crawler Transporter notes.txt
 Doc\Space Shuttle Ultra\Tech Notes\Attitude Control Code.odt
 Doc\Space Shuttle Ultra\Tech Notes\DPS ShuttleBus System.pdf
@@ -414,6 +414,7 @@ Textures\SSU\panelL10_IUS.dds
 Textures\SSU\panelR4.dds
 Textures\SSU\PORT_OMSpod.dds
 Textures\SSU\PORT_OMSpod_spec.dds
+Textures\SSU\PORT_OMSpod_norm.dds
 Textures\SSU\ps-rcs2.dds
 Textures\SSU\R10_L9.dds
 Textures\SSU\R11.dds
@@ -448,6 +449,7 @@ Textures\SSU\SSUbay_spec.dds
 Textures\SSU\SSU_Bridgerail.dds
 Textures\SSU\STBD_OMSpod.dds
 Textures\SSU\STBD_OMSpod_spec.dds
+Textures\SSU\STBD_OMSpod_norm.dds
 Textures\SSU\STScargobay.dds
 Textures\SSU\STSinstruments.dds
 Textures\SSU\stsvc01.dds
