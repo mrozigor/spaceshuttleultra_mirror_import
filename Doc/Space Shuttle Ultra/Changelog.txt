@@ -1,8 +1,8 @@
-*** Major changes from SSU 4.0 ***
+*** Major changes from SSU 4.1 ***
 
-corrected main gear wheel well visibility issue
-corrected the animation of the SSMEs
-improved the animation of the ET umbilical doors
+corrected issues with orbiter mesh
+added normal maps to OMS pods
+corrected MECO parameters of some missions
 
 
 *** Major changes from SSU 3.0 ***
