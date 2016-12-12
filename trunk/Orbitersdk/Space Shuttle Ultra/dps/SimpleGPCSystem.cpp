@@ -1,7 +1,7 @@
 #include <cassert>
 #include "SimpleGPCSystem.h"
 #include "SimpleGPCSoftware.h"
-#include "AscentGuidance.h"
+#include "AscentDAP.h"
 #include "OrbitDAP.h"
 #include "OMSBurnSoftware.h"
 #include "StateVectorSoftware.h"
@@ -19,6 +19,16 @@
 #include "SRBSepSequence.h"
 #include "ATVC_SOP.h"
 #include "GeneralDisplays.h"
+#include "MEC_SOP.h"
+#include "RHC_RM.h"
+#include "THC_RM.h"
+#include "RPTA_RM.h"
+#include "SBTC_RM.h"
+#include "RHC_SOP.h"
+#include "THC_SOP.h"
+#include "RPTA_SOP.h"
+#include "SBTC_SOP.h"
+#include "Landing_SOP.h"
 #include "../Atlantis.h"
 
 namespace dps
@@ -33,7 +43,7 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 	vSoftware.push_back( new SSME_Operations( this ) );
 	vSoftware.push_back( new SSME_SOP( this ) );
 	vSoftware.push_back( new RSLS_old( this ) );
-	vSoftware.push_back(new AscentGuidance(this));
+	vSoftware.push_back(new AscentDAP(this));
 	vSoftware.push_back(new OrbitDAP(this));
 	vSoftware.push_back(new StateVectorSoftware(this));
 	vSoftware.push_back(new OMSBurnSoftware(this));
@@ -46,6 +56,16 @@ SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 	vSoftware.push_back( new SRBSepSequence( this ) );
 	vSoftware.push_back( new ATVC_SOP( this ) );
 	vSoftware.push_back( new GeneralDisplays( this ) );
+	vSoftware.push_back( new MEC_SOP( this ) );
+	vSoftware.push_back( new RHC_RM( this ) );
+	vSoftware.push_back( new THC_RM( this ) );
+	vSoftware.push_back( new RPTA_RM( this ) );
+	vSoftware.push_back( new SBTC_RM( this ) );
+	vSoftware.push_back( new RHC_SOP( this ) );
+	vSoftware.push_back( new THC_SOP( this ) );
+	vSoftware.push_back( new RPTA_SOP( this ) );
+	vSoftware.push_back( new SBTC_SOP( this ) );
+	vSoftware.push_back( new Landing_SOP( this ) );
 }
 
 SimpleGPCSystem::~SimpleGPCSystem()
@@ -91,6 +111,151 @@ bool SimpleGPCSystem::IsValidMajorModeTransition(unsigned int newMajorMode) cons
 	default:
 		return false;
 	}
+}
+
+bool SimpleGPCSystem::IsValidSPEC( int spec ) const
+{
+	switch (majorMode / 100)
+	{
+		case 0:
+			switch (spec)
+			{
+				case 1:
+				case 2:
+				case 6:
+				case 99:
+					return true;
+			}
+			break;
+		case 1:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 6:
+				case 18:
+				case 19:// HACK BFS only
+				case 23:
+				case 50:
+				case 51:
+				case 53:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+			break;
+		case 2:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 6:
+				case 18:
+				case 19:
+				case 20:
+				case 21:
+				case 22:
+				case 23:
+				case 25:
+				case 33:
+				case 34:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+			break;
+		case 3:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 6:
+				case 18:
+				case 19:// HACK BFS only
+				case 21:
+				case 22:
+				case 23:
+				case 50:
+				case 51:
+				case 53:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+			break;
+		case 6:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 6:
+				case 18:
+				case 19:// HACK BFS only
+				case 23:
+				case 50:
+				case 51:
+				case 53:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+			break;
+		case 8:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 6:
+				case 18:
+				case 19:
+				case 23:
+				case 40:
+				case 41:
+				case 42:
+				case 43:
+				case 44:
+				case 45:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+		case 9:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 6:
+				case 55:
+				case 62:
+				case 99:
+				case 100:
+				case 101:
+				case 102:
+				case 104:
+				case 105:
+				case 106:
+				case 112:
+				case 113:
+					return true;
+				default:
+					return false;
+			}
+			break;
+	}
+	return false;
 }
 
 void SimpleGPCSystem::Realize()

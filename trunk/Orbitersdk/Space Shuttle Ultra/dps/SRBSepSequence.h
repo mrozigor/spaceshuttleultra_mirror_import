@@ -61,7 +61,8 @@ using namespace discsignals;
 namespace dps
 {
 	class SSME_Operations;
-	class AscentGuidance;
+	class AscentDAP;
+	class MEC_SOP;
 
 	/**
 	 * @brief	Implementation of the SRB Separation Sequencer running in the GPCs.
@@ -72,7 +73,8 @@ namespace dps
 	{
 		private:
 			SSME_Operations* pSSME_Operations;
-			AscentGuidance* pAscentGuidance;
+			AscentDAP* pAscentDAP;
+			MEC_SOP* pMEC_SOP;
 
 			DiscInPort SRBSEPSW;
 			DiscInPort SRBSEPPB;

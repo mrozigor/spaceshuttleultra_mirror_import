@@ -29,18 +29,6 @@
 // panel area identifiers
 // ==========================================================
 
-// define MFD function buttons
-#define AID_CDR1_LABEL		1
-#define AID_CDR2_LABEL		2
-#define AID_CRT1_LABEL		3
-#define AID_CRT2_LABEL		4
-#define AID_CRT3_LABEL		5
-#define AID_MFD1_LABEL		6
-#define AID_MFD2_LABEL		7
-#define AID_PLT1_LABEL		8
-#define AID_PLT2_LABEL		9
-#define AID_CRT4_LABEL		10
-#define AID_AFD_LABEL		11
 // D. Beachy: define power buttons
 #define AID_CDR1_PWR      12
 #define AID_CDR2_PWR      13
@@ -68,31 +56,16 @@
 // Panel R13L (payload bay operations)
 #define AID_R13L_MIN     100
 #define AID_R13L         100
-#define AID_R13L_TKBK1   101
-#define AID_R13L_TKBK2   102
-#define AID_R13L_TKBK3   103
-#define AID_R13L_TKBK4   104
-#define AID_R13L_TKBK5   105
-#define AID_R13L_TKBK6   106
-#define AID_R13L_TKBK7   107
-#define AID_R13L_TKBK8   108
 #define AID_R13L_MAX     120
 // Panel F6 (commander's panel)
 #define AID_F6_MIN     200
 #define AID_F6         200
-#define AID_F6_TKBK1   201
-#define AID_F6_TKBK2   202
-#define AID_F6_TKBK3   203
 #define AID_F6_PB1   204
 #define AID_F6_PB2   205
 #define AID_F6_MAX     219
 // Panel F7 (event timer and MPS status)
 #define AID_F7_MIN	     260
 #define AID_F7	         260
-#define AID_F7_EVTTMR1   261
-#define AID_F7_EVTTMR2   262
-#define AID_F7_EVTTMR3   263
-#define AID_F7_EVTTMR4   264
 #define AID_F7_SSME_C_R  265
 #define AID_F7_SSME_C_Y  266
 #define AID_F7_SSME_L_R  267
@@ -142,26 +115,15 @@
 // Panel O3
 #define AID_O3_MIN	   330
 #define AID_O3		   330
-#define AID_O3_METTMR1 331
-#define AID_O3_METTMR2 332
-#define AID_O3_RCS     333
 #define AID_O3_MAX	   349
 
 #define AID_O6_MIN	   350
 #define AID_O6		   350
-#define AID_O6_DS1	   351
-#define AID_O6_DS2	   352
-#define AID_O6_DS3	   353
-#define AID_O6_DS4	   354
-#define AID_O6_DS5	   355
-#define AID_O6_DS6	   356
-#define AID_O6_DS7	   357
-#define AID_O6_DS8	   358
-#define AID_O6_DS9	   359
-#define AID_O6_DS10	   360
-#define AID_O6_DS11	   361
-#define AID_O6_DS12	   362
 #define AID_O6_MAX	   362
+
+#define AID_O8_MIN	   380
+#define AID_O8		   380
+#define AID_O8_MAX	   390
 // Panel R2
 #define AID_R2_MIN     400
 #define AID_R2         400
@@ -177,9 +139,6 @@
 
 #define AID_A4_MIN	   420
 #define AID_A4		   420
-#define AID_A4_EVTTMR  421
-#define AID_A4_METTMR1 422
-#define AID_A4_METTMR2 423
 #define AID_A4_MAX	   429
 // Panel A8
 #define AID_A8_MIN     430
@@ -212,9 +171,6 @@
 
 #define AID_F8_MIN	   460
 #define AID_F8		   460
-#define AID_F8_TKBK1	461
-#define AID_F8_TKBK2	462
-#define AID_F8_TKBK3	463
 #define AID_F8_PB1	464
 #define AID_F8_PB2	465
 #define AID_F8_MAX	   470
@@ -318,17 +274,11 @@
 
 #define AID_L12U_CENTAUR_MIN	900
 #define AID_L12U_CENTAUR	900
-#define AID_L12U_CENTAUR_TKBK1	901
-#define AID_L12U_CENTAUR_TKBK2	902
-#define AID_L12U_CENTAUR_TKBK3	903
-#define AID_L12U_CENTAUR_TKBK4	904
-#define AID_L12U_CENTAUR_TKBK5	905
-#define AID_L12U_CENTAUR_TKBK6	906
 #define AID_L12U_CENTAUR_MAX	910
 
 #define AID_L12U_IUS_MIN	920
 #define AID_L12U_IUS		920
-#define AID_L12U_IUS_MAX	830
+#define AID_L12U_IUS_MAX	930
 
 #define AID_MDU_CDR1	1000
 #define AID_MDU_CDR2	1001
@@ -346,8 +296,6 @@
 
 #define AID_A2_MIN	1020
 #define AID_A2		1020
-#define AID_A2_LED1	1021
-#define AID_A2_LED2	1022
 #define AID_A2_MAX	1030
 
 
@@ -393,7 +341,7 @@ namespace vc {
 	const int TB_BARBERPOLE = 0;
 	const int TB_STO = 1;
 	const int TB_LAT = 2;
-	const int TB_CLO = 3;
+	const int TB_CL = 3;
 	const int TB_OP = 4;
 	const int TB_ON = 5;
 	const int TB_OFF = 6;
@@ -404,7 +352,11 @@ namespace vc {
 	const int TB_DN = 11;
 	const int TB_UP = 12;
 	const int TB_RUN = 13;
-	const int TB_HALT = 14;
+	const int TB_IPL = 14;
+	const int TB_ICH = 15;
+	const int TB_RAD = 16;
+	const int TB_PL = 17;
+	const int TB_BYP = 18;
 
 	const int MDUID_CDR1 = 0;
 	const int MDUID_CDR2 = 1;
@@ -420,19 +372,11 @@ namespace vc {
 
 
 	class MDU;
-	//class BasicVCComponent;
 	class AtlantisVCComponent;
 	class BasicSwitch;
-	//class BasicPanel;
 	class AtlantisPanel;
-	//class PanelGroup;
-	class PanelF7;
 	class PanelR2;
 	class DAPControl;
-
-	/*typedef struct {
-		float x, y;
-	} VCMOUSEEVENTPOINT;*/
 
 	typedef MDU* PMDU;
 };

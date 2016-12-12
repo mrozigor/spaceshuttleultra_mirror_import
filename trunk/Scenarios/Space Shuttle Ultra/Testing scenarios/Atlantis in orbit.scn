@@ -23,17 +23,11 @@ END_CAMERA
 BEGIN_MFD Right
   TYPE User
   MODE CRT
-  Mode2 1
-  Display 2
-  MDUID 1
 END_MFD
 
 BEGIN_MFD 5
   TYPE User
   MODE CRT
-  Mode2 3
-  Display 0
-  MDUID 4
 END_MFD
 
 BEGIN_VC
@@ -361,36 +355,28 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   VALIDDEPLOY 1
 @ENDSUBSYSTEM		;ElectronicsAssembly1
   @PANEL F2
-  "F2_SPDBKTHROT_AUTO" 1
   "F2_BODYFLAP_AUTO" 0
-  "F2_PITCH_AUTO" 0
-  "F2_PITCH_CSS" 0
-  "F2_RY_AUTO" 0
-  "F2_RY_CSS" 0
   "Drag Chute ARM Cover" [0]
   "Drag Chute DPY Cover" [0]
-  "Drag Chute ARM" 0
-  "Drag Chute DPY" 0
   @ENDPANEL 
   @PANEL F3
   "Drag Chute ARM Cover" [0]
   "Drag Chute DPY Cover" [0]
   "Drag Chute JETT Cover" [0]
-  "Drag Chute ARM" 0
-  "Drag Chute DPY" 0
-  "Drag Chute JETT" 0
   @ENDPANEL 
   @PANEL F4
-  "F4_SPDBKTHROT_AUTO" 1
   "F4_BODYFLAP_AUTO" 0
-  "F4_PITCH_AUTO" 0
-  "F4_PITCH_CSS" 0
-  "F4_RY_AUTO" 0
-  "F4_RY_CSS" 0
   "Drag Chute JETT Cover" [0]
-  "Drag Chute JETT" 0
   @ENDPANEL 
   @PANEL F6
+  @OBJECT "CDR1"
+  DISPLAY 3
+  MENU 2
+  @ENDOBJECT
+  @OBJECT "CDR2"
+  DISPLAY 2
+  MENU 1
+  @ENDOBJECT
   "Cdr Flt Cntlr Pwr" OFF
   "ADI Attitude" LVLH
   "ADI Error" MED
@@ -401,8 +387,36 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "Landing Gear DN" 0
   @ENDPANEL 
   @PANEL F7
+  @OBJECT "CRT1"
+  DISPLAY 0
+  MENU 3
+  @ENDOBJECT
+  @OBJECT "CRT2"
+  DISPLAY 0
+  MENU 3
+  @ENDOBJECT
+  @OBJECT "CRT3"
+  DISPLAY 0
+  MENU 3
+  @ENDOBJECT
+  @OBJECT "MFD1"
+  DISPLAY 4
+  MENU 2
+  @ENDOBJECT
+  @OBJECT "MFD2"
+  DISPLAY 3
+  MENU 2
+  @ENDOBJECT
   @ENDPANEL 
   @PANEL F8
+  @OBJECT "PLT1"
+  DISPLAY 1
+  MENU 1
+  @ENDOBJECT
+  @OBJECT "PLT2"
+  DISPLAY 4
+  MENU 2
+  @ENDOBJECT
   "Plt Flt Cntlr Pwr" OFF
   "ADI Attitude" LVLH
   "ADI Error" MED
@@ -526,9 +540,11 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "GPC MODE 5" RUN
   @ENDPANEL 
   @PANEL O17
-  "EIU L-C" ON
-  "EIU C-R" ON
-  "EIU R-L" ON
+  "EIU L-C" OFF
+  "EIU C-R" OFF
+  "EIU R-L" OFF
+  "MEC 1 Power" OFF
+  "MEC 2 Power" OFF
   @ENDPANEL 
   @PANEL R11
   "IDP/CRT 4 Power" ON

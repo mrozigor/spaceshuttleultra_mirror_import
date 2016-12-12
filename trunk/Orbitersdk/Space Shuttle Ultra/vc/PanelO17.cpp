@@ -21,6 +21,15 @@ PanelO17::PanelO17(Atlantis* psts)
 	pEIUPowerRL->SetLabel(1, "OFF");
 	pEIUPowerRL->SetLabel(0, "ON");
 	pEIUPowerRL->SetOnPosition(0);
+
+	Add( pMECPower[0] = new StdSwitch2( psts, "MEC 1 Power" ) );
+	pMECPower[0]->SetLabel( 1, "OFF" );
+	pMECPower[0]->SetLabel( 0, "ON" );
+	pMECPower[0]->SetOnPosition( 0 );
+	Add( pMECPower[1] = new StdSwitch2( psts, "MEC 2 Power" ) );
+	pMECPower[1]->SetLabel( 1, "OFF" );
+	pMECPower[1]->SetLabel( 0, "ON" );
+	pMECPower[1]->SetOnPosition( 0 );
 }
 
 PanelO17::~PanelO17()
@@ -46,6 +55,16 @@ void PanelO17::DefineVC()
 	pEIUPowerRL->DefineSwitchGroup(GRP_O17S9_VC);
 	pEIUPowerRL->SetReference(_V(0.81725, 3.1105, 13.3365), SWITCH_ROT);
 	pEIUPowerRL->SetMouseRegion(0.270f, 0.625f, 0.362f, 0.7f);
+
+	pMECPower[0]->SetInitialAnimState( 0.5f );
+	pMECPower[0]->DefineSwitchGroup( GRP_O17S5_VC );
+	pMECPower[0]->SetReference( _V( 0.8507, 3.0852, 13.4520 ), SWITCH_ROT );
+	pMECPower[0]->SetMouseRegion( 0.296503f, 0.365015f, 0.346141f, 0.413497f );
+
+	pMECPower[1]->SetInitialAnimState( 0.5f );
+	pMECPower[1]->DefineSwitchGroup( GRP_O17S6_VC );
+	pMECPower[1]->SetReference( _V( 0.8507, 3.0852, 13.4520 ), SWITCH_ROT );
+	pMECPower[1]->SetMouseRegion( 0.390501f, 0.365165f, 0.439871f, 0.412690f );
 }
 
 void PanelO17::RegisterVC()
@@ -61,12 +80,14 @@ void PanelO17::RegisterVC()
 
 void PanelO17::Realize()
 {
-	DiscreteBundle* O17_to_EIU_AC = STS()->BundleManager()->CreateBundle( "O17_to_EIU_AC", 3 );
+	DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "O17_to_EIU_AC", 3 );
+	pEIUPowerLC->output.Connect( pBundle, 0 );// AC2
+	pEIUPowerCR->output.Connect( pBundle, 1 );// AC1
+	pEIUPowerRL->output.Connect( pBundle, 2 );// AC3
 
-	pEIUPowerLC->output.Connect( O17_to_EIU_AC, 0 );// AC2
-	pEIUPowerCR->output.Connect( O17_to_EIU_AC, 1 );// AC1
-	pEIUPowerRL->output.Connect( O17_to_EIU_AC, 2 );// AC3
-
+	pBundle = STS()->BundleManager()->CreateBundle( "O17_MEC", 2 );
+	pMECPower[0]->output.Connect( pBundle, 0 );
+	pMECPower[1]->output.Connect( pBundle, 1 );
 	AtlantisPanel::Realize();
 }
 

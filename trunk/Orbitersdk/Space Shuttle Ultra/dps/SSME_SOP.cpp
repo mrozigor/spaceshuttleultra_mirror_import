@@ -36,6 +36,9 @@ namespace dps
 			LimitExceeded[i] = false;
 			ChannelFailure[i] = false;
 
+			last_priTREF[i] = -1;
+			last_secTREF[i] = -1;
+
 			PrimaryDataFail[i] = false;
 			SecondaryDataFail[i] = false;
 			DCUProcess[i] = false;
@@ -54,6 +57,9 @@ namespace dps
 
 	void SSME_SOP::OnPreStep( double SimT, double DeltaT, double MJD )
 	{
+		double priTREF = 0;
+		double secTREF = 0;
+
 		for (int i = 0; i < 3; i++)
 		{
 			// always gets previous time
@@ -65,8 +71,10 @@ namespace dps
 			word (TREF) updating or when the two main engine identification words (ID words 1 & 2) are not one’s
 			complements.*/
 			PadDataPathFailure[i] = false;
+			priTREF = pridata[i][0] + ((double)pridata[i][1] / 10000);
+			secTREF = secdata[i][0] + ((double)secdata[i][1] / 10000);
 
-			if (!Eq( pridata[i][0] + ((double)pridata[i][1] / 10000), SimT - DeltaT, 0.0001 ))
+			if (priTREF == last_priTREF[i])
 			{
 				if (PrimaryDataFail[i] == true)
 				{
@@ -85,7 +93,7 @@ namespace dps
 
 			if ((PrimaryDataFail[i] == true) || (GetMajorMode() == 101))// SRB not ignited
 			{
-				if (!Eq( secdata[i][0] + ((double)secdata[i][1] / 10000), SimT - DeltaT, 0.0001 ))
+				if (secTREF == last_secTREF[i])
 				{
 					if (SecondaryDataFail[i] == true)
 					{
@@ -219,6 +227,9 @@ namespace dps
 					LimitExceeded[i] = true;
 				}
 			}
+
+			last_priTREF[i] = priTREF;
+			last_secTREF[i] = secTREF;
 		}
 		return;
 	}

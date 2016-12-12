@@ -18,9 +18,15 @@
     <ClCompile Include="SSU_IUS.CPP">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SSU_IUS_MFD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SSU_IUS.H">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SSU_IUS_MFD.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="meshres_IUS_SRM2.h">

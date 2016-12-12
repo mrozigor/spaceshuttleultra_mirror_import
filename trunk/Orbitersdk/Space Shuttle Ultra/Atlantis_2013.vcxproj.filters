@@ -17,21 +17,6 @@
     <None Include="..\..\Meshes\SSU\Cockpit.msh">
       <Filter>Meshes</Filter>
     </None>
-    <None Include="..\..\Meshes\SSU\ET125.msh">
-      <Filter>Meshes</Filter>
-    </None>
-    <None Include="..\..\Meshes\SSU\FixedServiceStructure.msh">
-      <Filter>Meshes</Filter>
-    </None>
-    <None Include="..\..\Meshes\SSU\KU.msh">
-      <Filter>Meshes</Filter>
-    </None>
-    <None Include="..\..\Meshes\SSU\lsrb.msh">
-      <Filter>Meshes</Filter>
-    </None>
-    <None Include="..\..\Meshes\SSU\MLP-2_dev.msh">
-      <Filter>Meshes</Filter>
-    </None>
     <None Include="..\..\Meshes\SSU\ODS.msh">
       <Filter>Meshes</Filter>
     </None>
@@ -44,29 +29,13 @@
     <None Include="..\..\Meshes\SSU\RMS.msh">
       <Filter>Meshes</Filter>
     </None>
-    <None Include="..\..\Meshes\SSU\rsrb.msh">
-      <Filter>Meshes</Filter>
-    </None>
     <None Include="..\..\Meshes\SSU\VC.msh">
       <Filter>Meshes</Filter>
     </None>
     <None Include="..\..\Scenarios\(Current state).scn" />
-    <None Include="Bitmaps\bitmap1.bmp" />
-    <None Include="ClassDiagram1.cd" />
-    <None Include="ClassDiagram2.cd" />
-    <None Include="ClassDiagram3.cd" />
-    <None Include="ClassDiagram4.cd" />
-    <None Include="ClassDiagram5.cd" />
-    <None Include="ClassDiagram6.cd" />
     <None Include="Bitmaps\clocknums.bmp" />
     <None Include="Bitmaps\DEU_Raw.bmp" />
     <None Include="Bitmaps\digits.bmp" />
-    <None Include="down.ico" />
-    <None Include="ico00001.ico" />
-    <None Include="ico00002.ico" />
-    <None Include="ico00003.ico" />
-    <None Include="ico00004.ico" />
-    <None Include="icon1.ico" />
     <None Include="Bitmaps\ODSbuttons.bmp" />
     <None Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
     <None Include="..\..\Orbiter.log" />
@@ -339,9 +308,6 @@
     <ClCompile Include="dps\OrbitTgtSoftware.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="dps\AscentGuidance.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="mps\ComputerInterfaceElectronics.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -474,14 +440,100 @@
     <ClCompile Include="vc\PanelA2.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="vc\PanelL10.cpp" />
-    <ClCompile Include="comm\ElectronicsAssembly1.cpp" />
-    <ClCompile Include="comm\ElectronicsAssembly2.cpp" />
-    <ClCompile Include="comm\GCIL.cpp" />
+    <ClCompile Include="DragChute.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MasterEventsController.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\MEC_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp_EventTime.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp_MissionTime.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp_RCSOMS_PRPLT_QTY.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp_RE_RRA.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelO8.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="gnc\RA.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\MDU_Subsystem_Displays.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\MDU_AEPFD_Display.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\MDU_DPS_Display.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\MDU_Maintenance_Displays.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\MDU_OrbitPFD_Display.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelL10.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\ElectronicsAssembly2.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\ElectronicsAssembly1.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="comm\GCIL.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
     <ClCompile Include="vc\PanelL12U_Centaur.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelL12U_IUS.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="CRT.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\THC_RM.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\THC_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RHC_RM.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RHC_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\AscentDAP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RPTA_RM.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RPTA_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\SBTC_RM.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\SBTC_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\Landing_SOP.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -541,9 +593,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="ETUmbDoorSystem.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="vc\EventTimer.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="eva_docking\ExtAirlock.h">
@@ -624,9 +673,6 @@
     <ClInclude Include="vc\PanelA8.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="PanelC2.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="vc\PanelC3.h">
       <Filter>Includes</Filter>
     </ClInclude>
@@ -657,16 +703,10 @@
     <ClInclude Include="ParameterValues.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="PlBayOp.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="vc\PushButton.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PushButtonIndicator.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="dps\RAM16.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
@@ -703,9 +743,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\Talkback.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="ValveTypeBool.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\vc_defs.h">
@@ -747,16 +784,10 @@
     <ClInclude Include="vc\PanelA1U.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="commGCIL.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="dps\RSLS_old.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\RSLS.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="DeployedAssembly.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\AtlantisPanel.h">
@@ -772,9 +803,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\OrbitTgtSoftware.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="dps\AscentGuidance.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="dps\SSME_SOP.h">
@@ -915,13 +943,7 @@
     <ClInclude Include="CISS.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="vc\PanelA2.h">
-      <Filter>Sources</Filter>
-    </ClInclude>
     <ClInclude Include="vc\PanelL10.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="vc\PanelL12U.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelR13L.h">
@@ -936,14 +958,130 @@
     <ClInclude Include="comm\GCIL.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="vc\PanelL12U_Centaur.h">
+    <ClInclude Include="DragChute.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelA2.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="MasterEventsController.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\MEC_SOP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp_EventTime.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp_MissionTime.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp_RCSOMS_PRPLT_QTY.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp_RE_RRA.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelO8.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="gnc\RA.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelC2.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="comm\DeployedAssembly.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc_l10.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc_l12u_centaur.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc_l12u_ius.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelL12U_IUS.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="vc\PanelL12U_Centaur.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelA4.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_CISS_G.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_CISS_GPrime.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_IUS_ASE.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="AirDataProbeSystem.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="CRT.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libUltra\include\EngConst.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc_a8.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_ku.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\SimpleGPC.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="CommModeHandler.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\RHC_RM.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\RHC_SOP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\THC_RM.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\THC_SOP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\AscentDAP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\RPTA_SOP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\RPTA_RM.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\SBTC_RM.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\SBTC_SOP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\Landing_SOP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Atlantis.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Bitmaps\DEU_Raw_fault.bmp" />
+    <Image Include="Bitmaps\SSME_lights.bmp" />
+    <Image Include="Bitmaps\A8lights.bmp" />
   </ItemGroup>
 </Project>

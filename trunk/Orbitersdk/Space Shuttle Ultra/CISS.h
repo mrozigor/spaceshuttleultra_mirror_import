@@ -180,8 +180,6 @@ class CISS:public AtlantisSubsystem
 		ATTACHMENTHANDLE ahToCentaur;
 		VECTOR3 centaurAttachment[3];
 
-		bool bFirstStep;
-
 		bool bMECH_PRI_PWR;
 		bool bMECH_BKUP_PWR;
 		bool bDA_PRI_UP;
@@ -225,13 +223,14 @@ class CISS:public AtlantisSubsystem
 
 		virtual void Realize();
 		virtual void OnPreStep( double SimT, double DeltaT, double MJD );
-		virtual void OnPostStep( double SimT, double DeltaT, double MJD );
 		virtual bool OnParseLine( const char* line );
 		virtual void OnSaveState( FILEHANDLE scn ) const;
 		bool SingleParamParseLine() const {return true;};
 		virtual double GetSubsystemEmptyMass() const;
 		void CreateAttachment();
 		void AddMesh();
+
+		void UpdateAttachment( void );
 };
 
 #endif// __CISS_H

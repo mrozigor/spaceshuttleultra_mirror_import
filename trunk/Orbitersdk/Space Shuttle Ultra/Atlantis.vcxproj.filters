@@ -50,6 +50,7 @@
     <None Include="Bitmaps\DEU_Raw_overbright.bmp" />
     <None Include="Bitmaps\A8lights.bmp" />
     <None Include="Bitmaps\SSME_lights.bmp" />
+    <None Include="Bitmaps\DEU_Raw_fault.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="eps\ACBus.cpp">
@@ -464,6 +465,54 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="vc\PanelL12U_IUS.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="CRT.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\MDU_Maintenance_Displays.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\MDU_Subsystem_Displays.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\MDU_OrbitPFD_Display.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\MDU_AEPFD_Display.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\MDU_DPS_Display.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelO8.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="gnc\RA.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp_EventTime.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp_MissionTime.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp_RCSOMS_PRPLT_QTY.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp_RE_RRA.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MasterEventsController.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\MEC_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="DragChute.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -919,6 +968,39 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelL12U_IUS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="CRT.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelO8.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="gnc\RA.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp_EventTime.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp_MissionTime.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp_RCSOMS_PRPLT_QTY.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\7SegDisp_RE_RRA.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="MasterEventsController.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="dps\MEC_SOP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="DragChute.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

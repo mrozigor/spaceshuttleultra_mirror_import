@@ -28,6 +28,7 @@
 
 #include "AtlantisPanel.h"
 #include "StandardSwitch.h"
+#include "7SegDisp_RE_RRA.h"
 
 
 namespace vc
@@ -37,22 +38,15 @@ namespace vc
 			UINT anim_M1_AZ;
 			UINT anim_M1_EL;
 
-			double range_elevation;
-			double rangerate_azimuth;
-
 			bool power;
 
 			StdSwitch3* pDIGI_DIS_SELECT;
 			StdSwitch2* pXPNTR_SCALE;
 
-			DiscInPort pDIGI_DIS_SELECT_LAMPTEST;
-			DiscInPort pDIGI_DIS_SELECT_RRbar;
+			_7SegDisp_RE_RRA* pRE_RRA;
+
 			DiscInPort pXPNTR_SCALE_X1;
 
-			DiscInPort pRange;
-			DiscInPort pRangeRate;
-			DiscInPort pElevation;
-			DiscInPort pAzimuth;
 			DiscInPort pELrate0_20;
 			DiscInPort pELrate0_2;
 			DiscInPort pAZrate0_20;
@@ -66,7 +60,6 @@ namespace vc
 
 			virtual void DefineVC();
 			virtual void RegisterVC();
-			bool OnVCRedrawEvent( int id, int _event, SURFHANDLE surf );
 			void DefineVCAnimations( UINT vcidx );
 			void OnPreStep( double SimT, double DeltaT, double MJD );
 			virtual void Realize();

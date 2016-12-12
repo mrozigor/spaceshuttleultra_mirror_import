@@ -104,8 +104,10 @@ const double SRM1_GIMBAL_RANGE = 4;// deg
 const double SRM2_GIMBAL_RANGE = 7;// deg
 
 
-class SSU_IUS:public VESSEL3
+class SSU_IUS:public VESSEL4
 {
+	friend class SSU_IUS_MFD;
+
 	private:
 		VISHANDLE MainExternalMeshVisual;
 		UINT mesh_stage1;
@@ -146,13 +148,16 @@ class SSU_IUS:public VESSEL3
 		double AdapterOffset;// m
 		double AdapterMass;// Kg
 
+		int mfdID;
+
 	public:
 		SSU_IUS( OBJHANDLE hObj );
+		~SSU_IUS( void );
 
 		void clbkSetClassCaps(FILEHANDLE cfg);
 		void clbkPostStep(double simtt, double simdt, double mjd);
 		void DefineAnimations(void);
-		bool clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp );
+		//bool clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp );
 		int clbkConsumeBufferedKey(DWORD key, bool down, char *kstate);
 		void clbkAnimate( double simt );
 		void clbkVisualCreated(VISHANDLE vis, int refcount);

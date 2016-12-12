@@ -57,34 +57,16 @@
 #include "PanelGroup.h"
 #include "vc/AtlantisPanel.h"
 #include "vc/PanelF7.h"
-#include "vc/PanelO3.h"
+#include "vc\7SegDisp_RCSOMS_PRPLT_QTY.h"
 #include "APU.h"
 #include <EngConst.h>
 #include "Discsignals.h"
 #include "eva_docking/BasicExtAirlock.h"
 #include "eva_docking\TunnelAdapterAssembly.h"
-#include "PIDControl.h"
 #include "ISSUMLP.h"
 #include "gnc/ATVC.h"
 #include "comm\DeployedAssembly.h"
 #include "Sensor.h"
-
-
-
-typedef struct {
-	double P;		//Pressure (psig)
-	double T;		//Temperature (°R)
-	double mdot;	//mass flow (lb/s)
-} FLOWSTATE;
-
-
-
-
-//Z
-//-.5216187842e-1*sin(beta)+.5609219446*cos(alpha)
-//-.2802319446*cos(alpha)*cos(beta)+.9135110136*sin(alpha)
-//+.9417727780e-2*sin(alpha)*cos(beta)
-
 
 
 const short VARSTATE_OK = 0;
@@ -140,13 +122,6 @@ const static char* TEXT_RMSCONTROL = "Controlling RMS";
 // ==========================================================
 
 
-const unsigned int convert[69] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-
-
-
-
 typedef struct {
 	HINSTANCE hDLL;
 	SURFHANDLE pbi_lights;
@@ -158,53 +133,15 @@ typedef struct {
 	SURFHANDLE a8_lights;
 	HBITMAP deu_characters;
 	HBITMAP deu_characters_overbright;
+	HBITMAP deu_characters_fault;
 	HDC DeuCharBitmapDC;
 	HDC DeuCharOvrBrgtBitmapDC;
-	HFONT font[1];
+	HDC DeuCharFaultBitmapDC;
+	SURFHANDLE deu_charactersSH;
+	SURFHANDLE deu_characters_overbrightSH;
+	SURFHANDLE deu_characters_faultSH;
 } GDIParams;
 
-
-struct DAPConfig {
-	double PRI_ROT_RATE, PRI_ATT_DB, PRI_RATE_DB, PRI_ROT_PLS, PRI_COMP, PRI_TRAN_PLS;
-	int PRI_P_OPTION, PRI_Y_OPTION; //0=ALL, 1=NOSE, 2=TAIL
-	double ALT_RATE_DB, ALT_ON_TIME, ALT_DELAY;
-	int ALT_JET_OPT, ALT_JETS;
-	double VERN_ROT_RATE, VERN_ATT_DB, VERN_RATE_DB, VERN_ROT_PLS, VERN_COMP;
-	int VERN_CNTL_ACC;
-
-	DAPConfig& operator = (const DAPConfig& rhs) {
-		// copy all values from other config into this one
-		PRI_ROT_RATE=rhs.PRI_ROT_RATE;
-		PRI_ATT_DB=rhs.PRI_ATT_DB;
-		PRI_RATE_DB=rhs.PRI_RATE_DB;
-		PRI_ROT_PLS=rhs.PRI_ROT_PLS;
-		PRI_COMP=rhs.PRI_COMP;
-		PRI_TRAN_PLS=rhs.PRI_TRAN_PLS;
-		PRI_P_OPTION=rhs.PRI_P_OPTION;
-		PRI_Y_OPTION=rhs.PRI_Y_OPTION;
-		ALT_RATE_DB=rhs.ALT_RATE_DB;
-		ALT_ON_TIME=rhs.ALT_ON_TIME;
-		ALT_DELAY=rhs.ALT_DELAY;
-		ALT_JET_OPT=rhs.ALT_JET_OPT;
-		ALT_JETS=rhs.ALT_JETS;
-		VERN_ROT_RATE=rhs.VERN_ROT_RATE;
-		VERN_ATT_DB=rhs.VERN_ATT_DB;
-		VERN_RATE_DB=rhs.VERN_RATE_DB;
-		VERN_ROT_PLS=rhs.VERN_ROT_PLS;
-		VERN_COMP=rhs.VERN_COMP;
-		VERN_CNTL_ACC=rhs.VERN_CNTL_ACC;
-
-		return *this;
-	}
-
-};
-
-typedef struct {
-	int START_TIME[4]; // day,hour,min,sec
-	VECTOR3 TargetAttM50;
-	MATRIX3 LVLHTgtOrientationMatrix;
-	enum {OFF, MNVR, TRK, ROT} Type;
-} AttManeuver;
 
 typedef struct {
 	double leftElevon, rightElevon;
@@ -221,6 +158,7 @@ class RMSSystem;
 class StbdMPMSystem;
 class ASE_IUS;
 class CISS;
+class DragChute;
 class ActiveLatchGroup;
 class MCA;
 class MechActuator;
@@ -229,14 +167,6 @@ class PayloadBay;
 class Atlantis_Tank;
 class Atlantis_SRB;
 
-
-
-typedef enum {
-	LT_LATCHED = 0,
-	LT_OPENING,
-	LT_CLOSING,
-	LT_RELEASED
-} LATCH_STATE;
 
 typedef enum {
 	OMS_LEFT = 0,
@@ -313,9 +243,8 @@ const int RCS_R5R = 13;
 // Interface for derived vessel class: Atlantis
 // ==========================================================
 
-class Atlantis: public VESSEL3 {
-	friend class vc::PanelF7;
-	friend class vc::PanelO3;
+class Atlantis: public VESSEL4 {
+	friend class vc::_7SegDisp_RCSOMS_PRPLT_QTY;
 	friend class Keyboard;
 	friend class CRT;
 	friend class vc::MDU;
@@ -414,6 +343,8 @@ public:
 
 	comm::DeployedAssembly* pDeployedAssembly;
 
+	DragChute* pDragChute;
+
 	AnimState::Action spdb_status;
 	int ___iCurrentManifold;
 
@@ -432,12 +363,6 @@ public:
 	double t0;          // reference time: designated liftoff time
 	double met;
 
-	enum {
-		VCM_FLIGHTDECK = 0,
-		VCM_MIDDECK,
-		VCM_AIRLOCK
-	} vcDeckMode;
-
 	/* **************************************************************
 	 * Mesh indices for use in objects  
 	 ****************************************************************/
@@ -449,7 +374,6 @@ public:
 	UINT mesh_kuband;						   // index for KU band antenna mesh
 	UINT mesh_SILTS;
 	UINT mesh_cargo_static;					   // index for static cargo mesh
-	UINT mesh_dragchute;					   // index for drag chute mesh
 	UINT mesh_heatshield;					   //index for heat shield mesh
 
 	//**********************************************************
@@ -470,7 +394,6 @@ public:
 	bool clbkLoadGenericCockpit ();
 	void clbkLoadStateEx (FILEHANDLE scn, void *vs);
 	bool clbkLoadVC (int id);
-	void clbkMFDMode (int mfd, int mode);
 	bool clbkPlaybackEvent (double simt, double event_t, const char *event_type, const char *event);
 	void clbkPostCreation ();
 	void clbkPostStep (double simt, double simdt, double mjd);
@@ -501,7 +424,6 @@ public:
 	virtual vc::MDU* GetMDU(unsigned short usMDUID) const;
 	virtual const VECTOR3& GetOrbiterCoGOffset() const;
 	virtual short GetSRBChamberPressure(unsigned short which_srb);
-	virtual bool IsValidSPEC(int gpc, int spec) const;
 	virtual unsigned int GetGPCMajorMode() const;
 	virtual double GetTgtSpeedbrakePosition() const;
 	virtual double GetActSpeedbrakePosition() const;
@@ -526,7 +448,6 @@ public:
 	void SetOrbiterTankConfiguration (void);
 	void SetPostLaunchConfiguration (double srbtime);
 	void SetRadiatorPosition (double pos, int side);
-	//void SetRadLatchPosition (double pos) {}
 	void SetSpeedbrake (double tgt);
 	/**
 	 * @param usMPSNo numerical ID of the SSME
@@ -676,31 +597,30 @@ public:
 
 
 	AerosurfacePositions aerosurfaces;
-	//double kubd_proc; // Ku-band antenna deployment state (0=retracted, 1=deployed)
 	double spdb_proc, spdb_tgt; // Speedbrake deployment state (0=fully closed, 1=fully open)
 	double ldoor_drag, rdoor_drag; // drag components from open cargo doors
-	bool do_eva;
-	bool do_plat;
 	bool do_cargostatic;
 	VECTOR3 orbiter_ofs;
 	VECTOR3 cargo_static_ofs;
 	VISHANDLE vis;      // handle for visual - note: we assume that only one visual per object is created!
 	MESHHANDLE hOrbiterMesh, hOrbiterCockpitMesh, hOrbiterVCMesh, 
-		hMidDeckMesh,
-		hDragChuteMesh; // mesh handles
+		hMidDeckMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	MESHHANDLE hSILTSMesh;
 	MESHHANDLE hHeatShieldMesh;
 	DEVMESHHANDLE hDevHeatShieldMesh;
 	DEVMESHHANDLE hDevOrbiterMesh;
+
+	SURFHANDLE hOVTexture;
+	SURFHANDLE hLOMSTexture;
+	SURFHANDLE hROMSTexture;
+
 	char cargo_static_mesh_name[256];
 
 	//C-P attachments
 	ATTACHMENTHANDLE ahHDP;
 	ATTACHMENTHANDLE ahTow;
 	//P-C attachments
-	ATTACHMENTHANDLE ahMMU[2];
-	ATTACHMENTHANDLE ahExtAL[2];
 	//ATTACHMENTHANDLE ahCenterActive[3];
 	ATTACHMENTHANDLE ahCenterPassive[4];
 	ATTACHMENTHANDLE ahStbdPL[4];
@@ -728,10 +648,10 @@ public:
 
 
 private:
+	int mfdID;
+
 	double slag1, slag2, slag3;
 	PSTREAM_HANDLE pshSlag1[2], pshSlag2[2], pshSlag3[2];
-	PSTREAM_HANDLE reentry_flames;
-	PARTICLESTREAMSPEC PS_REENTRY;
 
 	bool bLiftOff;
 	bool bHasKUBand;
@@ -762,7 +682,6 @@ private:
 	std::vector<ActiveLatchGroup*> pActiveLatches;
 
 	void DetachSRB(SIDE side, double thrust, double prop);
-	void SeparateMMU (void);
 	void loadMDMConfiguration(void);
 	/**
 	 * Copies settings (thrust & ISP) from one thruster to another
@@ -824,7 +743,6 @@ private:
 	int Lua_InitInstance (void *context);
 	//-----------------------------------
 	void DefineKUBandAnimations();
-	void LaunchClamps();
 	void CreateAttControls_RCS(VECTOR3 center);
 
 	void DisableControlSurfaces();
@@ -835,9 +753,9 @@ private:
 	void CreateDummyThrusters();
 
 	/**
-	 * Updates discrete port values for all hand controllers (RHC, THC, SPDBK/THROT).
+	 * Updates discrete port values for all controllers (RHC, THC, RPTA and SBTC).
 	 */
-	void UpdateHandControllerSignals();
+	void UpdateControllersSignals( double dt );
 
 	/**
 	 * Calculates direction in which SSMEs/SRBs must thrust to point through CoG
@@ -850,8 +768,6 @@ private:
 	void ArmGear();
 	void DefineTouchdownPoints();
 	bool GearArmed() const;
-	void DeployDragChute();
-	void JettisonDragChute();
 
 	void RealizeSubsystemConnections();
 
@@ -882,7 +798,9 @@ private:
 
 	void UpdateTranslationForces();
 
-	void UpdateOrbiterTexture(const std::string& strTextureName);
+	void UpdateOrbiterTexture( const std::string& strTextureName );
+	void UpdateLOMSPodTexture( const std::string& strTextureName );
+	void UpdateROMSPodTexture( const std::string& strTextureName );
 
 	// *******************************************************************************
 	// Animations
@@ -890,8 +808,6 @@ private:
 	UINT anim_door;                            // handle for cargo door animation
 	UINT anim_rad[2];                             // handle for radiator animation
 	UINT anim_clatch[4];					   // handle for center line latch gangs
-
-	UINT anim_portTS;							//Port Torque Shaft animation (0°...135°)
 
 	UINT anim_kubd;                            // handle for Ku-band antenna animation
 	UINT anim_lelevon;                         // handle for left elevator animation
@@ -902,10 +818,12 @@ private:
 	UINT anim_letumbdoor;					   // handle for left ET umbilical door animation
 	UINT anim_retumbdoor;					   // handle for right ET umbilical door animation
 	UINT anim_gear;                            // handle for landing gear animation
-	UINT anim_chute_deploy;					   // handle for drag chute deploy animation
-	UINT anim_chute_spin;					   // handle for chute spinning
 	UINT anim_stzd;							   // handle for +Z Star Tracker Door animation
 	UINT anim_styd;							   // handle for -Y Star Tracker Door animation
+
+	// SBTCs animations
+	UINT anim_leftsbtc;
+	UINT anim_rightsbtc;
 	
 	//SSME GIMBAL ANIMATIONS
 	UINT anim_ssmeTyaw;
@@ -977,14 +895,9 @@ private:
 	LightEmitter* SRBLight[2];
 	LightEmitter* SSMELight;
 
-	//gear/drag chute
+	//gear
 	AnimState gear_status;
 	bool gear_armed;
-	bool DragChuteDeploying; //used to command drag chute deploy
-	enum{STOWED, DEPLOYING, REEFED, INFLATED, JETTISONED} DragChuteState;
-	double DragChuteDeployTime; //time at which deploy command was received
-	double DragChuteSize; //0 (Stowed/Jettisoned) or 0.4(Reefed) or 1.0(Deployed)
-	AnimState DragChuteSpin;
 	
 	PROPELLANT_HANDLE ph_oms, ph_mps, ph_srb, ph_frcs; // handles for propellant resources
 	PROPELLANT_HANDLE ph_lrcs, ph_rrcs, ph_controller;
@@ -1085,12 +998,10 @@ private:
 	THGROUP_HANDLE thg_transfwd, thg_transaft, thg_transup, thg_transdown, thg_transright, thg_transleft;
 	VECTOR3 TransForce[2]; //force provided by translation groups; 0=plus-axis
 	UINT ex_main[3];						   // main engine exhaust
-	UINT ex_retro[2];						   // OMS exhaust
 	std::vector<UINT> vExRCS;				   // RCS exhaust
 	std::vector<PSTREAM_HANDLE> vExStreamRCS;  // RCS exhaust stream
 	PARTICLESTREAMSPEC RCS_PSSpec;
 	SURFHANDLE RCS_Exhaust_tex;
-	THGROUP_HANDLE thg_main, thg_srb, thg_retro;          // handles for thruster groups
 	CTRLSURFHANDLE hrudder, hlaileron, hraileron, helevator, hbodyflap;
 	AIRFOILHANDLE hStackAirfoil;
 	bool ControlSurfacesEnabled;
@@ -1119,16 +1030,27 @@ private:
 	bool RMS, STBDMPM;
 
 	bool ControlRMS;
-	//Hand controller input
-	VECTOR3 THCInput, RHCInput;
-	VECTOR3 AltKybdInput; // uses arrow,PgUp/PgDn keys to provide translation inputs; axes correspond to RCS FWD SENSE
+	// controller inputs
+	VECTOR3 AltKybdInput; // uses arrows, Ins and Del keys to provide translation inputs; axes correspond to RCS FWD SENSE
+	double RPTAinput;
+	bool SBTCTOinput;
+	double SBTCinput;
+	double LeftRHCpitch;
+	double LeftRHCroll;
+	double LeftRHCyaw;
+	double RightRHCpitch;
+	double RightRHCroll;
+	double RightRHCyaw;
+	double AftRHCpitch;
+	double AftRHCroll;
+	double AftRHCyaw;
+	double RPTApos;
+	double LeftSBTCpos;
+	double RightSBTCpos;
+
 	//Thruster commands
 	VECTOR3 TranslationCommand, RotationCommand;
 
-	bool reset_mmu;
-	OBJHANDLE hMMU;
-	double jettison_time;
-	bool render_cockpit;
 	VCHUDSPEC huds;
 	double mfdbright[11];
 	double pl_mass;
@@ -1156,19 +1078,13 @@ private:
 	VECTOR3 SSMECurrentPos[3];
 	VECTOR3 SRBNullDirection[3];
 
-	// Entry
-	PIDControl BodyFlap, ElevonPitch; // used to maintain AoA
-	PIDControl PitchControl;
 
 	bool firstStep; //call functions in first timestep
-	//Data Input
-	CRT* newmfd;
 
 	DiscreteBundleManager* bundleManager;
 	dps::ShuttleBusManager* busManager;
 	
 	vc::MDU* mdus[11];
-	UINT mfds[11]; //stores MDUID for corresponding MFD index
 
 	bool SERCstop;
 
@@ -1193,14 +1109,19 @@ private:
 	int lastRMSSJCommand; // -1, 0 or 1
 
 	//DiscPorts
-	DiscInPort SpdbkThrotAutoIn;
-	DiscOutPort SpdbkThrotCDROut, SpdbkThrotPLTOut;
 	DiscInPort BodyFlapAutoIn;
 	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
-	DiscInPort AftSense, AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
+	DiscInPort AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
 
-	DiscOutPort SpdbkThrotPort;
-	DiscOutPort RHCInputPort[3], THCInputPort[3];
+	DiscOutPort LeftRHC[9];
+	DiscOutPort LeftTHC[18];
+	DiscOutPort LeftRPTA[3];
+	DiscOutPort RightRHC[9];
+	DiscOutPort RightRPTA[3];
+	DiscOutPort AftRHC[9];
+	DiscOutPort AftTHC[18];
+	DiscOutPort LeftSBTC[6];
+	DiscOutPort RightSBTC[6];
 	DiscInPort RotThrusterCommands[4], TransThrusterCommands[3];
 	//DiscInPort LeftElevonCommand, RightElevonCommand;
 	DiscInPort ElevonCommand, AileronCommand, RudderCommand;
@@ -1224,11 +1145,6 @@ private:
 	DiscOutPort LandingGearPosition[6];
 	DiscOutPort LandingGearArmDeployLT[2];
 	DiscInPort LandingGearArmDeployPB[4];
-
-	DiscOutPort DragChuteARMDPYJETTLT[3];
-	DiscInPort DragChuteARM[2];
-	DiscInPort DragChuteDPY[2];
-	DiscInPort DragChuteJETT[2];
 
 	DiscOutPort SSMEPBAnalog[3]; // to allow MECO to be commanded from keyboard
 

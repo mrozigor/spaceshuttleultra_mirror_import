@@ -255,6 +255,20 @@ void RMSSystem::CreateAttachment()
 		hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+arm_tip[0]+RMS_MESH_OFFSET, arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
 }
 
+void RMSSystem::UpdateAttachment( void )
+{
+	if (hAttach) STS()->SetAttachmentParams( hAttach, STS()->GetOrbiterCoGOffset() + arm_tip[0] + RMS_MESH_OFFSET, arm_tip[1] - arm_tip[0], arm_tip[2] - arm_tip[0] );
+
+	// also update light and camera position
+	EELightPos = arm_tip[5] + STS()->GetOrbiterCoGOffset() + RMS_MESH_OFFSET;
+	pEELight->SetPosition( EELightPos );
+	pEELight->SetDirection( arm_tip[1] - arm_tip[0] );
+
+	if (RMSCameraMode == ELBOW) UpdateElbowCamView();
+	else if (RMSCameraMode == EE) UpdateEECamView();
+	return;
+}
+
 bool RMSSystem::Movable() const 
 { 
 	return ( RMSSelect && ( (Eq(shoulder_brace, 0.0, 0.01) && MRLLatches.Open()) || !ArmStowed() ) 

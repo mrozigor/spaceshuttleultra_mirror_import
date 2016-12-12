@@ -2,8 +2,9 @@
 #include "SimpleGPCSystem.h"
 #include "IO_Control.h"
 #include "SSME_Operations.h"
-#include "AscentGuidance.h"
+#include "AscentDAP.h"
 #include "AerojetDAP.h"
+#include "Landing_SOP.h"
 #include "OMSBurnSoftware.h"
 
 
@@ -35,8 +36,9 @@ namespace dps {
 	{
 		pIO_Control =  static_cast<IO_Control*> (STS()->pSimpleGPC->FindSoftware( "IO_Control" ));
 		pSSME_Operations =  static_cast<SSME_Operations*> (STS()->pSimpleGPC->FindSoftware( "SSME_Operations" ));
-		pAscentGuidance =  static_cast<AscentGuidance*> (STS()->pSimpleGPC->FindSoftware( "AscentGuidance" ));
+		pAscentDAP =  static_cast<AscentDAP*> (STS()->pSimpleGPC->FindSoftware( "AscentDAP" ));
 		pAerojetDAP =  static_cast<AerojetDAP*> (STS()->pSimpleGPC->FindSoftware( "AerojetDAP" ));
+		pLanding_SOP =  static_cast<Landing_SOP*> (STS()->pSimpleGPC->FindSoftware( "Landing_SOP" ));
 		pOMSBurnSoftware =  static_cast<OMSBurnSoftware*> (STS()->pSimpleGPC->FindSoftware( "OMSBurnSoftware" ));
 
 		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "C2_R11_IDP", 14 );
@@ -181,6 +183,7 @@ namespace dps {
 				OnClear();
 				break;
 			case SSU_KEY_EXEC:
+				if(IsCompleteLine()) ClearScratchPadLine();
 				OnExec();
 				AppendScratchPadLine(cKey);
 				break;
@@ -191,6 +194,8 @@ namespace dps {
 			case SSU_KEY_ITEM:
 			case SSU_KEY_SPEC:
 			case SSU_KEY_OPS:
+			case SSU_KEY_GPCCRT:
+			case SSU_KEY_IORESET:
 				if(IsCompleteLine()) ClearScratchPadLine();
 				AppendScratchPadLine(cKey);
 				break;
@@ -312,16 +317,17 @@ namespace dps {
 				Data=""; //clear string
 				while(i<scratchPad.length()) {
 					if(scratchPad[i]=='+' || scratchPad[i]=='-') {
-						if(Data.length()>0) {
+						if(Data.length()>1) {// needs to be at least 2 chars: sign and one number
 							item++;
 							STS()->pSimpleGPC->ItemInput(GetSpec(), item, Data.c_str());
 						}
+						else if (Data.length() == 1) item++;// skip item
 						Data=""; //clear string
 					}
 					Data+=scratchPad[i];
 					i++;
 				}
-				if(Data.length()>0) {
+				if(Data.length()>1) {// needs to be at least 2 chars: sign and one number
 					item++;
 					STS()->pSimpleGPC->ItemInput(GetSpec(), item, Data.c_str());
 				}
@@ -345,7 +351,7 @@ namespace dps {
 		else if(SPEC != std::string::npos) { // SPEC entered
 			//STS()->Input(GetIDPID()-1, 2, scratchPad.substr(SPEC+5).c_str());
 			int newSpec = atoi(scratchPad.substr(SPEC+5).c_str());
-			if(STS()->IsValidSPEC(0, newSpec))
+			if(STS()->pSimpleGPC->IsValidSPEC( newSpec ))
 			{
 				// choose between DISP and SPEC
 				if (IsDisp( newSpec ) == true)
@@ -468,8 +474,8 @@ namespace dps {
 				case SSU_KEY_ITEM:
 					strcat_s(pszBuffer, "ITEM ");
 					break;
-				case SSU_KEY_GPCIDP:
-					strcat_s(pszBuffer, "GPC/IDP ");
+				case SSU_KEY_GPCCRT:
+					strcat_s(pszBuffer, "GPC/CRT ");
 					break;
 				case SSU_KEY_OPS:
 					strcat_s(pszBuffer, "OPS ");
@@ -564,6 +570,87 @@ namespace dps {
 		return pszBuffer;
 	}
 
+	const char* IDP::GetScratchPadLineString_B( void ) const
+	{
+		const char* cbufin = GetScratchPadLineString();
+		static char cbufout[250];
+		int len = strlen( cbufin );
+		int j = 0;
+		bool firstsign = false;
+		int item = 0;
+
+		for (int i = 0; i <= len; i++)
+		{
+			if ((cbufin[i] == '+') || (cbufin[i] == '-'))
+			{
+				if (firstsign == false)
+				{// first item number behind
+					firstsign = true;
+
+					if ((cbufout[j - 1] >= '0') && (cbufout[j - 1] <= '9'))
+					{
+						if ((cbufout[j - 2] >= '0') && (cbufout[j - 2] <= '9'))
+						{
+							// two-digit
+							item = (cbufout[j - 1] - 48) + ((cbufout[j - 2] - 48) * 10);
+
+							sprintf_s( cbufout + j - 2, 32, "(%d)", item );
+							j += 2;
+						}
+						else
+						{
+							// one-digit
+							item = cbufout[j - 1] - 48;
+
+							sprintf_s( cbufout + j - 1, 32, "(0%d)", item );
+							j += 3;
+						}
+					}
+				}
+				else
+				{// data behind... or sign
+
+					if ((cbufin[i - 1] == '+') || (cbufin[i - 1] == '-'))
+					{
+						//_(24)+
+						item++;
+						sprintf_s( cbufout + j - 4, 32, "%02d)", item );
+						j -= 1;
+					}
+					else
+					{
+						item++;
+						sprintf_s( cbufout + j, 32, " (%02d)", item );
+						j += 5;
+					}
+				}
+			}
+			cbufout[j++] = cbufin[i];
+		}
+
+		return cbufout;
+	}
+
+	int IDP::GetFlashingEntry( void ) const
+	{
+		if (IsCompleteLine()) return 0;
+		
+		switch (cScratchPadLine[0])
+		{
+			case SSU_KEY_OPS:
+				return 3;
+			case SSU_KEY_SPEC:
+			case SSU_KEY_ITEM:
+				return 4;
+			case SSU_KEY_GPCCRT:
+				return 7;
+			case SSU_KEY_IORESET:
+				return 9;
+			default:
+				return 0;
+		}
+	}
+
 	bool IDP::IsDisp( int code ) const
 	{
 		switch (code)
@@ -651,12 +738,12 @@ namespace dps {
 
 	bool IDP::GetAutoThrottleState( void ) const
 	{
-		return pAscentGuidance->GetAutoThrottleState();
+		return pAscentDAP->GetAutoThrottleState();
 	}
 
-	VECTOR3 IDP::GetAttitudeErrors_AscentGuidance( void ) const
+	VECTOR3 IDP::GetAttitudeErrors_AscentDAP( void ) const
 	{
-		return pAscentGuidance->GetAttitudeErrors();
+		return pAscentDAP->GetAttitudeErrors();
 	}
 
 	VECTOR3 IDP::GetAttitudeErrors_AerojetDAP( void ) const
@@ -684,9 +771,14 @@ namespace dps {
 		return pAerojetDAP->GetAutoSpeedbrakeState();
 	}
 
+	double IDP::GetAutoSpeedbrakeCommand( void ) const
+	{
+		return pAerojetDAP->GetAutoSpeedbrakeCommand();
+	}
+
 	bool IDP::GetWOW( void ) const
 	{
-		return pAerojetDAP->GetWOW();
+		return pLanding_SOP->GetWOWLON();
 	}
 
 	double IDP::GetNZError( void ) const
@@ -776,6 +868,11 @@ namespace dps {
 
 	double IDP::GetTargetHeading( void ) const
 	{
-		return pAscentGuidance->GetTargetHeading();
+		return pAscentDAP->GetTargetHeading();
+	}
+
+	bool IDP::GetFCSmode( void ) const
+	{
+		return pAscentDAP->GetFCSmode();
 	}
 };

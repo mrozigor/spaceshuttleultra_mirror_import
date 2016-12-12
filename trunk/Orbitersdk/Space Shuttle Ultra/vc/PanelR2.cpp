@@ -505,11 +505,11 @@ namespace vc
 		pCenterlineLatch->output.Connect(pBundle, 8); // stow
 
 		pBundle=STS()->BundleManager()->CreateBundle("ETUmbDoor microswitches", 16);
-		pETUmbLDoor->SetInput(0, pBundle, 0, TB_CLO);
+		pETUmbLDoor->SetInput(0, pBundle, 0, TB_CL);
 		pETUmbLDoor->SetInput(1, pBundle, 1, TB_OP);
 		pETUmbLLatch->SetInput(0, pBundle, 2, TB_LAT);
 		pETUmbLLatch->SetInput(1, pBundle, 3, TB_REL);
-		pETUmbRDoor->SetInput(0, pBundle, 4, TB_CLO);
+		pETUmbRDoor->SetInput(0, pBundle, 4, TB_CL);
 		pETUmbRDoor->SetInput(1, pBundle, 5, TB_OP);
 		pETUmbRLatch->SetInput(0, pBundle, 6, TB_LAT);
 		pETUmbRLatch->SetInput(1, pBundle, 7, TB_REL);

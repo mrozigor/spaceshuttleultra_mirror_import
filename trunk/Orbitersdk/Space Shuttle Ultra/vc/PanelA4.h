@@ -28,6 +28,8 @@
 
 #include "AtlantisPanel.h"
 #include "StandardSwitch.h"
+#include "7SegDisp_MissionTime.h"
+#include "7SegDisp_EventTime.h"
 
 
 namespace vc
@@ -36,17 +38,9 @@ namespace vc
 	{
 		private:
 			StdSwitch3* pMissionTimer;
-			
-			DiscInPort pMissionTimerGMT;
-			DiscInPort pMissionTimerTEST;
 
-			short sTimerSeconds;
-			short sTimerMinutes;
-
-			short sMETSeconds;
-			short sMETMinutes;
-			short sMETHours;
-			short sMETDays;
+			_7SegDisp_MissionTime* pMissionTime;
+			_7SegDisp_EventTime* pEventTime;
 
 		public:
 			PanelA4( Atlantis* _sts );
@@ -55,9 +49,6 @@ namespace vc
 			virtual void DefineVC();
 			virtual void RegisterVC();
 			virtual void Realize();
-
-			virtual bool OnVCRedrawEvent( int id, int _event, SURFHANDLE surf );
-			virtual void OnPreStep( double SimT, double DeltaT, double MJD );
 	};
 }
 

@@ -24,15 +24,11 @@
 #include "SSUOptions.h"
 #include "Atlantis_vc_defs.h"
 #include <OrbiterSoundSDK40.h>
-#include "DlgCtrl.h"
 #include "meshres.h"
 #include "meshres_vc.h"
-#include "meshres_RMS.h"
 #include "meshres_KU.h"
-#include "meshres_vc_additions.h"
 #include "resource.h"
 #include "AtlantisSubsystemDirector.h"
-#include "dps/AerojetDAP.h"
 #include "dps/AP101S.h"
 #include "dps/IDP.h"
 #include "dps/MasterTimingUnit.h"
@@ -60,7 +56,9 @@
 #include "vc/PanelF6.h"
 #include "vc/PanelF7.h"
 #include "vc/PanelF8.h"
+#include "vc/PanelO3.h"
 #include "vc/PanelO6.h"
+#include "vc/PanelO8.h"
 #include "vc/PanelO17.h"
 #include "vc/PanelA1U.h"
 #include "vc/PanelA2.h"
@@ -81,8 +79,12 @@
 #include "comm\DeployedAssembly.h"
 #include "comm\ElectronicsAssembly1.h"
 #include "comm\ElectronicsAssembly2.h"
+#include "MasterEventsController.h"
+#include "gnc\RA.h"
+#include "DragChute.h"
 #include <UltraMath.h>
 #include <cassert>
+#include "gcAPI.h"
 
 
 
@@ -111,13 +113,6 @@ extern int GrowStack();
 // Global (class-wide) parameters
 
 GDIParams g_Param;
-
-HELPCONTEXT g_hc = {
-	"html/vessels/Atlantis.chm",
-	0,
-	"html/vessels/Atlantis.chm::/Atlantis.hhc",
-	"html/vessels/Atlantis.chm::/Atlantis.hhk"
-};
 
 std::ofstream animlog;
 
@@ -359,10 +354,7 @@ void GetShuttleVerticalAeroCoefficients(double mach, double degAOA, double altit
 // Constructor
 // --------------------------------------------------------------
 Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
-	: VESSEL3(hObj, fmodel),
-	BodyFlap(0.5, 0.25, 0.1, -1.0, 1.0, -1.0, 1.0),
-	ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
-	PitchControl(0.25, 0.001, 0.10, -1.0, 1.0, -5.0, 5.0),
+	: VESSEL4(hObj, fmodel),
 	pActiveLatches(3, NULL)
 {
 #ifdef _DEBUG
@@ -371,9 +363,13 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 #endif
 	int i;
 
+	// init D3D9
+	gcInitialize();
+
 	//----------------------------------------------------
 	// Make these first, for avoiding CTDs
 	//----------------------------------------------------
+	InitMissionManagementMemory();
 	pMission = ssuGetDefaultMission();			//No mission selected
 	options = new SSUOptions();
 	bundleManager = new DiscreteBundleManager();
@@ -397,6 +393,7 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 	pgOverhead.AddPanel(new vc::PanelO3(this));
 	pgOverhead.AddPanel(new vc::PanelO6(this));
+	pgOverhead.AddPanel( new vc::PanelO8( this ) );
 
 	pgOverheadAft.AddPanel(new vc::PanelO17(this));
 
@@ -528,9 +525,13 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 	psubsystems->AddSubsystem(pATVC = new gnc::ATVC(psubsystems, "ATVC", 1));// HACK should be 4 of this
 
-	psubsystems->AddSubsystem(pPayloadBay = new PayloadBay(psubsystems));
+	psubsystems->AddSubsystem( new MasterEventsController( psubsystems, "MEC1", 1 ) );
+	psubsystems->AddSubsystem( new MasterEventsController( psubsystems, "MEC2", 2 ) );
 
-	//psubsystems->AddSubsystem(new dps::AerojetDAP(psubsystems));
+	psubsystems->AddSubsystem( new gnc::RadarAltimeter( psubsystems, "RA1", 1 ) );
+	psubsystems->AddSubsystem( new gnc::RadarAltimeter( psubsystems, "RA2", 2 ) );
+
+	psubsystems->AddSubsystem(pPayloadBay = new PayloadBay(psubsystems));
 
 	pDeployedAssembly = NULL;
 
@@ -538,6 +539,8 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pMPMs = NULL;
 
 	pTAA = NULL;
+
+	pDragChute = NULL;
 
 	RealizeSubsystemConnections();
 
@@ -578,20 +581,18 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	mesh_middeck = MESH_UNDEFINED;
 	mesh_kuband = MESH_UNDEFINED;
 	mesh_cargo_static = MESH_UNDEFINED;
-	mesh_dragchute = MESH_UNDEFINED;
 	mesh_heatshield = MESH_UNDEFINED;
 
 	vis = NULL;
 
-	reset_mmu = false;
-	jettison_time = 0.0;
-	render_cockpit = false;
+	hOVTexture = NULL;
+	hLOMSTexture = NULL;
+	hROMSTexture = NULL;
+
 	bLiftOff = false;
 	bHasKUBand = true;
 	bUseRealRCS = true;
 	bEnableMCADebug = false;
-
-	vcDeckMode = VCM_FLIGHTDECK;
 
 	___iCurrentManifold = 0;
 
@@ -604,9 +605,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pshSlag2[0] = pshSlag2[1] = NULL;
 	pshSlag3[0] = pshSlag3[1] = NULL;
 
-	for (i = 0; i < 11; i++) {
-		mfds[i] = -1;
-	}
 	for (i = 0; i < 11; i++)
 		mfdbright[i] = 1.0;
 	huds.ngroup = GRP_VIRTUALHUD_VC;
@@ -622,9 +620,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	ph_controller = NULL;
 	ph_mps = NULL;
 	ph_srb = NULL;
-	thg_main = NULL;
-	thg_retro = NULL;
-	thg_srb = NULL;
 
 	LOXmass = 0;
 	LH2mass = 0;
@@ -704,7 +699,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	hOrbiterVCMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_VC);
 	hMidDeckMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_MIDDECK);
 	hKUBandMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_KU);
-	hDragChuteMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_CHUTE);
 	hHeatShieldMesh = oapiLoadMeshGlobal("SSU/SSU_entry");
 	hDevOrbiterMesh = NULL;
 	hDevHeatShieldMesh = NULL;
@@ -712,17 +706,10 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 	ControlSurfacesEnabled = false;
 
-	//DefineAnimations();
-	do_eva = false;
-	do_plat = false;
 	do_cargostatic = false;
 	vis = NULL;
 	ahHDP = NULL;
 	ahTow = NULL;
-	ahMMU[0] = NULL;
-	ahMMU[1] = NULL;
-	ahExtAL[0] = NULL;
-	ahExtAL[1] = NULL;
 
 	/*for (int i = 0; i < 3; i++)
 	{
@@ -743,10 +730,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 	gear_status.Set(AnimState::CLOSED, 0.0);
 	gear_armed = false;
-	DragChuteDeploying = false;
-	DragChuteState = STOWED;
-	DragChuteSize = 0.0;
-	DragChuteSpin.Set(AnimState::OPENING, 0.0);
 
 	// default camera positions
 	for (int i = 0; i < 4; i++) {
@@ -762,15 +745,25 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 	pl_mass = 0.0;
 
-	newmfd = NULL;
-
 	// gpc
 	firstStep = true;
 
-
-	RHCInput = _V(0, 0, 0);
-	THCInput = _V(0, 0, 0);
 	AltKybdInput = _V(0, 0, 0);
+	RPTAinput = 0.0;
+	SBTCTOinput = false;
+	SBTCinput = 0.0;
+	LeftRHCpitch = 0.0;
+	LeftRHCroll = 0.0;
+	LeftRHCyaw = 0.0;
+	RightRHCpitch = 0.0;
+	RightRHCroll = 0.0;
+	RightRHCyaw = 0.0;
+	AftRHCpitch = 0.0;
+	AftRHCroll = 0.0;
+	AftRHCyaw = 0.0;
+	RPTApos = 0.0;
+	LeftSBTCpos = 1.0;// default is full forward
+	RightSBTCpos = 1.0;// default is full forward
 
 	for (i = 0; i < 3; i++) {
 		lastRotCommand[i] = 0;
@@ -896,14 +889,20 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	RCS_PSSpec.amin = 1;//1
 	RCS_PSSpec.tex = RCS_tex;
 
-	reentry_flames = NULL;
-
 
 	SSMEGH2burn[0] = NULL;
 	SSMEGH2burn[1] = NULL;
 	SSMEGH2burn[2] = NULL;
 
 	hasCISS = false;
+
+	static char *name = "CRT";
+	MFDMODESPECEX spec;
+	spec.name = name;
+	spec.key = OAPI_KEY_T;
+	spec.context = NULL;
+	spec.msgproc = CRT::MsgProc;
+	mfdID = RegisterMFDMode( spec );
 }
 
 // --------------------------------------------------------------
@@ -917,6 +916,15 @@ Atlantis::~Atlantis() {
 
 	delete busManager;
 	delete bundleManager;
+	delete options;
+
+	ClearMissionManagementMemory();
+
+	UnregisterMFDMode( mfdID );
+
+	if (hOVTexture) oapiReleaseTexture( hOVTexture );
+	if (hLOMSTexture) oapiReleaseTexture( hLOMSTexture );
+	if (hROMSTexture) oapiReleaseTexture( hROMSTexture );
 }
 
 DiscreteBundleManager* Atlantis::BundleManager() const
@@ -956,7 +964,9 @@ void Atlantis::SetLaunchConfiguration(void)
 	SetPMI(_V(249.62, 239.97, 67.43));
 	SetTrimScale(0.05);
 	SetLiftCoeffFunc(0); // simplification: we assume no lift during launch phase
-	SetTouchdownPoints(_V(0, -10, -55.8), _V(-7, 7, -55.8), _V(7, 7, -55.8));
+
+	DefineTouchdownPoints();
+	
 	SetGravityGradientDamping(0.05);
 	//SetEmptyMass(GetEmptyMass()+ 2*SRB_EMPTY_MASS);
 
@@ -984,7 +994,6 @@ void Atlantis::SetLaunchConfiguration(void)
 	// SRBs
 	th_srb[0] = CreateThruster(LSRB_OFFSET + _V(0.0, 0.0, -21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
 	th_srb[1] = CreateThruster(RSRB_OFFSET + _V(0.0, 0.0, -21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
-	thg_srb = CreateThrusterGroup(th_srb, 2, THGROUP_USER);
 	SURFHANDLE tex = oapiRegisterExhaustTexture("Exhaust2");
 	srb_exhaust.tex = oapiRegisterParticleTexture("SSU\\SRB_exhaust");
 	srb_contrail.tex = oapiRegisterParticleTexture("SSU\\SRB_contrail");
@@ -1154,7 +1163,7 @@ void Atlantis::SetOrbiterConfiguration(void)
 	CreateVariableDragElement(&(gear_status.pos), 2, _V(0, -3, 0));      // landing gear drag
 	CreateVariableDragElement(&rdoor_drag, 7, _V(2.9, 0, 10));   // right cargo door drag
 	CreateVariableDragElement(&ldoor_drag, 7, _V(-2.9, 0, 10));  // right cargo door drag
-	CreateVariableDragElement(&DragChuteSize, 22.5, _V(0, 4.6, -12.03));
+	if (pDragChute) pDragChute->AddAero();
 
 	SetADCtrlMode(7);
 
@@ -1180,7 +1189,7 @@ void Atlantis::SetOrbiterConfiguration(void)
 		th_oms[0] = CreateThruster(L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 		th_oms[1] = CreateThruster(R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
 		bOMSDefined = true;
-		//thg_main = CreateThrusterGroup (th_oms, 2, THGROUP_MAIN);
+
 		SURFHANDLE tex_oms = oapiRegisterExhaustTexture("SSU\\OMSExhaust");
 		for (i = 0; i < 2; i++) {
 			AddExhaust(th_oms[i], 0, 1.5, 1.25, tex_oms);
@@ -1655,9 +1664,6 @@ void Atlantis::CreateDummyThrusters()
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_LEFT);
 	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_RIGHT);
-	// SPDBK/THROT
-	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
-	CreateThrusterGroup(&thTmp, 1, THGROUP_MAIN);
 
 	bControllerThrustersDefined = true;
 }
@@ -1824,27 +1830,6 @@ void Atlantis::DefineAnimations(void)
 	if (bHasKUBand)
 		DefineKUBandAnimations();
 
-	//drag chute
-	static UINT ChuteCords[1] = { 0 };
-	static MGROUP_SCALE ScaleCords(mesh_dragchute, ChuteCords, 1, _V(0.0, 0.0, -11.53), _V(0.5, 0.5, 1.1));
-	static UINT Chute[3] = { 1, 2, 3 };
-	static MGROUP_SCALE ScaleChute(mesh_dragchute, Chute, 3, _V(0.0, 0.0, -29.03), _V(0.5, 0.5, 1.2));
-	static UINT DragChute[4] = { 0, 1, 2, 3 };
-	static MGROUP_SCALE ScaleAll(mesh_dragchute, DragChute, 4, _V(0.0, 0.0, 0.0), _V(0.01, 0.01, 0.01));
-	anim_chute_deploy = CreateAnimation(0.0);
-	LogAnim("anim_chute_deploy", anim_chute_deploy);
-	AddAnimationComponent(anim_chute_deploy, 0.0, 0.6, &ScaleCords);
-	AddAnimationComponent(anim_chute_deploy, 0.0, 0.6, &ScaleChute);
-	parent = AddAnimationComponent(anim_chute_deploy, 0.6, 0.9, &ScaleAll);
-	anim_chute_spin = CreateAnimation(0.0);
-	LogAnim("anim_chute_spin", anim_chute_spin);
-	static MGROUP_ROTATE SpinChute1(mesh_dragchute, DragChute, 4,
-		_V(0, 0, 0), _V(0.00609621, -0.0146035, -0.999875), (float)(400.0*RAD));
-	AddAnimationComponent(anim_chute_spin, 0.0, 0.5, &SpinChute1, parent);
-	static MGROUP_ROTATE SpinChute2(mesh_dragchute, DragChute, 4,
-		_V(0, 0, 0), _V(-0.00965286, -0.00698363, -0.999929), (float)(400.0*RAD));
-	AddAnimationComponent(anim_chute_spin, 0.5, 1.0, &SpinChute2, parent);
-
 	// ***** 4. Elevator animation of elevons *****
 
 	// ***** 4A. Upward animation of elevons *****
@@ -1938,7 +1923,7 @@ void Atlantis::DefineAnimations(void)
 	parent = AddManagedAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPitch, parent);
 
 	MGROUP_TRANSFORM* CameraFLPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbdCamPos[0]), 1);
-	AddAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPos, parent);
+	AddManagedAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPos, parent);
 
 	// FRONT RIGHT
 	static UINT camFRYawGrp[1] = { GRP_PANTILT_CAM_D };
@@ -1974,7 +1959,7 @@ void Atlantis::DefineAnimations(void)
 	parent = AddManagedAnimationComponent(anim_camBLpitch, 0, 1, CameraBLPitch, parent);
 
 	MGROUP_TRANSFORM* CameraBLPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbdCamPos[1]), 1);
-	AddAnimationComponent(anim_camBLpitch, 0, 1, CameraBLPos, parent);
+	AddManagedAnimationComponent(anim_camBLpitch, 0, 1, CameraBLPos, parent);
 
 	// BACK RIGHT
 	static UINT camBRYawGrp[1] = { GRP_PANTILT_CAM_C };
@@ -2150,6 +2135,17 @@ void Atlantis::DefineAnimations(void)
 	pSTYDoorMotor->SetObjectAnim(anim_styd);
 
 
+	// SBTCs
+	static UINT LeftSBTC_GRP[1] = {GRP_CDR_SBTC_VC};
+	anim_leftsbtc = CreateAnimation( 0.5 );
+	static MGROUP_ROTATE LeftSBTC( mesh_vc, LeftSBTC_GRP, 1, _V( 0, 1.6685, 14.2797 ), _V( 1, 0, 0 ), static_cast<float>(60.0 * RAD) );
+	AddAnimationComponent( anim_leftsbtc, 0, 1, &LeftSBTC );
+
+	static UINT RightSBTC_GRP[1] = {GRP_PLT_SBTC_VC};
+	anim_rightsbtc = CreateAnimation( 0.5 );
+	static MGROUP_ROTATE RightSBTC( mesh_vc, RightSBTC_GRP, 1, _V( 0, 1.6115, 14.2286 ), _V( 1, 0, 0 ), static_cast<float>(60.0 * RAD) );
+	AddAnimationComponent( anim_rightsbtc, 0, 1, &RightSBTC );
+
 	EndLoggingAnims();
 }
 
@@ -2188,24 +2184,8 @@ void Atlantis::DefineAttachments(const VECTOR3& ofs0)
 	else CreateAttachment(false, _V(0, 0, 0), _V(1, 0, 0), _V(0, 1, 0), "INVALID");
 
 
-	//Without MMU, make this port airlock payload 
-	if (ahMMU[0])
-	{
-
-	}
-	else
-	{
-		ahMMU[0] = CreateAttachment(false, ofs0 + OFS_PORTMMU, _V(1, 0, 0), _V(0, 0, 1), "XS");
-	}
-
-	//Without MMU, make this stbd airlock payload 
-	if (ahMMU[1])
-	{
-	}
-	else
-	{
-		ahMMU[1] = CreateAttachment(false, ofs0 + OFS_STBDMMU, _V(-1, 0, 0), _V(0, 0, 1), "XS");
-	}
+	CreateAttachment(false, ofs0 + OFS_PORTMMU, _V(1, 0, 0), _V(0, 0, 1), "XS");// port airlock payload
+	CreateAttachment(false, ofs0 + OFS_STBDMMU, _V(-1, 0, 0), _V(0, 0, 1), "XS");// stbd airlock payload
 
 
 	/*eva_docking::ODS* pODS = dynamic_cast<eva_docking::ODS*>(pExtAirlock);
@@ -2347,6 +2327,7 @@ void Atlantis::AddOrbiterVisual()
 		// ***** Load meshes
 		if (pCISS) pCISS->AddMesh();
 		if (pASE_IUS) pASE_IUS->AddMesh();
+		if (pDragChute) pDragChute->AddMesh();
 
 		mesh_cockpit = AddMesh(hOrbiterCockpitMesh, &VC_OFFSET);
 		SetMeshVisibilityMode(mesh_cockpit, MESHVIS_EXTERNAL);
@@ -2392,10 +2373,6 @@ void Atlantis::AddOrbiterVisual()
 		//Only make visible when actually inside the mid deck
 		bMidDeckVisible = false;
 		SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
-
-		VECTOR3 chute_ofs = CHUTE_ATTACH_POINT;
-		mesh_dragchute = AddMesh(hDragChuteMesh, &chute_ofs);
-		SetMeshVisibilityMode(mesh_dragchute, MESHVIS_NEVER);
 
 		/* Add optional A7A3/A8A3 panel meshes
 		*/
@@ -2445,10 +2422,6 @@ void Atlantis::AddOrbiterVisual()
 			}
 			SetMeshVisibilityMode(mesh_cargo_static, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS);
 		}
-		if (do_plat) {
-			VECTOR3 plat_ofs = _V(-2.59805, 1.69209, -5.15524);
-			AddMesh("shuttle_eva_plat", &plat_ofs);
-		}
 
 		// ***** Attachment definitions
 		DefineAttachments(OFS_ZERO);
@@ -2478,7 +2451,8 @@ void Atlantis::SeparateBoosters(double met)
 
 	// Remove SRB's from Shuttle instance
 	DelPropellantResource(ph_srb);
-	DelThrusterGroup(thg_srb, THGROUP_USER, true);
+	DelThruster( th_srb[0] );
+	DelThruster( th_srb[1] );
 	for (int i = 0; i < 2; i++)
 	{
 		DelExhaustStream(pshSlag1[i]);
@@ -2589,20 +2563,6 @@ void Atlantis::ToggleGrapple(void)
 	}
 }
 
-void Atlantis::SeparateMMU(void)
-{
-	// Create MMU as individual object
-	VESSELSTATUS vs;
-	GetStatus(vs);
-	char name[256];
-	strcpy(name, GetName()); strcat(name, "-MMU");
-	hMMU = oapiCreateVessel(name, "Nasa_MMU", vs);
-	jettison_time = oapiGetSimTime();
-	reset_mmu = true;
-	// Remove MMU from shuttle instance
-	SetOrbiterConfiguration();
-}
-
 bool Atlantis::HydraulicsOK() {
 	return panelr2->HydraulicPressure();
 }
@@ -2668,25 +2628,6 @@ void Atlantis::CalcSSMEThrustAngles(int eng, double& degAngleP, double& degAngle
 	degAngleY = -DEG*atan2(cos(RAD*degAngleP) * N.x, N.z);
 }
 
-void Atlantis::LaunchClamps()
-{
-	VECTOR3 F, T, r = _V(0, 0, 0), Fc = _V(0, 0, 0), Tc = _V(0, 0, 0);
-	GetThrusterMoment(th_srb[0], F, T);
-	Fc.z = -2 * F.z;
-	Tc.x = 2 * T.x;
-	GetThrusterMoment(th_main[0], F, T);
-	Fc.z -= 2 * F.z;
-	Fc.y -= 2 * F.y;
-	Tc.x += 2 * T.x;
-	GetThrusterMoment(th_main[2], F, T);
-	Fc.z -= F.z;
-	Fc.y -= F.y;
-	Tc.x += T.x;
-	r.z = (Fc.y ? Tc.x / Fc.y : 0);
-	AddForce(Fc, r);
-}
-
-
 // Update moving parts of the orbiter's visual: payload bay doors and gear
 // This should only be called when the visual exists, e.g. from within
 // clbkVisualCreated or clbkAnimate
@@ -2706,7 +2647,6 @@ void Atlantis::UpdateMesh()
 		SetAnimation( anim_kubeta, pDeployedAssembly->GetBetaAnimation() );
 	}
 	SetAnimation(anim_gear, gear_status.pos);
-	SetAnimation(anim_chute_deploy, 1 - DragChuteSize);
 
 	SetAnimationCameras(); // update camera positions
 
@@ -2767,49 +2707,121 @@ bool Atlantis::GearArmed() const
 	return gear_armed;
 }
 
-void Atlantis::DeployDragChute()
-{
-	SetAnimation(anim_chute_deploy, 1.0);
-	SetMeshVisibilityMode(mesh_dragchute, MESHVIS_EXTERNAL);
-
-	DragChuteState = DEPLOYING;
-	DragChuteSize = 0.0;
-}
-
-void Atlantis::JettisonDragChute()
-{
-	SetMeshVisibilityMode(mesh_dragchute, MESHVIS_NEVER);
-
-	DragChuteState = JETTISONED;
-	DragChuteSize = 0.0;
-
-	//add chute vessel
-	VESSELSTATUS2 vs;
-	memset(&vs, 0, sizeof(vs));
-	vs.version = 2;
-	GetStatusEx(&vs);
-	vs.status = 0;
-	VECTOR3 chute_ofs;
-	Local2Rel(CHUTE_ATTACH_POINT, chute_ofs);
-	vs.rpos = chute_ofs;
-	char name[255];
-	strcpy_s(name, GetName());
-	strcat_s(name, "-Chute");
-	oapiCreateVesselEx(name, "SSU_Chute", &vs);
-
-	DragChuteARMDPYJETTLT[2].SetLine();
-}
-
 void Atlantis::DefineTouchdownPoints()
 {
-	if (gear_status.action == AnimState::OPEN) { // gear fully deployed
-		SetTouchdownPoints(_V(0, -5.142, 14.897) + orbiter_ofs, _V(-4.027, -6.607, -5.3) + orbiter_ofs, _V(4.027, -6.607, -5.3) + orbiter_ofs); // gear wheel tips
-		SetSurfaceFrictionCoeff(0.035 / 2, 0.5);
+	switch (status)
+	{
+		//case STATE_PRELAUNCH:// set in first call to clbkPreStep() with exact pad/MLP elevation
+		case STATE_STAGE1:
+		case STATE_STAGE2:
+			 {
+				DWORD ntdvtx = 4;
+				static TOUCHDOWNVTX tdvtx[4] = {
+					{_V( 0, -10, -55.8 ), 1e5, 1e2, 0.5, 0.005},
+					{_V( -7, 7, -55.8 ), 1e5, 1e2, 0.5, 0.005},
+					{_V( 7, 7, -55.8 ), 1e5, 1e2, 0.5, 0.005},
+					{_V( 0, 0, 20 ), 1e5, 1e2, 0.5}
+				};
+				SetTouchdownPoints( tdvtx, ntdvtx );
+			 }
+			break;
+		case STATE_ORBITER:
+			{
+				DWORD ntdvtx = 10;
+				static TOUCHDOWNVTX tdvtx[10];
+				// points do not necessarily represent EXACT locations in order to decrease total point count
+				// nose tip
+				tdvtx[3].pos = _V( 0, -2.0295, 18.6573 ) + orbiter_ofs;
+				tdvtx[3].stiffness = 1e8;
+				tdvtx[3].damping = 1e6;
+				tdvtx[3].mu = 1;
+				//tdvtx[3].mu_lng = 0;
+				// top of forward fuselage
+				tdvtx[4].pos = _V( 0, 2.0796, 12.0360 ) + orbiter_ofs;
+				tdvtx[4].stiffness = 1e8;
+				tdvtx[4].damping = 1e6;
+				tdvtx[4].mu = 1;
+				//tdvtx[4].mu_lng = 0;
+				// top of tail
+				tdvtx[5].pos = _V( 0, 10.3036, -17.4510 ) + orbiter_ofs;
+				tdvtx[5].stiffness = 1e8;
+				tdvtx[5].damping = 1e6;
+				tdvtx[5].mu = 1;
+				//tdvtx[5].mu_lng = 0;
+				// BF LH tip
+				tdvtx[6].pos = _V( -2.7904, -3.3344, -16.7121 ) + orbiter_ofs;
+				tdvtx[6].stiffness = 1e8;
+				tdvtx[6].damping = 1e6;
+				tdvtx[6].mu = 1;
+				//tdvtx[6].mu_lng = 0;
+				// BF RH tip
+				tdvtx[7].pos = _V( 2.7904, -3.3344, -16.7121 ) + orbiter_ofs;
+				tdvtx[7].stiffness = 1e8;
+				tdvtx[7].damping = 1e6;
+				tdvtx[7].mu = 1;
+				//tdvtx[7].mu_lng = 0;
+				// LH wing tip
+				tdvtx[8].pos = _V( -12.3260, -2.7311, -10.5948 ) + orbiter_ofs;
+				tdvtx[8].stiffness = 1e8;
+				tdvtx[8].damping = 1e6;
+				tdvtx[8].mu = 1;
+				//tdvtx[8].mu_lng = 0;
+				// RH wing tip
+				tdvtx[9].pos = _V( 12.3260, -2.7311, -10.5948 ) + orbiter_ofs;
+				tdvtx[9].stiffness = 1e8;
+				tdvtx[9].damping = 1e6;
+				tdvtx[9].mu = 1;
+				//tdvtx[9].mu_lng = 0;
+
+				if (gear_status.action == AnimState::OPEN)
+				{// gear fully deployed
+					// NLG (open)
+					tdvtx[0].pos = _V( 0, -5.142, 14.897 ) + orbiter_ofs;
+					tdvtx[0].stiffness = 1e8;
+					tdvtx[0].damping = 1e6;
+					tdvtx[0].mu = 2;
+					tdvtx[0].mu_lng = 0.0175;
+					// LH MLG (open)
+					tdvtx[1].pos = _V( -4.027, -6.607, -5.3 ) + orbiter_ofs;
+					tdvtx[1].stiffness = 1e8;
+					tdvtx[1].damping = 1e5;
+					tdvtx[1].mu = 2;
+					tdvtx[1].mu_lng = 0.0175;
+					// RH MLG (open)
+					tdvtx[2].pos = _V( 4.027, -6.607, -5.3 ) + orbiter_ofs;
+					tdvtx[2].stiffness = 1e8;
+					tdvtx[2].damping = 1e5;
+					tdvtx[2].mu = 2;
+					tdvtx[2].mu_lng = 0.0175;
+				}
+				else
+				{// belly landing
+					// NLG area (closed)
+					tdvtx[0].pos = _V( 0, -3.3878, 14.6771 ) + orbiter_ofs;
+					tdvtx[0].stiffness = 1e8;
+					tdvtx[0].damping = 1e6;
+					tdvtx[0].mu = 1;
+					tdvtx[0].mu_lng = 1;
+					// LH MLG area (closed)
+					tdvtx[1].pos = _V( -2.6445, -3.8329, -3.8605 ) + orbiter_ofs;
+					tdvtx[1].stiffness = 1e8;
+					tdvtx[1].damping = 1e6;
+					tdvtx[1].mu = 1;
+					tdvtx[1].mu_lng = 1;
+					// RH MLG area (closed)
+					tdvtx[2].pos = _V( 2.6445, -3.8329, -3.8605 ) + orbiter_ofs;
+					tdvtx[2].stiffness = 1e8;
+					tdvtx[2].damping = 1e6;
+					tdvtx[2].mu = 1;
+					tdvtx[2].mu_lng = 1;
+				}
+
+				SetTouchdownPoints( tdvtx, ntdvtx );
+			}
+			break;
 	}
-	else {
-		SetTouchdownPoints(_V(0, -2.5, 14) + orbiter_ofs, _V(-8, -2.8, -9) + orbiter_ofs, _V(8, -2.8, -9) + orbiter_ofs); // belly landing
-		SetSurfaceFrictionCoeff(0.4, 0.4);
-	}
+
+	return;
 }
 
 void Atlantis::ClearMeshes()
@@ -2826,7 +2838,6 @@ void Atlantis::SetBayDoorPosition(double pos)
 	SetAnimation(anim_door, pos);
 	rdoor_drag = sqrt(min(1.0, pos*3.0));
 	ldoor_drag = sqrt(min(1.0, max(0.0, pos - 0.3656)*3.0));
-	//SetAnimation (anim_portTS, max(0.0, (pos - 0.5)/0.5));
 }
 
 void Atlantis::SetBayDoorLatchPosition(int gang, double pos)
@@ -3189,10 +3200,35 @@ double Atlantis::GetPropellantLevel(PROPELLANT_HANDLE ph) const
 	return 100.0*(GetPropellantMass(ph) / GetPropellantMaxMass(ph));
 }
 
-void Atlantis::UpdateHandControllerSignals()
+void Atlantis::UpdateControllersSignals( double dt )
 {
-	//get THC and RHC input
-	if (ControlRMS) { // use RHC/THC input to control RMS
+	// RHC and THC input (RMS included)
+	if (ControlRMS)
+	{
+		// use RHC/THC input to control RMS
+
+		// kill FCS input
+		for (int i = 0; i < 9; i++)
+		{
+			LeftRHC[i].ResetLine();
+			RightRHC[i].ResetLine();
+			AftRHC[i].ResetLine();
+
+			LeftTHC[i * 2].ResetLine();
+			LeftTHC[(i * 2) + 1].ResetLine();
+			AftTHC[i * 2].ResetLine();
+			AftTHC[(i * 2) + 1].ResetLine();
+		}
+		LeftRHCpitch = 0.0;
+		LeftRHCroll = 0.0;
+		LeftRHCyaw = 0.0;
+		RightRHCpitch = 0.0;
+		RightRHCroll = 0.0;
+		RightRHCyaw = 0.0;
+		AftRHCpitch = 0.0;
+		AftRHCroll = 0.0;
+		AftRHCyaw = 0.0;
+
 		RMS_RHCInput[PITCH].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_PITCHUP) - GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)));
 		RMS_RHCInput[YAW].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)));
 		RMS_RHCInput[ROLL].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)));
@@ -3205,10 +3241,6 @@ void Atlantis::UpdateHandControllerSignals()
 			RMS_THCInput[0].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_FORWARD) - GetThrusterGroupLevel(THGROUP_ATT_BACK)));
 			RMS_THCInput[1].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_RIGHT) - GetThrusterGroupLevel(THGROUP_ATT_LEFT)));
 			RMS_THCInput[2].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_DOWN) - GetThrusterGroupLevel(THGROUP_ATT_UP)));
-		}
-		for (int i = 0; i<3; i++) {
-			RHCInput.data[i] = 0.0;
-			THCInput.data[i] = 0.0;
 		}
 
 		// use RHC pitch commands to drive single joint input
@@ -3232,88 +3264,673 @@ void Atlantis::UpdateHandControllerSignals()
 			}
 		}
 	}
-	else { // use RHC/THC input to control RCS
-		if (status == STATE_ORBITER && GetAltitude() < 100000.0) { // use Orbiter aerosurfaces, which will smoothly ramp between values, for entry
-			if ((VCMode == VC_CDR && CdrFltCntlrPwr) || (VCMode == VC_PLT && PltFltCntlrPwr)) { //forward RHC/THC
-				RHCInput.data[PITCH] = GetControlSurfaceLevel(AIRCTRL_ELEVATOR);
-				RHCInput.data[YAW] = GetControlSurfaceLevel(AIRCTRL_RUDDER);
-				RHCInput.data[ROLL] = GetControlSurfaceLevel(AIRCTRL_AILERON);
-			}
-			else {
-				RHCInput = _V(0, 0, 0);
-			}
-			THCInput = _V(0, 0, 0);
-		}
-		else { // launch or in orbit - use Orbiter thrusters
-			//if(VCMode==VC_CDR || VCMode==VC_PLT || VCMode==VC_MS1 || VCMode==VC_MS2) { //forward RHC/THC
-			if ((VCMode == VC_CDR && CdrFltCntlrPwr) || (VCMode == VC_PLT && PltFltCntlrPwr)) { //forward RHC/THC
-				RHCInput.data[PITCH] = GetThrusterGroupLevel(THGROUP_ATT_PITCHUP) - GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
-				RHCInput.data[YAW] = GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-				RHCInput.data[ROLL] = GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
-				if (!ControlSurfacesEnabled && GetAttitudeMode() == RCS_ROT) { // use arrow, Ins/Del keys for translation input
-					for (int i = 0; i < 3; i++) THCInput.data[i] = AltKybdInput.data[i];
-				}
-				else {
-					THCInput.x = GetThrusterGroupLevel(THGROUP_ATT_FORWARD) - GetThrusterGroupLevel(THGROUP_ATT_BACK);
-					THCInput.y = GetThrusterGroupLevel(THGROUP_ATT_RIGHT) - GetThrusterGroupLevel(THGROUP_ATT_LEFT);
-					THCInput.z = GetThrusterGroupLevel(THGROUP_ATT_DOWN) - GetThrusterGroupLevel(THGROUP_ATT_UP);
-				}
-			}
-			else if ((VCMode != VC_MS1 && VCMode != VC_MS2) && AftFltCntlrPwr) { //aft RHC/THC
-				if (AftSense) { //-Z
-					RHCInput.data[PITCH] = GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN) - GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-					RHCInput.data[YAW] = GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT) - GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-					RHCInput.data[ROLL] = GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT) - GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
-					if (!ControlSurfacesEnabled && GetAttitudeMode() == RCS_ROT) { // use arrow, Ins/Del keys for translation input
-						THCInput.z = -AltKybdInput.x;
-						THCInput.y = -AltKybdInput.y;
-						THCInput.x = -AltKybdInput.z;
-					}
-					else {
-						THCInput.z = GetThrusterGroupLevel(THGROUP_ATT_BACK) - GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-						THCInput.y = GetThrusterGroupLevel(THGROUP_ATT_LEFT) - GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-						THCInput.x = GetThrusterGroupLevel(THGROUP_ATT_UP) - GetThrusterGroupLevel(THGROUP_ATT_DOWN);
-					}
-				}
-				else { //-X
-					RHCInput.data[PITCH] = GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN) - GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-					RHCInput.data[YAW] = GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-					RHCInput.data[ROLL] = GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT) - GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-					if (!ControlSurfacesEnabled && GetAttitudeMode() == RCS_ROT) { // use arrow, Ins/Del keys for translation input
-						THCInput.x = -AltKybdInput.x;
-						THCInput.y = -AltKybdInput.y;
-						THCInput.z = AltKybdInput.z;
-					}
-					else {
-						THCInput.x = GetThrusterGroupLevel(THGROUP_ATT_BACK) - GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-						THCInput.y = GetThrusterGroupLevel(THGROUP_ATT_LEFT) - GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-						THCInput.z = GetThrusterGroupLevel(THGROUP_ATT_DOWN) - GetThrusterGroupLevel(THGROUP_ATT_UP);
-					}
-				}
-			}
-			else {
-				RHCInput = _V(0, 0, 0);
-				THCInput = _V(0, 0, 0);
-			}
-		}
-
-		for (unsigned short i = 0; i < 3; i++) {
-			RMS_RHCInput[i].SetLine(0.0);
-			RMS_THCInput[i].SetLine(0.0);
-
-			RHCInputPort[i].SetLine(static_cast<float>(RHCInput.data[i]));
-			THCInputPort[i].SetLine(static_cast<float>(THCInput.data[i]));
-		}
-	}
-	// get SPDBK/THROT level
-	if (pSimpleGPC->GetMajorMode() == 102 || pSimpleGPC->GetMajorMode() == 103
-		|| pSimpleGPC->GetMajorMode() == 304 || pSimpleGPC->GetMajorMode() == 305)
+	else
 	{
-		SpdbkThrotPort.SetLine(static_cast<float>(GetThrusterGroupLevel(THGROUP_MAIN)));
+		// use RHC/THC input to control FCS
+
+		// kill RMS input
+		for (int i = 0; i < 3; i++)
+		{
+			RMS_RHCInput[i].ResetLine();
+			RMS_THCInput[i].ResetLine();
+		}
+
+		double pitch;
+		double roll;
+		double yaw;
+
+		// left RHC & THC
+		if ((VCMode == VC_CDR) && (CdrFltCntlrPwr.IsSet()))
+		{
+			// power is on and user is "here", use input
+			pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
+			roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
+			yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
+			
+			if (GetAttitudeMode() == RCS_ROT)
+			{
+				// use arrows and Ins and Del keys
+				if (AltKybdInput.x == 1.0)
+				{
+					LeftTHC[0].SetLine( 1.0f );
+					LeftTHC[1].SetLine( 1.0f );
+					LeftTHC[2].SetLine( 1.0f );
+					LeftTHC[3].ResetLine();
+					LeftTHC[4].ResetLine();
+					LeftTHC[5].ResetLine();
+				}
+				else if (AltKybdInput.x == -1.0)
+				{
+					LeftTHC[0].ResetLine();
+					LeftTHC[1].ResetLine();
+					LeftTHC[2].ResetLine();
+					LeftTHC[3].SetLine( 1.0f );
+					LeftTHC[4].SetLine( 1.0f );
+					LeftTHC[5].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[0].ResetLine();
+					LeftTHC[1].ResetLine();
+					LeftTHC[2].ResetLine();
+					LeftTHC[3].ResetLine();
+					LeftTHC[4].ResetLine();
+					LeftTHC[5].ResetLine();
+				}
+
+				if (AltKybdInput.y == 1.0)
+				{
+					LeftTHC[6].SetLine( 1.0f );
+					LeftTHC[7].SetLine( 1.0f );
+					LeftTHC[8].SetLine( 1.0f );
+					LeftTHC[9].ResetLine();
+					LeftTHC[10].ResetLine();
+					LeftTHC[11].ResetLine();
+				}
+				else if (AltKybdInput.y == -1.0)
+				{
+					LeftTHC[6].ResetLine();
+					LeftTHC[7].ResetLine();
+					LeftTHC[8].ResetLine();
+					LeftTHC[9].SetLine( 1.0f );
+					LeftTHC[10].SetLine( 1.0f );
+					LeftTHC[11].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[6].ResetLine();
+					LeftTHC[7].ResetLine();
+					LeftTHC[8].ResetLine();
+					LeftTHC[9].ResetLine();
+					LeftTHC[10].ResetLine();
+					LeftTHC[11].ResetLine();
+				}
+
+				if (AltKybdInput.z == 1.0)
+				{
+					LeftTHC[12].SetLine( 1.0f );
+					LeftTHC[13].SetLine( 1.0f );
+					LeftTHC[14].SetLine( 1.0f );
+					LeftTHC[15].ResetLine();
+					LeftTHC[16].ResetLine();
+					LeftTHC[17].ResetLine();
+				}
+				else if (AltKybdInput.z == -1.0)
+				{
+					LeftTHC[12].ResetLine();
+					LeftTHC[13].ResetLine();
+					LeftTHC[14].ResetLine();
+					LeftTHC[15].SetLine( 1.0f );
+					LeftTHC[16].SetLine( 1.0f );
+					LeftTHC[17].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[12].ResetLine();
+					LeftTHC[13].ResetLine();
+					LeftTHC[14].ResetLine();
+					LeftTHC[15].ResetLine();
+					LeftTHC[16].ResetLine();
+					LeftTHC[17].ResetLine();
+				}
+			}
+			else
+			{
+				// use numpad keys
+				if (GetThrusterGroupLevel( THGROUP_ATT_BACK ) != 0)
+				{
+					LeftTHC[0].SetLine( 1.0f );
+					LeftTHC[1].SetLine( 1.0f );
+					LeftTHC[2].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[0].ResetLine();
+					LeftTHC[1].ResetLine();
+					LeftTHC[2].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_FORWARD ) != 0)
+				{
+					LeftTHC[3].SetLine( 1.0f );
+					LeftTHC[4].SetLine( 1.0f );
+					LeftTHC[5].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[3].ResetLine();
+					LeftTHC[4].ResetLine();
+					LeftTHC[5].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_RIGHT ) != 0)
+				{
+					LeftTHC[6].SetLine( 1.0f );
+					LeftTHC[7].SetLine( 1.0f );
+					LeftTHC[8].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[6].ResetLine();
+					LeftTHC[7].ResetLine();
+					LeftTHC[8].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_LEFT ) != 0)
+				{
+					LeftTHC[9].SetLine( 1.0f );
+					LeftTHC[10].SetLine( 1.0f );
+					LeftTHC[11].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[9].ResetLine();
+					LeftTHC[10].ResetLine();
+					LeftTHC[11].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_UP ) != 0)
+				{
+					LeftTHC[12].SetLine( 1.0f );
+					LeftTHC[13].SetLine( 1.0f );
+					LeftTHC[14].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[12].ResetLine();
+					LeftTHC[13].ResetLine();
+					LeftTHC[14].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_DOWN ) != 0)
+				{
+					LeftTHC[15].SetLine( 1.0f );
+					LeftTHC[16].SetLine( 1.0f );
+					LeftTHC[17].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[15].ResetLine();
+					LeftTHC[16].ResetLine();
+					LeftTHC[17].ResetLine();
+				}
+			}
+		}
+		else
+		{
+			// power is off or empty seat, no input
+			pitch = 0.0;
+			roll = 0.0;
+			yaw = 0.0;
+
+			LeftTHC[0].ResetLine();
+			LeftTHC[1].ResetLine();
+			LeftTHC[2].ResetLine();
+			LeftTHC[3].ResetLine();
+			LeftTHC[4].ResetLine();
+			LeftTHC[5].ResetLine();
+			LeftTHC[6].ResetLine();
+			LeftTHC[7].ResetLine();
+			LeftTHC[8].ResetLine();
+			LeftTHC[9].ResetLine();
+			LeftTHC[10].ResetLine();
+			LeftTHC[11].ResetLine();
+			LeftTHC[12].ResetLine();
+			LeftTHC[13].ResetLine();
+			LeftTHC[14].ResetLine();
+			LeftTHC[15].ResetLine();
+			LeftTHC[16].ResetLine();
+			LeftTHC[17].ResetLine();
+		}
+		if (pitch > LeftRHCpitch)
+		{
+			LeftRHCpitch += RHC_RATE * dt;
+			if (LeftRHCpitch > pitch) LeftRHCpitch = pitch;
+		}
+		else if (pitch < LeftRHCpitch)
+		{
+			LeftRHCpitch -= RHC_RATE * dt;
+			if (LeftRHCpitch < pitch) LeftRHCpitch = pitch;
+		}
+		LeftRHC[0].SetLine( static_cast<float>(LeftRHCpitch) );
+		LeftRHC[1].SetLine( static_cast<float>(LeftRHCpitch) );
+		LeftRHC[2].SetLine( static_cast<float>(LeftRHCpitch) );
+		if (roll > LeftRHCroll)
+		{
+			LeftRHCroll += RHC_RATE * dt;
+			if (LeftRHCroll > roll) LeftRHCroll = roll;
+		}
+		else if (roll < LeftRHCroll)
+		{
+			LeftRHCroll -= RHC_RATE * dt;
+			if (LeftRHCroll < roll) LeftRHCroll = roll;
+		}
+		LeftRHC[3].SetLine( static_cast<float>(LeftRHCroll) );
+		LeftRHC[4].SetLine( static_cast<float>(LeftRHCroll) );
+		LeftRHC[5].SetLine( static_cast<float>(LeftRHCroll) );
+		if (yaw > LeftRHCyaw)
+		{
+			LeftRHCyaw += RHC_RATE * dt;
+			if (LeftRHCyaw > yaw) LeftRHCyaw = yaw;
+		}
+		else if (yaw < LeftRHCyaw)
+		{
+			LeftRHCyaw -= RHC_RATE * dt;
+			if (LeftRHCyaw < yaw) LeftRHCyaw = yaw;
+		}
+		LeftRHC[6].SetLine( static_cast<float>(LeftRHCyaw) );
+		LeftRHC[7].SetLine( static_cast<float>(LeftRHCyaw) );
+		LeftRHC[8].SetLine( static_cast<float>(LeftRHCyaw) );
+
+		// right RHC
+		if ((VCMode == VC_PLT) && (PltFltCntlrPwr.IsSet()))
+		{
+			// power is on and user is "here", use input
+			pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
+			roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
+			yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
+		}
+		else
+		{
+			// power is off or empty seat, no input
+			pitch = 0.0;
+			roll = 0.0;
+			yaw = 0.0;
+		}
+		if (pitch > RightRHCpitch)
+		{
+			RightRHCpitch += RHC_RATE * dt;
+			if (RightRHCpitch > pitch) RightRHCpitch = pitch;
+		}
+		else if (pitch < RightRHCpitch)
+		{
+			RightRHCpitch -= RHC_RATE * dt;
+			if (RightRHCpitch < pitch) RightRHCpitch = pitch;
+		}
+		RightRHC[0].SetLine( static_cast<float>(RightRHCpitch) );
+		RightRHC[1].SetLine( static_cast<float>(RightRHCpitch) );
+		RightRHC[2].SetLine( static_cast<float>(RightRHCpitch) );
+		if (roll > RightRHCroll)
+		{
+			RightRHCroll += RHC_RATE * dt;
+			if (RightRHCroll > roll) RightRHCroll = roll;
+		}
+		else if (roll < RightRHCroll)
+		{
+			RightRHCroll -= RHC_RATE * dt;
+			if (RightRHCroll < roll) RightRHCroll = roll;
+		}
+		RightRHC[3].SetLine( static_cast<float>(RightRHCroll) );
+		RightRHC[4].SetLine( static_cast<float>(RightRHCroll) );
+		RightRHC[5].SetLine( static_cast<float>(RightRHCroll) );
+		if (yaw > RightRHCyaw)
+		{
+			RightRHCyaw += RHC_RATE * dt;
+			if (RightRHCyaw > yaw) RightRHCyaw = yaw;
+		}
+		else if (yaw < RightRHCyaw)
+		{
+			RightRHCyaw -= RHC_RATE * dt;
+			if (RightRHCyaw < yaw) RightRHCyaw = yaw;
+		}
+		RightRHC[6].SetLine( static_cast<float>(RightRHCyaw) );
+		RightRHC[7].SetLine( static_cast<float>(RightRHCyaw) );
+		RightRHC[8].SetLine( static_cast<float>(RightRHCyaw) );
+
+		// aft RHC & THC
+		if (((VCMode == VC_AFTPILOT) || (VCMode == VC_DOCKCAM)) && (AftFltCntlrPwr.IsSet()))
+		{
+			// power is on and user is "here", use input
+			pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
+			roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
+			yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
+
+			// connections below are due to physical orientation of aft THC
+			if (GetAttitudeMode() == RCS_ROT)
+			{
+				// use arrows and Ins and Del keys
+				if (AltKybdInput.x == 1.0)
+				{
+					AftTHC[0].SetLine( 1.0f );
+					AftTHC[1].SetLine( 1.0f );
+					AftTHC[2].SetLine( 1.0f );
+					AftTHC[3].ResetLine();
+					AftTHC[4].ResetLine();
+					AftTHC[5].ResetLine();
+				}
+				else if (AltKybdInput.x == -1.0)
+				{
+					AftTHC[0].ResetLine();
+					AftTHC[1].ResetLine();
+					AftTHC[2].ResetLine();
+					AftTHC[3].SetLine( 1.0f );
+					AftTHC[4].SetLine( 1.0f );
+					AftTHC[5].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[0].ResetLine();
+					AftTHC[1].ResetLine();
+					AftTHC[2].ResetLine();
+					AftTHC[3].ResetLine();
+					AftTHC[4].ResetLine();
+					AftTHC[5].ResetLine();
+				}
+
+				if (AltKybdInput.z == 1.0)
+				{
+					AftTHC[6].SetLine( 1.0f );
+					AftTHC[7].SetLine( 1.0f );
+					AftTHC[8].SetLine( 1.0f );
+					AftTHC[9].ResetLine();
+					AftTHC[10].ResetLine();
+					AftTHC[11].ResetLine();
+				}
+				else if (AltKybdInput.z == -1.0)
+				{
+					AftTHC[6].ResetLine();
+					AftTHC[7].ResetLine();
+					AftTHC[8].ResetLine();
+					AftTHC[9].SetLine( 1.0f );
+					AftTHC[10].SetLine( 1.0f );
+					AftTHC[11].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[6].ResetLine();
+					AftTHC[7].ResetLine();
+					AftTHC[8].ResetLine();
+					AftTHC[9].ResetLine();
+					AftTHC[10].ResetLine();
+					AftTHC[11].ResetLine();
+				}
+
+				if (AltKybdInput.y == 1.0)
+				{
+					AftTHC[12].ResetLine();
+					AftTHC[13].ResetLine();
+					AftTHC[14].ResetLine();
+					AftTHC[15].SetLine( 1.0f );
+					AftTHC[16].SetLine( 1.0f );
+					AftTHC[17].SetLine( 1.0f );
+				}
+				else if (AltKybdInput.y == -1.0)
+				{
+					AftTHC[12].SetLine( 1.0f );
+					AftTHC[13].SetLine( 1.0f );
+					AftTHC[14].SetLine( 1.0f );
+					AftTHC[15].ResetLine();
+					AftTHC[16].ResetLine();
+					AftTHC[17].ResetLine();
+				}
+				else
+				{
+					AftTHC[12].ResetLine();
+					AftTHC[13].ResetLine();
+					AftTHC[14].ResetLine();
+					AftTHC[15].ResetLine();
+					AftTHC[16].ResetLine();
+					AftTHC[17].ResetLine();
+				}
+			}
+			else
+			{
+				// use numpad keys
+				if (GetThrusterGroupLevel( THGROUP_ATT_BACK ) != 0)
+				{
+					AftTHC[0].SetLine( 1.0f );
+					AftTHC[1].SetLine( 1.0f );
+					AftTHC[2].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[0].ResetLine();
+					AftTHC[1].ResetLine();
+					AftTHC[2].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_FORWARD ) != 0)
+				{
+					AftTHC[3].SetLine( 1.0f );
+					AftTHC[4].SetLine( 1.0f );
+					AftTHC[5].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[3].ResetLine();
+					AftTHC[4].ResetLine();
+					AftTHC[5].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_UP ) != 0)
+				{
+					AftTHC[6].SetLine( 1.0f );
+					AftTHC[7].SetLine( 1.0f );
+					AftTHC[8].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[6].ResetLine();
+					AftTHC[7].ResetLine();
+					AftTHC[8].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_DOWN ) != 0)
+				{
+					AftTHC[9].SetLine( 1.0f );
+					AftTHC[10].SetLine( 1.0f );
+					AftTHC[11].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[9].ResetLine();
+					AftTHC[10].ResetLine();
+					AftTHC[11].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_LEFT ) != 0)
+				{
+					AftTHC[12].SetLine( 1.0f );
+					AftTHC[13].SetLine( 1.0f );
+					AftTHC[14].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[12].ResetLine();
+					AftTHC[13].ResetLine();
+					AftTHC[14].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_RIGHT ) != 0)
+				{
+					AftTHC[15].SetLine( 1.0f );
+					AftTHC[16].SetLine( 1.0f );
+					AftTHC[17].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[15].ResetLine();
+					AftTHC[16].ResetLine();
+					AftTHC[17].ResetLine();
+				}
+			}
+		}
+		else
+		{
+			// power is off or empty seat, no input
+			pitch = 0.0;
+			roll = 0.0;
+			yaw = 0.0;
+
+			AftTHC[0].ResetLine();
+			AftTHC[1].ResetLine();
+			AftTHC[2].ResetLine();
+			AftTHC[3].ResetLine();
+			AftTHC[4].ResetLine();
+			AftTHC[5].ResetLine();
+			AftTHC[6].ResetLine();
+			AftTHC[7].ResetLine();
+			AftTHC[8].ResetLine();
+			AftTHC[9].ResetLine();
+			AftTHC[10].ResetLine();
+			AftTHC[11].ResetLine();
+			AftTHC[12].ResetLine();
+			AftTHC[13].ResetLine();
+			AftTHC[14].ResetLine();
+			AftTHC[15].ResetLine();
+			AftTHC[16].ResetLine();
+			AftTHC[17].ResetLine();
+		}
+		if (pitch > AftRHCpitch)
+		{
+			AftRHCpitch += RHC_RATE * dt;
+			if (AftRHCpitch > pitch) AftRHCpitch = pitch;
+		}
+		else if (pitch < AftRHCpitch)
+		{
+			AftRHCpitch -= RHC_RATE * dt;
+			if (AftRHCpitch < pitch) AftRHCpitch = pitch;
+		}
+		AftRHC[0].SetLine( static_cast<float>(AftRHCpitch) );
+		AftRHC[1].SetLine( static_cast<float>(AftRHCpitch) );
+		AftRHC[2].SetLine( static_cast<float>(AftRHCpitch) );
+		if (roll > AftRHCroll)
+		{
+			AftRHCroll += RHC_RATE * dt;
+			if (AftRHCroll > roll) AftRHCroll = roll;
+		}
+		else if (roll < AftRHCroll)
+		{
+			AftRHCroll -= RHC_RATE * dt;
+			if (AftRHCroll < roll) AftRHCroll = roll;
+		}
+		AftRHC[3].SetLine( static_cast<float>(AftRHCroll) );
+		AftRHC[4].SetLine( static_cast<float>(AftRHCroll) );
+		AftRHC[5].SetLine( static_cast<float>(AftRHCroll) );
+		if (yaw > AftRHCyaw)
+		{
+			AftRHCyaw += RHC_RATE * dt;
+			if (AftRHCyaw > yaw) AftRHCyaw = yaw;
+		}
+		else if (yaw < AftRHCyaw)
+		{
+			AftRHCyaw -= RHC_RATE * dt;
+			if (AftRHCyaw < yaw) AftRHCyaw = yaw;
+		}
+		AftRHC[6].SetLine( static_cast<float>(AftRHCyaw) );
+		AftRHC[7].SetLine( static_cast<float>(AftRHCyaw) );
+		AftRHC[8].SetLine( static_cast<float>(AftRHCyaw) );
 	}
-	else {
-		SpdbkThrotPort.ResetLine();
+
+	// RPTA input
+	double RPTAtmp = 0.0;
+	if ((VCMode == VC_CDR) || (VCMode == VC_PLT)) RPTAtmp = RPTAinput;
+	if (RPTAtmp > RPTApos)
+	{
+		RPTApos += RPTA_RATE * dt;
+		if (RPTApos > RPTAtmp) RPTApos = RPTAtmp;
 	}
+	else if (RPTAtmp < RPTApos)
+	{
+		RPTApos -= RPTA_RATE * dt;
+		if (RPTApos < RPTAtmp) RPTApos = RPTAtmp;
+	}
+	if (CdrFltCntlrPwr.IsSet())
+	{
+		LeftRPTA[0].SetLine( (float)RPTApos );
+		LeftRPTA[1].SetLine( (float)RPTApos );
+		LeftRPTA[2].SetLine( (float)RPTApos );
+	}
+	else
+	{
+		LeftRPTA[0].ResetLine();
+		LeftRPTA[1].ResetLine();
+		LeftRPTA[2].ResetLine();
+	}
+	if (PltFltCntlrPwr.IsSet())
+	{
+		RightRPTA[0].SetLine( (float)RPTApos );
+		RightRPTA[1].SetLine( (float)RPTApos );
+		RightRPTA[2].SetLine( (float)RPTApos );
+	}
+	else
+	{
+		RightRPTA[0].ResetLine();
+		RightRPTA[1].ResetLine();
+		RightRPTA[2].ResetLine();
+	}
+
+	// SBTC input
+	if (VCMode == VC_CDR)
+	{
+		LeftSBTCpos = range( 0.0, LeftSBTCpos + SBTCinput, 1.0 );
+	}
+	else if (VCMode == VC_PLT)
+	{
+		RightSBTCpos = range( 0.0, RightSBTCpos + SBTCinput, 1.0 );
+	}
+	SBTCinput = 0.0;
+
+	if (CdrFltCntlrPwr.IsSet())
+	{
+		LeftSBTC[0].SetLine( (float)LeftSBTCpos );
+		LeftSBTC[1].SetLine( (float)LeftSBTCpos );
+		LeftSBTC[2].SetLine( (float)LeftSBTCpos );
+	}
+	else
+	{
+		LeftSBTC[0].ResetLine();
+		LeftSBTC[1].ResetLine();
+		LeftSBTC[2].ResetLine();
+	}
+	SetAnimation( anim_leftsbtc, LeftSBTCpos );
+	if (PltFltCntlrPwr.IsSet())
+	{
+		RightSBTC[0].SetLine( (float)RightSBTCpos );
+		RightSBTC[1].SetLine( (float)RightSBTCpos );
+		RightSBTC[2].SetLine( (float)RightSBTCpos );
+	}
+	else
+	{
+		RightSBTC[0].ResetLine();
+		RightSBTC[1].ResetLine();
+		RightSBTC[2].ResetLine();
+	}
+	SetAnimation( anim_rightsbtc, RightSBTCpos );
+	if ((VCMode == VC_CDR) && (CdrFltCntlrPwr.IsSet()))
+	{
+		if (SBTCTOinput)
+		{
+			LeftSBTC[3].SetLine( 1.0f );
+			LeftSBTC[4].SetLine( 1.0f );
+			LeftSBTC[5].SetLine( 1.0f );
+		}
+		else
+		{
+			LeftSBTC[3].ResetLine();
+			LeftSBTC[4].ResetLine();
+			LeftSBTC[5].ResetLine();
+		}
+	}
+	else
+	{
+		LeftSBTC[3].ResetLine();
+		LeftSBTC[4].ResetLine();
+		LeftSBTC[5].ResetLine();
+	}
+	if ((VCMode == VC_PLT) && (PltFltCntlrPwr.IsSet()))
+	{
+		if (SBTCTOinput)
+		{
+			RightSBTC[3].SetLine( 1.0f );
+			RightSBTC[4].SetLine( 1.0f );
+			RightSBTC[5].SetLine( 1.0f );
+		}
+		else
+		{
+			RightSBTC[3].ResetLine();
+			RightSBTC[4].ResetLine();
+			RightSBTC[5].ResetLine();
+		}
+	}
+	else
+	{
+		RightSBTC[3].ResetLine();
+		RightSBTC[4].ResetLine();
+		RightSBTC[5].ResetLine();
+	}
+
+	return;
 }
 
 void Atlantis::clbkSetClassCaps(FILEHANDLE cfg)
@@ -3321,9 +3938,6 @@ void Atlantis::clbkSetClassCaps(FILEHANDLE cfg)
 	try
 	{
 		options->Parse(cfg);
-		if (!oapiReadItem_bool(cfg, "RenderCockpit", render_cockpit))
-			render_cockpit = false;
-
 		if (!oapiReadItem_bool(cfg, "UseRealRCS", bUseRealRCS))
 			bUseRealRCS = false;
 
@@ -3436,6 +4050,16 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 				psubsystems->AddSubsystem( new comm::ElectronicsAssembly1( psubsystems, pDeployedAssembly ) );
 				psubsystems->AddSubsystem( new comm::ElectronicsAssembly2( psubsystems, pDeployedAssembly ) );
 			}
+
+			if (pMission->HasDragChute()) psubsystems->AddSubsystem( pDragChute = new DragChute( psubsystems ) );
+		}
+		else if (!_strnicmp( line, "SBTC", 4 ))
+		{
+			double left = 0.0;
+			double right = 0.0;
+			sscanf( line + 4, "%lf %lf", &left, &right );
+			if ((left >= 0.0) && (left <= 1.0)) LeftSBTCpos = left;
+			if ((right >= 0.0) && (right <= 1.0)) RightSBTCpos = right;
 		}
 		else if (!_strnicmp(line, "SPEEDBRAKE", 10))
 		{
@@ -3562,6 +4186,12 @@ void Atlantis::clbkSaveState(FILEHANDLE scn)
 	// custom parameters
 	oapiWriteScenario_int(scn, "CONFIGURATION", status);
 	oapiWriteScenario_int(scn, "VC_POS", VCMode);
+	
+	if ((LeftSBTCpos != 1.0) || (RightSBTCpos != 1.0))
+	{
+		sprintf( cbuf, "%0.2f %0.2f", LeftSBTCpos, RightSBTCpos );
+		oapiWriteScenario_string( scn, "SBTC", cbuf );
+	}
 
 	if (spdb_status != AnimState::CLOSED)
 	{
@@ -3697,35 +4327,10 @@ void Atlantis::clbkPostCreation()
 		BodyFlapAutoOut.Connect(pBundle, 0);
 		BodyFlapManOut.Connect(pBundle, 1);
 
-		pBundle = BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
-		SpdbkThrotAutoIn.Connect(pBundle, 0);
-		SpdbkThrotCDROut.Connect(pBundle, 1);
-		SpdbkThrotPLTOut.Connect(pBundle, 2);
-		// if neither MAN port is set, set AUTO port
-		DiscInPort SpdbkThrotCDRIn, SpdbkThrotPLTIn;
-		SpdbkThrotCDRIn.Connect(pBundle, 1);
-		SpdbkThrotPLTIn.Connect(pBundle, 2);
-		if (!SpdbkThrotCDRIn && !SpdbkThrotPLTIn) {
-			DiscOutPort SpdbkThrotAutoOut;
-			SpdbkThrotAutoOut.Connect(pBundle, 0);
-			SpdbkThrotAutoOut.SetLine();
-		}
-
 		pBundle = BundleManager()->CreateBundle("Controllers", 16);
-		AftSense.Connect(pBundle, 0);
 		CdrFltCntlrPwr.Connect(pBundle, 1);
 		PltFltCntlrPwr.Connect(pBundle, 2);
 		AftFltCntlrPwr.Connect(pBundle, 3);
-
-		pBundle = bundleManager->CreateBundle("HC_INPUT", 16);
-		for (int i = 0; i < 3; i++) {
-			RHCInputPort[i].Connect(pBundle, i);
-			THCInputPort[i].Connect(pBundle, i + 3);
-
-			RHCInputPort[i].SetLine(0.0f);
-			THCInputPort[i].SetLine(0.0f);
-		}
-		SpdbkThrotPort.Connect(pBundle, 6);
 
 		pBundle = bundleManager->CreateBundle("AEROSURFACE_CMD", 16);
 		//LeftElevonCommand.Connect(pBundle, 0);
@@ -3757,6 +4362,31 @@ void Atlantis::clbkPostCreation()
 			RMS_RHCInput[i].Connect(pBundle, i);
 			RMS_THCInput[i].Connect(pBundle, i + 3);
 		}
+
+		pBundle = bundleManager->CreateBundle( "LeftRHCTHC_A", 16 );
+		for (int i = 0; i < 9; i++) LeftRHC[i].Connect( pBundle, i );
+		for (int i = 9; i < 16; i++) LeftTHC[i - 9].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "LeftRHCTHC_B", 16 );
+		for (int i = 0; i < 11; i++) LeftTHC[i + 7].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "RightRHC", 16 );
+		for (int i = 0; i < 9; i++) RightRHC[i].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "AftRHCTHC_A", 16 );
+		for (int i = 0; i < 9; i++) AftRHC[i].Connect( pBundle, i );
+		for (int i = 9; i < 16; i++) AftTHC[i - 9].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "AftRHCTHC_B", 16 );
+		for (int i = 0; i < 11; i++) AftTHC[i + 7].Connect( pBundle, i );
+
+		pBundle = bundleManager->CreateBundle( "RPTA", 16 );
+		for (int i = 0; i < 3; i++)
+		{
+			LeftRPTA[i].Connect( pBundle, i );
+			RightRPTA[i].Connect( pBundle, i + 3 );
+		}
+
+		pBundle = bundleManager->CreateBundle( "LeftSBTC", 16 );
+		for (int i = 0; i < 6; i++) LeftSBTC[i].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "RightSBTC", 16 );
+		for (int i = 0; i < 6; i++) RightSBTC[i].Connect( pBundle, i );
 
 		pBundle = bundleManager->CreateBundle("RMS_MODE", 16);
 		RMSSpeedIn.Connect(pBundle, 12);
@@ -3826,21 +4456,11 @@ void Atlantis::clbkPostCreation()
 		LandingGearPosition[5].Connect(pBundle, 5);
 		LandingGearArmDeployLT[0].Connect(pBundle, 6);
 		LandingGearArmDeployLT[1].Connect(pBundle, 7);
+		if (!gear_status.Closed()) LandingGearArmDeployLT[1].SetLine();
 		LandingGearArmDeployPB[0].Connect(pBundle, 8);
 		LandingGearArmDeployPB[1].Connect(pBundle, 9);
 		LandingGearArmDeployPB[2].Connect(pBundle, 10);
 		LandingGearArmDeployPB[3].Connect(pBundle, 11);
-
-		pBundle = bundleManager->CreateBundle("DRAG_CHUTE", 16);
-		DragChuteARMDPYJETTLT[0].Connect(pBundle, 0);
-		DragChuteARMDPYJETTLT[1].Connect(pBundle, 1);
-		DragChuteARMDPYJETTLT[2].Connect(pBundle, 2);
-		DragChuteARM[0].Connect(pBundle, 3);
-		DragChuteARM[1].Connect(pBundle, 4);
-		DragChuteDPY[0].Connect(pBundle, 5);
-		DragChuteDPY[1].Connect(pBundle, 6);
-		DragChuteJETT[0].Connect(pBundle, 7);
-		DragChuteJETT[1].Connect(pBundle, 8);
 
 		pgCenter.LogPanels("Center");
 		pgForward.LogPanels("Forward");
@@ -3907,7 +4527,14 @@ void Atlantis::clbkPreStep(double simT, double simDT, double mjd)
 					// assume y-axis of pad is in vertical direction and pt1.y==pt2.y==pt3.y
 					VECTOR3 pos = POS_HDP - currentCoG;
 					double touchdownZ = pt1.y - parentAttachPos.y + pos.z;
-					SetTouchdownPoints(_V(0, -10, touchdownZ), _V(-7, 7, touchdownZ), _V(7, 7, touchdownZ));
+					DWORD ntdvtx = 4;
+					static TOUCHDOWNVTX tdvtx[4] = {
+						{_V( 0, -10, touchdownZ ), 1e5, 1e2, 0.5, 0.005},
+						{_V( -7, 7, touchdownZ ), 1e5, 1e2, 0.5, 0.005},
+						{_V( 7, 7, touchdownZ ), 1e5, 1e2, 0.5, 0.005},
+						{_V( 0, 0, 20 ), 1e5, 1e2, 0.5}
+					};
+					SetTouchdownPoints( tdvtx, ntdvtx );
 				}
 			}
 		}
@@ -3926,6 +4553,49 @@ void Atlantis::clbkPreStep(double simT, double simDT, double mjd)
 			// calculate MET (in seconds) from MTU
 			met = pMTU->GetMETDay(0)*86400.0 + pMTU->GetMETHour(0)*3600.0 + pMTU->GetMETMin(0)*60.0 + pMTU->GetMETSec(0) + pMTU->GetMETMilli(0) / 1000.0;
 		}
+
+		// landing gear PB
+		if ((LandingGearArmDeployPB[0].IsSet() == true) || (LandingGearArmDeployPB[2].IsSet() == true)) ArmGear();
+		if ((GearArmed() == true) && ((LandingGearArmDeployPB[1].IsSet() == true) || (LandingGearArmDeployPB[3].IsSet() == true))) DeployLandingGear();
+
+		// landing gear position switches
+		if (gear_status.action == AnimState::CLOSED)
+		{
+			// uplock on / downlock off
+			LandingGearPosition[0].SetLine();
+			LandingGearPosition[1].ResetLine();
+
+			LandingGearPosition[2].SetLine();
+			LandingGearPosition[3].ResetLine();
+
+			LandingGearPosition[4].SetLine();
+			LandingGearPosition[5].ResetLine();
+		}
+		else if (gear_status.action == AnimState::OPEN)
+		{
+			// uplock off / downlock on
+			LandingGearPosition[0].ResetLine();
+			LandingGearPosition[1].SetLine();
+
+			LandingGearPosition[2].ResetLine();
+			LandingGearPosition[3].SetLine();
+
+			LandingGearPosition[4].ResetLine();
+			LandingGearPosition[5].SetLine();
+		}
+		else
+		{
+			// uplock off / downlock off
+			LandingGearPosition[0].ResetLine();
+			LandingGearPosition[1].ResetLine();
+
+			LandingGearPosition[2].ResetLine();
+			LandingGearPosition[3].ResetLine();
+
+			LandingGearPosition[4].ResetLine();
+			LandingGearPosition[5].ResetLine();
+		}
+
 		//Stopwatch st, stSub;
 		//st.Start();
 
@@ -3948,7 +4618,7 @@ void Atlantis::clbkPreStep(double simT, double simDT, double mjd)
 		// disable all Orbitersim autopilots
 		for (int i = NAVMODE_KILLROT; i <= NAVMODE_HOLDALT; i++) DeactivateNavmode(i);
 
-		UpdateHandControllerSignals();
+		UpdateControllersSignals( simDT );
 
 
 
@@ -4288,9 +4958,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 {
 	static bool ___PostStep_flag = false;
 	
-	double airspeed;
-	
-	OBJHANDLE hvessel;
 	try
 	{
 		//Stopwatch st, stSub;
@@ -4313,11 +4980,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 		//stSub.Start();
 		psubsystems->PostStep(simt, simdt, mjd);
 		//double subTime = stSub.Stop();
-
-		if (!___PostStep_flag)
-		{
-			oapiWriteLog("(Atlantis::clbkPostStep) Processing DAP.");
-		}
 
 		if (!___PostStep_flag)
 		{
@@ -4413,8 +5075,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 				if (pSimpleGPC->GetMajorMode() == 101) pSimpleGPC->SetMajorMode(102);
 			}
 			else {
-				LaunchClamps();
-
 				if (pRSLS->GetRSLSAbortFlag())// handle pad abort (sound wise)
 				{
 					if (IsPlaying( SoundID, SSME_RUNNING )) PlayVesselWave( SoundID, SSME_SHUTDOWN, NOLOOP );
@@ -4438,80 +5098,10 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 			}
 
 			//deploy gear
-			airspeed = GetAirspeed();
-			if (GetAltitude() < 92.44 && gear_status.action == AnimState::CLOSED) {
+			if (GetAltitude( ALTMODE_GROUND ) < 92.44 && gear_status.action == AnimState::CLOSED) {
 				DeployLandingGear();
 			}
-			else if (GetAltitude() < 609.6) ArmGear();
-
-			if (GroundContact())
-				if (airspeed > 1.0) SetThrusterGroupLevel(THGROUP_MAIN, 0.0); // if main thrust is nonzero, shuttle will never come to a complete stop
-
-			//drag chute
-			if (pMission->HasDragChute()) {
-				if (!DragChuteDeploying &&
-					(((airspeed <= CHUTE_DEPLOY_SPEED) && (airspeed > CHUTE_JETTISON_SPEED) && GroundContact()) ||
-					DragChuteARM[0].IsSet() || DragChuteARM[1].IsSet() || DragChuteDPY[0].IsSet() || DragChuteDPY[1].IsSet())) {
-					DragChuteDeploying = true;
-					DragChuteDeployTime = met;
-
-					DragChuteARMDPYJETTLT[0].SetLine();
-					DragChuteARMDPYJETTLT[1].SetLine();
-				}
-				else if (DragChuteState == STOWED && DragChuteDeploying && (met - DragChuteDeployTime) > CHUTE_DEPLOY_TIME)
-					DeployDragChute();
-				else if (DragChuteState == DEPLOYING) { // go from initial deployment to reefed state
-					DragChuteSize = min(0.4, DragChuteSize + CHUTE_DEPLOY_RATE*simdt);
-					SetAnimation(anim_chute_deploy, 1 - DragChuteSize);
-					if (Eq(DragChuteSize, 0.4, 0.001)) DragChuteState = REEFED;
-				}
-				else if (DragChuteState == REEFED) { // maintain chute in reefed state until time to fully inflate chute
-					if ((met - DragChuteDeployTime) > CHUTE_INFLATE_TIME) {
-						DragChuteState = INFLATED;
-					}
-				}
-				else if (DragChuteState == INFLATED) { // fully inflate chute, then jettison it once airspeed is low enough
-					// also jettison if airspeed is too high (it breaks away) or if user jettisons it
-					if ((airspeed < CHUTE_JETTISON_SPEED) || (airspeed > CHUTE_FAIL_SPEED) || DragChuteJETT[0].IsSet() || DragChuteJETT[1].IsSet()) JettisonDragChute();
-					else if (DragChuteSize < 1.0) {
-						DragChuteSize = min(1.0, DragChuteSize + CHUTE_INFLATE_RATE*simdt);
-						SetAnimation(anim_chute_deploy, 1 - DragChuteSize);
-					}
-				}
-
-				//spin chute
-				if (DragChuteState >= DEPLOYING && DragChuteState < JETTISONED) {
-					if (DragChuteSpin.Opening()) {
-						DragChuteSpin.pos = min(1.0, DragChuteSpin.pos + CHUTE_SPIN_RATE*simdt);
-						if (Eq(DragChuteSpin.pos, 1.0, 0.01)) DragChuteSpin.action = AnimState::CLOSING;
-					}
-					else {
-						DragChuteSpin.pos = max(0.0, DragChuteSpin.pos - CHUTE_SPIN_RATE*simdt);
-						if (Eq(DragChuteSpin.pos, 0.0, 0.01)) DragChuteSpin.action = AnimState::OPENING;
-					}
-					SetAnimation(anim_chute_spin, DragChuteSpin.pos);
-				}
-			}
-
-			if (do_eva) {
-				char name[256];
-				strcpy(name, GetName()); strcat(name, "-MMU");
-				hvessel = oapiGetVesselByName(name);
-				if (hvessel == 0)
-				{
-					SeparateMMU();
-					hvessel = oapiGetVesselByName(name);
-					if (hvessel != 0)
-						oapiSetFocusObject(hvessel);
-				}
-				else
-				{
-					hvessel = oapiGetVesselByName(name);
-					if (hvessel != 0)
-						oapiSetFocusObject(hvessel);
-				};
-				do_eva = false;
-			};
+			else if (GetAltitude( ALTMODE_GROUND ) < 609.6) ArmGear();
 
 			//handle body flap and speedbrake PBIs
 			if ((int)(pSimpleGPC->GetMajorMode() / 100) == 3) //Entry
@@ -4519,21 +5109,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 				//if flap is in AUTO mode, reset MAN line; otherwise set MAN line
 				if (BodyFlapAutoIn) BodyFlapManOut.ResetLine();
 				else BodyFlapManOut.SetLine();
-
-				if (!SpdbkThrotAutoIn) {
-					if (VCMode == VC_PLT) {
-						SpdbkThrotPLTOut.SetLine();
-						SpdbkThrotCDROut.ResetLine();
-					}
-					else {
-						SpdbkThrotCDROut.SetLine();
-						SpdbkThrotPLTOut.ResetLine();
-					}
-				}
-				else {
-					SpdbkThrotCDROut.ResetLine();
-					SpdbkThrotPLTOut.ResetLine();
-				}
 			}
 			//else if(pSimpleGPC->GetMajorMode() < 200) //LAUNCH
 			//{
@@ -4544,41 +5119,16 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 			break;
 		}
 
-		VESSEL *aVessel;
-		VESSELSTATUS vs;
-
-		if (reset_mmu && simt - jettison_time > .01)
-		{
-			GetStatus(vs);
-			vs.eng_main = vs.eng_hovr = 0.0;
-			VECTOR3 ofs = OFS_ZERO;
-			ofs.x += OFS_MMU.x;
-			ofs.y += OFS_MMU.y;
-			ofs.z += OFS_MMU.z;
-			VECTOR3 rofs, rvel = { vs.rvel.x, vs.rvel.y, vs.rvel.z };
-			VECTOR3 vel = { 0, 0, 0 };
-			Local2Rel(ofs, vs.rpos);
-			GlobalRot(vel, rofs);
-			vs.rvel.x = rvel.x + rofs.x;
-			vs.rvel.y = rvel.y + rofs.y;
-			vs.rvel.z = rvel.z + rofs.z;
-			aVessel = oapiGetVesselInterface(hMMU);
-			aVessel->DefSetState(&vs);
-			reset_mmu = false;
-		}
-
 		// ***** Animate speedbrake *****
 
 		if (spdb_status >= AnimState::CLOSING && panelr2->HydraulicPressure()) {
 			double da = simdt * SPEEDBRAKE_OPERATING_SPEED;
-			double tgt = spdb_tgt; // once speedbrake has been opened, limit position to >15%
-			if (GetMachNumber() < 10.0) tgt = max(spdb_tgt, 0.15); // once speedbrake has been opened, limit position to >15%
 			if (spdb_status == AnimState::CLOSING) { // retract brake
-				if (spdb_proc > tgt) spdb_proc = max(tgt, spdb_proc - da);
+				if (spdb_proc > spdb_tgt) spdb_proc = max(spdb_tgt, spdb_proc - da);
 				else                 spdb_status = AnimState::CLOSED;
 			}
 			else {                           // deploy antenna
-				if (spdb_proc < tgt) spdb_proc = min(tgt, spdb_proc + da);
+				if (spdb_proc < spdb_tgt) spdb_proc = min(spdb_tgt, spdb_proc + da);
 				else                 spdb_status = AnimState::OPEN;
 			}
 			SetAnimation(anim_spdb, spdb_proc);
@@ -4689,12 +5239,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 		//sprintf_s(oapiDebugString(), 255, "PostStep time: %f", time);
 		//oapiWriteLog(oapiDebugString());
 
-		if (!___PostStep_flag)
-		{
-			oapiWriteLog("(Atlantis::clbkPostStep) Leaving.");
-			___PostStep_flag = true;
-		}
-
 
 		/*if(simt - tt >= 5)
 		{
@@ -4752,52 +5296,15 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 
 		}
 
-		// landing gear PB
-		if ((LandingGearArmDeployPB[0].IsSet() == true) || (LandingGearArmDeployPB[2].IsSet() == true)) ArmGear();
-		if ((GearArmed() == true) && ((LandingGearArmDeployPB[1].IsSet() == true) || (LandingGearArmDeployPB[3].IsSet() == true))) DeployLandingGear();
-
-		// landing gear position switches
-		if (gear_status.action == AnimState::CLOSED)
-		{
-			// uplock on / downlock off
-			LandingGearPosition[0].SetLine();
-			LandingGearPosition[1].ResetLine();
-
-			LandingGearPosition[2].SetLine();
-			LandingGearPosition[3].ResetLine();
-
-			LandingGearPosition[4].SetLine();
-			LandingGearPosition[5].ResetLine();
-		}
-		else if (gear_status.action == AnimState::OPEN)
-		{
-			// uplock off / downlock on
-			LandingGearPosition[0].ResetLine();
-			LandingGearPosition[1].SetLine();
-
-			LandingGearPosition[2].ResetLine();
-			LandingGearPosition[3].SetLine();
-
-			LandingGearPosition[4].ResetLine();
-			LandingGearPosition[5].SetLine();
-		}
-		else
-		{
-			// uplock off / downlock off
-			LandingGearPosition[0].ResetLine();
-			LandingGearPosition[1].ResetLine();
-
-			LandingGearPosition[2].ResetLine();
-			LandingGearPosition[3].ResetLine();
-
-			LandingGearPosition[4].ResetLine();
-			LandingGearPosition[5].ResetLine();
-		}
-
 		//double time = st.Stop();
 		//sprintf_s(oapiDebugString(), 255, "PostStep time: %f Subsystem time: %f", time, subTime);
 		//sprintf(oapiDebugString(),"Heating scalar %lf",heating_scalar);
 
+		if (!___PostStep_flag)
+		{
+			oapiWriteLog("(Atlantis::clbkPostStep) Leaving.");
+			___PostStep_flag = true;
+		}
 	}
 	catch (std::exception &e)
 	{
@@ -4860,21 +5367,14 @@ void Atlantis::clbkVisualCreated(VISHANDLE _vis, int refcount)
 	oapiWriteLog("GETTING DEVMESH");
 	hDevHeatShieldMesh = GetDevMesh(vis, mesh_heatshield);
 
-#ifdef UNDEF
-	// note: orbiter re-applies the animations to the mesh before calling
-	// clbkVisualCreated, so updating the mesh here is not necessary
+	if (pRMS) pRMS->UpdateAttachment();
+	if (pMPMs) pMPMs->UpdateAttachment();
+	if (pASE_IUS) pASE_IUS->UpdateAttachment();
+	if (pCISS) pCISS->UpdateAttachment();
 
-	// reset grappling point
-	//wrist_yaw_joint[0] = _V(-2.87, 2.03, -4.88);
-	//wrist_yaw_joint[1] = _V(-2.87, 2.03, -4.88)+RotateVectorZ(_V(0.0, 1.0, 0.0), 18.435);
-	arm_tip[0] = _V(-2.87, 2.03, -6.27);
-	arm_tip[1] = _V(-2.87, 2.03, -7.27);
-	arm_tip[2] = _V(-2.87, 3.03, -6.27);
-
-	UpdateMesh ();
-#endif
-	if (!pMission->GetOrbiterTextureName().empty())
-		UpdateOrbiterTexture(pMission->GetOrbiterTextureName());
+	if (!pMission->GetOrbiterTextureName().empty()) UpdateOrbiterTexture( pMission->GetOrbiterTextureName() );
+	if (!pMission->GetLOMSPodTextureName().empty()) UpdateLOMSPodTexture( pMission->GetLOMSPodTextureName() );
+	if (!pMission->GetROMSPodTextureName().empty()) UpdateROMSPodTexture( pMission->GetROMSPodTextureName() );
 
 	// hide tail which is not used on this flight
 	GROUPEDITSPEC grpSpec;
@@ -4892,6 +5392,12 @@ void Atlantis::clbkVisualCreated(VISHANDLE _vis, int refcount)
 	
 	// hide bay 13 covers
 	if (hasCISS) oapiEditMeshGroup( hDevOrbiterMesh, GRP_PLB_BAY13_COVERS, &grpSpec );
+
+	if (!pMission->HasBulkheadFloodlights())
+	{
+		oapiEditMeshGroup( hDevOrbiterMesh, GRP_XO576_BULKHEAD_DOCKING_LIGHT, &grpSpec );
+		oapiEditMeshGroup( hDevOrbiterMesh, GRP_XO576_BULKHEAD_LIGHT, &grpSpec );
+	}
 
 	if (pExtAirlock) dynamic_cast<eva_docking::ExtAirlock*>(pExtAirlock)->VisualCreated( vis );
 
@@ -4929,21 +5435,6 @@ void Atlantis::clbkAnimate(double simt)
 }
 
 // --------------------------------------------------------------
-// Respond to MFD mode change
-// --------------------------------------------------------------
-void Atlantis::clbkMFDMode(int mfd, int mode)
-{
-	oapiVCTriggerRedrawArea(-1, AID_CDR1_LABEL + mfds[mfd]);
-
-	//get pointer to CRT MFD as required
-	if (newmfd != NULL && mode != MFD_REFRESHBUTTONS) {
-		newmfd->MDUID = mfds[mfd]; //index of MDU associated with MFD
-		newmfd->UpdateStatus = true;
-		newmfd = NULL; //reset newmfd so it can be used by next new instance of CRT MFD
-	}
-}
-
-// --------------------------------------------------------------
 // Load generic glass cockpit mode
 // --------------------------------------------------------------
 bool Atlantis::clbkLoadGenericCockpit()
@@ -4960,7 +5451,6 @@ bool Atlantis::clbkLoadVC(int id)
 {
 	bool ok = false;
 	bool bUpdateVC = false;
-	std::set<int> InactiveMDUs;
 
 	// when loading scenario, use cockpit position loaded from scenario instead of default position
 	if (firstStep) id = scnVCMode;
@@ -4971,9 +5461,6 @@ bool Atlantis::clbkLoadVC(int id)
 	SetClipRadius(0.0);
 
 	// VC Cockpit not visible from Payload cameras or RMS camera.
-	// 080415, DaveS edit: Fixed VC being seen from the BR PLB camera. Original line below in comment
-	// Original line: if ((id > VC_PLBCAMFL && id < VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
-	//if ((id == VC_PLBCAMBL || id == VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
 	if (id >= VC_DOCKCAM && id <= VC_LEECAM) {
 		// for PLBD/RMS camera views, show hid internal VC mesh and show cockpit mesh meant to be seen in external views
 		SetMeshVisibilityMode(mesh_vc, MESHVIS_NEVER);
@@ -4989,417 +5476,299 @@ bool Atlantis::clbkLoadVC(int id)
 		if (id != VC_RMSCAM) pRMS->SetElbowCamView(false);
 	}
 
-	switch (id) {
-	case VC_CDR: // commander position
-		DisplayCameraLabel(VC_LBL_CDR);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_CDR);
-		SetCameraDefaultDirection(_V(0, 0, 1));
-		SetCameraMovement(_V(0, 0, 0.3), 0, 0, _V(-0.3, 0, 0), 75 * RAD, -5 * RAD, _V(0.3, 0, 0), -20 * RAD, -27 * RAD);
-		huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_CDR;
+	switch (id)
+	{
+		case VC_CDR: // commander position
+			DisplayCameraLabel( VC_LBL_CDR );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_CDR );
+			SetCameraDefaultDirection( VC_DIR_CDR );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 100 * RAD, 75 * RAD );
+			SetCameraMovement( VC_OFS_CDR_F, VC_AZ_CDR_F, VC_EL_CDR_F, VC_OFS_CDR_L, VC_AZ_CDR_L, VC_EL_CDR_L, VC_OFS_CDR_R, VC_AZ_CDR_R, VC_EL_CDR_R );
 
-		if (bHasODS) oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_DOCKCAM, VC_MS2);
-		else oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_PLBCAMFL, VC_MS2);
+			if (bHasODS) oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_DOCKCAM, VC_MS2);
+			else oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_PLBCAMFL, VC_MS2);
 
-		InactiveMDUs.insert(vc::MDUID_AFD);
-		InactiveMDUs.insert(vc::MDUID_CRT4);
+			huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_CDR;
 
-		// Default camera rotarion
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 100 * RAD, 50 * RAD);
+			pgCenter.RegisterVC();
+			pgForward.RegisterVC();
+			pgLeft.RegisterVC();
+			pgOverhead.RegisterVC();
 
-		//HideMidDeck();
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_PLT: // pilot position
+			DisplayCameraLabel( VC_LBL_PLT );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_PLT );
+			SetCameraDefaultDirection( VC_DIR_PLT );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 100 * RAD, 75 * RAD );
+			SetCameraMovement( VC_OFS_PLT_F, VC_AZ_PLT_F, VC_EL_PLT_F, VC_OFS_PLT_L, VC_AZ_PLT_L, VC_EL_PLT_L, VC_OFS_PLT_R, VC_AZ_PLT_R, VC_EL_PLT_R );
 
-		pgCenter.RegisterVC();
-		pgForward.RegisterVC();
-		pgLeft.RegisterVC();
-		pgOverhead.RegisterVC();
+			if (bHasODS) oapiVCSetNeighbours( VC_CDR, VC_PANELR4, VC_DOCKCAM, VC_MS1 );
+			else oapiVCSetNeighbours( VC_CDR, VC_PANELR4, VC_PLBCAMFR, VC_MS1 );
 
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_PLT: // pilot position
-		DisplayCameraLabel(VC_LBL_PLT);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_PLT);
-		SetCameraDefaultDirection(_V(0, 0, 1));
-		SetCameraMovement(_V(0, 0, 0.3), 0, 0,		//Upwards/forward
-			_V(-0.3, 0, 0), 20 * RAD, -27 * RAD,			//To the left
-			_V(0.2, -0.1, 0.25), -90 * RAD, -72 * RAD);	//To the right
-		huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_PLT;
+			huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_PLT;
 
-		if (bHasODS) oapiVCSetNeighbours(VC_CDR, VC_PANELR4, VC_DOCKCAM, VC_MS1);
-		else oapiVCSetNeighbours(VC_CDR, VC_PANELR4, VC_PLBCAMFR, VC_MS1);
+			pgCenter.RegisterVC();
+			pgForward.RegisterVC();
+			pgRight.RegisterVC();
+			pgOverhead.RegisterVC();
 
-		InactiveMDUs.insert(vc::MDUID_AFD);
-		InactiveMDUs.insert(vc::MDUID_CRT4);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_PANELR4:
+			DisplayCameraLabel( VC_LBL_PANELR4 );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_PANELR4 );
+			SetCameraDefaultDirection( VC_DIR_PANELR4, VC_TILT_PANELR4 );
+			SetCameraRotationRange( 30 * RAD, 30 * RAD, 20 * RAD, 40 * RAD );
+			SetCameraMovement( VC_OFS_PANELR4_F, VC_AZ_PANELR4_F, VC_EL_PANELR4_F, VC_OFS_PANELR4_L, VC_AZ_PANELR4_L, VC_EL_PANELR4_L, VC_OFS_PANELR4_R, VC_AZ_PANELR4_R, VC_EL_PANELR4_R );
 
-		// Default camera rotarion
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 100 * RAD, 75 * RAD);
+			if (bHasODS) oapiVCSetNeighbours( VC_PLT, VC_STBDSTATION, VC_DOCKCAM, VC_MS1 );
+			else oapiVCSetNeighbours( VC_PLT, VC_STBDSTATION, VC_PLBCAMFR, VC_MS1 );
 
-		//HideMidDeck();
+			pgCenter.RegisterVC();
+			pgForward.RegisterVC();
+			pgRight.RegisterVC();
+			pgOverhead.RegisterVC();
 
-		pgCenter.RegisterVC();
-		pgForward.RegisterVC();
-		pgRight.RegisterVC();
-		pgOverhead.RegisterVC();
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_PANELL4:
+			DisplayCameraLabel( VC_LBL_PANELL4 );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_PANELL4 );
+			SetCameraDefaultDirection( VC_DIR_PANELL4, VC_TILT_PANELL4 );
+			SetCameraRotationRange( 30 * RAD, 30 * RAD, 20 * RAD, 40 * RAD );
+			SetCameraMovement( VC_OFS_PANELL4_F, VC_AZ_PANELL4_F, VC_EL_PANELL4_F, VC_OFS_PANELL4_L, VC_AZ_PANELL4_L, VC_EL_PANELL4_L, VC_OFS_PANELL4_R, VC_AZ_PANELL4_R, VC_EL_PANELL4_R );
 
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_PANELR4:
-		DisplayCameraLabel(VC_LBL_PANELR4);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_PANELR4);
-		SetCameraDefaultDirection(_V(0, -sin(15 * RAD), -cos(15 * RAD)), 90.0*RAD);
-		SetCameraMovement(_V(0, 0, 0.3), 0, 0,		//Upwards/forward
-			_V(-0.3, 0, 0), 20 * RAD, -27 * RAD,			//To the left
-			_V(0.2, -0.1, 0.25), -90 * RAD, -72 * RAD);	//To the right
+			if (bHasODS) oapiVCSetNeighbours( VC_PORTSTATION, VC_CDR, VC_DOCKCAM, VC_MS2 );
+			else oapiVCSetNeighbours( VC_PORTSTATION, VC_CDR, VC_PLBCAMFR, VC_MS2 );
 
-		if (bHasODS) oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_DOCKCAM, VC_MS1);
-		else oapiVCSetNeighbours(VC_PLT, VC_STBDSTATION, VC_PLBCAMFR, VC_MS1);
+			pgCenter.RegisterVC();
+			pgForward.RegisterVC();
+			pgLeft.RegisterVC();
+			pgOverhead.RegisterVC();
 
-		InactiveMDUs.insert(vc::MDUID_AFD);
-		InactiveMDUs.insert(vc::MDUID_CRT4);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_STBDSTATION:
+			DisplayCameraLabel( VC_LBL_STBDSTATION );
+			SetCameraOffset( VC_OFFSET + VC_POS_STBDSTATION + orbiter_ofs );
+			SetCameraDefaultDirection( VC_DIR_STBDSTATION );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_STBDSTATION_F, VC_AZ_STBDSTATION_F, VC_EL_STBDSTATION_F, VC_OFS_STBDSTATION_L, VC_AZ_STBDSTATION_L, VC_EL_STBDSTATION_L, VC_OFS_STBDSTATION_R, VC_AZ_STBDSTATION_R, VC_EL_STBDSTATION_R );
 
+			if (bHasODS) oapiVCSetNeighbours( VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_AFTWORKSTATION );
+			else oapiVCSetNeighbours( VC_PLT, VC_AFTPILOT, VC_PLBCAMFR, VC_AFTWORKSTATION );
 
-		// Default camera rotarion
-		SetCameraRotationRange(30 * RAD, 30 * RAD, 20 * RAD, 40 * RAD);
+			pgOverheadAft.RegisterVC();
+			pgAftStbd.RegisterVC();
+			pgAft.RegisterVC();
 
-		//HideMidDeck();
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_LEECAM: //RMS End Effector Camera
+			if (pRMS) {
+				DisplayCameraLabel( VC_LBL_LEECAM );
+				pRMS->SetEECameraView( true );
+				oapiVCSetNeighbours( VC_RMSCAM, -1, -1, VC_RMSSTATION );
 
-		pgCenter.RegisterVC();
-		pgForward.RegisterVC();
-		pgRight.RegisterVC();
-		pgOverhead.RegisterVC();
-
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_PANELL4:
-		DisplayCameraLabel(VC_LBL_PANELL4);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_PANELL4);
-		SetCameraDefaultDirection(_V(0, 0, -1), -90.0*RAD);
-		SetCameraMovement(_V(0, 0, 0.3), 0, 0,		//Upwards/forward
-			_V(-0.3, 0, 0), 20 * RAD, -27 * RAD,			//To the left
-			_V(0.2, -0.1, 0.25), -90 * RAD, -72 * RAD);	//To the right
-
-		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_DOCKCAM, VC_MS2);
-		else oapiVCSetNeighbours(VC_PORTSTATION, VC_CDR, VC_PLBCAMFR, VC_MS2);
-
-		InactiveMDUs.insert(vc::MDUID_AFD);
-		InactiveMDUs.insert(vc::MDUID_CRT4);
-
-
-		// Default camera rotarion
-		SetCameraRotationRange(30 * RAD, 30 * RAD, 20 * RAD, 40 * RAD);
-
-		//HideMidDeck();
-
-		pgCenter.RegisterVC();
-		pgForward.RegisterVC();
-		pgLeft.RegisterVC();
-		pgOverhead.RegisterVC();
-
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_STBDSTATION:
-		DisplayCameraLabel(VC_LBL_STBDSTATION);
-		SetCameraOffset(VC_OFFSET + VC_POS_STBDSTATION + orbiter_ofs);
-		SetCameraDefaultDirection(VC_DIR_STBDSTATION);
-		SetCameraMovement( _V( 0.3, 0, 0 ), 0, -30.0 * RAD, _V( 0.3, 0, 0.2 ), 15.0 * RAD, -30.0 * RAD, _V( 0.3, 0, -0.2 ), -25.0 * RAD, -30.0 * RAD );
-		InactiveMDUs.insert(vc::MDUID_CDR1);
-		InactiveMDUs.insert(vc::MDUID_CDR2);
-
-		// Outside cameras neighbours
-		if (bHasODS) oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_AFTWORKSTATION);
-		else oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_PLBCAMFR, VC_AFTWORKSTATION);
-
-		// Default camera rotarion
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-
-		//HideMidDeck();
-
-		//pgOverhead.RegisterVC();
-		pgOverheadAft.RegisterVC();
-		pgAftStbd.RegisterVC();
-		pgAft.RegisterVC();
-
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_LEECAM: //RMS End Effector Camera
-		if (pRMS) {
-			DisplayCameraLabel(VC_LBL_LEECAM);
+				ok = true;
+			}
+			else ok = false;
+			break;
+		case VC_RMSCAM:
+			if (pRMS) {
+				DisplayCameraLabel( VC_LBL_ELBOWCAM );
+				pRMS->SetElbowCamView( true );
+				oapiVCSetNeighbours( -1, VC_LEECAM, -1, VC_RMSSTATION );
+				ok = true;
+			}
+			else ok = false;
+			break;
+		case VC_PLBCAMFL: //FL Payload Bay Camera
+			DisplayCameraLabel( VC_LBL_PLBCAMFL );
+			if (bHasODS) oapiVCSetNeighbours( VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM );
+			else if (pRMS) oapiVCSetNeighbours( VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_RMSSTATION );
+			else oapiVCSetNeighbours( VC_PLBCAMFR, VC_PLBCAMBL, -1, VC_RMSSTATION );
 			
-			pRMS->SetEECameraView(true);
-			oapiVCSetNeighbours(VC_RMSCAM, -1, -1, VC_RMSSTATION);
-
-			//HideMidDeck();
+			ok = true;
+			break;
+		case VC_PLBCAMFR: //FR Payload Bay Camera
+			DisplayCameraLabel( VC_LBL_PLBCAMFR );
+			if (bHasODS) oapiVCSetNeighbours( VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM );
+			else if (pRMS) oapiVCSetNeighbours( VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_AFTPILOT );
+			else oapiVCSetNeighbours( VC_PLBCAMBR, VC_PLBCAMFL, -1, VC_AFTPILOT );
 
 			ok = true;
-		}
-		else ok = false;
-		break;
-	case VC_RMSCAM:
-		if (pRMS) {
-			DisplayCameraLabel(VC_LBL_ELBOWCAM);
-			pRMS->SetElbowCamView(true);
+			break;
+		case VC_PLBCAMBL: //BL Payload Bay Camera
+			DisplayCameraLabel( VC_LBL_PLBCAMBL );
+			if (bHasODS) oapiVCSetNeighbours( VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM );
+			else if (pRMS) oapiVCSetNeighbours( VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_RMSSTATION );
+			else oapiVCSetNeighbours( VC_PLBCAMFL, VC_PLBCAMBR, -1, VC_RMSSTATION );
 
-			oapiVCSetNeighbours(-1, VC_LEECAM, -1, VC_RMSSTATION);
-			//HideMidDeck();
 			ok = true;
-		}
-		else ok = false;
-		break;
-	case VC_PLBCAMFL: //FL Payload Bay Camera
-		DisplayCameraLabel(VC_LBL_PLBCAMFL);
-		if (bHasODS) oapiVCSetNeighbours(VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM);
-		else if (pRMS) oapiVCSetNeighbours(VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_RMSSTATION);
-		else oapiVCSetNeighbours(VC_PLBCAMFR, VC_PLBCAMBL, -1, VC_RMSSTATION);
+			break;
+		case VC_PLBCAMBR: //BR Payload Bay Camera
+			DisplayCameraLabel( VC_LBL_PLBCAMBR );
+			if (bHasODS) oapiVCSetNeighbours( VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM );
+			else if (pRMS) oapiVCSetNeighbours( VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_AFTPILOT );
+			else oapiVCSetNeighbours( VC_PLBCAMBL, VC_PLBCAMFR, -1, VC_AFTPILOT );
 
-		//HideMidDeck();
+			ok = true;
+			break;
+		case VC_DOCKCAM: //Docking camera
+			DisplayCameraLabel( VC_LBL_DOCKCAM );
+			SetCameraOffset( _V( orbiter_ofs.x, orbiter_ofs.y - 0.9/*EXTERNAL_AIRLOCK_POS.y*/ + 1.15, orbiter_ofs.z + pMission->GetExternalAirlockZPos() - 0.315 ) );
+			SetCameraDefaultDirection( _V( 0.0, 1.0, 0.0 ), PI );
+			oapiCameraSetAperture( 15 * RAD );
+			SetCameraRotationRange( 0, 0, 0, 0 );
+			oapiVCSetNeighbours( -1, -1, VC_PLBCAMFL, VC_AFTPILOT );
 
-		ok = true;
+			ok = true;
+			break;
+		case VC_AFTPILOT: //Aft Flight Deck
+			DisplayCameraLabel( VC_LBL_AFTPILOT );
+			SetCameraOffset( VC_OFFSET + VC_POS_AFTPILOT + orbiter_ofs );
+			SetCameraDefaultDirection( VC_DIR_AFTPILOT );
+			oapiCameraSetAperture( 20 * RAD );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 95 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_AFTPILOT_F, VC_AZ_AFTPILOT_F, VC_EL_AFTPILOT_F, VC_OFS_AFTPILOT_L, VC_AZ_AFTPILOT_L, VC_EL_AFTPILOT_L, VC_OFS_AFTPILOT_R, VC_AZ_AFTPILOT_R, VC_EL_AFTPILOT_R );
+			
+			if (bHasODS) oapiVCSetNeighbours( VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION );
+			oapiVCSetNeighbours( VC_STBDSTATION, VC_RMSSTATION, VC_PLBCAMFR, VC_AFTWORKSTATION );
 
-		break;
-	case VC_PLBCAMFR: //FR Payload Bay Camera
-		DisplayCameraLabel(VC_LBL_PLBCAMFR);
-		if (bHasODS) oapiVCSetNeighbours(VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
-		else if (pRMS) oapiVCSetNeighbours(VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_AFTPILOT);
-		else oapiVCSetNeighbours(VC_PLBCAMBR, VC_PLBCAMFL, -1, VC_AFTPILOT);
+			pgAftStbd.RegisterVC();
+			pgAft.RegisterVC();
+			pgAftPort.RegisterVC();
 
-		//HideMidDeck();
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_RMSSTATION:
+			DisplayCameraLabel( VC_LBL_RMSSTATION );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_RMSSTATION );
+			SetCameraDefaultDirection( VC_DIR_RMSSTATION );
+			oapiCameraSetAperture( 20 * RAD );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_RMSSTATION_F, VC_AZ_RMSSTATION_F, VC_EL_RMSSTATION_F, VC_OFS_RMSSTATION_L, VC_AZ_RMSSTATION_L, VC_EL_RMSSTATION_L, VC_OFS_RMSSTATION_R, VC_AZ_RMSSTATION_R, VC_EL_RMSSTATION_R );
 
-		ok = true;
-		break;
-	case VC_PLBCAMBL: //BL Payload Bay Camera
-		DisplayCameraLabel(VC_LBL_PLBCAMBL);
-		if (bHasODS) oapiVCSetNeighbours(VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
-		else if (pRMS) oapiVCSetNeighbours(VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_RMSSTATION);
-		else oapiVCSetNeighbours(VC_PLBCAMFL, VC_PLBCAMBR, -1, VC_RMSSTATION);
+			if (bHasODS) oapiVCSetNeighbours( VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION );
+			else oapiVCSetNeighbours( VC_AFTPILOT, VC_PORTSTATION, VC_PLBCAMFL, VC_AFTWORKSTATION );
 
-		//HideMidDeck();
+			pgAft.RegisterVC();
+			pgAftStbd.RegisterVC();
+			pgAftPort.RegisterVC();
 
-		ok = true;
-		break;
-	case VC_PLBCAMBR: //BR Payload Bay Camera
-		DisplayCameraLabel(VC_LBL_PLBCAMBR);
-		if (bHasODS) oapiVCSetNeighbours(VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
-		else if (pRMS) oapiVCSetNeighbours(VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_AFTPILOT);
-		else oapiVCSetNeighbours(VC_PLBCAMBL, VC_PLBCAMFR, -1, VC_AFTPILOT);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_PORTSTATION:
+			DisplayCameraLabel( VC_LBL_PORTSTATION );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_PORTSTATION );
+			SetCameraDefaultDirection( VC_DIR_PORTSTATION );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_PORTSTATION_F, VC_AZ_PORTSTATION_F, VC_EL_PORTSTATION_F, VC_OFS_PORTSTATION_L, VC_AZ_PORTSTATION_L, VC_EL_PORTSTATION_L, VC_OFS_PORTSTATION_R, VC_AZ_PORTSTATION_R, VC_EL_PORTSTATION_R );
+			
+			if (bHasODS) oapiVCSetNeighbours( VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_MIDDECK );
+			else oapiVCSetNeighbours( VC_RMSSTATION, VC_CDR, VC_PLBCAMFL, VC_MIDDECK );
 
-		//HideMidDeck();
+			pgOverheadAft.RegisterVC();
+			pgAft.RegisterVC();
+			pgAftPort.RegisterVC();
 
-		ok = true;
-		break;
-	case VC_DOCKCAM: //Docking camera
-		DisplayCameraLabel(VC_LBL_DOCKCAM);
-		SetCameraOffset(_V(orbiter_ofs.x, orbiter_ofs.y - 0.9/*EXTERNAL_AIRLOCK_POS.y*/ + 1.15, orbiter_ofs.z + pMission->GetExternalAirlockZPos() - 0.315));
-		SetCameraDefaultDirection(_V(0.0, 1.0, 0.0), PI);
-		SetCameraRotationRange(0, 0, 0, 0);
-		oapiCameraSetAperture(15*RAD);
-		oapiVCSetNeighbours(-1, -1, VC_PLBCAMFL, VC_AFTPILOT);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_AFTWORKSTATION:
+			DisplayCameraLabel( VC_LBL_AFTWORKSTATION );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_AFTWORKSTATION );
+			SetCameraDefaultDirection( VC_DIR_AFTWORKSTATION );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			oapiVCSetNeighbours( VC_STBDSTATION, VC_PORTSTATION, VC_RMSSTATION, VC_MS1 );
 
-		//HideMidDeck();
+			pgOverhead.RegisterVC();
+			pgOverheadAft.RegisterVC();
+			pgAft.RegisterVC();
+			pgAftStbd.RegisterVC();
+			pgAftPort.RegisterVC();
 
-		ok = true;
-		break;
-	case VC_AFTPILOT: //Aft Flight Deck
-		DisplayCameraLabel(VC_LBL_AFTPILOT);
-		SetCameraOffset(VC_OFFSET + VC_POS_AFTPILOT + orbiter_ofs);
-		SetCameraDefaultDirection(VC_DIR_AFTPILOT);
-		oapiCameraSetAperture(20*RAD);
-		InactiveMDUs.insert(vc::MDUID_CDR1);
-		InactiveMDUs.insert(vc::MDUID_CDR2);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_MS2:
+			DisplayCameraLabel( VC_LBL_MS2 );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_MS2 );
+			SetCameraDefaultDirection( VC_DIR_MS2 );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_MS2_F, VC_AZ_MS2_F, VC_EL_MS2_F, VC_OFS_MS2_L, VC_AZ_MS2_L, VC_EL_MS2_L, VC_OFS_MS2_R, VC_AZ_MS2_R, VC_EL_MS2_R );
 
-		// Default camera rotarion
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 95 * RAD, 72 * RAD);
-		SetCameraMovement(VC_OFSFWD_AFTPILOT, 0, 90.0*RAD,
-			_V( 0.5, -0.5, 0.0 ), 20.0 * RAD, -10.0 * RAD,
-			_V(-0.4, 0.0, 0.0), 0, 0);
-		// Outside cameras neighbours
-		if (bHasODS) oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
-		oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_PLBCAMFR, VC_AFTWORKSTATION);
+			if (bHasODS) oapiVCSetNeighbours( VC_PORTSTATION, VC_MS1, VC_CDR, VC_DOCKCAM );
+			else oapiVCSetNeighbours( VC_PORTSTATION, VC_MS1, VC_CDR, VC_PLBCAMFL );
 
-		//HideMidDeck();
+			pgForward.RegisterVC();
+			pgCenter.RegisterVC();
+			pgOverhead.RegisterVC();
+			pgOverheadAft.RegisterVC();
+			pgAft.RegisterVC();
 
-		//pgOverhead.RegisterVC();
-		pgAftStbd.RegisterVC();
-		pgAft.RegisterVC();
-		pgAftPort.RegisterVC();
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_MS1:
+			DisplayCameraLabel( VC_LBL_MS1 );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_MS1 );
+			SetCameraDefaultDirection( VC_DIR_MS1 );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_MS1_F, VC_AZ_MS1_F, VC_EL_MS1_F, VC_OFS_MS1_L, VC_AZ_MS1_L, VC_EL_MS1_L, VC_OFS_MS1_R, VC_AZ_MS1_R, VC_EL_MS1_R );
 
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_RMSSTATION:
-		DisplayCameraLabel(VC_LBL_RMSSTATION);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_RMSSTATION);
-		SetCameraDefaultDirection(VC_DIR_RMSSTATION);
-		oapiCameraSetAperture(20*RAD);
-		//SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
+			if (bHasODS) oapiVCSetNeighbours( VC_MS2, VC_STBDSTATION, VC_PLT, VC_DOCKCAM );
+			else oapiVCSetNeighbours( VC_MS2, VC_STBDSTATION, VC_PLT, VC_PLBCAMFL );
 
-		if (bHasODS) oapiVCSetNeighbours(VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
-		else oapiVCSetNeighbours(VC_AFTPILOT, VC_PORTSTATION, VC_PLBCAMFL, VC_AFTWORKSTATION);
+			pgCenter.RegisterVC();
+			pgOverhead.RegisterVC();
+			pgOverheadAft.RegisterVC();
+			pgAftStbd.RegisterVC();
 
-		InactiveMDUs.insert(vc::MDUID_PLT1);
-		InactiveMDUs.insert(vc::MDUID_PLT2);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_MIDDECK:
+			DisplayCameraLabel( VC_LBL_MIDDECK );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_MIDDECK );
+			SetCameraDefaultDirection( VC_DIR_MIDDECK );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
 
-		// Default camera rotation
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-		SetCameraMovement(VC_OFSFWD_AFTPILOT, 0, 90.0*RAD,
-			_V(-0.07, -0.05, -0.35), 0, 0,
-			_V(0, -0.3, 0.15), 0, 0);
+			if (pMission->HasExtAL()) oapiVCSetNeighbours( -1, -1, VC_PORTSTATION, VC_EXT_AL );
+			else oapiVCSetNeighbours( -1, -1, VC_PORTSTATION, -1 );
 
-		//ShowMidDeck();
+			ok = true;
+			break;
+		case VC_EXT_AL:
+			DisplayCameraLabel( VC_LBL_EXT_AL );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_EXT_AL + _V( 0, 0, pMission->GetExternalAirlockZPos() ) );
+			SetCameraDefaultDirection( VC_DIR_EXT_AL );
 
-		//pgOverhead.RegisterVC();
-		pgAft.RegisterVC();
-		pgAftStbd.RegisterVC();
-		pgAftPort.RegisterVC();
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
 
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_PORTSTATION:
-		DisplayCameraLabel(VC_LBL_PORTSTATION);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_PORTSTATION);
-		SetCameraDefaultDirection(VC_DIR_PORTSTATION);
-		SetCameraMovement( _V( -0.3, 0, 0 ), 0, -30 * RAD, _V( -0.45, -0.2, -0.35 ), 20 * RAD, -25 * RAD, _V( -0.3, 0, 0.3 ), 0, -30 * RAD );
+			if (bHasODS) oapiVCSetNeighbours( -1, -1, VC_MIDDECK, VC_DOCKCAM );
+			else oapiVCSetNeighbours( -1, -1, VC_MIDDECK, -1 );
 
-		if (bHasODS) oapiVCSetNeighbours(VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_MIDDECK);
-		else oapiVCSetNeighbours(VC_RMSSTATION, VC_CDR, VC_PLBCAMFL, VC_MIDDECK);
-
-		InactiveMDUs.insert(vc::MDUID_PLT1);
-		InactiveMDUs.insert(vc::MDUID_PLT2);
-
-		// Default camera rotation
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-
-		//ShowMidDeck();
-
-		//pgOverhead.RegisterVC();
-		pgOverheadAft.RegisterVC();
-		pgAft.RegisterVC();
-		pgAftPort.RegisterVC();
-
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_AFTWORKSTATION:
-		DisplayCameraLabel(VC_LBL_AFTWORKSTATION);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_AFTWORKSTATION);
-		SetCameraDefaultDirection(VC_DIR_AFTWORKSTATION);
-		//SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-		oapiVCSetNeighbours(VC_STBDSTATION, VC_PORTSTATION, VC_RMSSTATION, VC_MS1);
-		InactiveMDUs.insert(vc::MDUID_CDR1);
-		InactiveMDUs.insert(vc::MDUID_CDR2);
-
-		// Default camera rotation
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-
-		//ShowMidDeck();
-
-		pgOverhead.RegisterVC();
-		pgOverheadAft.RegisterVC();
-		pgAft.RegisterVC();
-		pgAftStbd.RegisterVC();
-		pgAftPort.RegisterVC();
-
-		ok = true;
-		bUpdateVC = true;
-		break;
-
-	case VC_MS2:
-		DisplayCameraLabel(VC_LBL_MS2);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_MS2);
-		SetCameraDefaultDirection(VC_DIR_MS2);
-		SetCameraMovement( _V( 0, 0, 0.3 ), 0, 0, _V( -0.3, 0, 0.1 ), 0 * RAD, 70 * RAD, _V( 0.3, 0, 0.1 ), 0 * RAD, 70 * RAD );
-
-		if (bHasODS) oapiVCSetNeighbours(VC_PORTSTATION, VC_MS1, VC_CDR, VC_DOCKCAM);
-		else oapiVCSetNeighbours(VC_PORTSTATION, VC_MS1, VC_CDR, VC_PLBCAMFL);
-
-		InactiveMDUs.insert(vc::MDUID_AFD);
-
-		// Default camera rotation
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-
-		//HideMidDeck();
-
-		pgForward.RegisterVC();
-		pgCenter.RegisterVC();
-		pgOverhead.RegisterVC();
-		pgOverheadAft.RegisterVC();
-		pgAft.RegisterVC();
-
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_MS1:
-		DisplayCameraLabel(VC_LBL_MS1);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_MS1);
-		SetCameraDefaultDirection(VC_DIR_MS1);
-		SetCameraMovement( _V( 0.1, -0.1, 0.2 ), -20 * RAD, 0, _V( -0.1, -0.1, 0.1 ), 45 * RAD, -5 * RAD, _V( 0.1, 0, 0.1 ), -70 * RAD, -40 * RAD );
-
-		if (bHasODS) oapiVCSetNeighbours(VC_MS2, VC_STBDSTATION, VC_PLT, VC_DOCKCAM);
-		else oapiVCSetNeighbours(VC_MS2, VC_STBDSTATION, VC_PLT, VC_PLBCAMFL);
-
-		InactiveMDUs.insert(vc::MDUID_AFD);
-
-		// Default camera rotation
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-
-		//HideMidDeck();
-
-		pgCenter.RegisterVC();
-		pgOverhead.RegisterVC();
-		pgOverheadAft.RegisterVC();
-		pgAftStbd.RegisterVC();
-
-		ok = true;
-		bUpdateVC = true;
-		break;
-	case VC_MIDDECK:
-
-		DisplayCameraLabel(VC_LBL_MIDDECK);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_MIDDECK);
-		SetCameraDefaultDirection(VC_DIR_MIDDECK);
-		//SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-
-		//ShowMidDeck();
-		// Default camera rotation
-		if (pMission->HasExtAL())
-		{
-			oapiVCSetNeighbours(-1, -1, VC_PORTSTATION, VC_EXT_AL);
-		}
-		else {
-			oapiVCSetNeighbours(-1, -1, VC_PORTSTATION, -1);
-		}
-
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-
-		ok = true;
-		break;
-	case VC_EXT_AL:
-		DisplayCameraLabel(VC_LBL_EXT_AL);
-		SetCameraOffset(orbiter_ofs + VC_OFFSET + VC_POS_EXT_AL + _V( 0, 0, pMission->GetExternalAirlockZPos() ));
-		SetCameraDefaultDirection(VC_DIR_EXT_AL);
-
-		SetCameraRotationRange(144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD);
-
-		if (bHasODS) oapiVCSetNeighbours(-1, -1, VC_MIDDECK, VC_DOCKCAM);
-		else oapiVCSetNeighbours(-1, -1, VC_MIDDECK, -1);
-
-		//ShowMidDeck();
-
-		ok = true;
-		break;
-
+			ok = true;
+			break;
 	}
 
 	// Common action for external payload cameras
 	if (id >= VC_DOCKCAM && id <= VC_LEECAM) {
 		// Pan and tilt from camera control not from alt + arrow but from the dialog
-		SetCameraRotationRange(0, 0, 0, 0);
+		SetCameraRotationRange( 0, 0, 0, 0 );
 		// No lean for payload camera
-		SetCameraMovement(_V(0, 0, 0), 0, 0, _V(0, 0, 0), 0, 0, _V(0, 0, 0), 0, 0);
+		SetCameraMovement( _V(0, 0, 0), 0, 0, _V(0, 0, 0), 0, 0, _V(0, 0, 0), 0, 0 );
 
 		// Refresh camera meshes and view positions
 		SetAnimationCameras();
@@ -5417,21 +5786,9 @@ bool Atlantis::clbkLoadVC(int id)
 		// register the HUDs (synced)
 		oapiVCRegisterHUD(&huds);
 		// register all MFD displays
-		for (int i = 0, counter = 0; i < 11; i++)
+		for (int i = 0; i < 11; i++)
 		{
-			//oapiRegisterMFD (MFD_LEFT+i, mfds+i);
-			mfds[i] = -1;
-			if (mdus[i])
-			{
-				if (InactiveMDUs.find(i) == InactiveMDUs.end()) {
-					mdus[i]->RealizeMFD(counter);
-					//mfds[i]=counter;
-					mfds[counter] = i;
-					counter++;
-				}
-				else mdus[i]->RealizeMFD(-1);
-			}
-			oapiVCTriggerRedrawArea(-1, AID_CDR1_LABEL + i);
+			mdus[i]->RealizeMFD(i);
 		}
 	}
 	oapiCameraSetCockpitDir(0, 0);
@@ -5555,6 +5912,13 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 				RMSGrapple.ResetLine();
 				RMSRelease.ResetLine();
 				return 1;
+			case OAPI_KEY_K:
+			case OAPI_KEY_L:
+				RPTAinput = 0.0;
+				return 1;
+			case OAPI_KEY_MINUS:
+				SBTCTOinput = false;
+				return 1;
 			default:
 				return 0;
 			}
@@ -5646,16 +6010,15 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 		case OAPI_KEY_8:
 			ToggleGrapple();
 			return 1;
-		/*case OAPI_KEY_E:
-			  do_eva = true;
-			  return 1;*/
-		case OAPI_KEY_COMMA:
-			// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
-			if (!Playback() && !GroundContact() && pSimpleGPC->GetMajorMode() >= 304) IncThrusterGroupLevel(THGROUP_MAIN, -0.05);
+		/*case OAPI_KEY_COMMA:
 			return 1;
 		case OAPI_KEY_PERIOD:
-			// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
-			if (!Playback() && !GroundContact() && pSimpleGPC->GetMajorMode() >= 304) IncThrusterGroupLevel(THGROUP_MAIN, 0.05);
+			return 1;*/
+		case OAPI_KEY_K:
+			RPTAinput = -1.0;
+			return 1;
+		case OAPI_KEY_L:
+			RPTAinput = 1.0;
 			return 1;
 		case OAPI_KEY_G:
 			DeployLandingGear();
@@ -5667,20 +6030,29 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 			AltKybdInput.y = 1.0;
 			return 1;
 		case OAPI_KEY_INSERT:
-			AltKybdInput.x = -1.0;
-			return 1;
-		case OAPI_KEY_DELETE:
 			AltKybdInput.x = 1.0;
 			return 1;
+		case OAPI_KEY_DELETE:
+			AltKybdInput.x = -1.0;
+			return 1;
 		case OAPI_KEY_UP:
-			AltKybdInput.z = 1.0;
+			AltKybdInput.z = -1.0;
 			return 1;
 		case OAPI_KEY_DOWN:
-			AltKybdInput.z = -1.0;
+			AltKybdInput.z = 1.0;
 			return 1;
 		case OAPI_KEY_MULTIPLY: // NUMPAD *
 			for (int i = 0; i < 3; i++) SSMEPBAnalog[i].SetLine();
 			return 0; // this key is used by Orbitersim, so make sure Orbitersim processes it as well
+		case OAPI_KEY_ADD:
+			SBTCinput = -0.05;// back
+			return 0;
+		case OAPI_KEY_SUBTRACT:
+			SBTCinput = 0.05;// forward
+			return 1;
+		case OAPI_KEY_MINUS:
+			SBTCTOinput = true;
+			return 1;
 		}
 	}
 	return 0;
@@ -5879,7 +6251,6 @@ void Atlantis::SetSSMEGH2burn(int eng, bool burn)
 DLLCLBK void InitModule(HINSTANCE hModule)
 {
 	g_Param.hDLL = hModule;
-	oapiRegisterCustomControls(hModule);
 
 	// initialize aerodynamic lookup tables
 	elevonVerticalLookup.Init("Config/SSU_Elevon.csv");
@@ -5909,10 +6280,6 @@ DLLCLBK void InitModule(HINSTANCE hModule)
 		oapiWriteLog("Loading bitmap \"ODSBUTTONS\" failed.");
 	}
 
-	g_Param.deu_characters = LOADBMP(IDB_DEUCHARACTERS);
-
-	g_Param.deu_characters_overbright = LOADBMP(IDB_DEUCHARACTERSOVERBRIGHT);
-
 	g_Param.ssme_lights = oapiCreateSurface(LOADBMP(IDB_SSMELIGHTS));
 	if (g_Param.ssme_lights == NULL) {
 		oapiWriteLog("Loading bitmap \"SSME_LIGHTS\" failed.");
@@ -5924,29 +6291,39 @@ DLLCLBK void InitModule(HINSTANCE hModule)
 		oapiWriteLog("Loading bitmap \"A8_LIGHTS\" failed.");
 	}
 
-	HDC Temp1DC = CreateDC("DISPLAY", NULL, NULL, NULL);
-	g_Param.DeuCharBitmapDC = CreateCompatibleDC(Temp1DC);
-	SelectObject(g_Param.DeuCharBitmapDC, g_Param.deu_characters);
-	SetStretchBltMode(g_Param.DeuCharBitmapDC, HALFTONE);
-	StretchBlt(g_Param.DeuCharBitmapDC, 0, 0, 80, 144, g_Param.DeuCharBitmapDC, 0, 0, 288, 528, SRCCOPY);
-	DeleteDC(Temp1DC);
+	g_Param.deu_characters = LOADBMP(IDB_DEUCHARACTERS);
+	HDC Temp1DC = CreateDC( "DISPLAY", NULL, NULL, NULL );
+	g_Param.DeuCharBitmapDC = CreateCompatibleDC( Temp1DC );
+	SelectObject( g_Param.DeuCharBitmapDC, g_Param.deu_characters );
+	SetStretchBltMode( g_Param.DeuCharBitmapDC, HALFTONE );
+	StretchBlt( g_Param.DeuCharBitmapDC, 0, 0, 284, 256, g_Param.DeuCharBitmapDC, 0, 0, 512, 512, SRCCOPY );
+	//DeleteDC( Temp1DC );
 
-	Temp1DC = CreateDC("DISPLAY", NULL, NULL, NULL);
-	g_Param.DeuCharOvrBrgtBitmapDC = CreateCompatibleDC(Temp1DC);
-	SelectObject(g_Param.DeuCharOvrBrgtBitmapDC, g_Param.deu_characters_overbright);
-	SetStretchBltMode(g_Param.DeuCharOvrBrgtBitmapDC, HALFTONE);
-	StretchBlt(g_Param.DeuCharOvrBrgtBitmapDC, 0, 0, 80, 144, g_Param.DeuCharOvrBrgtBitmapDC, 0, 0, 288, 528, SRCCOPY);
-	DeleteDC(Temp1DC);
+	g_Param.deu_characters_overbright = LOADBMP(IDB_DEUCHARACTERSOVERBRIGHT);
+	//Temp1DC = CreateDC( "DISPLAY", NULL, NULL, NULL );
+	g_Param.DeuCharOvrBrgtBitmapDC = CreateCompatibleDC( Temp1DC );
+	SelectObject( g_Param.DeuCharOvrBrgtBitmapDC, g_Param.deu_characters_overbright );
+	SetStretchBltMode( g_Param.DeuCharOvrBrgtBitmapDC, HALFTONE );
+	StretchBlt( g_Param.DeuCharOvrBrgtBitmapDC, 0, 0, 284, 256, g_Param.DeuCharOvrBrgtBitmapDC, 0, 0, 512, 512, SRCCOPY );
+	//DeleteDC( Temp1DC );
 
-	// allocate GDI resources
-	g_Param.font[0] = CreateFont(-11, -3, 0, 0, 400, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
+	g_Param.deu_characters_fault = LOADBMP(IDB_DEUCHARACTERSFAULT);
+	//Temp1DC = CreateDC( "DISPLAY", NULL, NULL, NULL );
+	g_Param.DeuCharFaultBitmapDC = CreateCompatibleDC( Temp1DC );
+	SelectObject( g_Param.DeuCharFaultBitmapDC, g_Param.deu_characters_fault );
+	SetStretchBltMode( g_Param.DeuCharOvrBrgtBitmapDC, HALFTONE );
+	StretchBlt( g_Param.DeuCharFaultBitmapDC, 0, 0, 284, 256, g_Param.DeuCharFaultBitmapDC, 0, 0, 512, 512, SRCCOPY );
+	DeleteDC( Temp1DC );
+
+	g_Param.deu_charactersSH = oapiCreateSurface( LOADBMP(IDB_DEUCHARACTERS) );
+
+	g_Param.deu_characters_overbrightSH = oapiCreateSurface( LOADBMP(IDB_DEUCHARACTERSOVERBRIGHT) );
+
+	g_Param.deu_characters_faultSH = oapiCreateSurface( LOADBMP(IDB_DEUCHARACTERSFAULT) );
 }
 
 DLLCLBK void ExitModule(HINSTANCE hModule)
 {
-	oapiUnregisterCustomControls(hModule);
-	DeleteDC(g_Param.DeuCharBitmapDC);
-	DeleteDC(g_Param.DeuCharOvrBrgtBitmapDC);
 	if (g_Param.tkbk_label)
 	{
 		oapiDestroySurface(g_Param.tkbk_label);
@@ -5978,18 +6355,38 @@ DLLCLBK void ExitModule(HINSTANCE hModule)
 		oapiDestroySurface(g_Param.a8_lights);
 	}
 
+	DeleteDC( g_Param.DeuCharBitmapDC );
 	if (g_Param.deu_characters)
 	{
-		DeleteObject(g_Param.deu_characters);
+		DeleteObject( g_Param.deu_characters );
 	}
 
+	DeleteDC( g_Param.DeuCharOvrBrgtBitmapDC );
 	if (g_Param.deu_characters_overbright)
 	{
-		DeleteObject(g_Param.deu_characters_overbright);
+		DeleteObject( g_Param.deu_characters_overbright );
 	}
 
-	// deallocate GDI resources
-	DeleteObject(g_Param.font[0]);
+	DeleteDC( g_Param.DeuCharFaultBitmapDC );
+	if (g_Param.deu_characters_fault)
+	{
+		DeleteObject( g_Param.deu_characters_fault );
+	}
+
+	if (g_Param.deu_charactersSH)
+	{
+		oapiDestroySurface( g_Param.deu_charactersSH );
+	}
+
+	if (g_Param.deu_characters_overbrightSH)
+	{
+		oapiDestroySurface( g_Param.deu_characters_overbrightSH );
+	}
+
+	if (g_Param.deu_characters_faultSH)
+	{
+		oapiDestroySurface( g_Param.deu_characters_faultSH );
+	}
 }
 
 // --------------------------------------------------------------
@@ -6336,151 +6733,6 @@ void Atlantis::SetKuGimbalAngles( double fAlpha, double fBeta )
 {
 	SetAnimation( anim_kualpha, fAlpha );
 	SetAnimation( anim_kubeta, fBeta );
-}
-
-bool Atlantis::IsValidSPEC(int gpc, int spec) const
-{
-	switch (pSimpleGPC->GetMajorMode() / 100)
-	{
-	case 0:
-		switch (spec)
-		{
-		case 1:
-		case 2:
-		case 6:
-		case 99:
-			return true;
-		}
-		break;
-	case 1:
-		switch (spec)
-		{
-		case 0:
-		case 1:
-		case 6:
-		case 18:
-		case 19:// HACK BFS only
-		case 23:
-		case 50:
-		case 51:
-		case 53:
-		case 55:
-		case 99:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	case 2:
-		switch (spec)
-		{
-		case 0:
-		case 1:
-		case 2:
-		case 6:
-		case 18:
-		case 19:
-		case 20:
-		case 21:
-		case 22:
-		case 23:
-		case 25:
-		case 33:
-		case 34:
-		case 55:
-		case 99:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	case 3:
-		switch (spec)
-		{
-		case 0:
-		case 1:
-		case 6:
-		case 18:
-		case 19:// HACK BFS only
-		case 21:
-		case 22:
-		case 23:
-		case 50:
-		case 51:
-		case 53:
-		case 55:
-		case 99:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	case 6:
-		switch (spec)
-		{
-		case 0:
-		case 1:
-		case 6:
-		case 18:
-		case 19:// HACK BFS only
-		case 23:
-		case 50:
-		case 51:
-		case 53:
-		case 55:
-		case 99:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	case 8:
-		switch (spec)
-		{
-		case 0:
-		case 1:
-		case 2:
-		case 6:
-		case 18:
-		case 19:
-		case 23:
-		case 40:
-		case 41:
-		case 42:
-		case 43:
-		case 44:
-		case 45:
-		case 55:
-		case 99:
-			return true;
-		default:
-			return false;
-		}
-	case 9:
-		switch (spec)
-		{
-		case 0:
-		case 1:
-		case 2:
-		case 6:
-		case 55:
-		case 62:
-		case 99:
-		case 100:
-		case 101:
-		case 102:
-		case 104:
-		case 105:
-		case 106:
-		case 112:
-		case 113:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	}
-	return false;
 }
 
 unsigned int Atlantis::GetGPCMajorMode() const
@@ -7201,10 +7453,43 @@ double Atlantis::GetLH2ManifPress(void) const
 	return pMPS->GetLH2ManifPress();
 }
 
-void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
-	if (!hDevOrbiterMesh) return; // no mesh handle
-	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
-	oapiSetTexture(hDevOrbiterMesh, 2, hTexture);
+void Atlantis::UpdateOrbiterTexture( const std::string& strTextureName )
+{
+	if (!hDevOrbiterMesh) return;// no mesh handle
+	hOVTexture = oapiLoadTexture( strTextureName.c_str() );
+	if (hOVTexture == NULL)
+	{
+		char cbuf[256];
+		sprintf_s( cbuf, 255, "(SpaceShuttleUltra) ERROR: Could not load texture %s", strTextureName.c_str() );
+		oapiWriteLog( cbuf );
+	}
+	else oapiSetTexture( hDevOrbiterMesh, 2, hOVTexture );
+}
+
+void Atlantis::UpdateLOMSPodTexture( const std::string& strTextureName )
+{
+	if (!hDevOrbiterMesh) return;// no mesh handle
+	hLOMSTexture = oapiLoadTexture( strTextureName.c_str() );
+	if (hLOMSTexture == NULL)
+	{
+		char cbuf[256];
+		sprintf_s( cbuf, 255, "(SpaceShuttleUltra) ERROR: Could not load texture %s", strTextureName.c_str() );
+		oapiWriteLog( cbuf );
+	}
+	else oapiSetTexture( hDevOrbiterMesh, 3, hLOMSTexture );
+}
+
+void Atlantis::UpdateROMSPodTexture( const std::string& strTextureName )
+{
+	if (!hDevOrbiterMesh) return;// no mesh handle
+	hROMSTexture = oapiLoadTexture( strTextureName.c_str() );
+	if (hROMSTexture == NULL)
+	{
+		char cbuf[256];
+		sprintf_s( cbuf, 255, "(SpaceShuttleUltra) ERROR: Could not load texture %s", strTextureName.c_str() );
+		oapiWriteLog( cbuf );
+	}
+	else oapiSetTexture( hDevOrbiterMesh, 4, hROMSTexture );
 }
 
 int Atlantis::GetSoundID() const {
@@ -7448,7 +7733,7 @@ void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 		for (int i = 0; i < 6; i++) PLBLightPosition[i] -= CoGShift;
 		DockingLightPos -= CoGShift;
 		FwdBulkheadLightPos -= CoGShift;
-		if (pRMS) pRMS->UpdateEELight();	
+		if (pRMS) pRMS->UpdateEELight();
 
 		if (hStackAirfoil) EditAirfoil(hStackAirfoil, 1, CoGShift, NULL, 0.0, 0.0, 0.0);
 

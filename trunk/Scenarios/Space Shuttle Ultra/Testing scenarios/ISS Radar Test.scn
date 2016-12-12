@@ -25,7 +25,7 @@ BEGIN_HUD
   REF AUTO
 END_HUD
 
-BEGIN_MFD 9
+BEGIN_MFD 11
   TYPE Docking
   TARGET ISS
 END_MFD
@@ -366,16 +366,9 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
 @SUBSYSTEM ElectronicsAssembly2
 @ENDSUBSYSTEM		;ElectronicsAssembly2
   @PANEL F2
-  "F2_SPDBKTHROT_AUTO" 1
   "F2_BODYFLAP_AUTO" 0
-  "F2_PITCH_AUTO" 0
-  "F2_PITCH_CSS" 0
-  "F2_RY_AUTO" 0
-  "F2_RY_CSS" 0
   "Drag Chute ARM Cover" [0]
   "Drag Chute DPY Cover" [0]
-  "Drag Chute ARM" 0
-  "Drag Chute DPY" 0
   "HUD Mode" NORM
   "HUD Brightness" [2]
   "HUD Bright" AUTO
@@ -384,21 +377,12 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "Drag Chute ARM Cover" [0]
   "Drag Chute DPY Cover" [0]
   "Drag Chute JETT Cover" [0]
-  "Drag Chute ARM" 0
-  "Drag Chute DPY" 0
-  "Drag Chute JETT" 0
   "HUD Power CDR" OFF
   "HUD Power PLT" OFF
   @ENDPANEL 
   @PANEL F4
-  "F4_SPDBKTHROT_AUTO" 1
   "F4_BODYFLAP_AUTO" 0
-  "F4_PITCH_AUTO" 0
-  "F4_PITCH_CSS" 0
-  "F4_RY_AUTO" 0
-  "F4_RY_CSS" 0
   "Drag Chute JETT Cover" [0]
-  "Drag Chute JETT" 0
   "HUD Mode" NORM
   "HUD Brightness" [2]
   "HUD Bright" AUTO
@@ -544,6 +528,8 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "EIU L-C" OFF
   "EIU C-R" OFF
   "EIU R-L" OFF
+  "MEC 1 Power" OFF
+  "MEC 2 Power" OFF
   @ENDPANEL 
   @PANEL R11
   "IDP/CRT 4 Power" ON

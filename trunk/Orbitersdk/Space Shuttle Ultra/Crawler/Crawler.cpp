@@ -232,6 +232,8 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 
 	hEarth = NULL;
 
+	strcpy( MLPclassname, "SSU_MLP" );
+
 	SoundID = ConnectToOrbiterSoundDLL(GetHandle());
 	SetMyDefaultWaveDirectory("Sound\\_CustomVesselsSounds\\SpaceShuttleUltra");
 	RequestLoadVesselWave(SoundID, ENGINE_SOUND_ID, "CrawlerEngine.wav", BOTHVIEW_FADED_MEDIUM);
@@ -253,7 +255,6 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	SetSize(40);
 	SetPMI(_V(133, 189, 89));
 
-	SetSurfaceFrictionCoeff(0.005, 0.5);
 	SetRotDrag (_V(0, 0, 0));
 	SetCW(0, 0, 0, 0);
 	SetPitchMomentScale(0);
@@ -312,10 +313,29 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 
 	DefineAnimations(mesh_1980);
 
+	char cbuf[255];
+	if (oapiReadItem_string( cfg, "MLPclass", cbuf ))
+	{
+		if (strlen( cbuf ) > 0)
+		{
+			strcpy( MLPclassname, cbuf );
+
+			oapiWriteLog( "Changed target MLP class to:" );
+			oapiWriteLog( MLPclassname );
+		}
+	}
+
 	//CreateAttachment(false, _V(0.0, 6.3, 0.0), _V(0, 1, 0), _V(1, 0, 0), "ML", false);
 	ahMLP = CreateAttachment(false, MLP_ATTACH_POS, _V(0, -1, 0), MLP_ATTACH_ROT, "XMLP");
 
-	SetTouchdownPoints(_V(  0, 0.01,  10), _V(-10, 0.01, -10), _V( 10, 0.01, -10));
+	DWORD ntdvtx = 4;
+	static TOUCHDOWNVTX tdvtx[4] ={
+		{_V( 0, 0.01, 20 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( -15, 0.01, -20 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 15, 0.01, -20 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 0, 5, 0 ), 1e5, 1e2, 0.5}// new point just to make a closed shape (more are not needed as the crawler is unlikely to get upside down)
+	};
+	SetTouchdownPoints( tdvtx, ntdvtx );
 	//ShiftCG(_V(0, -16, 0));
 
 	psubsystems->SetClassCaps(cfg);
@@ -336,15 +356,15 @@ void Crawler::DefineAnimations(bool b1980Mesh)
 void Crawler::DefineDrivetruckAnimations()
 {
 	// initialize array of groups needed for drivetruck translation animation
-	for(int i=0, j=0 ; i<NGRP_TRUCK ; i++) {
-		if(i!=GRP_JEL__Guide_cylinders_TRUCK && i!=GRP_JEL_Guide_cylinder_dust_shields_TRUCK && i!=GRP_DC_traction_motor_brake_discs_inner_TRUCK && i!=GRP_DC_traction_motor_brake_discs_outer_TRUCK) {
-			assert(j < NGRP_TRUCK-4); // ensure index is within limits
+	for(int i=0, j=0 ; i<NUMGRP_TRUCK ; i++) {
+		if(i!=GRP_JEL__GUIDE_CYLINDERS_TRUCK && i!=GRP_JEL_GUIDE_CYLINDER_DUST_SHIELDS_TRUCK && i!=GRP_DC_TRACTION_MOTOR_BRAKE_DISCS_INNER_TRUCK && i!=GRP_DC_TRACTION_MOTOR_BRAKE_DISCS_OUTER_TRUCK) {
+			assert(j < NUMGRP_TRUCK-4); // ensure index is within limits
 			DrivetruckGrpList[j]=i;
 			j++;
 		}
 	}
-	static UINT GRP_JEL_Cylinders = GRP_JEL_Guide_cylinder_dust_shields_TRUCK;
-	static UINT GRP_Brake_Discs[2] = {GRP_DC_traction_motor_brake_discs_inner_TRUCK, GRP_DC_traction_motor_brake_discs_outer_TRUCK};
+	static UINT GRP_JEL_Cylinders = GRP_JEL__GUIDE_CYLINDERS_TRUCK;
+	static UINT GRP_Brake_Discs[2] = {GRP_DC_TRACTION_MOTOR_BRAKE_DISCS_INNER_TRUCK, GRP_DC_TRACTION_MOTOR_BRAKE_DISCS_OUTER_TRUCK};
 
 	static VECTOR3 dummy_vec[4];
 	anim_brake_discs = CreateAnimation(0.0);
@@ -355,7 +375,7 @@ void Crawler::DefineDrivetruckAnimations()
 	MGROUP_SCALE* Scale_Truck1 = new MGROUP_SCALE(meshidxTruck1, &GRP_JEL_Cylinders, 1, _V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
 	anim_truck_trans[0] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Truck1, parent);
-	MGROUP_TRANSLATE* Trans_Truck1 = new MGROUP_TRANSLATE(meshidxTruck1, DrivetruckGrpList, NGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	MGROUP_TRANSLATE* Trans_Truck1 = new MGROUP_TRANSLATE(meshidxTruck1, DrivetruckGrpList, NUMGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	parent = AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Trans_Truck1, parent);
 	//brake discs inner truck 1
 	InnerBrakeDiscs[0] = new MGROUP_ROTATE(meshidxTruck1,&GRP_Brake_Discs[0],1,_V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),static_cast<float>(360*RAD));
@@ -370,7 +390,7 @@ void Crawler::DefineDrivetruckAnimations()
 	MGROUP_SCALE* Scale_Truck2 = new MGROUP_SCALE(meshidxTruck2, &GRP_JEL_Cylinders, 1, _V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
 	anim_truck_trans[1] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Truck2, parent);
-	MGROUP_TRANSLATE* Trans_Truck2 = new MGROUP_TRANSLATE(meshidxTruck2, DrivetruckGrpList, NGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	MGROUP_TRANSLATE* Trans_Truck2 = new MGROUP_TRANSLATE(meshidxTruck2, DrivetruckGrpList, NUMGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	parent = AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Trans_Truck2, parent);
 	//brake discs inner truck 2
 	InnerBrakeDiscs[1] = new MGROUP_ROTATE(meshidxTruck2,&GRP_Brake_Discs[0],1,_V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-static_cast<float>(360*RAD));
@@ -386,7 +406,7 @@ void Crawler::DefineDrivetruckAnimations()
 	MGROUP_SCALE* Scale_Truck3 = new MGROUP_SCALE(meshidxTruck3, &GRP_JEL_Cylinders, 1,_V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
 	anim_truck_trans[2] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Truck3, parent);
-	MGROUP_TRANSLATE* Trans_Truck3 = new MGROUP_TRANSLATE(meshidxTruck3, DrivetruckGrpList, NGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	MGROUP_TRANSLATE* Trans_Truck3 = new MGROUP_TRANSLATE(meshidxTruck3, DrivetruckGrpList, NUMGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	parent = AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Trans_Truck3, parent);
 	//brake discs inner truck 3
 	InnerBrakeDiscs[2] = new MGROUP_ROTATE(meshidxTruck3,&GRP_Brake_Discs[0],1,_V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),static_cast<float>(360*RAD));
@@ -401,7 +421,7 @@ void Crawler::DefineDrivetruckAnimations()
 	MGROUP_SCALE* Scale_Truck4 = new MGROUP_SCALE(meshidxTruck4, &GRP_JEL_Cylinders, 1,_V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
 	anim_truck_trans[3] = CreateAnimation(0.0);
 	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Truck4, parent);
-	MGROUP_TRANSLATE* Trans_Truck4 = new MGROUP_TRANSLATE(meshidxTruck4, DrivetruckGrpList, NGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	MGROUP_TRANSLATE* Trans_Truck4 = new MGROUP_TRANSLATE(meshidxTruck4, DrivetruckGrpList, NUMGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
 	parent = AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Trans_Truck4, parent);
 	//brake discs inner truck 4
 	InnerBrakeDiscs[3] = new MGROUP_ROTATE(meshidxTruck4,&GRP_Brake_Discs[0],1,_V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-static_cast<float>(360*RAD));
@@ -905,7 +925,7 @@ void Crawler::Attach() {
 
 		VESSEL* pVessel=oapiGetVesselInterface(hV);
 		std::string className=pVessel->GetClassName();
-		if(className == "SSU_MLP") { //found an MLP
+		if(className == MLPclassname) { //found an MLP
 			oapiWriteLog("Found MLP");
 			ATTACHMENTHANDLE ahAttach=pVessel->GetAttachmentHandle(true, 0);
 
@@ -1246,7 +1266,14 @@ void Crawler::UpdateTouchdownPoints() const
 		back_rot_anim_pos = -back_rot_anim_pos;
 	}
 
-	SetTouchdownPoints(_V(0, jackHeight+curFrontHeight, 20.0), _V(-10, jackHeight+curFrontHeight, -20.0), _V(10, jackHeight+curFrontHeight, -20.0));
+	DWORD ntdvtx = 4;
+	static TOUCHDOWNVTX tdvtx[4] ={
+		{_V( 0, jackHeight + curFrontHeight, 20.0 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( -15, jackHeight + curFrontHeight, -20.0 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 15, jackHeight + curFrontHeight, -20.0 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 0, 5 + jackHeight + curFrontHeight, 0 ), 1e5, 1e2, 0.5},
+	};
+	SetTouchdownPoints( tdvtx, ntdvtx );
 	for(int i=0;i<2;i++) {
 		SetAnimation(anim_truck_rot[i+usFwdIndex], 0.5+fwd_rot_anim_pos);
 		SetAnimation(anim_truck_rot[i+usAftIndex], 0.5+back_rot_anim_pos);

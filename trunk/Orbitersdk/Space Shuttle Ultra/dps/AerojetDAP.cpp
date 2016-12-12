@@ -1,5 +1,9 @@
 #include "AerojetDAP.h"
 #include "../Atlantis.h"
+#include "RHC_SOP.h"
+#include "RPTA_SOP.h"
+#include "SBTC_SOP.h"
+#include "Landing_SOP.h"
 #include "IDP.h"
 #include <UltraMath.h>
 #include "../ParameterValues.h"
@@ -146,7 +150,7 @@ VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad)
 
 AerojetDAP::AerojetDAP(SimpleGPCSystem* _gpc)
 : SimpleGPCSoftware(_gpc, "AerojetDAP"),
-bFirstStep(true), bSecondStep(false), bWOW(false), bWONG(false), OrbiterMass(93000.0),
+bFirstStep(true), bSecondStep(false), OrbiterMass(93000.0),
 //AOA_ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
 //Rate_ElevonPitch(0.75, 0.001, 0.005, -0.75, 0.75, -60.0, 60.0),
 //Pitch_ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0),
@@ -160,7 +164,6 @@ Roll_AileronRoll(0.20, 0.00, 0.10, -1.0, 1.0),
 Yaw_RudderYaw(0.50, 0.00, 0.10, -1.0, 1.0),
 QBar_Speedbrake(1.5, 0.0, 0.1, -100.0, 100.0, -200.0, 200.0),
 Vel_Speedbrake(2.5, 0.0, 0.2, -100.0, 100.0, -200.0, 200.0),
-lastSBTCCommand(1.0),
 EntryGuidanceMode(PREENTRY),
 referenceDrag23(19.38/MPS2FPS), constDragStartVel(VQ),
 tgtAltAveraging(5.0), vspeedAveraging(10.0),  vaccAveraging(20.0), vspeedUpdateSimT(-1.0), vaccUpdateSimT(-1.0),
@@ -230,6 +233,12 @@ HUDFlashTime(0.0), bHUDFlasher(true), SITE_ID(0), SEC(false)
 	declutter_level[0] = 0;
 	declutter_level[1] = 0;
 
+	AutoFCSPitch = true;
+	AutoFCSRoll = true;
+
+	SpeedbrakeState = AUTO;
+	AutoSpeedbrakeCommand = 0.0;
+
 	tCSS = -1;
 	tGear = -1;
 }
@@ -241,13 +250,7 @@ AerojetDAP::~AerojetDAP()
 
 void AerojetDAP::Realize()
 {
-	DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("HC_INPUT", 16);
-	for(int i=0;i<3;i++) {
-		RHCInput[i].Connect(pBundle, i);
-	}
-	SpdbkThrotPort.Connect(pBundle, 6);	
-
-	pBundle=STS()->BundleManager()->CreateBundle("AEROSURFACE_CMD", 16);
+	DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("AEROSURFACE_CMD", 16);
 	//LeftElevonCommand.Connect(pBundle, 0);
 	//RightElevonCommand.Connect(pBundle, 1);
 	ElevonCommand.Connect(pBundle, 0);
@@ -259,23 +262,61 @@ void AerojetDAP::Realize()
 		ThrusterCommands[i].Connect(pBundle, i);
 	}
 
-	pBundle=BundleManager()->CreateBundle("CSS_CONTROLS", 4);
-	PitchAuto.Connect(pBundle, 0);
-	PitchCSSOut.Connect(pBundle, 1);
-	RollYawAuto.Connect(pBundle, 2);
-	RollYawCSSOut.Connect(pBundle, 3);
+	pBundle = BundleManager()->CreateBundle( "CSS_CONTROLS", 16 );
+	CDRPitchAuto.Connect( pBundle, 0 );
+	CDRPitchAutoLT.Connect( pBundle, 1 );
+	CDRPitchCSS.Connect( pBundle, 2 );
+	CDRPitchCSSLT.Connect( pBundle, 3 );
+	CDRRollYawAuto.Connect( pBundle, 4 );
+	CDRRollYawAutoLT.Connect( pBundle, 5 );
+	CDRRollYawCSS.Connect( pBundle, 6 );
+	CDRRollYawCSSLT.Connect( pBundle, 7 );
+	PLTPitchAuto.Connect( pBundle, 8 );
+	PLTPitchAutoLT.Connect( pBundle, 9 );
+	PLTPitchCSS.Connect( pBundle, 10 );
+	PLTPitchCSSLT.Connect( pBundle, 11 );
+	PLTRollYawAuto.Connect( pBundle, 12 );
+	PLTRollYawAutoLT.Connect( pBundle, 13 );
+	PLTRollYawCSS.Connect( pBundle, 14 );
+	PLTRollYawCSSLT.Connect( pBundle, 15 );
 
 	pBundle=STS()->BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
-	SpeedbrakeAuto.Connect(pBundle, 0);
-	SpeedbrakeAutoOut.Connect(pBundle, 0);
+	CDR_SPDBK_THROT.Connect( pBundle, 0 );// HACK should first go to switch RM
+	CDR_SPDBK_THROT_AUTO_LT.Connect( pBundle, 1 );
+	CDR_SPDBK_THROT_MAN_LT.Connect( pBundle, 2 );
+	PLT_SPDBK_THROT.Connect( pBundle, 3 );// HACK should first go to switch RM
+	PLT_SPDBK_THROT_AUTO_LT.Connect( pBundle, 4 );
+	PLT_SPDBK_THROT_MAN_LT.Connect( pBundle, 5 );
 
 	pBundle = STS()->BundleManager()->CreateBundle( "HUD_CDR", 16 );
 	HUDPower[0].Connect( pBundle, 0 );
-	pHUDDCLT[0].Connect( pBundle, 1 );
+	HUDDCLT[0].Connect( pBundle, 1 );
+	HUDBrightCDR[0].Connect( pBundle, 3 );
+	HUDBrightCDR[1].Connect( pBundle, 4 );
+	HUDBrightCDR[2].Connect( pBundle, 5 );
+	HUDBrightCDR[3].Connect( pBundle, 6 );
+	HUDBrightCDR[4].Connect( pBundle, 7 );
+	HUDBrightNightCDR.Connect( pBundle, 8 );
+	HUDBrightDayCDR.Connect( pBundle, 9 );
 
 	pBundle = STS()->BundleManager()->CreateBundle( "HUD_PLT", 16 );
 	HUDPower[1].Connect( pBundle, 0 );
-	pHUDDCLT[1].Connect( pBundle, 1 );
+	HUDDCLT[1].Connect( pBundle, 1 );
+	HUDBrightPLT[0].Connect( pBundle, 3 );
+	HUDBrightPLT[1].Connect( pBundle, 4 );
+	HUDBrightPLT[2].Connect( pBundle, 5 );
+	HUDBrightPLT[3].Connect( pBundle, 6 );
+	HUDBrightPLT[4].Connect( pBundle, 7 );
+	HUDBrightNightPLT.Connect( pBundle, 8 );
+	HUDBrightDayPLT.Connect( pBundle, 9 );
+
+	pRHC_SOP = static_cast<RHC_SOP*> (FindSoftware( "RHC_SOP" ));
+	
+	pRPTA_SOP = static_cast<RPTA_SOP*> (FindSoftware( "RPTA_SOP" ));
+
+	pSBTC_SOP = static_cast<SBTC_SOP*> (FindSoftware( "SBTC_SOP" ));
+
+	pLanding_SOP = static_cast<Landing_SOP*> (FindSoftware( "Landing_SOP" ));
 	
 	hEarth = STS()->GetGravityRef();
 	InitializeRunwayData();
@@ -288,7 +329,6 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	// on first step, Orbiter gives some incorrect data, so ignore this step
 	if(bFirstStep) {
 		filteredQBar = STS()->GetDynPressure()*PA2PSF;
-		lastSBTCCommand = SpdbkThrotPort.GetVoltage();
 		bFirstStep = false;
 		bSecondStep = true;
 		return;
@@ -302,9 +342,81 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	// select correct side for HAC
 	if(HACDirection == STRT || STS()->GetAirspeed() > 9000.0/MPS2FPS) SelectHAC();
 
+	// check if AUTO or CSS
+	if (AutoFCSPitch == true)
+	{
+		if (CDRPitchCSS.IsSet() || PLTPitchCSS.IsSet())
+		{
+			// to CSS
+			AutoFCSPitch = false;
+			CDRPitchAutoLT.ResetLine();
+			PLTPitchAutoLT.ResetLine();
+			CDRPitchCSSLT.SetLine();
+			PLTPitchCSSLT.SetLine();
+		}
+	}
+	else
+	{
+		if (CDRPitchAuto.IsSet() || PLTPitchAuto.IsSet())
+		{
+			// to AUTO
+			AutoFCSPitch = true;
+			CDRPitchAutoLT.SetLine();
+			PLTPitchAutoLT.SetLine();
+			CDRPitchCSSLT.ResetLine();
+			PLTPitchCSSLT.ResetLine();
+		}
+	}
+	if (AutoFCSRoll == true)
+	{
+		if (CDRRollYawCSS.IsSet() || PLTRollYawCSS.IsSet())
+		{
+			// to CSS
+			AutoFCSRoll = false;
+			CDRRollYawAutoLT.ResetLine();
+			PLTRollYawAutoLT.ResetLine();
+			CDRRollYawCSSLT.SetLine();
+			PLTRollYawCSSLT.SetLine();
+		}
+	}
+	else
+	{
+		if (CDRRollYawAuto.IsSet() || PLTRollYawAuto.IsSet())
+		{
+			// to AUTO
+			AutoFCSRoll = true;
+			CDRRollYawAutoLT.SetLine();
+			PLTRollYawAutoLT.SetLine();
+			CDRRollYawCSSLT.ResetLine();
+			PLTRollYawCSSLT.ResetLine();
+		}
+	}
 	// downmode to CSS if RHC is out of detent
-	if(!Eq(RHCInput[PITCH].GetVoltage(), 0.0, 0.1)) PitchCSSOut.SetLine();
-	if(!Eq(RHCInput[ROLL].GetVoltage(), 0.0, 0.1)) RollYawCSSOut.SetLine();
+	if (AutoFCSPitch == true)
+	{
+		if (pRHC_SOP->GetPitchManTakeOver() == true)
+		{
+			// to CSS
+			AutoFCSPitch = false;
+			CDRPitchAutoLT.ResetLine();
+			PLTPitchAutoLT.ResetLine();
+			CDRPitchCSSLT.SetLine();
+			PLTPitchCSSLT.SetLine();
+		}
+	}
+	
+	if (AutoFCSRoll == true)
+	{
+		if (pRHC_SOP->GetRollManTakeOver() == true)
+		{
+			// to CSS
+			AutoFCSRoll = false;
+			CDRRollYawAutoLT.ResetLine();
+			PLTRollYawAutoLT.ResetLine();
+			CDRRollYawCSSLT.SetLine();
+			PLTRollYawCSSLT.SetLine();
+		}
+	}
 
 	//double distToRwy, delaz; // only used in MM304
 	switch(GetMajorMode()) {
@@ -314,7 +426,6 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		GetAttitudeData(DeltaT);
 
 		CheckControlActivation();
-		//SetThrusterLevels();
 
 		if(STS()->GetMachNumber() < 2.5) SetMajorMode(305);
 		
@@ -324,7 +435,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 
 		// PITCH channel
 		double targetAOA = CalculateTargetAOA(STS()->GetMachNumber());
-		if(PitchAuto) {
+		if (AutoFCSPitch == true) {
 			const double MAX_PITCH_RATE = 0.5;
 			degTargetRates.data[PITCH] = range(-MAX_PITCH_RATE, 0.25*(targetAOA-degCurrentAttitude.data[PITCH]), MAX_PITCH_RATE);
 		}
@@ -335,7 +446,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		// ROLL/YAW channel
 		double tgtBank = CalculateTargetBank(STS()->GetMachNumber(), targetAOA, DeltaT, SimT);
 		double tgtBankRate = 0.0;
-		if(RollYawAuto)
+		if (AutoFCSRoll == true)
 		{
 			double MAX_BANK_RATE = 3.0;
 			if(STS()->GetMachNumber() < 23.5) MAX_BANK_RATE = 5.0;
@@ -360,6 +471,11 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		SetAerosurfaceCommands(DeltaT);
 		SetSpeedbrakeCommand(TotalRange, DeltaT);
 
+		if ((AutoFCSRoll == false) && (AerosurfacesActive[YAW] == true))
+		{
+			RudderCommand.SetLine( (float)(pRPTA_SOP->GetYawCommand() / 22.8) );
+		}
+
 		// save data for displays
 		ET_Mach = STS()->GetAirspeed() * MPS2FPS * 0.001;
 		ETVS_Range = GetRangeToRunway();
@@ -378,20 +494,23 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		break;
 		}
 	case 305:
-		if(bWONG) {
+		if (pLanding_SOP->GetGSENBL() == true) {
 			//oapiWriteLog("WONG");
 			double airspeed=STS()->GetAirspeed();
 			// load relief
 			ElevonCommand.SetLine(static_cast<float>(10.0/33.0)); // elevons should be 10 deg down
 			AileronCommand.SetLine(0.0f);
-			if ((airspeed * MPS2KTS) > 100) RudderCommand.SetLine( RHCInput[YAW].GetVoltage() );// rudder available above 100 KGS
+			if ((airspeed * MPS2KTS) > 100) RudderCommand.SetLine( (float)(pRPTA_SOP->GetYawCommand() / 22.8) );// rudder available above 100 KGS
 			else RudderCommand.SetLine(0.0f);
 			//Nosewheel steering
-			double steerforce = (95.0-airspeed);
-			if(airspeed<6.0) steerforce*=(airspeed/6);
-			steerforce = 275000/3*steerforce*RHCInput[YAW].GetVoltage();
-			STS()->AddForce(_V(steerforce, 0, 0), _V(0, 0, 12.0));
-			STS()->AddForce(_V(-steerforce, 0, 0), _V(0, 0, -12.0));
+			double steerforce = min( 120000, 120000 * (airspeed / 50.0) ) * (pRPTA_SOP->GetYawCommand() / 22.8);
+			STS()->AddForce(_V(steerforce, 0, 0), _V(0, 0, 14.9));
+			// set pitch (back) to AUTO
+			AutoFCSPitch = true;
+			CDRPitchAutoLT.SetLine();
+			PLTPitchAutoLT.SetLine();
+			CDRPitchCSSLT.ResetLine();
+			PLTPitchCSSLT.ResetLine();
 		}
 		else {
 			//oapiWriteLog("No WONG");
@@ -400,7 +519,6 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			GetAttitudeData(DeltaT);
 
 			CheckControlActivation();
-			//SetThrusterLevels();
 
 			// calculate dynamic pressure profile
 			double qbar = STS()->GetDynPressure()*PA2PSF;
@@ -437,7 +555,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 
 			double NZSteadyState = cos(STS()->GetPitch())/cos(STS()->GetBank());
 			NZErr = NZCommand+NZSteadyState-averageNZ;
-			if(PitchAuto)
+			if (AutoFCSPitch == true)
 			{
 				degTargetRates.data[PITCH] = range(-0.5, 5.0*NZErr, 0.5);
 			}
@@ -448,7 +566,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			//degTargetRates.data[ROLL] = CSSRollInput(DeltaT);
 			//double tgtBankRate = CSSRollInput(DeltaT);
 			double tgtBankRate;
-			if(RollYawAuto)
+			if (AutoFCSRoll == true)
 			{
 				double MAX_BANK_RATE = 5.0;
 				double BANK_GAIN = 1.0;
@@ -475,20 +593,19 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			SetAerosurfaceCommands(DeltaT);
 			SetSpeedbrakeCommand(TotalRange, DeltaT);
 
-			// check for weight-on-weels
-			if(STS()->GroundContact()) {
-				bWOW = true;
-				// use rudder to steer shuttle after touchdown
-				RudderCommand.SetLine(RHCInput[YAW].GetVoltage());
-				// check for weight-on-nose-gear
-				if(STS()->GetPitch() < -3.0*RAD) {
-					bWONG = true;
-					// set default positions of control surfaces to zero
-					STS()->SetControlSurfaceLevel(AIRCTRL_RUDDERTRIM, 0.0);
-					STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, 0.0);
-					STS()->SetControlSurfaceLevel(AIRCTRL_ELEVATOR, 0.0);
-					STS()->SetControlSurfaceLevel(AIRCTRL_AILERON, 0.0);
-				}
+			if (AutoFCSRoll == false)
+			{
+				RudderCommand.SetLine( (float)range( -1.0, rudderPos + (pRPTA_SOP->GetYawCommand() / 22.8), 1.0 ) );
+			}
+
+			// check for weight-on-nose-gear
+			if (pLanding_SOP->GetWONG() == true)
+			{
+				// set default positions of control surfaces to zero
+				STS()->SetControlSurfaceLevel(AIRCTRL_RUDDERTRIM, 0.0);
+				STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, 0.0);
+				STS()->SetControlSurfaceLevel(AIRCTRL_ELEVATOR, 0.0);
+				STS()->SetControlSurfaceLevel(AIRCTRL_AILERON, 0.0);
 			}
 
 			// save data for displays
@@ -498,9 +615,10 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		break;
 	}
 
+	// HUD
 	for (int i = 0; i < 2; i++)
 	{
-		if (HUDPower[i].IsSet() && pHUDDCLT[i].IsSet())
+		if (HUDPower[i].IsSet() && HUDDCLT[i].IsSet())
 		{
 			if (!dclt_sw_on[i])
 			{
@@ -510,6 +628,59 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			}
 		}
 		else dclt_sw_on[i] = false;
+	}
+	// if in PLT seat use PLT settings, otherwise use CDR
+	if (STS()->VCMode == 1)// VC_PLT
+	{
+		if (HUDBrightNightPLT.IsSet())// night: 10, 20, 30, 40, 50
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				if (HUDBrightPLT[i].IsSet())
+				{
+					oapiSetHUDIntensity( (i + 1) * 0.1 );
+					break;
+				}
+			}
+		}
+		else if (HUDBrightDayPLT.IsSet())// day: 60, 70, 80, 90, 100
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				if (HUDBrightPLT[i].IsSet())
+				{
+					oapiSetHUDIntensity( ((i + 1) * 0.1) + 0.5 );
+					break;
+				}
+			}
+		}
+		else oapiSetHUDIntensity( 0.55 );// auto: 55
+	}
+	else
+	{
+		if (HUDBrightNightCDR.IsSet())// night: 10, 20, 30, 40, 50
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				if (HUDBrightCDR[i].IsSet())
+				{
+					oapiSetHUDIntensity( (i + 1) * 0.1 );
+					break;
+				}
+			}
+		}
+		else if (HUDBrightDayCDR.IsSet())// day: 60, 70, 80, 90, 100
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				if (HUDBrightCDR[i].IsSet())
+				{
+					oapiSetHUDIntensity( ((i + 1) * 0.1) + 0.5 );
+					break;
+				}
+			}
+		}
+		else oapiSetHUDIntensity( 0.55 );// auto: 55
 	}
 
 	if (tCSS == -1)
@@ -548,16 +719,134 @@ bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 			// initialize filtered qbar value
 			filteredQBar = STS()->GetDynPressure()*PA2PSF;
 			// reduce roll gains 
-			Roll_AileronRoll.SetGains(0.10, 0.00, 0.01);
+			Roll_AileronRoll.SetGains(0.05, 0.00, 0.01);
+
+			if (AutoFCSPitch == false)
+			{
+				CDRPitchAutoLT.ResetLine();
+				PLTPitchAutoLT.ResetLine();
+				CDRPitchCSSLT.SetLine();
+				PLTPitchCSSLT.SetLine();
+			}
+			else
+			{
+				CDRPitchAutoLT.SetLine();
+				PLTPitchAutoLT.SetLine();
+				CDRPitchCSSLT.ResetLine();
+				PLTPitchCSSLT.ResetLine();
+			}
+			if (AutoFCSRoll == false)
+			{
+				CDRRollYawAutoLT.ResetLine();
+				PLTRollYawAutoLT.ResetLine();
+				CDRRollYawCSSLT.SetLine();
+				PLTRollYawCSSLT.SetLine();
+			}
+			else
+			{
+				CDRRollYawAutoLT.SetLine();
+				PLTRollYawAutoLT.SetLine();
+				CDRRollYawCSSLT.ResetLine();
+				PLTRollYawCSSLT.ResetLine();
+			}
+
+			if (SpeedbrakeState == MAN_CDR)
+			{
+				CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+				PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+				CDR_SPDBK_THROT_MAN_LT.SetLine();
+				PLT_SPDBK_THROT_MAN_LT.ResetLine();
+			}
+			else if (SpeedbrakeState == MAN_PLT)
+			{
+				CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+				PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+				CDR_SPDBK_THROT_MAN_LT.ResetLine();
+				PLT_SPDBK_THROT_MAN_LT.SetLine();
+			}
+			else
+			{
+				CDR_SPDBK_THROT_AUTO_LT.SetLine();
+				PLT_SPDBK_THROT_AUTO_LT.SetLine();
+				CDR_SPDBK_THROT_MAN_LT.ResetLine();
+				PLT_SPDBK_THROT_MAN_LT.ResetLine();
+			}
 		}
-		else {
-			// initialize both pitch and roll/yaw channels to AUTO
-			DiscOutPort port;
-			pBundle=BundleManager()->CreateBundle("CSS_CONTROLS", 4);
-			port.Connect(pBundle, 0); // PITCH AUTO
-			port.SetLine();
-			port.Connect(pBundle, 2); // ROLL/YAW AUTO
-			port.SetLine();
+		else
+		{
+			// when entering MM304 from MM303 init FCS to AUTO, otherwise it's a scenario start so leave it to the scenario data
+			if (GetMajorMode() == 303)
+			{
+				AutoFCSPitch = true;
+				CDRPitchAutoLT.SetLine();
+				PLTPitchAutoLT.SetLine();
+				CDRPitchCSSLT.ResetLine();
+				PLTPitchCSSLT.ResetLine();
+				AutoFCSRoll = true;
+				CDRRollYawAutoLT.SetLine();
+				PLTRollYawAutoLT.SetLine();
+				CDRRollYawCSSLT.ResetLine();
+				PLTRollYawCSSLT.ResetLine();
+
+				SpeedbrakeState = AUTO;
+				CDR_SPDBK_THROT_AUTO_LT.SetLine();
+				PLT_SPDBK_THROT_AUTO_LT.SetLine();
+				CDR_SPDBK_THROT_MAN_LT.ResetLine();
+				PLT_SPDBK_THROT_MAN_LT.ResetLine();
+			}
+			else
+			{
+				if (AutoFCSPitch == false)
+				{
+					CDRPitchAutoLT.ResetLine();
+					PLTPitchAutoLT.ResetLine();
+					CDRPitchCSSLT.SetLine();
+					PLTPitchCSSLT.SetLine();
+				}
+				else
+				{
+					CDRPitchAutoLT.SetLine();
+					PLTPitchAutoLT.SetLine();
+					CDRPitchCSSLT.ResetLine();
+					PLTPitchCSSLT.ResetLine();
+				}
+				if (AutoFCSRoll == false)
+				{
+					CDRRollYawAutoLT.ResetLine();
+					PLTRollYawAutoLT.ResetLine();
+					CDRRollYawCSSLT.SetLine();
+					PLTRollYawCSSLT.SetLine();
+				}
+				else
+				{
+					CDRRollYawAutoLT.SetLine();
+					PLTRollYawAutoLT.SetLine();
+					CDRRollYawCSSLT.ResetLine();
+					PLTRollYawCSSLT.ResetLine();
+				}
+
+				if (SpeedbrakeState == MAN_CDR)
+				{
+					CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+					PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+					CDR_SPDBK_THROT_MAN_LT.SetLine();
+					PLT_SPDBK_THROT_MAN_LT.ResetLine();
+				}
+				else if (SpeedbrakeState == MAN_PLT)
+				{
+					CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+					PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+					CDR_SPDBK_THROT_MAN_LT.ResetLine();
+					PLT_SPDBK_THROT_MAN_LT.SetLine();
+				}
+				else
+				{
+					CDR_SPDBK_THROT_AUTO_LT.SetLine();
+					PLT_SPDBK_THROT_AUTO_LT.SetLine();
+					CDR_SPDBK_THROT_MAN_LT.ResetLine();
+					PLT_SPDBK_THROT_MAN_LT.ResetLine();
+				}
+			}
 		}
 		return true;
 	}
@@ -687,7 +976,7 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 			else if (STS()->GetGearState()==AnimState::OPENING) skp->Text(hps->CX-60, hps->CY+5, "//GR//", 6);
 
 			// guidance mode
-			if (!bWOW)
+			if (pLanding_SOP->GetWOWLON() == false)
 			{
 				switch(TAEMGuidanceMode) {
 				case ACQ:
@@ -746,7 +1035,7 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 					glideslope_center_x = HUD_Center_X + (glideslope_center_x-HUD_Center_X)/prfnlBankFader;
 					glideslope_center_y = HUD_Center_Y + (glideslope_center_y-HUD_Center_Y)/prfnlBankFader;
 				}
-				if (!bWOW) skp->Ellipse(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
+				if (pLanding_SOP->GetWOWLON() == false) skp->Ellipse(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
 			}
 			else {
 				// before PRFNL mode, we have square at center of HUD
@@ -755,7 +1044,7 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 				skp->Rectangle(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
 			}
 			// lines are the same for both VV and center square modes
-			if (!bWOW)
+			if (pLanding_SOP->GetWOWLON() == false)
 			{
 				skp->Line(Round(glideslope_center_x)-10, Round(glideslope_center_y), Round(glideslope_center_x)-5, Round(glideslope_center_y));
 				skp->Line(Round(glideslope_center_x)+9, Round(glideslope_center_y), Round(glideslope_center_x)+4, Round(glideslope_center_y));
@@ -809,7 +1098,7 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 			}
 
 			// css status
-			if (!bWOW)
+			if (pLanding_SOP->GetWOWLON() == false)
 			{
 				if (tCSS > 0)
 				{
@@ -897,12 +1186,12 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 
 			// alt/vel
 			double keas = STS()->GetKEAS();
-			double alt = (int)(STS()->GetAltitude()*3.280833)-17;
+			double alt = (int)(STS()->GetAltitude()* MPS2FPS)-17;
 			if (dclt == 2)
 			{
 				// numeric
 				sprintf_s(cbuf, 255, "%3.0f", keas);
-				if (!bWOW)
+				if (pLanding_SOP->GetWOWLON() == false)
 				{
 					skp->Text( (int)glideslope_center_x - 45, (int)glideslope_center_y - 15, cbuf, strlen( cbuf ) );
 
@@ -914,11 +1203,11 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 					sprintf_s( cbuf, 255, "%d", tmpalt );
 					skp->Text( (int)glideslope_center_x + 25, (int)glideslope_center_y - 15, cbuf, strlen( cbuf ) );
 				}
-				else if (!bWONG) skp->Text( hps->CX - 26, hps->CY - 14, cbuf, strlen( cbuf ) );
+				else if (pLanding_SOP->GetGSENBL() == false) skp->Text( hps->CX - 26, hps->CY - 14, cbuf, strlen( cbuf ) );
 				else
 				{
 					skp->Text( hps->CX - 40, hps->CY - 14, "G", 1 );
-					sprintf_s(cbuf, 255, "%3.0f", keas);// TODO ground speed
+					sprintf_s(cbuf, 255, "%3.0f", STS()->GetGroundspeed() * MPS2KTS );
 					skp->Text( hps->CX - 26, hps->CY - 14, cbuf, strlen( cbuf ) );
 				}
 			}
@@ -1023,6 +1312,25 @@ bool AerojetDAP::OnParseLine(const char* keyword, const char* value)
 		if ((nTemp >= 0) && (nTemp <= ELS)) SBControlLogic = static_cast<SB_CONTROL_LOGIC>(nTemp);
 		return true;
 	}
+	if (!_strnicmp( keyword, "FCS_PITCH", 9 ))
+	{
+		if (!_strnicmp( value, "CSS", 3 )) AutoFCSPitch = false;
+		else AutoFCSPitch = true;
+		return true;
+	}
+	if (!_strnicmp( keyword, "FCS_ROLL", 8 ))
+	{
+		if (!_strnicmp( value, "CSS", 3 )) AutoFCSRoll = false;
+		else AutoFCSRoll = true;
+		return true;
+	}
+	if (!_strnicmp( keyword, "SPEEDBRAKE_STATE", 16 ))
+	{
+		if (!_strnicmp( value, "CDR", 3 )) SpeedbrakeState = MAN_CDR;
+		else if (!_strnicmp( value, "PLT", 3 )) SpeedbrakeState = MAN_PLT;
+		else SpeedbrakeState = AUTO;
+		return true;
+	}
 	return false;
 }
 
@@ -1037,6 +1345,11 @@ void AerojetDAP::OnSaveState(FILEHANDLE scn) const
 	oapiWriteScenario_int(scn, "TAEM_GUIDANCE", static_cast<int>(TAEMGuidanceMode));
 	if (OGS_AIMPOINT == OGS_AIMPOINT_CLOSE) oapiWriteScenario_string( scn, "CLOSE_AIM_POINT", "TRUE" );
 	oapiWriteScenario_int( scn, "SB_CONTROL_LOGIC", static_cast<int>(SBControlLogic) );
+	if (AutoFCSPitch == false) oapiWriteScenario_string( scn, "FCS_PITCH", "CSS" );
+	if (AutoFCSRoll == false) oapiWriteScenario_string( scn, "FCS_ROLL", "CSS" );
+	if (SpeedbrakeState == MAN_CDR) oapiWriteScenario_string( scn, "SPEEDBRAKE_STATE", "CDR" );
+	else if (SpeedbrakeState == MAN_PLT) oapiWriteScenario_string( scn, "SPEEDBRAKE_STATE", "PLT" );
+	return;
 }
 
 void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
@@ -1158,8 +1471,8 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 	pMDU->mvprint( 41, 23, "49" );
 	if (0) pMDU->mvprint( 29, 15, "MLS", dps::DEUATT_OVERBRIGHT );// TODO
 
-	const int BUG_POINT_X = 132;
-	const int BUG_POINT_Y = 135;
+	const int BUG_POINT_X = 264;
+	const int BUG_POINT_Y = 210;
 
 	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
 	const double HAC_CENTER_Y = YSGN * FINAL_RADIUS;
@@ -1178,12 +1491,12 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 	// calculate scale factor for display
 	double scale_distance = max(length(TouchdownPos), length(HACExitPos)+HAC_TurnRadius); // make sure HAC circle and touchdown point are visible
 	scale_distance = range(20e3, scale_distance, 500e3); // limit distance covered by display to between 20km and 500km
-	double scale = scale_distance/128; // screen area is 256 pixels by 256 pixels
+	double scale = scale_distance/182; // screen area is 512 pixels by 364 pixels (using 364 as limit)
 	int touchdown_x = BUG_POINT_X - Round(TouchdownPos.y/scale);
 	int touchdown_y = Round(TouchdownPos.x/scale) + BUG_POINT_Y;
 	int hac_exit_x = BUG_POINT_X - Round(HACExitPos.y/scale);
 	int hac_exit_y = Round(HACExitPos.x/scale) + BUG_POINT_Y;
-	pMDU->Circle(touchdown_x, touchdown_y, 4);
+	pMDU->Circle(touchdown_x, touchdown_y, 5);
 	pMDU->Line(hac_exit_x, hac_exit_y, touchdown_x, touchdown_y);
 
 	if (GetApproachAndLandState() == false)
@@ -1220,7 +1533,7 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 		if(Eq(time, 20, 0.01) || Eq(time, 40, 0.01) || Eq(time, 60, 0.01)) {
 			int pos_x = BUG_POINT_X - Round(pos.y/scale);
 			int pos_y = BUG_POINT_Y + Round(pos.x/scale);
-			pMDU->Circle(pos_x, pos_y, 4, dps::DEUATT_OVERBRIGHT);
+			pMDU->Circle(pos_x, pos_y, 5, dps::DEUATT_OVERBRIGHT);
 		}
 	}
 
@@ -1238,14 +1551,14 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 	if (((GetMajorMode() == 305) || (GetMajorMode() == 603)) && (STS()->GetAltitude() > 2133.6))// blank under 7kft
 	{
 		// top scale
-		pMDU->Line( 111, 32, 201, 32 );
+		pMDU->Line( 222, 50, 402, 50 );
 		// side scale
-		pMDU->Line( 209, 47, 209, 125 );
-		pMDU->Line( 208, 47, 211, 47 );
-		pMDU->Line( 208, 125, 211, 125 );
-		pMDU->Line( 208, 67, 211, 67 );
-		pMDU->Line( 208, 86, 211, 86 );
-		pMDU->Line( 208, 106, 211, 106 );
+		pMDU->Line( 418, 73, 418, 195 );
+		pMDU->Line( 415, 73, 421, 73 );
+		pMDU->Line( 415, 195, 421, 195 );
+		pMDU->Line( 415, 104, 421, 104 );
+		pMDU->Line( 415, 134, 421, 134 );
+		pMDU->Line( 415, 165, 421, 165 );
 
 		if (GetOnHACState() == false)
 		{
@@ -1254,23 +1567,21 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			char att = 0;
 			int pos;
 			double t2h = fabs( TimeToHAC );
+			pMDU->Line( 222, 47, 222, 53 );
+			pMDU->Line( 402, 47, 402, 53 );
 			if (TimeToHAC < 0)
 			{
-				pMDU->Line( 111, 31, 111, 35 );
-				pMDU->Line( 201, 31, 201, 35 );
 				pMDU->mvprint( 21, 4, "0 1 2 3" );
-				pMDU->Line( 120, 31, 120, 35 );
-				pMDU->Line( 129, 31, 129, 35 );
-				pMDU->Line( 138, 31, 138, 35 );
+				pMDU->Line( 240, 47, 240, 53 );
+				pMDU->Line( 258, 47, 258, 53 );
+				pMDU->Line( 276, 47, 276, 53 );
 			}
 			else
 			{
-				pMDU->Line( 111, 31, 111, 35 );
-				pMDU->Line( 201, 31, 201, 35 );
 				pMDU->mvprint( 34, 4, "3 2 1 0" );
-				pMDU->Line( 174, 31, 174, 35 );
-				pMDU->Line( 183, 31, 183, 35 );
-				pMDU->Line( 192, 31, 192, 35 );
+				pMDU->Line( 348, 47, 348, 53 );
+				pMDU->Line( 366, 47, 366, 53 );
+				pMDU->Line( 384, 47, 384, 53 );
 			}
 			
 			if (t2h < 20)
@@ -1284,11 +1595,11 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 
 				if (t2h == 0) att = dps::DEUATT_FLASHING;
 
-				if (TimeToHAC < 0) pos = 111 + Round( t2h * 9 );
-				else pos = 201 - Round( t2h * 9 );
-				pMDU->Line( pos, 31, pos - 3, 27, att );
-				pMDU->Line( pos - 3, 27, pos + 3, 27, att );
-				pMDU->Line( pos + 3, 27, pos, 31, att );
+				if (TimeToHAC < 0) pos = 222 + Round( t2h * 18 );
+				else pos = 402 - Round( t2h * 18 );
+				pMDU->Line( pos, 48, pos - 6, 40, att );
+				pMDU->Line( pos - 6, 40, pos + 6, 40, att );
+				pMDU->Line( pos + 6, 40, pos, 48, att );
 			}
 
 			// side scale
@@ -1297,34 +1608,31 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			att = 0;
 			double err = 0;// TODO
 
-			if (err > 1000)
+			if (err > 5000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 125;
+				pos = 195;
 			}
-			else if (err < -1000)
+			else if (err < -5000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 47;
+				pos = 73;
 			}
-			else pos = Round( err * 0.0078 ) + 86;
+			else pos = Round( err * 0.0122 ) + 134;
 
-			pMDU->Line( 212, pos - 2, 212, pos + 3, att );
-			pMDU->Line( 211, pos - 1, 216, pos - 1, att );
-			pMDU->Line( 210, pos, 216, pos, att );
-			pMDU->Line( 211, pos + 1, 216, pos + 1, att );
+			pMDU->LeftArrowFull( 420, pos, att );
 		}
 		else if (GetPrefinalState() == false)
 		{
 			// HDG
 			// top scale
-			pMDU->Line( 111, 31, 111, 34 );
-			pMDU->Line( 201, 31, 201, 34 );
+			pMDU->Line( 222, 47, 222, 53 );
+			pMDU->Line( 402, 47, 402, 53 );
 			pMDU->mvprint( 20, 4, "5.0K" );
 			pMDU->mvprint( 38, 4, "5.0K" );
-			pMDU->Line( 134, 31, 134, 34 );
-			pMDU->Line( 156, 31, 156, 34 );
-			pMDU->Line( 179, 31, 179, 34 );
+			pMDU->Line( 268, 47, 268, 53 );
+			pMDU->Line( 312, 47, 312, 53 );
+			pMDU->Line( 358, 47, 358, 53 );
 			char att = 0;
 			int pos;
 			double err = -GetHACRadialError();
@@ -1332,16 +1640,16 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			if (err > 5000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 201;
+				pos = 402;
 			}
 			else if (err < -5000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 111;
+				pos = 222;
 			}
-			else pos = Round( err * 0.009 ) + 156;
+			else pos = Round( err * 0.018 ) + 312;
 
-			pMDU->OrbiterSymbolTop( pos, 23, att );
+			pMDU->OrbiterSymbolTop( pos, 36, att );
 
 			// side scale
 			pMDU->mvprint( 37, 5, "5.0K" );
@@ -1349,34 +1657,31 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			att = 0;
 			err = 0;// TODO
 
-			if (err > 1000)
+			if (err > 5000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 125;
+				pos = 195;
 			}
-			else if (err < -1000)
+			else if (err < -5000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 47;
+				pos = 73;
 			}
-			else pos = Round( err * 0.0078 ) + 86;
+			else pos = Round( err * 0.0122 ) + 134;
 
-			pMDU->Line( 212, pos - 2, 212, pos + 3, att );
-			pMDU->Line( 211, pos - 1, 216, pos - 1, att );
-			pMDU->Line( 210, pos, 216, pos, att );
-			pMDU->Line( 211, pos + 1, 216, pos + 1, att );
+			pMDU->LeftArrowFull( 420, pos, att );
 		}
 		else
 		{
 			// PRFNL and A/L
 			// top scale
-			pMDU->Line( 111, 31, 111, 34 );
-			pMDU->Line( 201, 31, 201, 34 );
+			pMDU->Line( 222, 47, 222, 53 );
+			pMDU->Line( 402, 47, 402, 53 );
 			pMDU->mvprint( 20, 4, "2.5K" );
 			pMDU->mvprint( 38, 4, "2.5K" );
-			pMDU->Line( 134, 31, 134, 34 );
-			pMDU->Line( 156, 31, 156, 34 );
-			pMDU->Line( 179, 31, 179, 34 );
+			pMDU->Line( 268, 47, 268, 53 );
+			pMDU->Line( 312, 47, 312, 53 );
+			pMDU->Line( 358, 47, 358, 53 );
 			char att = 0;
 			int pos;
 			double err = GetYRunwayPositionError();
@@ -1384,16 +1689,16 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			if (err > 2500)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 201;
+				pos = 402;
 			}
 			else if (err < -2500)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 111;
+				pos = 222;
 			}
-			else pos = Round( err * 0.018 ) + 156;
+			else pos = Round( err * 0.036 ) + 312;
 
-			pMDU->OrbiterSymbolTop( pos, 23, att );
+			pMDU->OrbiterSymbolTop( pos, 36, att );
 
 			// side scale
 			pMDU->mvprint( 37, 5, "1.0K" );
@@ -1404,43 +1709,40 @@ void AerojetDAP::PaintHORIZSITDisplay(vc::MDU* pMDU) const
 			if (err > 1000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 125;
+				pos = 195;
 			}
 			else if (err < -1000)
 			{
 				att = dps::DEUATT_FLASHING;
-				pos = 47;
+				pos = 73;
 			}
-			else pos = Round( err * 0.039 ) + 86;
+			else pos = Round( err * 0.061 ) + 134;
 
-			pMDU->Line( 212, pos - 2, 212, pos + 3, att );
-			pMDU->Line( 211, pos - 1, 216, pos - 1, att );
-			pMDU->Line( 210, pos, 216, pos, att );
-			pMDU->Line( 211, pos + 1, 216, pos + 1, att );
+			pMDU->LeftArrowFull( 420, pos, att );
 		}
 	}
 
 	// lines
-	pMDU->Line( 0, 9, 55, 9 );
-	pMDU->Line( 55, 9, 55, 36 );
-	pMDU->Line( 0, 36, 55, 36 );
+	pMDU->Line( 0, 14, 110, 14 );
+	pMDU->Line( 110, 14, 110, 56 );
+	pMDU->Line( 0, 56, 110, 56 );
 
-	pMDU->Line( 0, 99, 75, 99 );
+	pMDU->Line( 0, 154, 150, 154 );
 
-	pMDU->Line( 0, 153, 255, 153 );
-	pMDU->Line( 130, 189, 225, 189 );
-	pMDU->Line( 130, 198, 255, 198 );
-	pMDU->Line( 0, 207, 130, 207 );
+	pMDU->Line( 0, 238, 512, 238 );
+	pMDU->Line( 260, 294, 450, 294 );
+	pMDU->Line( 260, 308, 510, 308 );
+	pMDU->Line( 0, 322, 260, 322 );
 
-	pMDU->Line( 30, 153, 30, 207 );
-	pMDU->Line( 60, 153, 60, 207 );
-	pMDU->Line( 85, 153, 85, 216 );
-	pMDU->Line( 100, 153, 100, 216 );
-	pMDU->Line( 115, 153, 115, 216 );
-	pMDU->Line( 130, 153, 130, 216 );
-	pMDU->Line( 175, 153, 175, 180 );
-	pMDU->Line( 215, 153, 215, 180 );
-	pMDU->Line( 225, 189, 225, 198 );
+	pMDU->Line( 60, 238, 60, 322 );
+	pMDU->Line( 120, 238, 120, 322 );
+	pMDU->Line( 170, 238, 170, 336 );
+	pMDU->Line( 200, 238, 200, 336 );
+	pMDU->Line( 230, 238, 230, 336 );
+	pMDU->Line( 260, 238, 260, 336 );
+	pMDU->Line( 350, 238, 350, 280 );
+	pMDU->Line( 430, 238, 430, 280 );
+	pMDU->Line( 450, 294, 450, 308 );
 }
 
 void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
@@ -1455,112 +1757,112 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 0, 14, "35" );
 	pMDU->mvprint( 0, 18, "30" );
 	pMDU->mvprint( 0, 22, "25" );
-	pMDU->mvprint( 3, 1, "D" );
-	pMDU->mvprint( 3, 2, "50" );
-	pMDU->mvprint( 3, 6, "40" );
-	pMDU->mvprint( 3, 10, "30" );
-	pMDU->mvprint( 3, 14, "20" );
-	pMDU->mvprint( 3, 18, "10" );
-	pMDU->mvprint( 3, 22, "0" );
+	pMDU->mvprint( 4, 1, "D" );
+	pMDU->mvprint( 4, 2, "50" );
+	pMDU->mvprint( 4, 6, "40" );
+	pMDU->mvprint( 4, 10, "30" );
+	pMDU->mvprint( 4, 14, "20" );
+	pMDU->mvprint( 4, 18, "10" );
+	pMDU->mvprint( 4, 22, "0" );
 	pMDU->mvprint( 7, 4, "1 BIAS" );
 	pMDU->mvprint( 7, 5, "D REF" );
 	pMDU->mvprint( 7, 6, "q" );
-	pMDU->Line( 35, 55, 40, 55 );
+	pMDU->Line( 70, 84, 80, 84 );
 	pMDU->Delta( 7, 7 );
 	pMDU->mvprint( 9, 7, "AZ" );
 	//pMDU->mvprint( 7, 9, "LO ENRGY" );
 	//pMDU->mvprint( 7, 10, "3" );
-	pMDU->mvprint( 38, 16, "NY" );
-	pMDU->mvprint( 38, 17, "NY TRIM" );
-	pMDU->mvprint( 38, 18, "AIL" );
-	pMDU->mvprint( 38, 19, "RUD" );
-	pMDU->mvprint( 37, 20, "ZERO H BIAS 2" );
-	pMDU->DotCharacter( 42, 20 );
-	pMDU->mvprint( 38, 21, "H BIAS" );
-	pMDU->DotCharacter( 38, 21 );
-	pMDU->mvprint( 41, 22, "REF" );
-	pMDU->mvprint( 36, 23, "ROLL REF" );
-	pMDU->mvprint( 41, 24, "CMD" );
+	pMDU->mvprint( 38, 15, "NY" );
+	pMDU->mvprint( 38, 16, "NY TRIM" );
+	pMDU->mvprint( 38, 17, "AIL" );
+	pMDU->mvprint( 38, 18, "RUD" );
+	pMDU->mvprint( 37, 19, "ZERO H BIAS 2" );
+	pMDU->DotCharacter( 42, 19 );
+	pMDU->mvprint( 38, 20, "H BIAS" );
+	pMDU->DotCharacter( 38, 20 );
+	pMDU->mvprint( 41, 21, "REF" );
+	pMDU->mvprint( 36, 22, "ROLL REF" );
+	pMDU->mvprint( 41, 23, "CMD" );
 	pMDU->mvprint( 34, 2, "10D" );
 	pMDU->mvprint( 40, 2, "8D" );
 	pMDU->mvprint( 46, 2, "6D" );
 	pMDU->mvprint( 23, 6, "15D" );
 	pMDU->mvprint( 16, 9, "20D" );
 	pMDU->mvprint( 10, 14, "25D" );
-	pMDU->mvprint( 41, 14, "-40" );
-	pMDU->mvprint( 30, 19, "-70" );
-	pMDU->mvprint( 4, 24, "-180" );
-	pMDU->mvprint( 19, 24, "-100" );
+	pMDU->mvprint( 41, 13, "-40" );
+	pMDU->mvprint( 30, 18, "-70" );
+	pMDU->mvprint( 4, 23, "-180" );
+	pMDU->mvprint( 19, 23, "-100" );
 
 	// phugoid scale lines
-	pMDU->Line( 35, 19, 125, 19 );
-	pMDU->Line( 35, 19, 35, 23 );
-	pMDU->Line( 80, 19, 80, 23 );
-	pMDU->Line( 125, 19, 125, 23 );
+	pMDU->Line( 70, 30, 250, 30 );
+	pMDU->Line( 70, 30, 70, 36 );
+	pMDU->Line( 160, 30, 160, 36 );
+	pMDU->Line( 250, 30, 250, 36 );
 
 	// alpha/D scale lines
-	pMDU->Line( 12, 22, 12, 202 );
-	pMDU->Line( 10, 22, 15, 22 );
-	pMDU->Line( 10, 29, 15, 29 );
-	pMDU->Line( 10, 36, 15, 36 );
-	pMDU->Line( 10, 44, 15, 44 );
-	pMDU->Line( 10, 51, 15, 51 );
-	pMDU->Line( 10, 58, 15, 58 );
-	pMDU->Line( 10, 65, 15, 65 );
-	pMDU->Line( 10, 72, 15, 72 );
-	pMDU->Line( 10, 80, 15, 80 );
-	pMDU->Line( 10, 87, 15, 87 );
-	pMDU->Line( 10, 94, 15, 94 );
-	pMDU->Line( 10, 101, 15, 101 );
-	pMDU->Line( 10, 108, 15, 108 );
-	pMDU->Line( 10, 116, 15, 116 );
-	pMDU->Line( 10, 123, 15, 123 );
-	pMDU->Line( 10, 130, 15, 130 );
-	pMDU->Line( 10, 137, 15, 137 );
-	pMDU->Line( 10, 144, 15, 144 );
-	pMDU->Line( 10, 152, 15, 152 );
-	pMDU->Line( 10, 159, 15, 159 );
-	pMDU->Line( 10, 166, 15, 166 );
-	pMDU->Line( 10, 173, 15, 173 );
-	pMDU->Line( 10, 180, 15, 180 );
-	pMDU->Line( 10, 188, 15, 188 );
-	pMDU->Line( 10, 195, 15, 195 );
-	pMDU->Line( 10, 202, 15, 202 );
+	pMDU->Line( 34, 34, 34, 314 );
+	pMDU->Line( 30, 34, 38, 34 );
+	pMDU->Line( 30, 45, 38, 45 );
+	pMDU->Line( 30, 56, 38, 56 );
+	pMDU->Line( 30, 68, 38, 68 );
+	pMDU->Line( 30, 79, 38, 79 );
+	pMDU->Line( 30, 90, 38, 90 );
+	pMDU->Line( 30, 101, 38, 101 );
+	pMDU->Line( 30, 112, 38, 112 );
+	pMDU->Line( 30, 124, 38, 124 );
+	pMDU->Line( 30, 135, 38, 135 );
+	pMDU->Line( 30, 146, 38, 146 );
+	pMDU->Line( 30, 157, 38, 157 );
+	pMDU->Line( 30, 168, 38, 168 );
+	pMDU->Line( 30, 180, 38, 180 );
+	pMDU->Line( 30, 191, 38, 191 );
+	pMDU->Line( 30, 202, 38, 202 );
+	pMDU->Line( 30, 213, 38, 213 );
+	pMDU->Line( 30, 224, 38, 224 );
+	pMDU->Line( 30, 236, 38, 236 );
+	pMDU->Line( 30, 247, 38, 247 );
+	pMDU->Line( 30, 258, 38, 258 );
+	pMDU->Line( 30, 269, 38, 269 );
+	pMDU->Line( 30, 280, 38, 280 );
+	pMDU->Line( 30, 292, 38, 292 );
+	pMDU->Line( 30, 303, 38, 303 );
+	pMDU->Line( 30, 314, 38, 314 );
 
-	// alt/rng lines
-	pMDU->Line( 174, 31, 87, 113 );
-	pMDU->Line( 87, 113, 25, 198 );
+	// vel/rng lines
+	pMDU->Line( 348, 48, 174, 176 );
+	pMDU->Line( 174, 176, 50, 308 );
 
-	pMDU->Line( 197, 29, 96, 122 );
-	pMDU->Line( 96, 122, 25, 198 );
+	pMDU->Line( 394, 45, 192, 190 );
+	pMDU->Line( 192, 190, 50, 308 );
 
-	pMDU->Line( 222, 32, 102, 130 );
-	pMDU->Line( 102, 130, 37, 200 );
+	pMDU->Line( 444, 50, 204, 202 );
+	pMDU->Line( 204, 202, 74, 311 );
 
-	pMDU->Line( 244, 35, 89, 158 );
-	pMDU->Line( 89, 158, 55, 198 );
+	pMDU->Line( 488, 54, 178, 246 );
+	pMDU->Line( 178, 246, 110, 308 );
 
-	pMDU->Line( 254, 77, 141, 132 );
-	pMDU->Line( 141, 132, 88, 178 );
-	pMDU->Line( 88, 178, 75, 198 );
+	pMDU->Line( 508, 120, 282, 205 );
+	pMDU->Line( 282, 205, 176, 277 );
+	pMDU->Line( 176, 277, 150, 308 );
 
 	// drag lines
-	pMDU->Line( 55, 135, 35, 201, dps::DEUATT_DASHED );
+	pMDU->Line( 110, 210, 70, 313, dps::DEUATT_DASHED );
 
-	pMDU->Line( 85, 91, 59, 173, dps::DEUATT_DASHED );
-	pMDU->Line( 59, 173, 45, 196, dps::DEUATT_DASHED );
+	pMDU->Line( 170, 142, 118, 269, dps::DEUATT_DASHED );
+	pMDU->Line( 118, 269, 90, 305, dps::DEUATT_DASHED );
 
-	pMDU->Line( 122, 64, 91, 202, dps::DEUATT_DASHED );
+	pMDU->Line( 244, 100, 182, 314, dps::DEUATT_DASHED );
 
-	pMDU->Line( 175, 26, 149, 91, dps::DEUATT_DASHED );
-	pMDU->Line( 149, 91, 149, 153, dps::DEUATT_DASHED );
+	pMDU->Line( 350, 40, 298, 142, dps::DEUATT_DASHED );
+	pMDU->Line( 298, 142, 298, 238, dps::DEUATT_DASHED );
 
-	pMDU->Line( 206, 29, 203, 48, dps::DEUATT_DASHED );
-	pMDU->Line( 203, 48, 186, 92, dps::DEUATT_DASHED );
-	pMDU->Line( 186, 92, 187, 128, dps::DEUATT_DASHED );
+	pMDU->Line( 412, 45, 406, 75, dps::DEUATT_DASHED );
+	pMDU->Line( 406, 75, 372, 143, dps::DEUATT_DASHED );
+	pMDU->Line( 372, 143, 374, 199, dps::DEUATT_DASHED );
 
-	pMDU->Line( 238, 25, 212, 90, dps::DEUATT_DASHED );
-	pMDU->Line( 212, 90, 212, 113, dps::DEUATT_DASHED );
+	pMDU->Line( 476, 39, 424, 140, dps::DEUATT_DASHED );
+	pMDU->Line( 424, 140, 424, 176, dps::DEUATT_DASHED );
 
 	// digital data
 	sprintf_s( cbuf, 8, "%5.1f", STS()->GetDynPressure() * PA2PSF );
@@ -1588,80 +1890,80 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	int pos;
 	if (alpha > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 25)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 382 - Round( 7.2 * alpha );
-	pMDU->Line( 10, pos, 6, pos + 3, att );
-	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
-	pMDU->Line( 6, pos - 3, 10, pos, att );
+	else pos = 594 - Round( 11.2 * alpha );
+	pMDU->Line( 33, pos, 25, pos + 6, att );
+	pMDU->Line( 25, pos + 6, 25, pos - 6, att );
+	pMDU->Line( 25, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 25)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 382 - Round( 7.2 * alphacmd );
-	pMDU->Line( 10, pos, 7, pos + 3, att );
-	pMDU->Line( 7, pos + 3, 7, pos + 1, att );
-	pMDU->Line( 7, pos + 1, 1, pos + 1, att );
-	pMDU->Line( 1, pos + 1, 1, pos - 1, att );
-	pMDU->Line( 1, pos - 1, 7, pos - 1, att );
-	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
-	pMDU->Line( 7, pos - 3, 10, pos, att );
+	else pos = 594 - Round( 11.2 * alphacmd );
+	pMDU->Line( 33, pos, 27, pos + 6, att );
+	pMDU->Line( 27, pos + 6, 27, pos + 2, att );
+	pMDU->Line( 27, pos + 2, 15, pos + 2, att );
+	pMDU->Line( 15, pos + 2, 15, pos - 2, att );
+	pMDU->Line( 15, pos - 2, 27, pos - 2, att );
+	pMDU->Line( 27, pos - 2, 27, pos - 6, att );
+	pMDU->Line( 27, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 18, pos + 3, att );
-	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
-	pMDU->Line( 18, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 43, pos + 6, att );
+	pMDU->Line( 43, pos + 6, 43, pos - 6, att );
+	pMDU->Line( 43, pos - 6, 35, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 17, pos + 3, att );
-	pMDU->Line( 17, pos + 3, 17, pos + 1, att );
-	pMDU->Line( 17, pos + 1, 23, pos + 1, att );
-	pMDU->Line( 23, pos + 1, 23, pos - 1, att );
-	pMDU->Line( 23, pos - 1, 17, pos - 1, att );
-	pMDU->Line( 17, pos - 1, 17, pos - 3, att );
-	pMDU->Line( 17, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 41, pos + 6, att );
+	pMDU->Line( 41, pos + 6, 41, pos + 2, att );
+	pMDU->Line( 41, pos + 2, 53, pos + 2, att );
+	pMDU->Line( 53, pos + 2, 53, pos - 2, att );
+	pMDU->Line( 53, pos - 2, 41, pos - 2, att );
+	pMDU->Line( 41, pos - 2, 41, pos - 6, att );
+	pMDU->Line( 41, pos - 6, 35, pos, att );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range * 0.215333) - 154.133333 - (ETVS_Range * ETVS_Range * 0.0000283333) );
-	int y = Round( 664.8 - (ET_Mach * 26.4) );
+	int x = Round( (ETVS_Range * 0.430666) - 308.266666 - (ETVS_Range * ETVS_Range * 0.0000566666) );
+	int y = Round( 1034.1333 - (ET_Mach * 41.06667) );
 	att = dps::DEUATT_OVERBRIGHT;
 	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -1671,11 +1973,11 @@ void AerojetDAP::PaintENTRYTRAJ1Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( (ET_RangeHistory[i] * 0.215333) - 154.133333 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.0000283333) );
-			y = Round( 664.8 - (ET_MachHistory[i] * 26.4) );
-			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
+			x = Round( (ET_RangeHistory[i] * 0.430666) - 308.266666 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.0000566666) );
+			y = Round( 1034.1333 - (ET_MachHistory[i] * 41.06667) );
+			pMDU->Line( x, y + 4, x - 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x - 6, y - 4, x + 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x + 6, y - 4, x, y + 4, dps::DEUATT_OVERBRIGHT );
 		}
 	}
 	return;
@@ -1693,17 +1995,17 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 0, 14, "35" );
 	pMDU->mvprint( 0, 18, "30" );
 	pMDU->mvprint( 0, 22, "25" );
-	pMDU->mvprint( 3, 1, "D" );
-	pMDU->mvprint( 3, 2, "50" );
-	pMDU->mvprint( 3, 6, "40" );
-	pMDU->mvprint( 3, 10, "30" );
-	pMDU->mvprint( 3, 14, "20" );
-	pMDU->mvprint( 3, 18, "10" );
-	pMDU->mvprint( 3, 22, "0" );
+	pMDU->mvprint( 4, 1, "D" );
+	pMDU->mvprint( 4, 2, "50" );
+	pMDU->mvprint( 4, 6, "40" );
+	pMDU->mvprint( 4, 10, "30" );
+	pMDU->mvprint( 4, 14, "20" );
+	pMDU->mvprint( 4, 18, "10" );
+	pMDU->mvprint( 4, 22, "0" );
 	pMDU->mvprint( 7, 4, "1 BIAS" );
 	pMDU->mvprint( 7, 5, "D REF" );
 	pMDU->mvprint( 7, 6, "q" );
-	pMDU->Line( 35, 55, 40, 55 );
+	pMDU->Line( 70, 84, 80, 84 );
 	pMDU->Delta( 7, 7 );
 	pMDU->mvprint( 9, 7, "AZ" );
 	//pMDU->mvprint( 7, 9, "LO ENRGY" );
@@ -1728,59 +2030,59 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 31, 23, "-190" );
 
 	// phugoid scale lines
-	pMDU->Line( 35, 19, 125, 19 );
-	pMDU->Line( 35, 19, 35, 23 );
-	pMDU->Line( 80, 19, 80, 23 );
-	pMDU->Line( 125, 19, 125, 23 );
+	pMDU->Line( 70, 30, 250, 30 );
+	pMDU->Line( 70, 30, 70, 36 );
+	pMDU->Line( 160, 30, 160, 36 );
+	pMDU->Line( 250, 30, 250, 36 );
 
 	// alpha/D scale lines
-	pMDU->Line( 12, 22, 12, 202 );
-	pMDU->Line( 10, 22, 15, 22 );
-	pMDU->Line( 10, 29, 15, 29 );
-	pMDU->Line( 10, 36, 15, 36 );
-	pMDU->Line( 10, 44, 15, 44 );
-	pMDU->Line( 10, 51, 15, 51 );
-	pMDU->Line( 10, 58, 15, 58 );
-	pMDU->Line( 10, 65, 15, 65 );
-	pMDU->Line( 10, 72, 15, 72 );
-	pMDU->Line( 10, 80, 15, 80 );
-	pMDU->Line( 10, 87, 15, 87 );
-	pMDU->Line( 10, 94, 15, 94 );
-	pMDU->Line( 10, 101, 15, 101 );
-	pMDU->Line( 10, 108, 15, 108 );
-	pMDU->Line( 10, 116, 15, 116 );
-	pMDU->Line( 10, 123, 15, 123 );
-	pMDU->Line( 10, 130, 15, 130 );
-	pMDU->Line( 10, 137, 15, 137 );
-	pMDU->Line( 10, 144, 15, 144 );
-	pMDU->Line( 10, 152, 15, 152 );
-	pMDU->Line( 10, 159, 15, 159 );
-	pMDU->Line( 10, 166, 15, 166 );
-	pMDU->Line( 10, 173, 15, 173 );
-	pMDU->Line( 10, 180, 15, 180 );
-	pMDU->Line( 10, 188, 15, 188 );
-	pMDU->Line( 10, 195, 15, 195 );
-	pMDU->Line( 10, 202, 15, 202 );
+	pMDU->Line( 34, 34, 34, 314 );
+	pMDU->Line( 30, 34, 38, 34 );
+	pMDU->Line( 30, 45, 38, 45 );
+	pMDU->Line( 30, 56, 38, 56 );
+	pMDU->Line( 30, 68, 38, 68 );
+	pMDU->Line( 30, 79, 38, 79 );
+	pMDU->Line( 30, 90, 38, 90 );
+	pMDU->Line( 30, 101, 38, 101 );
+	pMDU->Line( 30, 112, 38, 112 );
+	pMDU->Line( 30, 124, 38, 124 );
+	pMDU->Line( 30, 135, 38, 135 );
+	pMDU->Line( 30, 146, 38, 146 );
+	pMDU->Line( 30, 157, 38, 157 );
+	pMDU->Line( 30, 168, 38, 168 );
+	pMDU->Line( 30, 180, 38, 180 );
+	pMDU->Line( 30, 191, 38, 191 );
+	pMDU->Line( 30, 202, 38, 202 );
+	pMDU->Line( 30, 213, 38, 213 );
+	pMDU->Line( 30, 224, 38, 224 );
+	pMDU->Line( 30, 236, 38, 236 );
+	pMDU->Line( 30, 247, 38, 247 );
+	pMDU->Line( 30, 258, 38, 258 );
+	pMDU->Line( 30, 269, 38, 269 );
+	pMDU->Line( 30, 280, 38, 280 );
+	pMDU->Line( 30, 292, 38, 292 );
+	pMDU->Line( 30, 303, 38, 303 );
+	pMDU->Line( 30, 314, 38, 314 );
 
-	// alt/rng lines
-	pMDU->Line( 169, 27, 54, 171 );
-	pMDU->Line( 54, 171, 41, 198 );
+	// vel/rng lines
+	pMDU->Line( 338, 42, 108, 266 );
+	pMDU->Line( 108, 266, 82, 308 );
 
-	pMDU->Line( 178, 27, 103, 198 );
+	pMDU->Line( 356, 42, 206, 308 );
 
-	pMDU->Line( 198, 27, 109, 198 );
+	pMDU->Line( 396, 42, 218, 308 );
 
-	pMDU->Line( 239, 34, 184, 147 );
-	pMDU->Line( 184, 147, 160, 191 );
+	pMDU->Line( 478, 53, 368, 229 );
+	pMDU->Line( 368, 229, 320, 297 );
 
 	// drag lines
-	pMDU->Line( 79, 124, 55, 202, dps::DEUATT_DASHED );
+	pMDU->Line( 158, 193, 110, 314, dps::DEUATT_DASHED );
 
-	pMDU->Line( 163, 27, 96, 201, dps::DEUATT_DASHED );
+	pMDU->Line( 326, 42, 192, 313, dps::DEUATT_DASHED );
 
-	pMDU->Line( 183, 28, 114, 202, dps::DEUATT_DASHED );
+	pMDU->Line( 366, 44, 228, 314, dps::DEUATT_DASHED );
 
-	pMDU->Line( 203, 28, 149, 195, dps::DEUATT_DASHED );
+	pMDU->Line( 406, 44, 298, 303, dps::DEUATT_DASHED );
 
 	// digital data
 	sprintf_s( cbuf, 8, "%5.1f", STS()->GetDynPressure() * PA2PSF );
@@ -1808,80 +2110,80 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	int pos;
 	if (alpha > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 25)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 382 - Round( 7.2 * alpha );
-	pMDU->Line( 10, pos, 6, pos + 3, att );
-	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
-	pMDU->Line( 6, pos - 3, 10, pos, att );
+	else pos = 594 - Round( 11.2 * alpha );
+	pMDU->Line( 33, pos, 25, pos + 6, att );
+	pMDU->Line( 25, pos + 6, 25, pos - 6, att );
+	pMDU->Line( 25, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 25)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 382 - Round( 7.2 * alphacmd );
-	pMDU->Line( 10, pos, 7, pos + 3, att );
-	pMDU->Line( 7, pos + 3, 7, pos + 1, att );
-	pMDU->Line( 7, pos + 1, 1, pos + 1, att );
-	pMDU->Line( 1, pos + 1, 1, pos - 1, att );
-	pMDU->Line( 1, pos - 1, 7, pos - 1, att );
-	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
-	pMDU->Line( 7, pos - 3, 10, pos, att );
+	else pos = 594 - Round( 11.2 * alphacmd );
+	pMDU->Line( 33, pos, 27, pos + 6, att );
+	pMDU->Line( 27, pos + 6, 27, pos + 2, att );
+	pMDU->Line( 27, pos + 2, 15, pos + 2, att );
+	pMDU->Line( 15, pos + 2, 15, pos - 2, att );
+	pMDU->Line( 15, pos - 2, 27, pos - 2, att );
+	pMDU->Line( 27, pos - 2, 27, pos - 6, att );
+	pMDU->Line( 27, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 18, pos + 3, att );
-	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
-	pMDU->Line( 18, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 43, pos + 6, att );
+	pMDU->Line( 43, pos + 6, 43, pos - 6, att );
+	pMDU->Line( 43, pos - 6, 35, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 17, pos + 3, att );
-	pMDU->Line( 17, pos + 3, 17, pos + 1, att );
-	pMDU->Line( 17, pos + 1, 23, pos + 1, att );
-	pMDU->Line( 23, pos + 1, 23, pos - 1, att );
-	pMDU->Line( 23, pos - 1, 17, pos - 1, att );
-	pMDU->Line( 17, pos - 1, 17, pos - 3, att );
-	pMDU->Line( 17, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 41, pos + 6, att );
+	pMDU->Line( 41, pos + 6, 41, pos + 2, att );
+	pMDU->Line( 41, pos + 2, 53, pos + 2, att );
+	pMDU->Line( 53, pos + 2, 53, pos - 2, att );
+	pMDU->Line( 53, pos - 2, 41, pos - 2, att );
+	pMDU->Line( 41, pos - 2, 41, pos - 6, att );
+	pMDU->Line( 41, pos - 6, 35, pos, att );
 
 	// orbiter symbol
-	int x = x = Round( (ETVS_Range * 0.865959) - 307.873469 - (ETVS_Range * ETVS_Range * 0.000333061) );
-	int y = 1140 - Round( ET_Mach * 66 );
+	int x = x = Round( (ETVS_Range * 1.731918) - 615.746938 - (ETVS_Range * ETVS_Range * 0.000666122) );
+	int y = Round( 1773.3333 - ET_Mach * 102.6667 );
 	att = dps::DEUATT_OVERBRIGHT;
 	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -1891,11 +2193,11 @@ void AerojetDAP::PaintENTRYTRAJ2Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( (ET_RangeHistory[i] * 0.865959) - 307.873469 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.000333061) );
-			y = 1140 - Round( ET_MachHistory[i] * 66 );
-			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
+			x = Round( (ET_RangeHistory[i] * 1.731918) - 615.746938 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.000666122) );
+			y = Round( 1773.3333 - ET_MachHistory[i] * 102.6667 );
+			pMDU->Line( x, y + 4, x - 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x - 6, y - 4, x + 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x + 6, y - 4, x, y + 4, dps::DEUATT_OVERBRIGHT );
 		}
 	}
 	return;
@@ -1913,18 +2215,17 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 0, 14, "30" );
 	pMDU->mvprint( 0, 18, "25" );
 	pMDU->mvprint( 0, 22, "20" );
-	pMDU->mvprint( 3, 1, "D" );
-	pMDU->mvprint( 3, 2, "50" );
-	pMDU->mvprint( 3, 6, "40" );
-	pMDU->mvprint( 3, 10, "30" );
-	pMDU->mvprint( 3, 14, "20" );
-	pMDU->mvprint( 3, 18, "10" );
-	pMDU->mvprint( 3, 22, "0" );
-
+	pMDU->mvprint( 4, 1, "D" );
+	pMDU->mvprint( 4, 2, "50" );
+	pMDU->mvprint( 4, 6, "40" );
+	pMDU->mvprint( 4, 10, "30" );
+	pMDU->mvprint( 4, 14, "20" );
+	pMDU->mvprint( 4, 18, "10" );
+	pMDU->mvprint( 4, 22, "0" );
 	pMDU->mvprint( 7, 4, "1 BIAS" );
 	pMDU->mvprint( 7, 5, "D REF" );
 	pMDU->mvprint( 7, 6, "q" );
-	pMDU->Line( 35, 55, 40, 55 );
+	pMDU->Line( 70, 84, 80, 84 );
 	pMDU->Delta( 7, 7 );
 	pMDU->mvprint( 9, 7, "AZ" );
 	//pMDU->mvprint( 7, 9, "LO ENRGY" );
@@ -1947,54 +2248,54 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 31, 23, "-130" );
 
 	// phugoid scale lines
-	pMDU->Line( 35, 19, 125, 19 );
-	pMDU->Line( 35, 19, 35, 23 );
-	pMDU->Line( 80, 19, 80, 23 );
-	pMDU->Line( 125, 19, 125, 23 );
+	pMDU->Line( 70, 30, 250, 30 );
+	pMDU->Line( 70, 30, 70, 36 );
+	pMDU->Line( 160, 30, 160, 36 );
+	pMDU->Line( 250, 30, 250, 36 );
 
 	// alpha/D scale lines
-	pMDU->Line( 12, 22, 12, 202 );
-	pMDU->Line( 10, 22, 15, 22 );
-	pMDU->Line( 10, 29, 15, 29 );
-	pMDU->Line( 10, 36, 15, 36 );
-	pMDU->Line( 10, 44, 15, 44 );
-	pMDU->Line( 10, 51, 15, 51 );
-	pMDU->Line( 10, 58, 15, 58 );
-	pMDU->Line( 10, 65, 15, 65 );
-	pMDU->Line( 10, 72, 15, 72 );
-	pMDU->Line( 10, 80, 15, 80 );
-	pMDU->Line( 10, 87, 15, 87 );
-	pMDU->Line( 10, 94, 15, 94 );
-	pMDU->Line( 10, 101, 15, 101 );
-	pMDU->Line( 10, 108, 15, 108 );
-	pMDU->Line( 10, 116, 15, 116 );
-	pMDU->Line( 10, 123, 15, 123 );
-	pMDU->Line( 10, 130, 15, 130 );
-	pMDU->Line( 10, 137, 15, 137 );
-	pMDU->Line( 10, 144, 15, 144 );
-	pMDU->Line( 10, 152, 15, 152 );
-	pMDU->Line( 10, 159, 15, 159 );
-	pMDU->Line( 10, 166, 15, 166 );
-	pMDU->Line( 10, 173, 15, 173 );
-	pMDU->Line( 10, 180, 15, 180 );
-	pMDU->Line( 10, 188, 15, 188 );
-	pMDU->Line( 10, 195, 15, 195 );
-	pMDU->Line( 10, 202, 15, 202 );
+	pMDU->Line( 34, 34, 34, 314 );
+	pMDU->Line( 30, 34, 38, 34 );
+	pMDU->Line( 30, 45, 38, 45 );
+	pMDU->Line( 30, 56, 38, 56 );
+	pMDU->Line( 30, 68, 38, 68 );
+	pMDU->Line( 30, 79, 38, 79 );
+	pMDU->Line( 30, 90, 38, 90 );
+	pMDU->Line( 30, 101, 38, 101 );
+	pMDU->Line( 30, 112, 38, 112 );
+	pMDU->Line( 30, 124, 38, 124 );
+	pMDU->Line( 30, 135, 38, 135 );
+	pMDU->Line( 30, 146, 38, 146 );
+	pMDU->Line( 30, 157, 38, 157 );
+	pMDU->Line( 30, 168, 38, 168 );
+	pMDU->Line( 30, 180, 38, 180 );
+	pMDU->Line( 30, 191, 38, 191 );
+	pMDU->Line( 30, 202, 38, 202 );
+	pMDU->Line( 30, 213, 38, 213 );
+	pMDU->Line( 30, 224, 38, 224 );
+	pMDU->Line( 30, 236, 38, 236 );
+	pMDU->Line( 30, 247, 38, 247 );
+	pMDU->Line( 30, 258, 38, 258 );
+	pMDU->Line( 30, 269, 38, 269 );
+	pMDU->Line( 30, 280, 38, 280 );
+	pMDU->Line( 30, 292, 38, 292 );
+	pMDU->Line( 30, 303, 38, 303 );
+	pMDU->Line( 30, 314, 38, 314 );
 
-	// alt/rng lines
-	pMDU->Line( 122, 26, 28, 193 );
+	// vel/rng lines
+	pMDU->Line( 244, 40, 56, 300 );
 
-	pMDU->Line( 198, 26, 96, 192 );
+	pMDU->Line( 396, 40, 192, 299 );
 
-	pMDU->Line( 249, 28, 194, 122 );
-	pMDU->Line( 194, 122, 148, 193 );
+	pMDU->Line( 498, 44, 388, 190 );
+	pMDU->Line( 388, 190, 296, 300 );
 
 	// drag lines
-	pMDU->Line( 146, 28, 42, 205, dps::DEUATT_DASHED );
+	pMDU->Line( 292, 44, 84, 319, dps::DEUATT_DASHED );
 
-	pMDU->Line( 190, 26, 87, 200, dps::DEUATT_DASHED );
+	pMDU->Line( 380, 40, 174, 311, dps::DEUATT_DASHED );
 
-	pMDU->Line( 220, 26, 116, 200, dps::DEUATT_DASHED );
+	pMDU->Line( 440, 40, 232, 311, dps::DEUATT_DASHED );
 
 	// digital data
 	sprintf_s( cbuf, 8, "%5.1f", STS()->GetDynPressure() * PA2PSF );
@@ -2022,80 +2323,80 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	int pos;
 	if (alpha > 45)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 20)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 346 - Round( 7.2 * alpha );
-	pMDU->Line( 10, pos, 6, pos + 3, att );
-	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
-	pMDU->Line( 6, pos - 3, 10, pos, att );
+	else pos = 538 - Round( 11.2 * alpha );
+	pMDU->Line( 33, pos, 25, pos + 6, att );
+	pMDU->Line( 25, pos + 6, 25, pos - 6, att );
+	pMDU->Line( 25, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 45)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 20)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 346 - Round( 7.2 * alphacmd );
-	pMDU->Line( 10, pos, 7, pos + 3, att );
-	pMDU->Line( 7, pos + 3, 7, pos + 1, att );
-	pMDU->Line( 7, pos + 1, 1, pos + 1, att );
-	pMDU->Line( 1, pos + 1, 1, pos - 1, att );
-	pMDU->Line( 1, pos - 1, 7, pos - 1, att );
-	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
-	pMDU->Line( 7, pos - 3, 10, pos, att );
+	else pos = 538 - Round( 11.2 * alphacmd );
+	pMDU->Line( 33, pos, 27, pos + 6, att );
+	pMDU->Line( 27, pos + 6, 27, pos + 2, att );
+	pMDU->Line( 27, pos + 2, 15, pos + 2, att );
+	pMDU->Line( 15, pos + 2, 15, pos - 2, att );
+	pMDU->Line( 15, pos - 2, 27, pos - 2, att );
+	pMDU->Line( 27, pos - 2, 27, pos - 6, att );
+	pMDU->Line( 27, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 18, pos + 3, att );
-	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
-	pMDU->Line( 18, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 43, pos + 6, att );
+	pMDU->Line( 43, pos + 6, 43, pos - 6, att );
+	pMDU->Line( 43, pos - 6, 35, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 17, pos + 3, att );
-	pMDU->Line( 17, pos + 3, 17, pos + 1, att );
-	pMDU->Line( 17, pos + 1, 23, pos + 1, att );
-	pMDU->Line( 23, pos + 1, 23, pos - 1, att );
-	pMDU->Line( 23, pos - 1, 17, pos - 1, att );
-	pMDU->Line( 17, pos - 1, 17, pos - 3, att );
-	pMDU->Line( 17, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 41, pos + 6, att );
+	pMDU->Line( 41, pos + 6, 41, pos + 2, att );
+	pMDU->Line( 41, pos + 2, 53, pos + 2, att );
+	pMDU->Line( 53, pos + 2, 53, pos - 2, att );
+	pMDU->Line( 53, pos - 2, 41, pos - 2, att );
+	pMDU->Line( 41, pos - 2, 41, pos - 6, att );
+	pMDU->Line( 41, pos - 6, 35, pos, att );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range * 1.73451) - 438.803805 - (ETVS_Range * ETVS_Range * 0.00108407) );
-	int y = 810 - Round( ET_Mach * 56.571429 );
+	int x = Round( (ETVS_Range * 3.46902) - 877.60761 - (ETVS_Range * ETVS_Range * 0.00216814) );
+	int y = 1260 - Round( ET_Mach * 88 );
 	att = dps::DEUATT_OVERBRIGHT;
 	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -2105,11 +2406,11 @@ void AerojetDAP::PaintENTRYTRAJ3Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( (ET_RangeHistory[i] * 1.73451) - 438.803805 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.00108407) );
-			y = 810 - Round( ET_MachHistory[i] * 56.571429 );
-			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
+			x = Round( (ET_RangeHistory[i] * 3.46902) - 877.60761 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.00216814) );
+			y = 1260 - Round( ET_MachHistory[i] * 88 );
+			pMDU->Line( x, y + 4, x - 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x - 6, y - 4, x + 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x + 6, y - 4, x, y + 4, dps::DEUATT_OVERBRIGHT );
 		}
 	}
 	return;
@@ -2127,18 +2428,17 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 0, 14, "30" );
 	pMDU->mvprint( 0, 18, "25" );
 	pMDU->mvprint( 0, 22, "20" );
-	pMDU->mvprint( 3, 1, "D" );
-	pMDU->mvprint( 3, 2, "50" );
-	pMDU->mvprint( 3, 6, "40" );
-	pMDU->mvprint( 3, 10, "30" );
-	pMDU->mvprint( 3, 14, "20" );
-	pMDU->mvprint( 3, 18, "10" );
-	pMDU->mvprint( 3, 22, "0" );
-
+	pMDU->mvprint( 4, 1, "D" );
+	pMDU->mvprint( 4, 2, "50" );
+	pMDU->mvprint( 4, 6, "40" );
+	pMDU->mvprint( 4, 10, "30" );
+	pMDU->mvprint( 4, 14, "20" );
+	pMDU->mvprint( 4, 18, "10" );
+	pMDU->mvprint( 4, 22, "0" );
 	pMDU->mvprint( 7, 4, "1 BIAS" );
 	pMDU->mvprint( 7, 5, "D REF" );
 	pMDU->mvprint( 7, 6, "q" );
-	pMDU->Line( 35, 55, 40, 55 );
+	pMDU->Line( 70, 84, 80, 84 );
 	pMDU->Delta( 7, 7 );
 	pMDU->mvprint( 9, 7, "AZ" );
 	//pMDU->mvprint( 7, 9, "LO ENRGY" );
@@ -2162,62 +2462,62 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 30, 23, "-250" );
 
 	// phugoid scale lines
-	pMDU->Line( 35, 19, 125, 19 );
-	pMDU->Line( 35, 19, 35, 23 );
-	pMDU->Line( 80, 19, 80, 23 );
-	pMDU->Line( 125, 19, 125, 23 );
+	pMDU->Line( 70, 30, 250, 30 );
+	pMDU->Line( 70, 30, 70, 36 );
+	pMDU->Line( 160, 30, 160, 36 );
+	pMDU->Line( 250, 30, 250, 36 );
 
 	// alpha/D scale lines
-	pMDU->Line( 12, 22, 12, 202 );
-	pMDU->Line( 10, 22, 15, 22 );
-	pMDU->Line( 10, 29, 15, 29 );
-	pMDU->Line( 10, 36, 15, 36 );
-	pMDU->Line( 10, 44, 15, 44 );
-	pMDU->Line( 10, 51, 15, 51 );
-	pMDU->Line( 10, 58, 15, 58 );
-	pMDU->Line( 10, 65, 15, 65 );
-	pMDU->Line( 10, 72, 15, 72 );
-	pMDU->Line( 10, 80, 15, 80 );
-	pMDU->Line( 10, 87, 15, 87 );
-	pMDU->Line( 10, 94, 15, 94 );
-	pMDU->Line( 10, 101, 15, 101 );
-	pMDU->Line( 10, 108, 15, 108 );
-	pMDU->Line( 10, 116, 15, 116 );
-	pMDU->Line( 10, 123, 15, 123 );
-	pMDU->Line( 10, 130, 15, 130 );
-	pMDU->Line( 10, 137, 15, 137 );
-	pMDU->Line( 10, 144, 15, 144 );
-	pMDU->Line( 10, 152, 15, 152 );
-	pMDU->Line( 10, 159, 15, 159 );
-	pMDU->Line( 10, 166, 15, 166 );
-	pMDU->Line( 10, 173, 15, 173 );
-	pMDU->Line( 10, 180, 15, 180 );
-	pMDU->Line( 10, 188, 15, 188 );
-	pMDU->Line( 10, 195, 15, 195 );
-	pMDU->Line( 10, 202, 15, 202 );
+	pMDU->Line( 34, 34, 34, 314 );
+	pMDU->Line( 30, 34, 38, 34 );
+	pMDU->Line( 30, 45, 38, 45 );
+	pMDU->Line( 30, 56, 38, 56 );
+	pMDU->Line( 30, 68, 38, 68 );
+	pMDU->Line( 30, 79, 38, 79 );
+	pMDU->Line( 30, 90, 38, 90 );
+	pMDU->Line( 30, 101, 38, 101 );
+	pMDU->Line( 30, 112, 38, 112 );
+	pMDU->Line( 30, 124, 38, 124 );
+	pMDU->Line( 30, 135, 38, 135 );
+	pMDU->Line( 30, 146, 38, 146 );
+	pMDU->Line( 30, 157, 38, 157 );
+	pMDU->Line( 30, 168, 38, 168 );
+	pMDU->Line( 30, 180, 38, 180 );
+	pMDU->Line( 30, 191, 38, 191 );
+	pMDU->Line( 30, 202, 38, 202 );
+	pMDU->Line( 30, 213, 38, 213 );
+	pMDU->Line( 30, 224, 38, 224 );
+	pMDU->Line( 30, 236, 38, 236 );
+	pMDU->Line( 30, 247, 38, 247 );
+	pMDU->Line( 30, 258, 38, 258 );
+	pMDU->Line( 30, 269, 38, 269 );
+	pMDU->Line( 30, 280, 38, 280 );
+	pMDU->Line( 30, 292, 38, 292 );
+	pMDU->Line( 30, 303, 38, 303 );
+	pMDU->Line( 30, 314, 38, 314 );
 
-	// alt/rng lines
-	pMDU->Line( 179, 33, 96, 134 );
-	pMDU->Line( 96, 134, 18, 205 );
+	// alt*vel/rng lines
+	pMDU->Line( 358, 51, 192, 208 );
+	pMDU->Line( 192, 208, 36, 319 );
 
-	pMDU->Line( 219, 41, 175, 110 );
-	pMDU->Line( 175, 110, 82, 194 );
+	pMDU->Line( 438, 64, 350, 171 );
+	pMDU->Line( 350, 171, 164, 302 );
 
-	pMDU->Line( 243, 41, 226, 82 );
-	pMDU->Line( 226, 82, 178, 144 );
-	pMDU->Line( 178, 144, 96, 206 );
+	pMDU->Line( 486, 64, 452, 128 );
+	pMDU->Line( 452, 128, 356, 224 );
+	pMDU->Line( 356, 224, 192, 320 );
 
 	// drag lines
-	pMDU->Line( 211, 24, 129, 116, dps::DEUATT_DASHED );
-	pMDU->Line( 129, 116, 106, 139, dps::DEUATT_DASHED );
-	pMDU->Line( 106, 139, 12, 212, dps::DEUATT_DASHED );
+	pMDU->Line( 422, 37, 258, 180, dps::DEUATT_DASHED );
+	pMDU->Line( 258, 180, 212, 216, dps::DEUATT_DASHED );
+	pMDU->Line( 212, 216, 24, 330, dps::DEUATT_DASHED );
 
-	pMDU->Line( 242, 28, 179, 97, dps::DEUATT_DASHED );
-	pMDU->Line( 179, 97, 136, 134, dps::DEUATT_DASHED );
-	pMDU->Line( 136, 134, 33, 212, dps::DEUATT_DASHED );
+	pMDU->Line( 484, 44, 358, 151, dps::DEUATT_DASHED );
+	pMDU->Line( 358, 151, 272, 208, dps::DEUATT_DASHED );
+	pMDU->Line( 272, 208, 66, 330, dps::DEUATT_DASHED );
 
-	pMDU->Line( 232, 93, 146, 162, dps::DEUATT_DASHED );
-	pMDU->Line( 146, 162, 84, 205, dps::DEUATT_DASHED );
+	pMDU->Line( 464, 145, 292, 252, dps::DEUATT_DASHED );
+	pMDU->Line( 292, 252, 168, 319, dps::DEUATT_DASHED );
 
 	// digital data
 	sprintf_s( cbuf, 8, "%5.1f", STS()->GetDynPressure() * PA2PSF );
@@ -2245,80 +2545,80 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	int pos;
 	if (alpha > 45)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 20)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 346 - Round( 7.2 * alpha );
-	pMDU->Line( 10, pos, 6, pos + 3, att );
-	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
-	pMDU->Line( 6, pos - 3, 10, pos, att );
+	else pos = 538 - Round( 11.2 * alpha );
+	pMDU->Line( 33, pos, 25, pos + 6, att );
+	pMDU->Line( 25, pos + 6, 25, pos - 6, att );
+	pMDU->Line( 25, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 45)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 20)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 346 - Round( 7.2 * alphacmd );
-	pMDU->Line( 10, pos, 7, pos + 3, att );
-	pMDU->Line( 7, pos + 3, 7, pos + 1, att );
-	pMDU->Line( 7, pos + 1, 1, pos + 1, att );
-	pMDU->Line( 1, pos + 1, 1, pos - 1, att );
-	pMDU->Line( 1, pos - 1, 7, pos - 1, att );
-	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
-	pMDU->Line( 7, pos - 3, 10, pos, att );
+	else pos = 538 - Round( 11.2 * alphacmd );
+	pMDU->Line( 33, pos, 27, pos + 6, att );
+	pMDU->Line( 27, pos + 6, 27, pos + 2, att );
+	pMDU->Line( 27, pos + 2, 15, pos + 2, att );
+	pMDU->Line( 15, pos + 2, 15, pos - 2, att );
+	pMDU->Line( 15, pos - 2, 27, pos - 2, att );
+	pMDU->Line( 27, pos - 2, 27, pos - 6, att );
+	pMDU->Line( 27, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 18, pos + 3, att );
-	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
-	pMDU->Line( 18, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 43, pos + 6, att );
+	pMDU->Line( 43, pos + 6, 43, pos - 6, att );
+	pMDU->Line( 43, pos - 6, 35, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 17, pos + 3, att );
-	pMDU->Line( 17, pos + 3, 17, pos + 1, att );
-	pMDU->Line( 17, pos + 1, 23, pos + 1, att );
-	pMDU->Line( 23, pos + 1, 23, pos - 1, att );
-	pMDU->Line( 23, pos - 1, 17, pos - 1, att );
-	pMDU->Line( 17, pos - 1, 17, pos - 3, att );
-	pMDU->Line( 17, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 41, pos + 6, att );
+	pMDU->Line( 41, pos + 6, 41, pos + 2, att );
+	pMDU->Line( 41, pos + 2, 53, pos + 2, att );
+	pMDU->Line( 53, pos + 2, 53, pos - 2, att );
+	pMDU->Line( 53, pos - 2, 41, pos - 2, att );
+	pMDU->Line( 41, pos - 2, 41, pos - 6, att );
+	pMDU->Line( 41, pos - 6, 35, pos, att );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range * 2.181332) - 268.519715 - (ETVS_Range * ETVS_Range * 0.00227222) );
-	int y = Round( 357.428571 - (ET_Mach * ETVS_Altitude * 0.000188571) );
+	int x = Round( (ETVS_Range * 4.362664) - 537.03943 - (ETVS_Range * ETVS_Range * 0.00454444) );
+	int y = Round( 555.9999 - (ET_Mach * ETVS_Altitude * 0.000293333) );
 	att = dps::DEUATT_OVERBRIGHT;
 	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -2328,11 +2628,11 @@ void AerojetDAP::PaintENTRYTRAJ4Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( (ET_RangeHistory[i] * 2.181332) - 268.519715 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.00227222) );
-			y = Round( 357.428571 - (ET_MachHistory[i] * ET_AltitudeHistory[i] * 0.000188571) );
-			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
+			x = Round( (ET_RangeHistory[i] * 4.362664) - 537.03943 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.00454444) );
+			y = Round( 555.9999 - (ET_MachHistory[i] * ET_AltitudeHistory[i] * 0.000293333) );
+			pMDU->Line( x, y + 4, x - 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x - 6, y - 4, x + 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x + 6, y - 4, x, y + 4, dps::DEUATT_OVERBRIGHT );
 		}
 	}
 	return;
@@ -2349,18 +2649,18 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 0, 10, "20" );
 	pMDU->mvprint( 0, 14, "15" );
 	pMDU->mvprint( 0, 18, "10" );
-	pMDU->mvprint( 1, 22, "5" );
-	pMDU->mvprint( 3, 1, "D" );
-	pMDU->mvprint( 3, 2, "50" );
-	pMDU->mvprint( 3, 6, "40" );
-	pMDU->mvprint( 3, 10, "30" );
-	pMDU->mvprint( 3, 14, "20" );
-	pMDU->mvprint( 3, 18, "10" );
-	pMDU->mvprint( 3, 22, "0" );
+	pMDU->mvprint( 0, 22, "5" );
+	pMDU->mvprint( 4, 1, "D" );
+	pMDU->mvprint( 4, 2, "50" );
+	pMDU->mvprint( 4, 6, "40" );
+	pMDU->mvprint( 4, 10, "30" );
+	pMDU->mvprint( 4, 14, "20" );
+	pMDU->mvprint( 4, 18, "10" );
+	pMDU->mvprint( 4, 22, "0" );
 	pMDU->mvprint( 7, 4, "1 BIAS" );
 	pMDU->mvprint( 7, 5, "D REF" );
 	pMDU->mvprint( 7, 6, "q" );
-	pMDU->Line( 35, 55, 40, 55 );
+	pMDU->Line( 70, 84, 80, 84 );
 	pMDU->Delta( 7, 7 );
 	pMDU->mvprint( 9, 7, "AZ" );
 	//pMDU->mvprint( 7, 9, "LO ENRGY" );
@@ -2383,64 +2683,64 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 30, 23, "-275" );
 
 	// phugoid scale lines
-	pMDU->Line( 35, 19, 125, 19 );
-	pMDU->Line( 35, 19, 35, 23 );
-	pMDU->Line( 80, 19, 80, 23 );
-	pMDU->Line( 125, 19, 125, 23 );
+	pMDU->Line( 70, 30, 250, 30 );
+	pMDU->Line( 70, 30, 70, 36 );
+	pMDU->Line( 160, 30, 160, 36 );
+	pMDU->Line( 250, 30, 250, 36 );
 
 	// alpha/D scale lines
-	pMDU->Line( 12, 22, 12, 202 );
-	pMDU->Line( 10, 22, 15, 22 );
-	pMDU->Line( 10, 29, 15, 29 );
-	pMDU->Line( 10, 36, 15, 36 );
-	pMDU->Line( 10, 44, 15, 44 );
-	pMDU->Line( 10, 51, 15, 51 );
-	pMDU->Line( 10, 58, 15, 58 );
-	pMDU->Line( 10, 65, 15, 65 );
-	pMDU->Line( 10, 72, 15, 72 );
-	pMDU->Line( 10, 80, 15, 80 );
-	pMDU->Line( 10, 87, 15, 87 );
-	pMDU->Line( 10, 94, 15, 94 );
-	pMDU->Line( 10, 101, 15, 101 );
-	pMDU->Line( 10, 108, 15, 108 );
-	pMDU->Line( 10, 116, 15, 116 );
-	pMDU->Line( 10, 123, 15, 123 );
-	pMDU->Line( 10, 130, 15, 130 );
-	pMDU->Line( 10, 137, 15, 137 );
-	pMDU->Line( 10, 144, 15, 144 );
-	pMDU->Line( 10, 152, 15, 152 );
-	pMDU->Line( 10, 159, 15, 159 );
-	pMDU->Line( 10, 166, 15, 166 );
-	pMDU->Line( 10, 173, 15, 173 );
-	pMDU->Line( 10, 180, 15, 180 );
-	pMDU->Line( 10, 188, 15, 188 );
-	pMDU->Line( 10, 195, 15, 195 );
-	pMDU->Line( 10, 202, 15, 202 );
+	pMDU->Line( 34, 34, 34, 314 );
+	pMDU->Line( 30, 34, 38, 34 );
+	pMDU->Line( 30, 45, 38, 45 );
+	pMDU->Line( 30, 56, 38, 56 );
+	pMDU->Line( 30, 68, 38, 68 );
+	pMDU->Line( 30, 79, 38, 79 );
+	pMDU->Line( 30, 90, 38, 90 );
+	pMDU->Line( 30, 101, 38, 101 );
+	pMDU->Line( 30, 112, 38, 112 );
+	pMDU->Line( 30, 124, 38, 124 );
+	pMDU->Line( 30, 135, 38, 135 );
+	pMDU->Line( 30, 146, 38, 146 );
+	pMDU->Line( 30, 157, 38, 157 );
+	pMDU->Line( 30, 168, 38, 168 );
+	pMDU->Line( 30, 180, 38, 180 );
+	pMDU->Line( 30, 191, 38, 191 );
+	pMDU->Line( 30, 202, 38, 202 );
+	pMDU->Line( 30, 213, 38, 213 );
+	pMDU->Line( 30, 224, 38, 224 );
+	pMDU->Line( 30, 236, 38, 236 );
+	pMDU->Line( 30, 247, 38, 247 );
+	pMDU->Line( 30, 258, 38, 258 );
+	pMDU->Line( 30, 269, 38, 269 );
+	pMDU->Line( 30, 280, 38, 280 );
+	pMDU->Line( 30, 292, 38, 292 );
+	pMDU->Line( 30, 303, 38, 303 );
+	pMDU->Line( 30, 314, 38, 314 );
 
-	// alt/rng lines
-	pMDU->Line( 189, 29, 111, 126 );
-	pMDU->Line( 111, 126, 36, 198 );
+	// alt*vel/rng lines
+	pMDU->Line( 378, 45, 222, 196 );
+	pMDU->Line( 222, 196, 72, 308 );
 
-	pMDU->Line( 225, 35, 179, 94 );
-	pMDU->Line( 179, 94, 101, 162 );
-	pMDU->Line( 101, 162, 46, 198 );
+	pMDU->Line( 450, 54, 358, 146 );
+	pMDU->Line( 358, 146, 202, 252 );
+	pMDU->Line( 202, 252, 92, 308 );
 
-	pMDU->Line( 246, 32, 207, 92 );
-	pMDU->Line( 207, 92, 149, 139 );
-	pMDU->Line( 149, 139, 58, 198 );
+	pMDU->Line( 492, 50, 414, 143 );
+	pMDU->Line( 414, 143, 298, 216 );
+	pMDU->Line( 298, 216, 116, 308 );
 
-	pMDU->Line( 255, 47, 230, 92 );
-	pMDU->Line( 230, 92, 177, 140 );
-	pMDU->Line( 177, 140, 80, 198 );
+	pMDU->Line( 510, 73, 460, 143 );
+	pMDU->Line( 460, 143, 354, 218 );
+	pMDU->Line( 354, 218, 160, 308 );
 
 	// drag lines
-	pMDU->Line( 210, 24, 130, 118, dps::DEUATT_DASHED );
-	pMDU->Line( 130, 118, 85, 162, dps::DEUATT_DASHED );
-	pMDU->Line( 85, 162, 13, 211, dps::DEUATT_DASHED );
+	pMDU->Line( 420, 37, 260, 184, dps::DEUATT_DASHED );
+	pMDU->Line( 260, 184, 170, 252, dps::DEUATT_DASHED );
+	pMDU->Line( 170, 252, 26, 328, dps::DEUATT_DASHED );
 
-	pMDU->Line( 242, 27, 179, 99, dps::DEUATT_DASHED );
-	pMDU->Line( 179, 99, 137, 135, dps::DEUATT_DASHED );
-	pMDU->Line( 137, 135, 34, 211, dps::DEUATT_DASHED );
+	pMDU->Line( 484, 42, 358, 154, dps::DEUATT_DASHED );
+	pMDU->Line( 358, 154, 274, 210, dps::DEUATT_DASHED );
+	pMDU->Line( 274, 210, 68, 328, dps::DEUATT_DASHED );
 
 	// digital data
 	sprintf_s( cbuf, 8, "%5.1f", STS()->GetDynPressure() * PA2PSF );
@@ -2468,80 +2768,80 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	int pos;
 	if (alpha > 30)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alpha < 5)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 238 - Round( 7.2 * alpha );
-	pMDU->Line( 10, pos, 6, pos + 3, att );
-	pMDU->Line( 6, pos + 3, 6, pos - 3, att );
-	pMDU->Line( 6, pos - 3, 10, pos, att );
+	else pos = 370 - Round( 11.2 * alpha );
+	pMDU->Line( 33, pos, 25, pos + 6, att );
+	pMDU->Line( 25, pos + 6, 25, pos - 6, att );
+	pMDU->Line( 25, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	if (alphacmd > 30)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (alphacmd < 5)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 238 - Round( 7.2 * alphacmd );
-	pMDU->Line( 10, pos, 7, pos + 3, att );
-	pMDU->Line( 7, pos + 3, 7, pos + 1, att );
-	pMDU->Line( 7, pos + 1, 1, pos + 1, att );
-	pMDU->Line( 1, pos + 1, 1, pos - 1, att );
-	pMDU->Line( 1, pos - 1, 7, pos - 1, att );
-	pMDU->Line( 7, pos - 1, 7, pos - 3, att );
-	pMDU->Line( 7, pos - 3, 10, pos, att );
+	else pos = 370 - Round( 11.2 * alphacmd );
+	pMDU->Line( 33, pos, 27, pos + 6, att );
+	pMDU->Line( 27, pos + 6, 27, pos + 2, att );
+	pMDU->Line( 27, pos + 2, 15, pos + 2, att );
+	pMDU->Line( 15, pos + 2, 15, pos - 2, att );
+	pMDU->Line( 15, pos - 2, 27, pos - 2, att );
+	pMDU->Line( 27, pos - 2, 27, pos - 6, att );
+	pMDU->Line( 27, pos - 6, 33, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = (length( drag ) / OrbiterMass) * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 18, pos + 3, att );
-	pMDU->Line( 18, pos + 3, 18, pos - 3, att );
-	pMDU->Line( 18, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 43, pos + 6, att );
+	pMDU->Line( 43, pos + 6, 43, pos - 6, att );
+	pMDU->Line( 43, pos - 6, 35, pos, att );
 
 	att = dps::DEUATT_OVERBRIGHT;
 	tmp = refDrag * MPS2FPS;
 	if (tmp > 50)
 	{
-		pos = 22;
+		pos = 34;
 		att |= dps::DEUATT_FLASHING;
 	}
 	else if (tmp < 0)
 	{
-		pos = 202;
+		pos = 314;
 		att |= dps::DEUATT_FLASHING;
 	}
-	else pos = 202 - Round( 3.6 * tmp );
-	pMDU->Line( 14, pos, 17, pos + 3, att );
-	pMDU->Line( 17, pos + 3, 17, pos + 1, att );
-	pMDU->Line( 17, pos + 1, 23, pos + 1, att );
-	pMDU->Line( 23, pos + 1, 23, pos - 1, att );
-	pMDU->Line( 23, pos - 1, 17, pos - 1, att );
-	pMDU->Line( 17, pos - 1, 17, pos - 3, att );
-	pMDU->Line( 17, pos - 3, 14, pos, att );
+	else pos = 314 - Round( 5.6 * tmp );
+	pMDU->Line( 35, pos, 41, pos + 6, att );
+	pMDU->Line( 41, pos + 6, 41, pos + 2, att );
+	pMDU->Line( 41, pos + 2, 53, pos + 2, att );
+	pMDU->Line( 53, pos + 2, 53, pos - 2, att );
+	pMDU->Line( 53, pos - 2, 41, pos - 2, att );
+	pMDU->Line( 41, pos - 2, 41, pos - 6, att );
+	pMDU->Line( 41, pos - 6, 35, pos, att );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range * 4.121212) - 198.333333 - (ETVS_Range * ETVS_Range * 0.00936639) );
-	int y = 288 - Round( ET_Mach * ETVS_Altitude * 0.00036 );
+	int x = Round( (ETVS_Range * 8.242424) - 396.666666 - (ETVS_Range * ETVS_Range * 0.01873278) );
+	int y = 448 - Round( ET_Mach * ETVS_Altitude * 0.00056 );
 	att = dps::DEUATT_OVERBRIGHT;
 	if (0) att |= dps::DEUATT_FLASHING;// TODO on roll reversal
 	pMDU->OrbiterSymbolSide( x, y, 0, att );
@@ -2551,11 +2851,11 @@ void AerojetDAP::PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const
 	{
 		if (ET_RangeHistory[i] != 0)
 		{
-			x = Round( (ET_RangeHistory[i] * 4.121212) - 198.333333 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.00936639) );
-			y = 288 - Round( ET_MachHistory[i] * ET_AltitudeHistory[i] * 0.00036 );
-			pMDU->Line( x, y + 2, x - 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x - 3, y - 2, x + 3, y - 2, dps::DEUATT_OVERBRIGHT );
-			pMDU->Line( x + 3, y - 2, x, y + 2, dps::DEUATT_OVERBRIGHT );
+			x = Round( (ET_RangeHistory[i] * 8.242424) - 396.666666 - (ET_RangeHistory[i] * ET_RangeHistory[i] * 0.01873278) );
+			y = 448 - Round( ET_MachHistory[i] * ET_AltitudeHistory[i] * 0.00056 );
+			pMDU->Line( x, y + 4, x - 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x - 6, y - 4, x + 6, y - 4, dps::DEUATT_OVERBRIGHT );
+			pMDU->Line( x + 6, y - 4, x, y + 4, dps::DEUATT_OVERBRIGHT );
 		}
 	}
 	return;
@@ -2592,28 +2892,28 @@ void AerojetDAP::PaintVERTSIT1Display( vc::MDU* pMDU ) const
 	//pMDU->mvprint( 20, 21, "TGT NZ" );// OPS 6 only
 
 	// alt/rng lines
-	pMDU->Line( 202, 58, 90, 103 );
-	pMDU->Line( 90, 103, 37, 148 );
-	pMDU->Line( 37, 148, 12, 198 );
+	pMDU->Line( 404, 90, 180, 160 );
+	pMDU->Line( 180, 160, 74, 230 );
+	pMDU->Line( 74, 230, 24, 308 );
 
-	pMDU->Line( 200, 72, 108, 104 );
-	pMDU->Line( 108, 104, 30, 200 );
+	pMDU->Line( 400, 112, 216, 162 );
+	pMDU->Line( 216, 162, 60, 311 );
 
-	pMDU->Line( 202, 78, 119, 121 );
-	pMDU->Line( 119, 121, 52, 193 );
+	pMDU->Line( 404, 121, 238, 188 );
+	pMDU->Line( 238, 188, 104, 300 );
 
 	// RTLS alpha/mach transition
-	pMDU->Line( 107, 59, 21, 72 );
-	pMDU->Line( 21, 72, 5, 81 );
-	pMDU->Line( 105, 40, 5, 63, dps::DEUATT_DASHED );
+	pMDU->Line( 214, 92, 42, 112 );
+	pMDU->Line( 42, 112, 10, 126 );
+	pMDU->Line( 210, 62, 10, 98, dps::DEUATT_DASHED );
 
 	// theta / E/W scale
-	pMDU->Line( 232, 74, 232, 218 );
-	pMDU->Line( 230, 115, 235, 115 );
-	pMDU->Line( 231, 135, 238, 135, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( 230, 137, 235, 137, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( 231, 139, 238, 139, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( 230, 188, 235, 188 );
+	pMDU->Line( 464, 115, 464, 339 );
+	pMDU->Line( 460, 179, 470, 179 );
+	pMDU->Line( 462, 210, 476, 210, dps::DEUATT_OVERBRIGHT );
+	pMDU->Line( 460, 213, 470, 213, dps::DEUATT_OVERBRIGHT );
+	pMDU->Line( 462, 216, 476, 216, dps::DEUATT_OVERBRIGHT );
+	pMDU->Line( 460, 292, 470, 292 );
 
 	// digital data
 	sprintf_s( cbuf, 8, "%3.0f", STS()->aerosurfaces.speedbrake );
@@ -2633,8 +2933,8 @@ void AerojetDAP::PaintVERTSIT1Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 28, 17, cbuf );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range - 10) * 4.25 );
-	int y = Round( 300.8571428571 - (ETVS_Altitude * 0.0028285714) );
+	int x = Round( (ETVS_Range - 10) * 8.5 );
+	int y = Round( 467.999999999933 - (ETVS_Altitude * 0.004399999956) );
 	VECTOR3 vel;
 	STS()->GetHorizonAirspeedVector( vel );
 	double rot = atan( vel.y / (0.192 * sqrt( vel.x * vel.x + vel.z * vel.z )) );
@@ -2676,22 +2976,22 @@ void AerojetDAP::PaintVERTSIT2Display( vc::MDU* pMDU ) const
 	if (GetApproachAndLandState() == true) pMDU->mvprint( 38, 17, "A/L", dps::DEUATT_FLASHING );
 
 	// alt/rng lines
-	pMDU->Line( 94, 29, 36, 173 );
+	pMDU->Line( 188, 45, 72, 269 );
 
-	pMDU->Line( 133, 27, 36, 178 );
+	pMDU->Line( 266, 42, 72, 277 );
 	
-	pMDU->Line( 211, 35, 66, 146 );
-	pMDU->Line( 66, 146, 36, 188 );
+	pMDU->Line( 422, 54, 132, 227 );
+	pMDU->Line( 132, 227, 72, 292 );
 
-	pMDU->Line( 36, 173, 36, 188 );
+	pMDU->Line( 72, 269, 72, 292 );
 
 	// theta / E/W scale
-	pMDU->Line( 232, 53, 232, 218 );
-	pMDU->Line( 230, 103, 235, 103 );
-	pMDU->Line( 231, 133, 238, 133, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( 230, 139, 235, 139, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( 231, 142, 238, 142, dps::DEUATT_OVERBRIGHT );
-	pMDU->Line( 230, 184, 235, 184 );
+	pMDU->Line( 464, 82, 464, 339 );
+	pMDU->Line( 460, 160, 470, 160 );
+	pMDU->Line( 462, 207, 476, 207, dps::DEUATT_OVERBRIGHT );
+	pMDU->Line( 460, 216, 470, 216, dps::DEUATT_OVERBRIGHT );
+	pMDU->Line( 462, 221, 476, 221, dps::DEUATT_OVERBRIGHT );
+	pMDU->Line( 460, 286, 470, 286 );
 
 	// digital data
 	sprintf_s( cbuf, 8, "%3.0f", STS()->aerosurfaces.speedbrake );
@@ -2711,8 +3011,8 @@ void AerojetDAP::PaintVERTSIT2Display( vc::MDU* pMDU ) const
 	pMDU->mvprint( 29, 17, cbuf );
 
 	// orbiter symbol
-	int x = Round( (ETVS_Range - 5) * 12.75 );
-	int y = 288 - Round( ETVS_Altitude * 0.009 );
+	int x = Round( (ETVS_Range - 5) * 25.5 );
+	int y = 448 - Round( ETVS_Altitude * 0.014 );
 	VECTOR3 vel;
 	STS()->GetHorizonAirspeedVector( vel );
 	double rot = atan( vel.y / (0.181 * sqrt( vel.x * vel.x + vel.z * vel.z )) );
@@ -2747,71 +3047,87 @@ void AerojetDAP::SetAerosurfaceCommands(double DeltaT)
 
 void AerojetDAP::SetSpeedbrakeCommand(double range, double DeltaT)
 {
-	if(SpeedbrakeAuto) {
-		// check for manual takeover
-		if(!bSecondStep && !Eq(SpdbkThrotPort.GetVoltage(), lastSBTCCommand, 0.01)) SpeedbrakeAutoOut.ResetLine();
-		lastSBTCCommand = SpdbkThrotPort.GetVoltage();
-		
-		if(bWOW) STS()->SetSpeedbrake(1.0);
-		else STS()->SetSpeedbrake(CalculateSpeedbrakeCommand(range, DeltaT)/100.0);
-	}
-	else STS()->SetSpeedbrake(1.0f-SpdbkThrotPort.GetVoltage()); // full throttle corresponds to closed speedbrake
-}
+	double speedbrakeCMD = 0.0;
 
-void AerojetDAP::SetThrusterLevels()
-{
-	//for the moment, use RHC input to control thruster firings
-	for(unsigned short i=0;i<3;i++) {
-		if(ThrustersActive[i]) {
-			if(RHCInput[i].GetVoltage()>0.01) {
-				ThrusterCommands[i].SetLine(1.0f);
-			}
-			else if(RHCInput[i].GetVoltage()<-0.01) {
-				ThrusterCommands[i].SetLine(-1.0f);
-			}
-			else {
-				ThrusterCommands[i].ResetLine();
-			}
+	// calc auto comand
+	if (pLanding_SOP->GetWOWLON() == true) AutoSpeedbrakeCommand = 1.0;
+	else AutoSpeedbrakeCommand = CalculateSpeedbrakeCommand( range, DeltaT ) / 100.0;
+
+	// AUTO/MAN logic
+	if (SpeedbrakeState == AUTO)
+	{
+		if (pSBTC_SOP->GetCDRTakeover() == true)
+		{
+			// go cdr
+			SpeedbrakeState = MAN_CDR;
+			CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+			PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+			CDR_SPDBK_THROT_MAN_LT.SetLine();
+			PLT_SPDBK_THROT_MAN_LT.ResetLine();
+			speedbrakeCMD = pSBTC_SOP->GetManSpeedbrakeCommand() / 98.6;
 		}
-		else {
-			ThrusterCommands[i].ResetLine();
+		else if (pSBTC_SOP->GetPLTTakeover() == true)
+		{
+			// go plt
+			SpeedbrakeState = MAN_PLT;
+			CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+			PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+			CDR_SPDBK_THROT_MAN_LT.ResetLine();
+			PLT_SPDBK_THROT_MAN_LT.SetLine();
+			speedbrakeCMD = pSBTC_SOP->GetManSpeedbrakeCommand() / 98.6;
+		}
+		else
+		{
+			// auto
+			speedbrakeCMD = AutoSpeedbrakeCommand;
 		}
 	}
-	/*if(PitchActive) {
-		if(RHCInput[PITCH].GetVoltage()>0.01) {
-			ThrusterCommands[PITCH].SetLine(1.0f);
+	else
+	{
+		if (CDR_SPDBK_THROT.IsSet() || PLT_SPDBK_THROT.IsSet())
+		{
+			// go auto
+			SpeedbrakeState = AUTO;
+			CDR_SPDBK_THROT_AUTO_LT.SetLine();
+			PLT_SPDBK_THROT_AUTO_LT.SetLine();
+			CDR_SPDBK_THROT_MAN_LT.ResetLine();
+			PLT_SPDBK_THROT_MAN_LT.ResetLine();
+			speedbrakeCMD = AutoSpeedbrakeCommand;
 		}
-		else if(RHCInput[PITCH].GetVoltage()<-0.01) {
-			ThrusterCommands[PITCH].SetLine(-1.0f);
+		else if (pSBTC_SOP->GetCDRTakeover() == true)
+		{
+			// go cdr
+			SpeedbrakeState = MAN_CDR;
+			CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+			PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+			CDR_SPDBK_THROT_MAN_LT.SetLine();
+			PLT_SPDBK_THROT_MAN_LT.ResetLine();
+			speedbrakeCMD = pSBTC_SOP->GetManSpeedbrakeCommand() / 98.6;
 		}
-		else {
-			ThrusterCommands[PITCH].ResetLine();
+		else if (pSBTC_SOP->GetPLTTakeover() == true)
+		{
+			// go plt
+			SpeedbrakeState = MAN_PLT;
+			CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+			PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+			CDR_SPDBK_THROT_MAN_LT.ResetLine();
+			PLT_SPDBK_THROT_MAN_LT.SetLine();
+			speedbrakeCMD = pSBTC_SOP->GetManSpeedbrakeCommand() / 98.6;
 		}
-	}
-	else {
+		else
+		{
+			// man
+			speedbrakeCMD = pSBTC_SOP->GetManSpeedbrakeCommand() / 98.6;
+		}
 	}
 
-	if(YawActive) {
-		if(RHCInput.data[YAW]>0.01) {
-		}
-		else if(RHCInput.data[YAW]<-0.01) {
-		}
-		else {
-		}
-	}
-	else {
-	}
+	// limit to >=15% if M>0.6 for stability, and keep limit below to prevent damage
+	if ((STS()->GetMachNumber() < 9.814815))// use M9.8 instead of M10 so initial ramp occurs
+		speedbrakeCMD = max( speedbrakeCMD, 0.15 );
 
-	if(RollActive) {
-		if(RHCInput.data[ROLL]>0.01) {
-		}
-		else if(RHCInput.data[ROLL]<-0.01) {
-		}
-		else {
-		}
-	}
-	else {
-	}*/
+	// set command
+	STS()->SetSpeedbrake( speedbrakeCMD );
+	return;
 }
 
 double AerojetDAP::GetThrusterCommand(AXIS axis, double DeltaT)
@@ -2864,13 +3180,13 @@ void AerojetDAP::CheckControlActivation()
 
 double AerojetDAP::CSSPitchInput(double DeltaT)
 {
-	return RHCInput[PITCH].GetVoltage()*6.0 + STS()->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM)*2.5;
+	return (pRHC_SOP->GetPitchCommand() / 24.3) * 6.0 + STS()->GetControlSurfaceLevel( AIRCTRL_ELEVATORTRIM ) * 2.5;
 }
 
 
 double AerojetDAP::CSSRollInput(double DeltaT)
 {
-	return RHCInput[ROLL].GetVoltage()*5.0;
+	return (pRHC_SOP->GetRollCommand() / 24.3) * 5.0;
 }
 
 void AerojetDAP::GetAttitudeData(double DeltaT)
@@ -2885,7 +3201,7 @@ void AerojetDAP::GetAttitudeData(double DeltaT)
 		degCurrentAttitude.data[PITCH] = STS()->GetPitch()*DEG;
 	degCurrentAttitude.data[YAW] = STS()->GetSlipAngle()*DEG;
 	// for AUTO control, we are interested in bank around lift vector; for CSS control, use actual bank
-	if(!RollYawAuto)
+	if (AutoFCSRoll == false)
 		degCurrentAttitude.data[ROLL] = -STS()->GetBank()*DEG;
 	else
 		degCurrentAttitude.data[ROLL] = CalculateCurrentLiftBank();
@@ -3588,9 +3904,9 @@ void AerojetDAP::InitializeRunwayData()
 		degRwyHeading = vLandingSites[SITE_ID].degPriHeading+180.0;
 		if(degRwyHeading >= 360.0) degRwyHeading-=360.0;
 	}*/
-	double radLat, radLong;
-	vLandingSites[SITE_ID].GetRwyPosition(!SEC, radLat, radLong); // get lat/long for end we want to land on
-	RwyStart_EarthLocal = GetPositionVector(hEarth, radLat, radLong, oapiGetSize(hEarth));
+	double radLat, radLong, AMSL;
+	vLandingSites[SITE_ID].GetRwyPosition(!SEC, radLat, radLong, AMSL); // get lat/long for end we want to land on
+	RwyStart_EarthLocal = GetPositionVector(hEarth, radLat, radLong, oapiGetSize(hEarth) + AMSL);
 	VECTOR3 end1 = RwyStart_EarthLocal/length(RwyStart_EarthLocal);
 
 	degRwyHeading = vLandingSites[SITE_ID].GetRwyHeading(!SEC);
@@ -3625,8 +3941,8 @@ void AerojetDAP::CalculateRangeAndDELAZ(double& Range, double& delaz)
 	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
 	
 	double lng, lat, rad;
-	double tgtLong, tgtLat;
-	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong);
+	double tgtLong, tgtLat, AMSL;
+	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong, AMSL);
 	STS()->GetEquPos(lng, lat, rad);
 	VECTOR3 shuttlePos = GetPositionVector(hEarth, lat, lng, rad);
 	
@@ -3688,85 +4004,90 @@ void AerojetDAP::LoadLandingSiteList()
 {
 	// for reference, landing site tables can be found in Ascent Checklists
 	// (using a modified STS-115 table, where the numbers within brackets are the changes)
-	vLandingSites.push_back(LandingSiteData(28.633112*RAD, -80.706234*RAD, 28.596660*RAD, -80.682413*RAD, 150.2505, 330.2505, "KSC15", "KSC33"));// 1
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEN36", "BEN18" ) );// 2
-	vLandingSites.push_back( LandingSiteData( 37.201981 * RAD, -5.618836 * RAD, 37.171786 * RAD, -5.632640 * RAD, 200, 20, "MRN20", "MRN02", 11730/MPS2FPS, 60.96 ) );// 3
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ZZA30L", "ZZA12R" ) );// 4
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "MYR36", "MYR18" ) );// 5
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ILM06", "ILM24" ) );// 6
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NKT32L", "NKT23R" ) );// 7
+	vLandingSites.push_back(LandingSiteData(28.633112*RAD, -80.706234*RAD, 3.0, 28.596660*RAD, -80.682413*RAD, 3.0, 150.2505, 330.2505, "KSC15", "KSC33"));// 1
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEN36", "BEN18" ) );// 2
+	vLandingSites.push_back( LandingSiteData( 37.201981 * RAD, -5.618836 * RAD, 0, 37.171786 * RAD, -5.632640 * RAD, 0.0, 200, 20, "MRN20", "MRN02", 11730/MPS2FPS, 60.96 ) );// 3
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ZZA30L", "ZZA12R" ) );// 4
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "MYR36", "MYR18" ) );// 5
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ILM06", "ILM24" ) );// 6
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NKT32L", "NKT23R" ) );// 7
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NTU32R", "NTU23L" ) );// 8
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "NTU32R", "NTU23L" ) );// 8
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "WAL28", "WAL04" ) );// 9
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "WAL28", "WAL04" ) );// 9
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "DOV32", "DOV19" ) );// 10
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "DOV32", "DOV19" ) );// 10
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ACY31", "ACY13" ) );// 11
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEN36", "BEN18" ) );// 12
-	vLandingSites.push_back( LandingSiteData( 37.201852 * RAD, -5.619978 * RAD, 37.171246 * RAD, -5.632307 * RAD, 197.8, 17.8, "MRN20", "MRN02", 11730/MPS2FPS, 60.96 ) );// 13
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ZZA30L", "ZZA12R" ) );// 14
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FOK06", "FOK24" ) );// 15
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FMH32", "FMH23" ) );// 16
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ACY31", "ACY13" ) );// 11
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEN36", "BEN18" ) );// 12
+	vLandingSites.push_back( LandingSiteData( 37.201852 * RAD, -5.619978 * RAD, 0.0, 37.171246 * RAD, -5.632307 * RAD, 0.0, 197.8, 17.8, "MRN20", "MRN02", 11730/MPS2FPS, 60.96 ) );// 13
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ZZA30L", "ZZA12R" ) );// 14
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FOK06", "FOK24" ) );// 15
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FMH32", "FMH23" ) );// 16
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "PSM34", "PSM16" ) );// 17
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YHZ23", "YHZ32" ) );// 18
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "PSM34", "PSM16" ) );// 17
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YHZ23", "YHZ32" ) );// 18
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YJT09", "YJT27" ) );// 19
-	vLandingSites.push_back( LandingSiteData( 47.625375 * RAD, -52.737635 * RAD, 47.622485 * RAD, -52.771932 * RAD, 262.9, 82.9, "YYT29", "YYT11", 8500/MPS2FPS, 60.96 ) );// 20
-	vLandingSites.push_back( LandingSiteData( 48.946994 * RAD, -54.560357 * RAD, 48.946406 * RAD, -54.554009 * RAD, 191.0, 288.0, "YQX21", "YQX31", 9640 / MPS2FPS, 200 / MPS2FPS ) );// 21
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YJT09", "YJT27" ) );// 19
+	vLandingSites.push_back( LandingSiteData( 47.625375 * RAD, -52.737635 * RAD, 0.0, 47.622485 * RAD, -52.771932 * RAD, 0.0, 262.9, 82.9, "YYT29", "YYT11", 8500/MPS2FPS, 60.96 ) );// 20
+	vLandingSites.push_back( LandingSiteData( 48.946994 * RAD, -54.560357 * RAD, 0.0, 48.946406 * RAD, -54.554009 * RAD, 0.0, 191.0, 288.0, "YQX21", "YQX31", 9640 / MPS2FPS, 200 / MPS2FPS ) );// 21
 	vLandingSites.back().SetSecRunwayParameters( 8040 / MPS2FPS, 200 / MPS2FPS );// length/width data above is for primary runway
-	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YYR26", "YYR34" ) );// 22
+	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YYR26", "YYR34" ) );// 22
 	//vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 13.323423 * RAD, -16.643910 * RAD, 13.348584 * RAD, -16.664848 * RAD, 321.0, 141.0, "BYD32", "BYD14", 11811 / MPS2FPS, 148 / MPS2FPS ) );// [22]
-	vLandingSites.push_back( LandingSiteData( 38.766205 * RAD, -27.102996 * RAD, 38.742958 * RAD, -27.079116 * RAD, 141.3, 321.3, "LAJ15", "LAJ33", 10870/MPS2FPS, 91.44 ) );// 23
-	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEJ01L", "BEJ19R" ) );// 24
-	vLandingSites.push_back( LandingSiteData( 34.720606 * RAD, -120.567103 * RAD, 34.750617 * RAD, -120.601304 * RAD, 316.5, 136.5, "VBG30", "VBG12", 15000 / MPS2FPS, 200 / MPS2FPS ) );// [24]
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "IKF20", "IKF29" ) );// 25
+	vLandingSites.push_back( LandingSiteData( 13.323423 * RAD, -16.643910 * RAD, 0.0, 13.348584 * RAD, -16.664848 * RAD, 0.0, 321.0, 141.0, "BYD32", "BYD14", 11811 / MPS2FPS, 148 / MPS2FPS ) );// [22]
+	vLandingSites.push_back( LandingSiteData( 38.766205 * RAD, -27.102996 * RAD, 0.0, 38.742958 * RAD, -27.079116 * RAD, 0.0, 141.3, 321.3, "LAJ15", "LAJ33", 10870/MPS2FPS, 91.44 ) );// 23
+	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEJ01L", "BEJ19R" ) );// 24
+	vLandingSites.push_back( LandingSiteData( 34.720606 * RAD, -120.567103 * RAD, 0.0, 34.750617 * RAD, -120.601304 * RAD, 0.0, 316.5, 136.5, "VBG30", "VBG12", 15000 / MPS2FPS, 200 / MPS2FPS ) );// [24]
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "IKF20", "IKF29" ) );// 25
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 52.694418 * RAD, -8.940019 * RAD, 52.710227 * RAD, -8.910320 * RAD, 48.7, 228.7, "INN06", "INN24", 9539 / MPS2FPS, 148 / MPS2FPS ) );// 26
+	vLandingSites.push_back( LandingSiteData( 52.694418 * RAD, -8.940019 * RAD, 0.0, 52.710227 * RAD, -8.910320 * RAD, 0.0, 48.7, 228.7, "INN06", "INN24", 9539 / MPS2FPS, 148 / MPS2FPS ) );// 26
 	vLandingSites.back().SetSecRunwayParameters( 9699 / MPS2FPS, 148 / MPS2FPS );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FFA27", "FFA09" ) );// 27
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KBO14L", "KBO32R" ) );// 28
-	vLandingSites.push_back( LandingSiteData( 43.511129 * RAD, 4.932931 * RAD, 43.540647 * RAD, 4.910444 * RAD, 331.1, 151.1, "FMI33", "FMI15", 12300/MPS2FPS, 60.0456 ) );// 29
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ESN03R", "ESN21L" ) );// 30
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KKI15R", "KKI33L" ) );// 31
-	vLandingSites.push_back( LandingSiteData( -7.319984 * RAD, 72.415794 * RAD, -7.303044 * RAD, 72.387373 * RAD, 301, 121, "JDG31", "JDG13", 12000/MPS2FPS, 60.96 ) );// 32
-	vLandingSites.push_back( LandingSiteData( -27.624551 * RAD, 152.712429 * RAD, -14.512784 * RAD, 132.367147 * RAD, 159.3, 135, "AMB15", "PTN14", 10000 / MPS2FPS, 150 / MPS2FPS ) );// 33
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FFA27", "FFA09" ) );// 27
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KBO14L", "KBO32R" ) );// 28
+	vLandingSites.push_back( LandingSiteData( 43.511129 * RAD, 4.932931 * RAD, 0.0, 43.540647 * RAD, 4.910444 * RAD, 0.0, 331.1, 151.1, "FMI33", "FMI15", 12300/MPS2FPS, 60.0456 ) );// 29
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ESN03R", "ESN21L" ) );// 30
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KKI15R", "KKI33L" ) );// 31
+	vLandingSites.push_back( LandingSiteData( -7.319984 * RAD, 72.415794 * RAD, 0.0, -7.303044 * RAD, 72.387373 * RAD, 0.0, 301, 121, "JDG31", "JDG13", 12000/MPS2FPS, 60.96 ) );// 32
+	vLandingSites.push_back( LandingSiteData( -27.624551 * RAD, 152.712429 * RAD, 0.0, -14.512784 * RAD, 132.367147 * RAD, 0.0, 159.3, 135, "AMB15", "PTN14", 10000 / MPS2FPS, 150 / MPS2FPS ) );// 33
 	vLandingSites.back().SetSecRunwayParameters( 9003 / MPS2FPS, 150 / MPS2FPS );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "JTY36", "JTY18" ) );// 34
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "GUA06L", "GUA24R" ) );// 35
-	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "WAK28", "WAK10" ) );// 36
-	vLandingSites.push_back( LandingSiteData( 32.358907 * RAD, -64.661495 * RAD, 32.364412 * RAD, -64.692156 * RAD, 282, 102, "BDA30", "BDA12", 8892 / MPS2FPS, 150 / MPS2FPS ) );// [36]
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "JTY36", "JTY18" ) );// 34
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "GUA06L", "GUA24R" ) );// 35
+	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "WAK28", "WAK10" ) );// 36
+	vLandingSites.push_back( LandingSiteData( 32.358907 * RAD, -64.661495 * RAD, 0.0, 32.364412 * RAD, -64.692156 * RAD, 0.0, 282, 102, "BDA30", "BDA12", 8892 / MPS2FPS, 150 / MPS2FPS ) );// [36]
 	vLandingSites.back().SetSecRunwayParameters( 9212 / MPS2FPS, 150 / MPS2FPS );// length/width data above is for primary runway [36]
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HNL08R", "HNL26L" ) );// 37
-	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDF24", "EDF06" ) );// 38
-	vLandingSites.push_back( LandingSiteData( -27.173447 * RAD, -109.406801 * RAD, -27.159263 * RAD, -109.436664 * RAD, 298.1, 118.1, "EIP28", "EIP10", 10000 / MPS2FPS, 60.96 ) );// [38]
-	vLandingSites.push_back( LandingSiteData( -18.053836 * RAD, -140.978030 * RAD, -18.084687 * RAD, -140.944897 * RAD, 134.4, 314.4, "HAO12", "HAO30", 10390/MPS2FPS, 44.8056 ) );// 39
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "AWG25", "AWG07" ) );// 40
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HAW13", "HAW31" ) );// 41
-	vLandingSites.push_back( LandingSiteData( 32.521818 * RAD, -106.210183 * RAD, 32.512529 * RAD, -106.193168 * RAD, 187.2, 244.4, "NOR17", "NOR23", 15000 / MPS2FPS, 300 / MPS2FPS ) );// 42
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HNL08R", "HNL26L" ) );// 37
+	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDF24", "EDF06" ) );// 38
+	vLandingSites.push_back( LandingSiteData( -27.173447 * RAD, -109.406801 * RAD, 0.0, -27.159263 * RAD, -109.436664 * RAD, 0.0, 298.1, 118.1, "EIP28", "EIP10", 10000 / MPS2FPS, 60.96 ) );// [38]
+	vLandingSites.push_back( LandingSiteData( -18.053836 * RAD, -140.978030 * RAD, 0.0, -18.084687 * RAD, -140.944897 * RAD, 0.0, 134.4, 314.4, "HAO12", "HAO30", 10390/MPS2FPS, 44.8056 ) );// 39
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "AWG25", "AWG07" ) );// 40
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HAW13", "HAW31" ) );// 41
+	vLandingSites.push_back( LandingSiteData( 32.960364 * RAD, -106.417364 * RAD, 0.0, 32.950714 * RAD, -106.403254 * RAD, 0.0, 187.2, 244.4, "NOR17", "NOR23", 15000 / MPS2FPS, 300 / MPS2FPS ) );// 42
 	vLandingSites.back().SetSecRunwayParameters( 15000 / MPS2FPS, 300 / MPS2FPS );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 32.494757 * RAD, -106.237123 * RAD, 32.481026 * RAD, -106.216290 * RAD, 64.4, 7.2, "NOR05", "NOR35", 15000 / MPS2FPS, 300 / MPS2FPS ) );// 43
+	vLandingSites.push_back( LandingSiteData( 32.932950 * RAD, -106.447422 * RAD, 0.0, 32.919583 * RAD, -106.423504 * RAD, 0.0, 64.4, 7.2, "NOR05", "NOR35", 15000 / MPS2FPS, 300 / MPS2FPS ) );// 43
 	vLandingSites.back().SetSecRunwayParameters( 15000 / MPS2FPS, 300 / MPS2FPS );// length/width data above is for primary runway
-	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDW15", "EDW18L" ) );// 44
+	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDW15", "EDW18L" ) );// 44
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back(LandingSiteData(34.9173476*RAD, -117.8595079*RAD, 34.8941050*RAD, -117.9051869*RAD, 238.16, 58.16, "EDW22", "EDW04"));// 45
+	vLandingSites.push_back(LandingSiteData(34.9173476*RAD, -117.8595079*RAD, 704.0, 34.8941050*RAD, -117.9051869*RAD, 704.0, 238.16, 58.16, "EDW22", "EDW04"));// 45
 }
 
 bool AerojetDAP::GetAutoPitchState( void ) const
 {
-	return PitchAuto.IsSet();
+	return AutoFCSPitch;
 }
 
 bool AerojetDAP::GetAutoRollYawState( void ) const
 {
-	return RollYawAuto.IsSet();
+	return AutoFCSRoll;
 }
 
 bool AerojetDAP::GetAutoSpeedbrakeState( void ) const
 {
-	return SpeedbrakeAuto.IsSet();
+	return (SpeedbrakeState == AUTO);
+}
+
+double AerojetDAP::GetAutoSpeedbrakeCommand( void ) const
+{
+	return AutoSpeedbrakeCommand * 100.0;
 }
 
 const std::string& AerojetDAP::GetSelectedRunway( void ) const
@@ -3783,8 +4104,8 @@ double AerojetDAP::GetRangeToRunway( void ) const
 	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
 	
 	double lng, lat, rad;
-	double tgtLong, tgtLat;
-	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong);
+	double tgtLong, tgtLat, AMSL;
+	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong, AMSL);
 	STS()->GetEquPos(lng, lat, rad);
 	VECTOR3 shuttlePos = GetPositionVector(hEarth, lat, lng, rad);
 
@@ -3811,8 +4132,8 @@ double AerojetDAP::GetdeltaAZ( void ) const
 	const double YSGN = (HACSide==L) ? -1.0 : 1.0;
 	
 	double lng, lat, rad;
-	double tgtLong, tgtLat;
-	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong);
+	double tgtLong, tgtLat, AMSL;
+	vLandingSites[SITE_ID].GetRwyPosition(!SEC, tgtLat, tgtLong, AMSL);
 	STS()->GetEquPos(lng, lat, rad);
 	VECTOR3 shuttlePos = GetPositionVector(hEarth, lat, lng, rad);
 	
@@ -3890,11 +4211,6 @@ double AerojetDAP::GetVacc( void ) const
 	mag = length(spd_vec2);
 	vacc += mag * mag / radius;
 	return vacc * MPS2FPS;
-}
-
-bool AerojetDAP::GetWOW( void ) const
-{
-	return bWONG;
 }
 
 VECTOR3 AerojetDAP::GetAttitudeErrors( void ) const

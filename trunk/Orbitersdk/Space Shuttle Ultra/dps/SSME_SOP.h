@@ -102,6 +102,9 @@ namespace dps
 			unsigned short pridata[3][32];
 			unsigned short secdata[3][6];
 
+			double last_priTREF[3];
+			double last_secTREF[3];
+
 			bool PrimaryDataFail[3];
 			bool SecondaryDataFail[3];
 			bool DCUProcess[3];
