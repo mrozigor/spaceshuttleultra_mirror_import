@@ -40,8 +40,9 @@ namespace dps {
 
 	class IO_Control;
 	class SSME_Operations;
-	class AscentGuidance;
+	class AscentDAP;
 	class AerojetDAP;
+	class Landing_SOP;
 	class OMSBurnSoftware;
 
 	const char DEUATT_NORMAL = 0;
@@ -106,8 +107,9 @@ namespace dps {
 
 		IO_Control* pIO_Control;
 		SSME_Operations* pSSME_Operations;
-		AscentGuidance* pAscentGuidance;
+		AscentDAP* pAscentDAP;
 		AerojetDAP* pAerojetDAP;
+		Landing_SOP* pLanding_SOP;
 		OMSBurnSoftware* pOMSBurnSoftware;
 
 		
@@ -143,13 +145,15 @@ namespace dps {
 		bool IsKeyboardSelected( unsigned short usKeyboardID ) const;
 		virtual MAJORFUNCTION GetMajfunc() const;
 		virtual const char* GetScratchPadLineString() const;
+		virtual const char* GetScratchPadLineString_B( void ) const;
 		virtual const char* GetScratchPadLineScan() const;
+		virtual int GetFlashingEntry( void ) const;
+
 		/**
 		 * Perform a initial program load.
 		 * Basically just reset software configuration to basic and 
 		 * request critical format data from assigned GPC.
 		 */
-		
 		virtual void IPL();
 		bool IsBFS() const;
 		virtual bool PutKey(unsigned short usKeyboardID, char cKey);
@@ -163,7 +167,7 @@ namespace dps {
 		inline bool IsOPSLine() const {return (cScratchPadLine[0] == SSU_KEY_OPS);};
 		inline bool IsSPECLine() const {return (cScratchPadLine[0] == SSU_KEY_SPEC);};
 		inline bool IsITEMLine() const {return (cScratchPadLine[0] == SSU_KEY_ITEM);};
-		inline bool IsGPCIDPLine() const {return (cScratchPadLine[0] == SSU_KEY_GPCIDP);};
+		inline bool IsGPCIDPLine() const {return (cScratchPadLine[0] == SSU_KEY_GPCCRT);};
 		inline bool IsNoLine() const {return (cScratchPadLine[0] == '\0');};
 		bool IsCompleteLine() const;
 
@@ -185,12 +189,13 @@ namespace dps {
 		int GetADIRate( void );
 		bool GetMECOConfirmedFlag( void ) const;
 		bool GetAutoThrottleState( void ) const;
-		VECTOR3 GetAttitudeErrors_AscentGuidance( void ) const;
+		VECTOR3 GetAttitudeErrors_AscentDAP( void ) const;
 		VECTOR3 GetAttitudeErrors_AerojetDAP( void ) const;
 		VECTOR3 GetAttitudeCommandErrors( void ) const;
 		bool GetAutoPitchState( void ) const;
 		bool GetAutoRollYawState( void ) const;
 		bool GetAutoSpeedbrakeState( void ) const;
+		double GetAutoSpeedbrakeCommand( void ) const;
 		bool GetWOW( void ) const;
 		double GetNZError( void ) const;
 		bool GetPrefinalState( void ) const;
@@ -210,5 +215,6 @@ namespace dps {
 		double GetdeltaAZLimit( double mach ) const;
 		double GetSelectedRunwayHeading( void ) const;
 		double GetTargetHeading( void ) const;
+		bool GetFCSmode( void ) const;
 	};
 };

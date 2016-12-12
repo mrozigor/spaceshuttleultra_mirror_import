@@ -28,7 +28,7 @@ const char SSU_KEY_FAULTSUMM = 1;
 const char SSU_KEY_SYSSUMM = 2;
 const char SSU_KEY_MSGRESET = 3;
 const char SSU_KEY_ACK = 4;
-const char SSU_KEY_GPCIDP = 5;
+const char SSU_KEY_GPCCRT = 5;
 const char SSU_KEY_A = 6;
 const char SSU_KEY_B = 7;
 const char SSU_KEY_C = 8;
@@ -115,7 +115,7 @@ namespace dps {
 	} MAJORFUNCTION;
 
 	struct DEUCHAR {
-		char cSymbol;
+		unsigned char cSymbol;
 		char cAttr;
 	};
 
@@ -127,6 +127,12 @@ namespace dps {
 
 	struct DEU_ELLIPSE {
 		int xLeft, yTop, xRight, yBottom;
+		char cAttr;
+	};
+
+	struct DEU_PIXEL
+	{
+		int x, y;
 		char cAttr;
 	};
 

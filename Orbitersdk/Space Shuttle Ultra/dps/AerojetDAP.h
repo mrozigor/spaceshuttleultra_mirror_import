@@ -37,6 +37,13 @@ const double R2 = 0.093/MPS2FPS;
 const int NZ_VALUE_COUNT = 5;
 const double NZ_UPDATE_INTERVAL = 0.1;
 
+
+class RHC_SOP;
+class RPTA_SOP;
+class SBTC_SOP;
+class Landing_SOP;
+
+
 /**
  * DAP during entry, TAEM and A/L phases (MM304 and MM305)
  * At the moment, only AOA autopilot during entry is working
@@ -49,6 +56,7 @@ private:
 	typedef enum {L, R} HAC_SIDE;
 	typedef enum {OVHD, STRT} HAC_DIRECTION;
 	typedef enum {NOM, SHORT, ELS} SB_CONTROL_LOGIC;
+	typedef enum {AUTO, MAN_CDR, MAN_PLT} SPEEDBRAKE_STATE;
 
 	class LandingSiteData
 	{
@@ -59,14 +67,17 @@ private:
 		std::string strPri, strSec;
 		double priRwyLength, priRwyWidth; // length and width in meters
 		double secRwyLength, secRwyWidth; // length and width in meters
+		double priRwyAMSL;// meters above mean sea level
+		double secRwyAMSL;// meters above mean sea level
 
 	public:
-		LandingSiteData(double _radPriLat, double _radPriLong, double _radSecLat, double _radSecLong, double _degPriHeading, double _degSecHeading, const char* pri, const char* sec, double _rwyLength = 15000.0/MPS2FPS, double _rwyWidth = 100.0)
+		LandingSiteData(double _radPriLat, double _radPriLong, double _priRwyAMSL, double _radSecLat, double _radSecLong, double _secRwyAMSL, double _degPriHeading, double _degSecHeading, const char* pri, const char* sec, double _rwyLength = 15000.0/MPS2FPS, double _rwyWidth = 100.0)
 			: radPriLat(_radPriLat), radPriLong(_radPriLong), radSecLat(_radSecLat), radSecLong(_radSecLong),
 			degPriHeading(_degPriHeading), degSecHeading(_degSecHeading),
 			strPri(pri), strSec(sec),
 			priRwyLength(_rwyLength), priRwyWidth(_rwyWidth),
-			secRwyLength(_rwyLength), secRwyWidth(_rwyWidth)
+			secRwyLength(_rwyLength), secRwyWidth(_rwyWidth),
+			priRwyAMSL(_priRwyAMSL), secRwyAMSL(_secRwyAMSL)
 		{
 		}
 
@@ -85,15 +96,17 @@ private:
 			secRwyWidth = width;
 		}
 
-		void GetRwyPosition(bool pri, double& radLat, double& radLong) const
+		void GetRwyPosition(bool pri, double& radLat, double& radLong, double &AMSL ) const
 		{
 			if(pri) {
 				radLat = radPriLat;
 				radLong = radPriLong;
+				AMSL = priRwyAMSL;
 			}
 			else {
 				radLat = radSecLat;
 				radLong = radSecLong;
+				AMSL = secRwyAMSL;
 			}
 		}
 
@@ -128,9 +141,6 @@ private:
 
 	bool bFirstStep, bSecondStep;
 
-	bool bWOW;
-	bool bWONG;
-
 	// Orbiter data
 	double OrbiterMass;
 	VECTOR3 PMI;
@@ -147,25 +157,61 @@ private:
 	PIDControl Vel_Speedbrake; // converts speed error (KEAS) to speedbrake command; used in A/L phase
 	//PIDControl BodyFlap;
 	
-	DiscInPort PitchAuto, RollYawAuto;
-	DiscOutPort PitchCSSOut, RollYawCSSOut;
-	DiscInPort SpeedbrakeAuto;
-	DiscOutPort SpeedbrakeAutoOut;
-	DiscInPort SpdbkThrotPort;
-	DiscInPort RHCInput[3];
+	DiscInPort CDRPitchAuto;
+	DiscInPort PLTPitchAuto;
+	DiscInPort CDRPitchCSS;
+	DiscInPort PLTPitchCSS;
+	DiscInPort CDRRollYawAuto;
+	DiscInPort PLTRollYawAuto;
+	DiscInPort CDRRollYawCSS;
+	DiscInPort PLTRollYawCSS;
+
+	DiscOutPort CDRPitchAutoLT;
+	DiscOutPort PLTPitchAutoLT;
+	DiscOutPort CDRPitchCSSLT;
+	DiscOutPort PLTPitchCSSLT;
+	DiscOutPort CDRRollYawAutoLT;
+	DiscOutPort PLTRollYawAutoLT;
+	DiscOutPort CDRRollYawCSSLT;
+	DiscOutPort PLTRollYawCSSLT;
+	
+	DiscInPort CDR_SPDBK_THROT;
+	DiscInPort PLT_SPDBK_THROT;
+
+	DiscOutPort CDR_SPDBK_THROT_AUTO_LT;
+	DiscOutPort CDR_SPDBK_THROT_MAN_LT;
+	DiscOutPort PLT_SPDBK_THROT_AUTO_LT;
+	DiscOutPort PLT_SPDBK_THROT_MAN_LT;
+
 	DiscOutPort ThrusterCommands[3];
 	//DiscOutPort LeftElevonCommand, RightElevonCommand;
 	DiscOutPort ElevonCommand, AileronCommand, RudderCommand;
 
 	DiscInPort HUDPower[2];
-	DiscInPort pHUDDCLT[2];
+	DiscInPort HUDBrightCDR[5];
+	DiscInPort HUDBrightNightCDR;
+	DiscInPort HUDBrightDayCDR;
+	DiscInPort HUDBrightPLT[5];
+	DiscInPort HUDBrightNightPLT;
+	DiscInPort HUDBrightDayPLT;
+	DiscInPort HUDDCLT[2];
 	bool dclt_sw_on[2];
 	int declutter_level[2];
 
+	/**
+	 * If true, the FCS pitch channel is in AUTO mode. If false, the FCS pitch channel is in CSS mode.
+	 */
+	bool AutoFCSPitch;
+	/**
+	 * If true, the FCS roll channel is in AUTO mode. If false, the FCS roll channel is in CSS mode.
+	 */
+	bool AutoFCSRoll;
+
+	SPEEDBRAKE_STATE SpeedbrakeState;
+	double AutoSpeedbrakeCommand;
+
 	double tCSS;
 	double tGear;
-
-	double lastSBTCCommand; // used to check if speedbrake has moved
 	
 	bool ThrustersActive[3]; // indicates if each set of thrusters (pitch, yaw, roll) is active
 	bool AerosurfacesActive[3];
@@ -178,6 +224,11 @@ private:
 	bool RotatingAxis[3]; // indicates if Orbiter is maneuvering around an axis (RCS)
 	
 	OBJHANDLE hEarth;
+
+	RHC_SOP* pRHC_SOP;
+	RPTA_SOP* pRPTA_SOP;
+	SBTC_SOP* pSBTC_SOP;
+	Landing_SOP* pLanding_SOP;
 
 	ENTRY_GUIDANCE_MODE EntryGuidanceMode;
 	VECTOR3 HAC_Center;
@@ -297,6 +348,12 @@ public:
 	bool GetAutoSpeedbrakeState( void ) const;
 
 	/**
+	 * Gets current auto speedrake command.
+	 * @return	auto speedrake command, bewteen 0% and 100%
+	 */
+	double GetAutoSpeedbrakeCommand( void ) const;
+
+	/**
 	 * Gets current target runway.
 	 * @return	string with runway name and number
 	 */
@@ -337,12 +394,6 @@ public:
 	 * @return	vertical accelaration (fps^2)
 	 */
 	double GetVacc( void ) const;
-
-	/**
-	 * Gets WOW indication.
-	 * @return	true if WOW indication has been set
-	 */
-	bool GetWOW( void ) const;
 
 	/**
 	 * Gets current vehicle attitude errors (deg).
@@ -410,7 +461,6 @@ public:
  	 */
 	double GetSelectedRunwayHeading( void ) const;
 private:
-	void SetThrusterLevels();
 	/**
 	 * Checks if any active thruster groups should be disabled.
 	 * Checks if any inactive control surfaces should be enabled.
@@ -465,7 +515,7 @@ private:
 	void SetAerosurfaceCommands(double DeltaT);
 	/**
 	 * Uses either AUTO guidance or SBTC command to set speedbrake position.
-	 * Checks for manual speedbrake takeover (i.e. SBTC moved)
+	 * Checks for manual speedbrake takeover.
 	 */
 	void SetSpeedbrakeCommand(double range, double DeltaT);
 	/**

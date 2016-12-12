@@ -51,6 +51,8 @@ public:
 	virtual void OnSaveState(FILEHANDLE scn) const;
 
 	virtual void CreateAttachment();
+
+	void UpdateAttachment( void );
 protected:
 	virtual void OnMRLLatched();
 	virtual void OnMRLReleased();

@@ -117,6 +117,8 @@ public:
 
 	virtual void CreateAttachment();
 
+	void UpdateAttachment( void );
+
 	/**
 	 * Rotates individual joint.
 	 * @param positive true if joint should rotate in positive direction

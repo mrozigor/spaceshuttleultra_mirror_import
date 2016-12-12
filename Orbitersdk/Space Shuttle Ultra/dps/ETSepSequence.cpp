@@ -4,6 +4,7 @@
 #include "TransitionDAP.h"
 #include "IO_Control.h"
 #include "ATVC_SOP.h"
+#include "MEC_SOP.h"
 #include "assert.h"
 
 
@@ -83,12 +84,13 @@ namespace dps
 
 			if (((t_MECO + ET_SEP_ARM_SEP_PIC) <= SimT) && ((t_MECO + ET_SEP_ARM_SEP_PIC) > t_last))
 			{
-				// TODO arm sep PICs
+				// arm sep PICs
+				pMEC_SOP->SetETSepSequencerFlag( MECSOP_ETSEP_ETORB_STR_SEPN_PICS_ARM );
 			}
 
 			// TODO THC move stops auto sep
 
-			if (autoETSEP == true)
+			if ((autoETSEP == true) && (ETSEPCommand == false))
 			{
 				// TODO check feedline valves retracted
 				// TODO check MDMs FA2, FA3, FA4
@@ -128,18 +130,26 @@ namespace dps
 					pTransitionDAP->MinusZTranslationCommand();
 					timerSEP = SimT + ET_SEP_DELAY_MINUSZ;
 				}
-				else if (timerSEP <= SimT)
+				else if (((timerSEP + ET_SEP_DELAY_MINUSZ) <= SimT) && ((timerSEP + ET_SEP_DELAY_MINUSZ) > t_last))
+				//else if (timerSEP <= SimT)
 				{
 					// sep cmd
-					STS()->SeparateTank();
+					pMEC_SOP->SetETSepSequencerFlag( MECSOP_ETSEP_ETORB_STR_SEPN_FIRE_1 );
+					pMEC_SOP->SetETSepSequencerFlag( MECSOP_ETSEP_ETORB_STR_SEPN_FIRE_2 );
 					ETSEPINH = false;
-					done = true;
 
 					char buffer[64];
 					sprintf_s( buffer, 64, "ET SEP @ MET %.2f", STS()->GetMET() );
 					oapiWriteLog( buffer );
 				}
+				else if (((timerSEP + 0.5) <= SimT) && ((timerSEP + 0.5) > t_last))// HACK using 0.5 but apparently it should be 23 seconds
+				{
+					pMEC_SOP->SetMECMasterResetFlag();
+					done = true;
+				}
 			}
+
+			t_last = SimT;
 		}
 		else
 		{
@@ -155,13 +165,15 @@ namespace dps
 	void ETSepSequence::Realize( void )
 	{
 		pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
-		assert( (pSSME_Operations != NULL) && "MPS_Dump::Realize.pSSME_Operations" );
+		assert( (pSSME_Operations != NULL) && "ETSepSequence::Realize.pSSME_Operations" );
 		pTransitionDAP = static_cast<TransitionDAP*> (FindSoftware( "TransitionDAP" ));
-		assert( (pTransitionDAP != NULL) && "MPS_Dump::Realize.TransitionDAP" );
+		assert( (pTransitionDAP != NULL) && "ETSepSequence::Realize.pTransitionDAP" );
 		pIO_Control = static_cast<IO_Control*> (FindSoftware( "IO_Control" ));
-		assert( (pIO_Control != NULL) && "MPS_Dump::Realize.pIO_Control" );
+		assert( (pIO_Control != NULL) && "ETSepSequence::Realize.pIO_Control" );
 		pATVC_SOP = static_cast<ATVC_SOP*> (FindSoftware( "ATVC_SOP" ));
-		assert( (pATVC_SOP != NULL) && "MPS_Dump::Realize.ATVC_SOP" );
+		assert( (pATVC_SOP != NULL) && "ETSepSequence::Realize.pATVC_SOP" );
+		pMEC_SOP = static_cast<MEC_SOP*> (FindSoftware( "MEC_SOP" ));
+		assert( (pMEC_SOP != NULL) && "ETSepSequence::Realize.pMEC_SOP" );
 
 
 		DiscreteBundle* bundle = BundleManager()->CreateBundle( "C3_SEP", 4 );

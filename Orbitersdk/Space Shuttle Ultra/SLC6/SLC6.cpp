@@ -103,6 +103,15 @@ void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
 	SetGH2VentlineRate(SLC6_GH2_ARM_RATE);
 	SetIntertankAccessArmRate(SLC6_IAA_RATE);
 	SetEmptyMass(2000001);
+
+	DWORD ntdvtx = 4;
+	static TOUCHDOWNVTX tdvtx[4] = {
+		{_V( 1.0, -4.5, 0.0 ), 1e8, 1e2, 5, 5},
+		{_V( -1.0, -4.5, 1.0 ), 1e8, 1e2, 5, 5},
+		{_V( -1.0, -4.5, -1.0 ), 1e8, 1e2, 5, 5},
+		{_V( 0, 50, 0 ), 1e8, 1e2, 5}
+	};
+	SetTouchdownPoints( tdvtx, ntdvtx );
 	
 	CreateStadiumLights(SLC6_LIGHT_POS, SLC6_LIGHT_DIR, SLC6_LIGHT_COUNT, SLC6_LIGHT_RANGE, SLC6_LIGHT_ATT0, SLC6_LIGHT_ATT1, SLC6_LIGHT_ATT2, SLC6_LIGHT_UMBRA, SLC6_LIGHT_PENUMBRA, SLC6_LIGHT_DIFFUSE, SLC6_LIGHT_SPECULAR, SLC6_LIGHT_AMBIENT);
 }
@@ -442,17 +451,17 @@ void SLC6::DefineROFIs()
 void SLC6::DefineSSS()
 {
 	static PARTICLESTREAMSPEC sss_steam = {
-		0, 8, 20, 400.0, 0.3, 10, 6, 4, PARTICLESTREAMSPEC::DIFFUSE,
+		0, 8, 20, 300.0, 0.3, 10, 6, 6, PARTICLESTREAMSPEC::DIFFUSE,
 		PARTICLESTREAMSPEC::LVL_PSQRT, 0, 0.1,
 		PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 1.0};
 	sss_steam.tex = oapiRegisterParticleTexture("contrail4");
 	static PARTICLESTREAMSPEC sss_steam_SRB = {
-		0, 10, 200, 1500.0, 0.5, 10, 7, 45, PARTICLESTREAMSPEC::DIFFUSE,
+		0, 10, 100, 800.0, 0.5, 10, 7, 50, PARTICLESTREAMSPEC::DIFFUSE,
 		PARTICLESTREAMSPEC::LVL_PSQRT, 0, 0.1,
 		PARTICLESTREAMSPEC::ATM_PLOG, 1e-6, 1.0};
 	sss_steam_SRB.tex = oapiRegisterParticleTexture("contrail4");
 	static PARTICLESTREAMSPEC sss_water = {
-		0, 0.05, 30.0, 16.0, 0.1, 0.30, 3, 2, PARTICLESTREAMSPEC::EMISSIVE,
+		0, 0.05, 25.0, 16.0, 0.1, 0.30, 3, 1, PARTICLESTREAMSPEC::EMISSIVE,
 		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
 		PARTICLESTREAMSPEC::ATM_FLAT, 1, 1
 	};

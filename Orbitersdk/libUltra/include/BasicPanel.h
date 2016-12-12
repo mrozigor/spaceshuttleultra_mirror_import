@@ -315,10 +315,10 @@ bool BasicPanel<TVessel>::OnReadState (FILEHANDLE scn) {
 			oapiWriteLog("\t\tDone.");
 			return true;
 		} else if(!_strnicmp(line, "@OBJECT", 7)) {
-			//oapiWriteLog("\t\tEnter Multiline switch block...");
+			oapiWriteLog("\t\tEnter Multiline switch block...");
 			//Multi line object block
 			//Get identifier of object or switch
-			*line += 8;
+			line += 8;
 			unsigned long i = 0;
 			bool bStringFlag = false;
 			while((*line != '\0' && *line != ' ') || bStringFlag) {
@@ -333,7 +333,7 @@ bool BasicPanel<TVessel>::OnReadState (FILEHANDLE scn) {
 
 			pszBuffer[i] = '\0';
 			//Look up object
-			sprintf_s(pszBuffer2, "\tLook up switch \"%s\"...", 
+			sprintf_s(pszBuffer2, "\tLook up object \"%s\"...", 
 				pszBuffer);
 			oapiWriteLog(pszBuffer2);
 			//
@@ -347,7 +347,7 @@ bool BasicPanel<TVessel>::OnReadState (FILEHANDLE scn) {
 						break;
 				}
 			}
-			//oapiWriteLog("\t\tLeave Multiline switch block...");
+			oapiWriteLog("\t\tLeave Multiline switch block...");
 		} else {
 			//single line object block
 			//oapiWriteLog("\t\tEnter single line switch block...");
@@ -411,7 +411,7 @@ void BasicPanel<TVessel>::OnSaveState(FILEHANDLE scn)
 			oapiWriteScenario_string(scn, "@OBJECT", 
 				pszBuffer);
 			(*iter)->OnSaveState(scn);
-			oapiWriteLine(scn, "@ENDOBJECT");
+			oapiWriteLine(scn, "  @ENDOBJECT");
 		} else {
 			if((*iter)->GetStateString(255, pszBuffer)) {
 				sprintf_s(pszBuffer2, 255, "\"%s\"", 

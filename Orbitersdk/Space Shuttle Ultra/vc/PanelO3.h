@@ -29,6 +29,8 @@
 #include "AtlantisPanel.h"
 #include "StandardSwitch.h"
 #include "StandardRotarySwitch.h"
+#include "7SegDisp_RCSOMS_PRPLT_QTY.h"
+#include "7SegDisp_MissionTime.h"
 
 
 namespace vc
@@ -41,25 +43,12 @@ namespace vc
 
 			StdSwitch3* pMissionTimer;
 			
-			DiscInPort pMissionTimerGMT;
-			DiscInPort pMissionTimerTEST;
-
 			DiscInPort pRCSOMS_PRESS_RCSHeX10;
 			DiscInPort pRCSOMS_PRESS_RCSPRPLT;
 			DiscInPort pRCSOMS_PRESS_OMSPRPLT;
 
-			DiscInPort pRCSOMS_PRPLTQTY_RCSOXID;
-			DiscInPort pRCSOMS_PRPLTQTY_RCSFUEL;
-			DiscInPort pRCSOMS_PRPLTQTY_LOWEST;
-			DiscInPort pRCSOMS_PRPLTQTY_OMSOXID;
-			DiscInPort pRCSOMS_PRPLTQTY_OMSFUEL;
-
-			short sMETSeconds;
-			short sMETMinutes;
-			short sMETHours;
-			short sMETDays;
-
-			short sOMSFuel[3];
+			_7SegDisp_RCSOMS_PRPLT_QTY* pRCSOMS_PRPLT_QTY;
+			_7SegDisp_MissionTime* pMissionTime;
 
 		public:
 			PanelO3( Atlantis* _sts );
@@ -68,9 +57,6 @@ namespace vc
 			virtual void DefineVC();
 			virtual void RegisterVC();
 			virtual void Realize();
-
-			virtual bool OnVCRedrawEvent( int id, int _event, SURFHANDLE surf );
-			virtual void OnPreStep( double SimT, double DeltaT, double MJD );
 	};
 }
 

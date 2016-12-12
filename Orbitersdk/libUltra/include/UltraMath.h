@@ -250,6 +250,46 @@ static inline double range(double min, double value, double max)
 	return value;
 }
 
+static inline double midval( double val_a, double val_b, double val_c )
+{
+	if (val_a > val_b)
+	{
+		if (val_b > val_c)
+		{
+			return val_b;
+		}
+		else
+		{
+			if (val_c > val_a)
+			{
+				return val_a;
+			}
+			else
+			{
+				return val_c;
+			}
+		}
+	}
+	else
+	{
+		if (val_a > val_c)
+		{
+			return val_a;
+		}
+		else
+		{
+			if (val_c > val_b)
+			{
+				return val_b;
+			}
+			else
+			{
+				return val_c;
+			}
+		}
+	}
+}
+
 /**
  * Converts time in DD/HH:MM:SS format (array of 4 doubles) to time in seconds
  */

@@ -496,8 +496,8 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->Underline( 14, 16 );
 	pMDU->Underline( 15, 16 );
 	pMDU->Underline( 16, 16 );
-	pMDU->Theta(5, 17);
 	pMDU->mvprint(2, 17, "17  T");
+	pMDU->Theta(5, 17);
 	sprintf_s(cbuf, 255, "%7.3f", ThetaT);
 	pMDU->mvprint(10, 17, cbuf);
 	pMDU->Underline( 10, 17 );
@@ -644,9 +644,9 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(20, 17, "OFF 32   33");
 	pMDU->mvprint(20, 19, "GMBL CK  34");
 
-	pMDU->Line( 90, 9, 90, 216 );
-	pMDU->Line(175, 117, 255, 117);
-	pMDU->Line(175, 18, 175, 117);
+	pMDU->Line( 180, 14, 180, 336 );
+	pMDU->Line( 350, 28, 350, 182 );
+	pMDU->Line( 350, 182, 500, 182 );
 	if(MnvrLoad && !BurnInProg && !BurnCompleted) {
 		TGO[0]=(int)(BurnTime/60);
 		TGO[1]=(int)(BurnTime-(TGO[0]*60));

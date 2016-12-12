@@ -192,8 +192,15 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 	// Note that the camera offset should not be required
 	// since the Tank doesn't define a 'cockpit'
 
-	SetCOG_elev (-5.0);
-	SetTouchdownPoints (_V(0,9,3), _V(-1,1,-3), _V(1,1,-3));
+	DWORD ntdvtx = 4;
+	static TOUCHDOWNVTX tdvtx[4] = {
+		{_V( 0, 1, 3 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( -1, 1, -3 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 1, 1, -3 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 0, 9, 0 ), 1e5, 1e2, 0.5}
+	};
+	SetTouchdownPoints( tdvtx, ntdvtx );
+
 	SetLiftCoeffFunc (0);
 
 	// vents (initially with very high ISP so it uses little prop)
@@ -246,8 +253,6 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 // Simulation time step
 void Atlantis_Tank::clbkPostStep (double simt, double simdt, double mjd)
 {
-	if (GetAltitude() < 0.0) oapiDeleteVessel (GetHandle());
-
 	if (sensorsconnected == false)
 	{
 		// connect sensors
@@ -383,6 +388,8 @@ void Atlantis_Tank::clbkPostStep (double simt, double simdt, double mjd)
 	// post sep "reconfigure"
 	if (!GetAttachmentStatus(ahToOrbiter))
 	{
+		if (GetAltitude() < 0.0) oapiDeleteVessel (GetHandle());
+
 		if (postsep == false)// runs once after sep
 		{
 			// add ullage mass back to propellant resource to be used for venting

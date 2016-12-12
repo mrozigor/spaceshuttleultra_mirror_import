@@ -2,6 +2,7 @@
 
 
 #include "SSU_IUS.h"
+#include "SSU_IUS_MFD.h"
 #include "meshres_IUS_SRM2.h"
 #include <UltraMath.h>
 
@@ -17,7 +18,7 @@ DLLCLBK void ovcExit( VESSEL *vessel )
 }
 
 
-SSU_IUS::SSU_IUS( OBJHANDLE hObj ):VESSEL3( hObj )
+SSU_IUS::SSU_IUS( OBJHANDLE hObj ):VESSEL4( hObj )
 {
 	MainExternalMeshVisual = NULL;
 
@@ -43,6 +44,20 @@ SSU_IUS::SSU_IUS( OBJHANDLE hObj ):VESSEL3( hObj )
 
 	AdapterOffset = 0;
 	AdapterMass = 0;
+
+	static char *name = "SSU_IUS";
+	MFDMODESPECEX spec;
+	spec.name = name;
+	spec.key = OAPI_KEY_T;
+	spec.context = NULL;
+	spec.msgproc = SSU_IUS_MFD::MsgProc;
+	mfdID = RegisterMFDMode( spec );
+}
+
+SSU_IUS::~SSU_IUS( void )
+{
+	UnregisterMFDMode( mfdID );
+	return;
 }
 
 void SSU_IUS::clbkSetClassCaps(FILEHANDLE cfg)
@@ -282,7 +297,7 @@ void SSU_IUS::DefineAnimations(void)
 	RegisterAnimation();
 }
 
-bool SSU_IUS::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp )
+/*bool SSU_IUS::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp )
 {
 	if (!separated) return true;
 
@@ -324,7 +339,7 @@ bool SSU_IUS::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *s
 		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
 	}
 	return true;
-}
+}*/
 
 int SSU_IUS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 {

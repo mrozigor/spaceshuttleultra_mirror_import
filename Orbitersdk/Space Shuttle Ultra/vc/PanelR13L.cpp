@@ -1,7 +1,6 @@
 #include "PanelR13L.h"
 #include "../Atlantis.h"
 #include "../Atlantis_defs.h"
-#include "../meshres_vc_additions.h"
 
 
 namespace vc
@@ -203,7 +202,7 @@ namespace vc
 		pPLBayDoorLL->ConnectPort( 1, pBundle, 2 );
 		pPLBayDoorLL->ConnectPort( 2, pBundle, 3 );
 		pPLBayDoorTB->SetInput( 0, pBundle, 4, TB_OP );
-		pPLBayDoorTB->SetInput( 1, pBundle, 5, TB_CLO );
+		pPLBayDoorTB->SetInput( 1, pBundle, 5, TB_CL );
 
 		pBundle = STS()->BundleManager()->CreateBundle( "RadiatorControlSW", 10 );
 		pPLBayMechPWR[0]->output.Connect( pBundle, 0 );

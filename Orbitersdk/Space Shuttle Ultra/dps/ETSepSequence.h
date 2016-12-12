@@ -51,6 +51,7 @@ namespace dps
 	class TransitionDAP;
 	class IO_Control;
 	class ATVC_SOP;
+	class MEC_SOP;
 
 	/**
 	 * @brief	Implementation of the ET Separation Sequencer running in the GPCs.
@@ -64,6 +65,7 @@ namespace dps
 			TransitionDAP* pTransitionDAP;
 			IO_Control* pIO_Control;
 			ATVC_SOP* pATVC_SOP;
+			MEC_SOP* pMEC_SOP;
 
 			DiscInPort ETSEPSW;
 			DiscInPort ETSEPPB;

@@ -19,31 +19,43 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="3*"/>
-            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="190"/>
+            <ColumnDefinition Width="190"/>
+            <ColumnDefinition Width="40"/>
+            <ColumnDefinition Width="190"/>
+            <ColumnDefinition Width="190"/>
             <!--<ColumnDefinition Width="*"/>
             <ColumnDefinition Width="3*"/>-->
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="28"/>
-            <RowDefinition Height="28"/>
-            <RowDefinition Height="28"/>
-            <RowDefinition Height="28"/>
-            <RowDefinition Height="28"/>
-            <RowDefinition Height="28"/>
+            <RowDefinition Height="26"/>
+            <RowDefinition Height="26"/>
+            <RowDefinition Height="26"/>
+            <RowDefinition Height="26"/>
+            <RowDefinition Height="26"/>
+            <RowDefinition Height="26"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Label Grid.Column="0" Grid.Row="0">Target Inc:</Label>
-        <TextBox Grid.Column="1" Text="{Binding TargetInc}"/>
-        <Label Grid.Column="0" Grid.Row="1">Target Alt:</Label>
-        <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding TargetAlt}"/>
-        <Label Grid.Column="0" Grid.Row="2">Target LAN:</Label>
-        <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding TargetLAN}"/>
-        <Label Grid.Column="0" Grid.Row="3">Mode:</Label>
-        <ComboBox Name="LaunchSite" Grid.Column="1" Grid.Row="3" ItemsSource="{Binding Source={StaticResource InsertionModes}}" SelectedItem="{Binding InsertionMode}"/>
-        <Button Grid.Column="1" Grid.Row="5" Click="btnCalculateClick">Calculate</Button>
-        <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6">
+        <Label Grid.Column="0" Grid.Row="0" Margin="0">Target Inc (º):</Label>
+        <TextBox Text="{Binding TargetInc}" Margin="2,1,0,2" Grid.Column="1"/>
+        <Label Grid.Column="0" Grid.Row="1">Target Alt (Km):</Label>
+        <TextBox Grid.Row="1" Text="{Binding TargetAlt}" Margin="2,1,0,2" Grid.Column="1"/>
+        <Label Grid.Column="0" Grid.Row="2">Target LAN (º):</Label>
+        <TextBox Grid.Row="2" Text="{Binding TargetLAN}" Margin="2,1,0,2" Grid.Column="1"/>
+        <Label Grid.Column="0" Grid.Row="3" Content="Insertion Mode:"/>
+        <ComboBox x:Name="Insertion_Mode" Grid.Row="3" ItemsSource="{Binding Source={StaticResource InsertionModes}}" SelectedItem="{Binding InsertionMode}" Margin="2,1,0,2" Grid.Column="1"/>
+        <Label x:Name="___No_Name_" Content="MECO Altitude (NM):" Grid.Column="3"/>
+        <ComboBox x:Name="CB_MECO_Alt" Grid.Column="4" Margin="2,1,0,2">
+            <ComboBoxItem Content="63"/>
+            <ComboBoxItem Content="61"/>
+            <ComboBoxItem Content="59"/>
+            <ComboBoxItem Content="57"/>
+            <ComboBoxItem Content="52"/>
+        </ComboBox>
+        <Label Content="MECO Perigee (Km)" Grid.Column="3" Grid.Row="1"/>
+        <TextBox x:Name="TB_MECOAlt" Grid.Column="4"  Margin="2,1,0,2" Grid.Row="1" Text="{Binding MECOPe}" IsEnabled="False"/>
+        <Button Grid.Row="5" Click="btnCalculateClick" Margin="2,0,0,0" Grid.Column="4" IsDefault="True">Calculate</Button>
+        <Grid Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="6" Height="237" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
@@ -51,72 +63,73 @@
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="100" />
+                <RowDefinition Height="182" />
+                <RowDefinition Height="54"/>
             </Grid.RowDefinitions>
-            <GroupBox Grid.Column="0" Grid.Row="0" Header="MECO">
+            <GroupBox Grid.Column="0" Grid.Row="1" Header="MECO" Margin="0,20,0,0" Height="108" VerticalAlignment="Top">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="50" />
-                        <ColumnDefinition Width="*" />                        
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="28" />
-                        <RowDefinition Height="28" />
-                        <RowDefinition Height="28" />
-                    </Grid.RowDefinitions>
-                    <Label Grid.Row="0" Grid.Column="0">Vel</Label>
-                    <TextBox Grid.Row="0" Grid.Column="2" IsReadOnly="True" Text="{Binding MECOVel}" />
-                    <Label Grid.Row="1" Grid.Column="0">FPA</Label>
-                    <TextBox Grid.Row="1" Grid.Column="2" IsReadOnly="True" Text="{Binding MECOFPA}" />
-                    <Label Grid.Row="2" Grid.Column="0">Alt</Label>
-                    <TextBox Grid.Row="2" Grid.Column="2" IsReadOnly="True" Text="{Binding MECOAlt}" />
-                </Grid>
-            </GroupBox>
-            <GroupBox Grid.Column="1" Grid.Row="0" Header="OMS-1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition Width="60" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="28" />
-                        <RowDefinition Height="28" />
-                        <RowDefinition Height="28" />
-                        <RowDefinition Height="28" />
+                        <RowDefinition Height="26" />
+                        <RowDefinition Height="26" />
+                        <RowDefinition Height="26" />
                     </Grid.RowDefinitions>
-                    <Label Grid.Row="0" Grid.Column="0">TIG</Label>
-                    <TextBox Grid.Row="0" Grid.Column="1" IsReadOnly="True" Text="{Binding OMS1TIG}" />
-                    <Label Grid.Row="1" Grid.Column="0">DVX</Label>
-                    <TextBox Grid.Row="1" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS1VX}" />
-                    <Label Grid.Row="2" Grid.Column="0">DVY</Label>
-                    <TextBox Grid.Row="2" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS1VY}" />
-                    <Label Grid.Row="3" Grid.Column="0">DVZ</Label>
-                    <TextBox Grid.Row="3" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS1VZ}" />
+                    <Label Grid.Row="0" Grid.Column="0">Vel (m/s)</Label>
+                    <TextBox Grid.Row="0" Grid.Column="2" IsReadOnly="True" Text="{Binding MECOVel, StringFormat = F6}" Margin="2,1,0,2" />
+                    <Label Grid.Row="1" Grid.Column="0">FPA (º)</Label>
+                    <TextBox Grid.Row="1" Grid.Column="2" IsReadOnly="True" Text="{Binding MECOFPA, StringFormat = F6}" Margin="2,1,0,2" />
+                    <Label Grid.Row="2" Grid.Column="0">Alt (Km)</Label>
+                    <TextBox Grid.Row="2" Grid.Column="2" IsReadOnly="True" Text="{Binding MECOAlt, StringFormat = F3}" Margin="2,1,0,2" />
                 </Grid>
             </GroupBox>
-            <GroupBox Grid.Column="2" Grid.Row="0" Header="OMS-2">
+            <GroupBox Grid.Column="1" Grid.Row="1" Header="OMS-1" Margin="0,20,0,0" Height="136" VerticalAlignment="Top">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition Width="60" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="28" />
-                        <RowDefinition Height="28" />
-                        <RowDefinition Height="28" />
-                        <RowDefinition Height="28" />
+                        <RowDefinition Height="26" />
+                        <RowDefinition Height="26" />
+                        <RowDefinition Height="26" />
+                        <RowDefinition Height="26" />
                     </Grid.RowDefinitions>
                     <Label Grid.Row="0" Grid.Column="0">TIG</Label>
-                    <TextBox Grid.Row="0" Grid.Column="1" IsReadOnly="True" Text="{Binding OMS2TIG}" />
-                    <Label Grid.Row="1" Grid.Column="0">DVX</Label>
-                    <TextBox Grid.Row="1" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS2VX}" />
-                    <Label Grid.Row="2" Grid.Column="0">DVY</Label>
-                    <TextBox Grid.Row="2" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS2VY}" />
-                    <Label Grid.Row="3" Grid.Column="0">DVZ</Label>
-                    <TextBox Grid.Row="3" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS2VZ}" />
+                    <TextBox Grid.Row="0" Grid.Column="1" IsReadOnly="True" Text="{Binding OMS1TIG}" Margin="2,1,0,2" />
+                    <Label Grid.Row="1" Grid.Column="0">DVX (fps)</Label>
+                    <TextBox Grid.Row="1" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS1VX, StringFormat = F3}" Margin="2,1,0,2" />
+                    <Label Grid.Row="2" Grid.Column="0">DVY (fps)</Label>
+                    <TextBox Grid.Row="2" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS1VY, StringFormat = F3}" Margin="2,1,0,2" />
+                    <Label Grid.Row="3" Grid.Column="0">DVZ (fps)</Label>
+                    <TextBox Grid.Row="3" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS1VZ, StringFormat = F3}" Margin="2,1,0,2" />
                 </Grid>
             </GroupBox>
-            <TextBox Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Text="{Binding FileOutput}" />
+            <GroupBox Grid.Column="2" Grid.Row="1" Header="OMS-2" Margin="0,20,0,0" Height="136" VerticalAlignment="Top">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="60" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="26" />
+                        <RowDefinition Height="26" />
+                        <RowDefinition Height="26" />
+                        <RowDefinition Height="26" />
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0">TIG</Label>
+                    <TextBox Grid.Row="0" Grid.Column="1" IsReadOnly="True" Text="{Binding OMS2TIG}" Margin="2,1,0,2" />
+                    <Label Grid.Row="1" Grid.Column="0">DVX (fps)</Label>
+                    <TextBox Grid.Row="1" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS2VX, StringFormat = F3}" Margin="2,1,0,2" />
+                    <Label Grid.Row="2" Grid.Column="0">DVY (fps)</Label>
+                    <TextBox Grid.Row="2" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS2VY, StringFormat = F3}" Margin="2,1,0,2" />
+                    <Label Grid.Row="3" Grid.Column="0">DVZ (fps)</Label>
+                    <TextBox Grid.Row="3" Grid.Column="2" IsReadOnly="True" Text="{Binding OMS2VZ, StringFormat = F3}" Margin="2,1,0,2" />
+                </Grid>
+            </GroupBox>
+            <TextBox Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" Text="{Binding FileOutput}" Margin="0,0,0,-52" Height="106" VerticalAlignment="Top" />
         </Grid>
     </Grid>
 </UserControl>

@@ -14,9 +14,9 @@ namespace vc
 		Add( pDragChuteDPYCover = new StandardSwitchCover( _sts, "Drag Chute DPY Cover" ) );
 		Add( pDragChuteJETTCover = new StandardSwitchCover( _sts, "Drag Chute JETT Cover" ) );
 
-		Add( pDragChuteARM = new PushButtonIndicator( _sts, "Drag Chute ARM", true ) );
-		Add( pDragChuteDPY = new PushButtonIndicator( _sts, "Drag Chute DPY", true ) );
-		Add( pDragChuteJETT = new PushButtonIndicator( _sts, "Drag Chute JETT", true ) );
+		Add( pDragChuteARM = new PushButtonIndicator( _sts, "Drag Chute ARM" ) );
+		Add( pDragChuteDPY = new PushButtonIndicator( _sts, "Drag Chute DPY" ) );
+		Add( pDragChuteJETT = new PushButtonIndicator( _sts, "Drag Chute JETT" ) );
 
 		Add( pHUDPower[0] = new StdSwitch2( _sts, "HUD Power CDR" ) );
 		Add( pHUDPower[1] = new StdSwitch2( _sts, "HUD Power PLT" ) );

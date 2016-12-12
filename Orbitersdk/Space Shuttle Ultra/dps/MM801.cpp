@@ -17,6 +17,7 @@ namespace dps
 	  ElevonTarget(0.0), RudderTarget(0.0), SpeedbrakeTarget(0.0)
 	{
 		bFCSTestActive = false;
+		ModeLT = false;
 	}
 
 	MM801::~MM801()
@@ -32,13 +33,37 @@ namespace dps
 		RudderCommand.Connect(pBundle,2);
 		ElevonCommandRead.Connect(pBundle,0);
 		//AileronCommandRead.Connect(pBundle,1);
+
+		pBundle = BundleManager()->CreateBundle( "CSS_CONTROLS", 16 );
+		CDRPitchAutoLT.Connect( pBundle, 1 );
+		CDRPitchCSSLT.Connect( pBundle, 3 );
+		CDRRollYawAutoLT.Connect( pBundle, 5 );
+		CDRRollYawCSSLT.Connect( pBundle, 7 );
+		PLTPitchAutoLT.Connect( pBundle, 9 );
+		PLTPitchCSSLT.Connect( pBundle, 11 );
+		PLTRollYawAutoLT.Connect( pBundle, 13 );
+		PLTRollYawCSSLT.Connect( pBundle, 15 );
+
+		pBundle = BundleManager()->CreateBundle( "SPDBKTHROT_CONTROLS", 16 );
+		CDRSbdbkThrotAutoLT.Connect( pBundle, 1 );// CDR AUTO LT
+		CDRSbdbkThrotManLT.Connect( pBundle, 2 );// CDR MAN LT
+		PLTSbdbkThrotAutoLT.Connect( pBundle, 4 );// PLT AUTO LT
+		PLTSbdbkThrotManLT.Connect( pBundle, 5 );// PLT MAN LT
 	}
 
 	bool MM801::OnMajorModeChange(unsigned int newMajorMode)
 	{
-		if(newMajorMode == 801)
+		if (newMajorMode == 801)
+		{
+			// if entering MM801, turn lights off
+			ModeLT_Off();
 			return true;
-		else return false;
+		}
+		else
+		{
+			if (GetMajorMode() == 801) ModeLT_Off();// if leaving MM801, turn lights off
+			return false;
+		}
 	}
 
 	bool MM801::OnPaint(int spec, vc::MDU* pMDU) const
@@ -136,6 +161,9 @@ namespace dps
 		}
 
 		
+		// MODE LT
+		if (ModeLT == true) pMDU->mvprint( 26, 5, "*" );
+		else pMDU->mvprint( 26, 6, "*" );
 		
 		
 		//FCS COMMAND
@@ -166,6 +194,19 @@ namespace dps
 
 	bool MM801::ItemInput(int spec, int item, const char* Data)
 	{
+		if (item == 7)
+		{
+			ModeLT = true;
+			ModeLT_On();
+			return true;
+		}
+		if (item == 8)
+		{
+			ModeLT = false;
+			ModeLT_Off();
+			return true;
+		}
+		
 		if(item == 10 && STS()->HydraulicsOK())
 		{
 			bFCSTestActive = true;
@@ -272,5 +313,39 @@ namespace dps
 	{
 		if (bFCSTestActive == true) oapiWriteScenario_string( scn, "SURF_DR", "ACTIVE" );
 		else  oapiWriteScenario_string( scn, "SURF_DR", "INACTIVE" );
+	}
+
+	void MM801::ModeLT_On( void )
+	{
+		CDRPitchAutoLT.SetLine();
+		CDRPitchCSSLT.SetLine();
+		CDRRollYawAutoLT.SetLine();
+		CDRRollYawCSSLT.SetLine();
+		PLTPitchAutoLT.SetLine();
+		PLTPitchCSSLT.SetLine();
+		PLTRollYawAutoLT.SetLine();
+		PLTRollYawCSSLT.SetLine();
+		CDRSbdbkThrotAutoLT.SetLine();
+		CDRSbdbkThrotManLT.SetLine();
+		PLTSbdbkThrotAutoLT.SetLine();
+		PLTSbdbkThrotManLT.SetLine();
+		return;
+	}
+
+	void MM801::ModeLT_Off( void )
+	{
+		CDRPitchAutoLT.ResetLine();
+		CDRPitchCSSLT.ResetLine();
+		CDRRollYawAutoLT.ResetLine();
+		CDRRollYawCSSLT.ResetLine();
+		PLTPitchAutoLT.ResetLine();
+		PLTPitchCSSLT.ResetLine();
+		PLTRollYawAutoLT.ResetLine();
+		PLTRollYawCSSLT.ResetLine();
+		CDRSbdbkThrotAutoLT.ResetLine();
+		CDRSbdbkThrotManLT.ResetLine();
+		PLTSbdbkThrotAutoLT.ResetLine();
+		PLTSbdbkThrotManLT.ResetLine();
+		return;
 	}
 };

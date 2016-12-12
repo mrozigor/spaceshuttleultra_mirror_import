@@ -1,4 +1,6 @@
 SSU Readme First.txt
+SSU_Font_A.otf
+SSU_Font_B.otf
 Config\Earth.cfg
 Config\SSU_Aero.csv
 Config\SSU_Aileron.csv
@@ -80,6 +82,7 @@ Doc\Space Shuttle Ultra\Compiling SSU.txt
 Doc\Space Shuttle Ultra\GPL.txt
 Doc\Space Shuttle Ultra\MPS scenario file samples.doc
 Doc\Space Shuttle Ultra\SSU Ops Manual V4.2.pdf
+Doc\Space Shuttle Ultra\Crawler Transporter notes.txt
 Doc\Space Shuttle Ultra\Tech Notes\Attitude Control Code.odt
 Doc\Space Shuttle Ultra\Tech Notes\DPS ShuttleBus System.pdf
 Doc\Space Shuttle Ultra\Tech Notes\LC39 Pad A Xenon lights positions.txt
@@ -223,7 +226,7 @@ Missions\SSU\STS-126.cfg
 Missions\SSU\STS-62A.cfg
 Missions\SSU\STS-62B.cfg
 Modules\SpaceShuttleUltra.dll
-Modules\SSUChute.dll
+Modules\SSU_Chute.dll
 Modules\SSU_Centaur.dll
 Modules\SSU_Crawler.dll
 Modules\SSU_IUS.dll
@@ -235,7 +238,6 @@ Modules\SSU_SRB.dll
 Modules\SSU_Tank.dll
 Modules\SSU_VAB.dll
 Modules\SSU_Xenon_Lights.dll
-Modules\Plugin\CRT.dll
 Scenarios\Space Shuttle Ultra\Launch test.scn
 Scenarios\Space Shuttle Ultra\Description.txt
 Scenarios\Space Shuttle Ultra\Historic missions\STS-1\On-orbit.scn
@@ -348,7 +350,6 @@ Textures\SSU\CrawlerTransporter_tex_postSTS114.dds
 Textures\SSU\CrawlerTubing.dds
 Textures\SSU\DFI_pallet_boxtex.dds
 Textures\SSU\DFI_pallet_boxtex_norm.dds
-Textures\SSU\digitPOS.dds
 Textures\SSU\digits.dds
 Textures\SSU\Discovery_9thmod.dds
 Textures\SSU\Discovery_original.dds
@@ -376,8 +377,6 @@ Textures\SSU\ku_norm.dds
 Textures\SSU\ku_refl.dds
 Textures\SSU\ku_spec.dds
 Textures\SSU\L4.dds
-Textures\SSU\label.dds
-Textures\SSU\label2.dds
 Textures\SSU\LWT_ETtex.dds
 Textures\SSU\LWT_ETtex_norm.dds
 Textures\SSU\Main_Concrete_Hardstand_texture.dds
@@ -387,7 +386,7 @@ Textures\SSU\MDLForwa.dds
 Textures\SSU\MDLRear3.dds
 Textures\SSU\MLP-2_main_tex.dds
 Textures\SSU\MLP_Side1_decks_grating.dds
-Textures\SSU\MON1veiw.dds
+Textures\SSU\MON1view.dds
 Textures\SSU\MON2view.dds
 Textures\SSU\MPESS_FREESTAR_tex.dds
 Textures\SSU\NOR1735tex.dds
@@ -399,7 +398,6 @@ Textures\SSU\O17.dds
 Textures\SSU\O3.dds
 Textures\SSU\O5O9.dds
 Textures\SSU\O6.dds
-Textures\SSU\O6talkbacks.dds
 Textures\SSU\O7.dds
 Textures\SSU\O8.dds
 Textures\SSU\ODSbuttons.dds
@@ -513,44 +511,3 @@ Textures\VandenbergAFB\SLC-6_STS_general_tex.dds
 Textures\VandenbergAFB\slc6_org.dds
 Textures\VandenbergAFB\VAFB_SLC6_MSTtex.dds
 Textures\VandenbergAFB\VLS_OMCF_accesspath.dds
-Textures2\Earth_1_W0335_N0098.dds
-Textures2\Earth_1_W0335_N0099.dds
-Textures2\Earth_1_W0336_N0098.dds
-Textures2\Earth_1_W0336_N0099.dds
-Textures2\Earth_1_W0337_N0098.dds
-Textures2\Earth_1_W0337_N0099.dds
-Textures2\Earth_4_W2679_N0792.dds
-Textures2\Earth_4_W2679_N0793.dds
-Textures2\Earth_4_W2679_N0794.dds
-Textures2\Earth_4_W2679_N0795.dds
-Textures2\Earth_4_W2679_N0796.dds
-Textures2\Earth_4_W2680_N0792.dds
-Textures2\Earth_4_W2680_N0793.dds
-Textures2\Earth_4_W2680_N0794.dds
-Textures2\Earth_4_W2680_N0795.dds
-Textures2\Earth_4_W2680_N0796.dds
-Textures2\Earth_4_W2681_N0792.dds
-Textures2\Earth_4_W2681_N0793.dds
-Textures2\Earth_4_W2681_N0794.dds
-Textures2\Earth_4_W2681_N0795.dds
-Textures2\Earth_4_W2681_N0796.dds
-Textures2\Earth_4_W2682_N0792.dds
-Textures2\Earth_4_W2682_N0793.dds
-Textures2\Earth_4_W2682_N0794.dds
-Textures2\Earth_4_W2682_N0795.dds
-Textures2\Earth_4_W2682_N0796.dds
-Textures2\Earth_4_W2683_N0792.dds
-Textures2\Earth_4_W2683_N0793.dds
-Textures2\Earth_4_W2683_N0794.dds
-Textures2\Earth_4_W2683_N0795.dds
-Textures2\Earth_4_W2683_N0796.dds
-Textures2\Earth_4_W2684_N0792.dds
-Textures2\Earth_4_W2684_N0793.dds
-Textures2\Earth_4_W2684_N0794.dds
-Textures2\Earth_4_W2684_N0795.dds
-Textures2\Earth_4_W2684_N0796.dds
-Textures2\Earth_4_W2685_N0792.dds
-Textures2\Earth_4_W2685_N0793.dds
-Textures2\Earth_4_W2685_N0794.dds
-Textures2\Earth_4_W2685_N0795.dds
-Textures2\Earth_4_W2685_N0796.dds

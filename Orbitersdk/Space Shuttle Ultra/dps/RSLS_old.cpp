@@ -2,6 +2,7 @@
 #include "SSME_SOP.h"
 #include "IO_Control.h"
 #include "ATVC_SOP.h"
+#include "MEC_SOP.h"
 #include "assert.h"
 
 
@@ -37,6 +38,8 @@ namespace dps
 		eng2SDtime = 0;
 		eng3SDtime = 0;
 		launchconfiggimbal = false;
+		T0UmbilicalReleased = false;
+		SRBIgnitionCMD = false;
 	}
 
 	RSLS_old::~RSLS_old()
@@ -365,6 +368,14 @@ namespace dps
 		if(timeToLaunch<=31.0 && lastTTL>31.0) STS()->GLSAutoSeqStart();
     		if(timeToLaunch<=10.0 && lastTTL>10.0)	STS()->StartROFIs();// HACK should be in GLS
 
+		if (timeToLaunch <= 18 && lastTTL > 18)
+		{
+			pMEC_SOP->SetLaunchSequencerFlag( MECSOP_LAUNCH_SRM_IGNITION_ARM );
+			oapiWriteLog( "RSLS: SRM IGNITION ARM" );
+			pMEC_SOP->SetLaunchSequencerFlag( MECSOP_LAUNCH_T0_UMB_RELEASE_ARM );
+			oapiWriteLog( "RSLS: T0 UMB ARM" );
+		}
+
 		if (timeToLaunch <= 12.5 && lastTTL > 12.5)
 		{
 			// HACK should be continuous cmd from T-12.5s to T-6.6s
@@ -428,15 +439,41 @@ namespace dps
 
 			oapiWriteLog( "RSLS: SSME gimbal to Launch Configuration Command" );
 			launchconfiggimbal = true;
+
+			pMEC_SOP->SetLaunchSequencerFlag( MECSOP_LAUNCH_SRM_IGNITION_FIRE_1 );
+			oapiWriteLog( "RSLS: SRM IGNITION FIRE 1" );
+			pMEC_SOP->SetLaunchSequencerFlag( MECSOP_LAUNCH_T0_UMB_RELEASE_FIRE_1 );
+			oapiWriteLog( "RSLS: T0 UMB FIRE 1" );
 		}
 
 		//launch
-		if(timeToLaunch<=0.0 && !STS()->GetLiftOffFlag() && !Aborted)
+		if (timeToLaunch <= 0.0 && !Aborted)
+		/*if(timeToLaunch<=0.0 && !STS()->GetLiftOffFlag() && !Aborted)*/
 		{
-			STS()->SignalGSEBreakHDP();
-			STS()->IgniteSRBs();
-			STS()->TriggerLiftOff();
-			Active=false;
+			if (T0UmbilicalReleased)
+			{
+				// third cycle after T0 (should be 80ms after T0), reset MEC, end RSLS
+				pMEC_SOP->SetMECMasterResetFlag();
+				oapiWriteLog( "RSLS: MEC RESET" );
+
+				Active = false;
+			}
+			else if (SRBIgnitionCMD)
+			{
+				// second cycle after T0 (should be 40ms after T0), fire HDP/T0 UMB/ETVAS PICs
+				pMEC_SOP->SetLaunchSequencerFlag( MECSOP_LAUNCH_T0_UMB_RELEASE_FIRE_2 );
+				oapiWriteLog( "RSLS: T0 UMB FIRE 2" );
+
+				T0UmbilicalReleased = true;
+			}
+			else
+			{
+				// first cycle after T0, fire SRM PICs
+				pMEC_SOP->SetLaunchSequencerFlag( MECSOP_LAUNCH_SRM_IGNITION_FIRE_2 );
+				oapiWriteLog( "RSLS: SRM IGNITION FIRE 2" );
+				
+				SRBIgnitionCMD = true;
+			}
 		}
 
 		lastTTL=timeToLaunch;
@@ -666,7 +703,9 @@ namespace dps
 		pIO_Control = static_cast<IO_Control*> (FindSoftware( "IO_Control" ));
 		assert( (pIO_Control != NULL) && "RSLS_old::Realize.pIO_Control" );
 		pATVC_SOP = static_cast<ATVC_SOP*> (FindSoftware( "ATVC_SOP" ));
-		assert( (pATVC_SOP != NULL) && "MPS_Dump::Realize.ATVC_SOP" );
+		assert( (pATVC_SOP != NULL) && "RSLS_old::Realize.pATVC_SOP" );
+		pMEC_SOP = static_cast<MEC_SOP*> (FindSoftware( "MEC_SOP" ));
+		assert( (pMEC_SOP != NULL) && "RSLS_old::Realize.pMEC_SOP" );
 
 		discsignals::DiscreteBundle* bundle = BundleManager()->CreateBundle( "MPS_CLInd_A", 16 );
 		PV19_CLInd[0].Connect( bundle, 8 );

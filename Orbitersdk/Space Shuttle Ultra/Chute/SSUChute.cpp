@@ -6,14 +6,6 @@
 SSUChute::SSUChute(OBJHANDLE hVessel, int flightmodel)
 	: VESSEL2(hVessel, flightmodel)
 {
-	SetEmptyMass(10.0);
-	VECTOR3 mesh_ofs= _V(0, 0, 0);
-
-	mesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_CHUTE);
-	mesh_idx=AddMesh(mesh, &mesh_ofs);
-
-	DefineAnimations();
-	CreateVariableDragElement(&anim_collapse_state, 45, _V(0, 0, 0));
 }
 
 SSUChute::~SSUChute()
@@ -26,6 +18,30 @@ void SSUChute::DefineAnimations()
 	anim_collapse=CreateAnimation(1.0);
 	static MGROUP_SCALE collapse (mesh_idx, NULL, 4, _V(0, 0, 0), _V(1, 100, 1));
 	AddAnimationComponent(anim_collapse, 0, 1, &collapse);
+}
+
+void SSUChute::clbkSetClassCaps( FILEHANDLE cfg )
+{
+	VECTOR3 mesh_ofs= _V(0, 0, 0);
+
+	mesh=oapiLoadMeshGlobal(DEFAULT_MESHNAME_CHUTE);
+	mesh_idx=AddMesh(mesh, &mesh_ofs);
+
+	SetEmptyMass(10.0);
+	SetCrossSections( _V( 0.000001, 0.000001, 0.000001 ) );// super small so it doesn't get dragged by the wind after it lands
+
+	DWORD ntdvtx = 4;
+	static TOUCHDOWNVTX tdvtx[4] = {
+		{_V( 0, 0, 5 ), 1e3, 1e2, 1, 1},
+		{_V( 5, 0, -5 ), 1e3, 1e2, 1, 1},
+		{_V( -5, 0, -5 ), 1e3, 1e2, 1, 1},
+		{_V( 0, 0.1, 0 ), 1e3, 1e2, 1}
+	};
+	SetTouchdownPoints( tdvtx, ntdvtx );
+
+	DefineAnimations();
+	CreateVariableDragElement(&anim_collapse_state, 45, _V(0, 0, 0));
+	return;
 }
 
 void SSUChute::clbkPreStep(double simt, double simdt, double mjd)
