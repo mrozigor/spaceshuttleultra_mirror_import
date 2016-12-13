@@ -460,6 +460,7 @@ void SSUPad::clbkPostCreation()
 		//StsTank = pSTS->STSTankForPad;
 		//SetPropellantLeve
 	
+	SetPropellantMass( phStadiumLights, 1.0 );// bypass scenario prop parameter to make sure lights have glare
 }
 
 void SSUPad::clbkPreStep(double simt, double simdt, double mjd)
