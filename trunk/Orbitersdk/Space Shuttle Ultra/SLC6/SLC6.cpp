@@ -120,6 +120,8 @@ void SLC6::clbkPostCreation()
 {
 	UpdateGOXVents();
 	SetPropellantMass(phGOXVent, 0.01); // ensure that fake propellant tank for GOX venting has fuel
+
+	SetPropellantMass( phStadiumLights, 1.0 );// bypass scenario prop parameter to make sure lights have glare
 }
 
 void SLC6::clbkPreStep(double simt, double simdt, double mjd)

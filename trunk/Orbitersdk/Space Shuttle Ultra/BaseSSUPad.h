@@ -19,7 +19,6 @@ class BaseSSUPad : public VESSEL3, public ISSULaunchTower
 	bool bLightsOn;
 	double fNextLightUpdate;
 
-	PROPELLANT_HANDLE phStadiumLights; // fake tank for lights
 	std::vector<BEACONLIGHTSPEC> lights;
 	//std::vector<BEACONLIGHTSPEC> stadium_lights; // TODO: debugging only
 	std::vector<THRUSTER_HANDLE> thStadiumLights;
@@ -36,6 +35,7 @@ class BaseSSUPad : public VESSEL3, public ISSULaunchTower
 	
 	//bool bFirstStep;
 protected:
+	PROPELLANT_HANDLE phStadiumLights; // fake tank for lights
 	// 0.0, CLOSED corresponds to state at T0
 	AnimState AccessArmState;
 	AnimState VentHoodState, VentArmState;

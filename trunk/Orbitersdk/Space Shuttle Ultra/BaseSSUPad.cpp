@@ -77,7 +77,7 @@ void BaseSSUPad::ToggleLights(bool enable)
 
 	for(unsigned int i=0;i<pStadiumLights.size();i++) {
 		pStadiumLights[i]->Activate(enable);
-		SetThrusterLevel(thStadiumLights[i], 1.0);
+		SetThrusterLevel(thStadiumLights[i], enable?1.0:0.0 );
 		//stadium_lights[i].active = enable;
 	}
 }
