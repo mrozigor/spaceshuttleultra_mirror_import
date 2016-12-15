@@ -67,6 +67,24 @@ const VECTOR3 PROBER_REF = _V( 1.12,-2.346,17.092);
 const VECTOR3 PROBE_AXIS = _V(-0.0918181,0.94801,0.304708);
 
 // ============================================================
+// ET umbilical door animation constants
+// ============================================================
+const double ETUMB_ARM_RANGE = 104.0 * RAD;// tunes how much the doors open
+
+// all points on each side must be taken +/- on the same plane that contains the (aft) mechanism
+const VECTOR3 ETUMB_L_AXIS = _V( 0.0, -0.0700974159956, 0.997540150706 );
+const VECTOR3 ETUMB_L_P1 = _V( -1.3862, -3.9114, -10.0138 );// door axis
+const VECTOR3 ETUMB_L_P2 = _V( -1.2799, -3.8, -10.0333 );// arm axis
+const VECTOR3 ETUMB_L_P3 = _V( -1.4533, -3.5652, -10.0154 );// arm/link axis
+const VECTOR3 ETUMB_L_P4 = _V( -1.5678, -3.8018, -10.0278 );// link/door axis
+
+const VECTOR3 ETUMB_R_AXIS = _V( 0.0, -0.0700974159956, 0.997540150706 );
+const VECTOR3 ETUMB_R_P1 = _V( 1.3862, -3.9114, -10.0138 );// door axis
+const VECTOR3 ETUMB_R_P2 = _V( 1.2799, -3.8, -10.0333 );// arm axis
+const VECTOR3 ETUMB_R_P3 = _V( 1.4533, -3.5652, -10.0154 );// arm/link axis
+const VECTOR3 ETUMB_R_P4 = _V( 1.5678, -3.8018, -10.0278 );// link/door axis
+
+// ============================================================
 // Star Tracker Door Animation Constants
 // ============================================================
 const VECTOR3 STZD_REF = _V(-1.1169,0.4198,13.5551);
