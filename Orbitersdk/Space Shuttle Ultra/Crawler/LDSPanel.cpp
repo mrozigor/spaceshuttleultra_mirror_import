@@ -55,6 +55,8 @@ namespace vc
 			}
 		}
 
+		if (attachments.size() == 0) return NULL;// no vessels
+
 		//sprintf(oapiDebugString(),"FOUND %lf ATTACHMENTS",attachments.end());
 
 		//ALL XMLP ATTACHMENTS COMPLETED
@@ -89,6 +91,8 @@ namespace vc
 		VESSEL* pTgt;
 		ATTACHMENTHANDLE ahTgt = FindNearestAttachment(&pTgt);
 		
+		if (ahTgt == NULL) return 0;
+
 		VECTOR3 CabPos;
 		if(CabSelectionSwitchPosition == CAB3) CabPos = CRAWLER_FWD_VC_OFFSET;
 		else CabPos = CRAWLER_REAR_VC_OFFSET;
