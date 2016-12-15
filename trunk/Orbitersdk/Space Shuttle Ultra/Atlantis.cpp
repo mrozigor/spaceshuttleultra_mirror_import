@@ -389,7 +389,7 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pgCenter.AddPanel(new vc::PanelC2(this));
 	pgCenter.AddPanel(new vc::PanelC3(this));
 
-	pgRight.AddPanel(panelr2 = new vc::PanelR2(this));
+	pgRight.AddPanel(new vc::PanelR2(this));
 
 	pgOverhead.AddPanel(new vc::PanelO3(this));
 	pgOverhead.AddPanel(new vc::PanelO6(this));
@@ -2563,8 +2563,9 @@ void Atlantis::ToggleGrapple(void)
 	}
 }
 
-bool Atlantis::HydraulicsOK() {
-	return panelr2->HydraulicPressure();
+bool Atlantis::HydraulicsOK( void ) const
+{
+	return ((pAPU[0]->GetHydraulicPressure() >= 2800) || (pAPU[1]->GetHydraulicPressure() >= 2800) || (pAPU[2]->GetHydraulicPressure() >= 2800));
 }
 
 void Atlantis::GimbalOMS(int engine, double pitch, double yaw)
@@ -5088,11 +5089,11 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 			break;
 		case STATE_ORBITER: // post tank separation
 			//Check if Control Surfaces are usable
-			if (ControlSurfacesEnabled && !panelr2->HydraulicPressure())
+			if (ControlSurfacesEnabled && !HydraulicsOK())
 			{
 				DisableControlSurfaces();
 			}
-			else if (!ControlSurfacesEnabled && panelr2->HydraulicPressure())
+			else if (!ControlSurfacesEnabled && HydraulicsOK())
 			{
 				EnableControlSurfaces();
 			}
@@ -5121,7 +5122,7 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 
 		// ***** Animate speedbrake *****
 
-		if (spdb_status >= AnimState::CLOSING && panelr2->HydraulicPressure()) {
+		if (spdb_status >= AnimState::CLOSING && HydraulicsOK()) {
 			double da = simdt * SPEEDBRAKE_OPERATING_SPEED;
 			if (spdb_status == AnimState::CLOSING) { // retract brake
 				if (spdb_proc > spdb_tgt) spdb_proc = max(spdb_tgt, spdb_proc - da);
@@ -6114,19 +6115,42 @@ bool Atlantis::SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir)
 
 bool Atlantis::SetSSMEGimbalAngles(unsigned usMPSNo, double degPitch, double degYaw)
 {
-	if (usMPSNo == 0) {
-		return SetSSMEGimbalAngles(1, degPitch, degYaw) &&
-			SetSSMEGimbalAngles(2, degPitch, degYaw) &&
-			SetSSMEGimbalAngles(3, degPitch, degYaw);
-	}
-	else if (usMPSNo > 3) {
-		return false; // error
-	}
-	else {
-		VECTOR3 dir = RotateVectorX(SSMEInstalledNullPos[usMPSNo - 1], range(-10.5, degPitch, 10.5));
-		SSMECurrentPos[usMPSNo - 1] = RotateVectorY(dir, range(-8.5, degYaw, 8.5));
-		UpdateSSMEGimbalAnimations();
-		return SetSSMEDir(usMPSNo, SSMECurrentPos[usMPSNo - 1]);
+	switch (usMPSNo)
+	{
+		case 0:
+			return SetSSMEGimbalAngles(1, degPitch, degYaw) &&
+				SetSSMEGimbalAngles(2, degPitch, degYaw) &&
+				SetSSMEGimbalAngles(3, degPitch, degYaw);
+		case 1:
+			if ((pAPU[0]->GetHydraulicPressure() >= 1500) || (pAPU[2]->GetHydraulicPressure() >= 1500))
+			{
+				VECTOR3 dir = RotateVectorX( SSMEInstalledNullPos[0], range( -10.5, degPitch, 10.5 ) );
+				SSMECurrentPos[0] = RotateVectorY( dir, range( -8.5, degYaw, 8.5 ) );
+				UpdateSSMEGimbalAnimations();
+				return SetSSMEDir( 1, SSMECurrentPos[0] );
+			}
+			return true;
+		case 2:
+			if ((pAPU[1]->GetHydraulicPressure() >= 1500) || (pAPU[0]->GetHydraulicPressure() >= 1500))
+			{
+				VECTOR3 dir = RotateVectorX( SSMEInstalledNullPos[1], range( -10.5, degPitch, 10.5 ) );
+				SSMECurrentPos[1] = RotateVectorY( dir, range( -8.5, degYaw, 8.5 ) );
+				UpdateSSMEGimbalAnimations();
+				return SetSSMEDir( 2, SSMECurrentPos[1] );
+			}
+			return true;
+		case 3:
+			if ((pAPU[2]->GetHydraulicPressure() >= 1500) || (pAPU[1]->GetHydraulicPressure() >= 1500))
+			{
+				VECTOR3 dir = RotateVectorX( SSMEInstalledNullPos[2], range( -10.5, degPitch, 10.5 ) );
+				SSMECurrentPos[2] = RotateVectorY( dir, range( -8.5, degYaw, 8.5 ) );
+				UpdateSSMEGimbalAnimations();
+				return SetSSMEDir( 3, SSMECurrentPos[2] );
+			}
+			return true;
+
+		default:
+			return false; // error
 	}
 }
 

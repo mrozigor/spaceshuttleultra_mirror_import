@@ -80,8 +80,6 @@ namespace vc
 		virtual void RegisterVC();
 		virtual void DefineVC();
 		virtual void Realize();
-
-		virtual bool HydraulicPressure() const;
 	};
 };
 
