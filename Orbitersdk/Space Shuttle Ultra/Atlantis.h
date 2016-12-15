@@ -560,7 +560,7 @@ public:
 	virtual void StartRSLSSequence();
 	virtual bool GetRSLSAbortFlag() const;
 
-	virtual bool HydraulicsOK();
+	virtual bool HydraulicsOK( void ) const;
 
 	virtual void PSN4( void );
 	virtual void SetSSMEActPos( int num, double Ppos, double Ypos );
@@ -628,8 +628,6 @@ public:
 	ATTACHMENTHANDLE ahET, ahLeftSRB, ahRightSRB;
 	
 	AtlantisSubsystemDirector* psubsystems;
-	
-	vc::PanelR2 *panelr2; // temporary
 
 	/**
 	 * Bridge function between MPS and ET to "deliver" GO2 and GH2 for

@@ -560,9 +560,4 @@ namespace vc
 
 		AtlantisPanel::Realize();
 	}
-
-	bool PanelR2::HydraulicPressure() const
-	{
-		return (APU_HydraulicPress[0].IsSet(2.8f) || APU_HydraulicPress[1].IsSet(2.8f) || APU_HydraulicPress[2].IsSet(2.8f));
-	}
 };
