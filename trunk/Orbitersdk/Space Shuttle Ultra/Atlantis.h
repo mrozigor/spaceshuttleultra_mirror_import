@@ -814,7 +814,11 @@ private:
 	UINT anim_rudder;						   // handle for rudder animation
 	UINT anim_spdb;                            // handle for speed brake animation
 	UINT anim_letumbdoor;					   // handle for left ET umbilical door animation
+	UINT anim_letumbarm;					   // handle for left ET umbilical arm animation
+	UINT anim_letumblink;					   // handle for left ET umbilical link animation
 	UINT anim_retumbdoor;					   // handle for right ET umbilical door animation
+	UINT anim_retumbarm;					   // handle for right ET umbilical arm animation
+	UINT anim_retumblink;					   // handle for right ET umbilical link animation
 	UINT anim_gear;                            // handle for landing gear animation
 	UINT anim_stzd;							   // handle for +Z Star Tracker Door animation
 	UINT anim_styd;							   // handle for -Y Star Tracker Door animation

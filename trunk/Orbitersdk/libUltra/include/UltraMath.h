@@ -336,6 +336,12 @@ static inline double SignedAngle(const VECTOR3& v1, const VECTOR3& v2, const VEC
 	return angle;
 }
 
+static inline double angle(const VECTOR3 dir, const VECTOR3 dir0)
+{
+	return acos(dotp(dir, dir0) /
+		(length(dir) * length(dir0)));
+}
+
 static inline VECTOR3 RotateVectorX(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in X-axis
 {
 	VECTOR3 Output;
