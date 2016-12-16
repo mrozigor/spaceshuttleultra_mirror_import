@@ -240,7 +240,7 @@ Modules\SSU_VAB.dll
 Modules\SSU_Xenon_Lights.dll
 Scenarios\Space Shuttle Ultra\Launch test.scn
 Scenarios\Space Shuttle Ultra\Description.txt
-Scenarios\Space Shuttle Ultra\Historic missions\STS-1\On-orbit.scn
+Scenarios\Space Shuttle Ultra\Historic missions\STS-1\In orbit.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-1\STS-1 L-10 minutes.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-3\STS-3 Launch T-1 minute.scn
 Scenarios\Space Shuttle Ultra\Historic missions\STS-26R\STS-26R IUS deploy.scn
@@ -272,12 +272,12 @@ Scenarios\Space Shuttle Ultra\Testing scenarios\SLC-6 Launch test.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\STS-1 T-45s.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\STS-126 T-1m.scn
 Scenarios\Space Shuttle Ultra\Theoretical missions\STS-61F\Centaur rotation to deploy.scn
-Scenarios\Space Shuttle Ultra\Theoretical missions\STS-61F\Challenger on-orbit.scn
+Scenarios\Space Shuttle Ultra\Theoretical missions\STS-61F\Challenger in orbit.scn
 Scenarios\Space Shuttle Ultra\Theoretical missions\STS-61F\L-10 minutes.scn
-Scenarios\Space Shuttle Ultra\Theoretical missions\STS-61G\Atlantis on orbit.scn
+Scenarios\Space Shuttle Ultra\Theoretical missions\STS-61G\Atlantis in orbit.scn
 Scenarios\Space Shuttle Ultra\Theoretical missions\STS-61G\L-10 minutes.scn
 Scenarios\Space Shuttle Ultra\Theoretical missions\STS-62B\STS-62B T-45s.scn
-Scenarios\Space Shuttle Ultra\Theoretical missions\STS-81I\Atlantis on-orbit.scn
+Scenarios\Space Shuttle Ultra\Theoretical missions\STS-81I\Atlantis in orbit.scn
 Scenarios\Space Shuttle Ultra\Theoretical missions\STS-81I\L-10 minutes.scn
 Scenarios\Space Shuttle Ultra\Theoretical missions\Description.txt
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\APU_continues.wav
