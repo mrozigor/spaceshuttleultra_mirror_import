@@ -125,6 +125,8 @@ bool BasicSwitch::OnParseLine(const char* line) {
 	char pszBuffer[256];
 	sprintf_s(pszBuffer, 255, "\t\tSet switch \"%s\" to state \"%s\".",
 		GetQualifiedIdentifier().c_str(), line);
+	oapiWriteLog( pszBuffer );
+
 	if(line[0] == '[') {
 		usCurrentPosition = atoi(line+1);
 		OnPositionChange(usCurrentPosition);
