@@ -224,15 +224,8 @@
     <None Include="..\..\Meshes\SSU\RMS.msh" />
     <None Include="..\..\Meshes\SSU\VC.msh" />
     <None Include="..\..\Scenarios\(Current state).scn" />
-    <None Include="Bitmaps\DEU_Raw_overbright.bmp" />
-    <None Include="Bitmaps\clocknums.bmp" />
-    <None Include="Bitmaps\DEU_Raw.bmp" />
-    <None Include="Bitmaps\digits.bmp" />
-    <None Include="Bitmaps\ODSbuttons.bmp" />
-    <None Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
     <None Include="..\..\Orbiter.log" />
     <None Include="..\..\Config\Vessels\SpaceShuttleUltra.cfg" />
-    <None Include="Bitmaps\tkbk_label.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ASE_IUS.cpp" />
@@ -358,6 +351,7 @@
     <ClCompile Include="dps\MasterTimingUnit.cpp" />
     <ClCompile Include="MCA.cpp" />
     <ClCompile Include="dps\MDM.cpp" />
+    <ClCompile Include="vc\CircuitBreaker.cpp" />
     <ClCompile Include="vc\Keyboard.cpp" />
     <ClCompile Include="vc\MDU.cpp" />
     <ClCompile Include="MechActuator.cpp" />
@@ -536,6 +530,7 @@
     <ClInclude Include="Latch.h" />
     <ClInclude Include="dps\MasterTimingUnit.h" />
     <ClInclude Include="MCA.h" />
+    <ClInclude Include="vc\CircuitBreaker.h" />
     <ClInclude Include="vc\MDU.h" />
     <ClInclude Include="MechActuator.h" />
     <ClInclude Include="meshres.h" />
@@ -616,6 +611,13 @@
     <Image Include="Bitmaps\A8lights.bmp" />
     <Image Include="Bitmaps\DEU_Raw_fault.bmp" />
     <Image Include="Bitmaps\SSME_lights.bmp" />
+    <Image Include="Bitmaps\tkbk_label.bmp" />
+    <Image Include="Bitmaps\DEU_Raw_overbright.bmp" />
+    <Image Include="Bitmaps\clocknums.bmp" />
+    <Image Include="Bitmaps\DEU_Raw.bmp" />
+    <Image Include="Bitmaps\digits.bmp" />
+    <Image Include="Bitmaps\ODSbuttons.bmp" />
+    <Image Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

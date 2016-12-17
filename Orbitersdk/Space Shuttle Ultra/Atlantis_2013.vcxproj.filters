@@ -33,15 +33,8 @@
       <Filter>Meshes</Filter>
     </None>
     <None Include="..\..\Scenarios\(Current state).scn" />
-    <None Include="Bitmaps\clocknums.bmp" />
-    <None Include="Bitmaps\DEU_Raw.bmp" />
-    <None Include="Bitmaps\digits.bmp" />
-    <None Include="Bitmaps\ODSbuttons.bmp" />
-    <None Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
     <None Include="..\..\Orbiter.log" />
     <None Include="..\..\Config\Vessels\SpaceShuttleUltra.cfg" />
-    <None Include="Bitmaps\tkbk_label.bmp" />
-    <None Include="Bitmaps\DEU_Raw_overbright.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="eps\ACBus.cpp">
@@ -534,6 +527,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="dps\Landing_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\CircuitBreaker.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1075,6 +1071,9 @@
     <ClInclude Include="dps\Landing_SOP.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="vc\CircuitBreaker.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Atlantis.rc" />
@@ -1083,5 +1082,12 @@
     <Image Include="Bitmaps\DEU_Raw_fault.bmp" />
     <Image Include="Bitmaps\SSME_lights.bmp" />
     <Image Include="Bitmaps\A8lights.bmp" />
+    <Image Include="Bitmaps\tkbk_label.bmp" />
+    <Image Include="Bitmaps\DEU_Raw_overbright.bmp" />
+    <Image Include="Bitmaps\clocknums.bmp" />
+    <Image Include="Bitmaps\DEU_Raw.bmp" />
+    <Image Include="Bitmaps\digits.bmp" />
+    <Image Include="Bitmaps\ODSbuttons.bmp" />
+    <Image Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
   </ItemGroup>
 </Project>
