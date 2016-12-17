@@ -315,36 +315,35 @@ void SSU_Centaur::clbkPreStep( double simt, double simdt, double mjd )
 		}
 		else
 		{
-			// engine tvc
+			// engine TVC (rate command)
 			VECTOR3 avel;
 			GetAngularVel( avel );
-			if (manP != 0) RL10_P += manP * simdt;// man
-			else
-			{
-				double newP = ctrlRL10_P.Step( avel.x * DEG, simdt );// auto (drive to 0º/s)
-				//nozzle rate limit
-				if ((newP - RL10_P) > RL10_AUTO_GIMBAL_RATE) newP = RL10_P + RL10_AUTO_GIMBAL_RATE;
-				else if ((newP - RL10_P) < -RL10_AUTO_GIMBAL_RATE) newP = RL10_P - RL10_AUTO_GIMBAL_RATE;
-				RL10_P = newP;
-			}
-			if (manY != 0) RL10_Y += manY * simdt;// man
-			else
-			{
-				double newY = ctrlRL10_Y.Step( avel.y * DEG, simdt );// auto (drive to 0º/s)
-				//nozzle rate limit
-				if ((newY - RL10_Y) > RL10_AUTO_GIMBAL_RATE) newY = RL10_Y + RL10_AUTO_GIMBAL_RATE;
-				else if ((newY - RL10_Y) < -RL10_AUTO_GIMBAL_RATE) newY = RL10_Y - RL10_AUTO_GIMBAL_RATE;
-				RL10_Y = newY;
-			}
-			if (manR != 0) RL10_R += manR * simdt;// man
-			else
-			{
-				double newR = ctrlRL10_R.Step( avel.z * DEG, simdt );// auto (drive to 0º/s)
-				//nozzle rate limit
-				if ((newR - RL10_R) > RL10_AUTO_GIMBAL_RATE) newR = RL10_R + RL10_AUTO_GIMBAL_RATE;
-				else if ((newR - RL10_R) < -RL10_AUTO_GIMBAL_RATE) newR = RL10_R - RL10_AUTO_GIMBAL_RATE;
-				RL10_R = newR;
-			}
+
+			// pitch
+			// command rate
+			double newP = ctrlRL10_P.Step( (avel.x * DEG) - manP, simdt );
+			// nozzle rate limit
+			if ((newP - RL10_P) > RL10_MAX_GIMBAL_RATE) newP = RL10_P + RL10_MAX_GIMBAL_RATE;
+			else if ((newP - RL10_P) < -RL10_MAX_GIMBAL_RATE) newP = RL10_P - RL10_MAX_GIMBAL_RATE;
+			RL10_P = newP;
+
+			// yaw
+			// command rate
+			double newY = ctrlRL10_Y.Step( (avel.y * DEG) - manY, simdt );
+			//nozzle rate limit
+			if ((newY - RL10_Y) > RL10_MAX_GIMBAL_RATE) newY = RL10_Y + RL10_MAX_GIMBAL_RATE;
+			else if ((newY - RL10_Y) < -RL10_MAX_GIMBAL_RATE) newY = RL10_Y - RL10_MAX_GIMBAL_RATE;
+			RL10_Y = newY;
+
+
+			// roll
+			// command rate
+			double newR = ctrlRL10_R.Step( (avel.z * DEG) - manR, simdt );
+			//nozzle rate limit
+			if ((newR - RL10_R) > RL10_MAX_GIMBAL_RATE) newR = RL10_R + RL10_MAX_GIMBAL_RATE;
+			else if ((newR - RL10_R) < -RL10_MAX_GIMBAL_RATE) newR = RL10_R - RL10_MAX_GIMBAL_RATE;
+			RL10_R = newR;
+			
 			// output
 			VECTOR3 tv0 = _V( -sin( range( -RL10_GIMBAL_RANGE, RL10_Y + RL10_R, RL10_GIMBAL_RANGE ) * RAD ), sin( range( -RL10_GIMBAL_RANGE, RL10_P, RL10_GIMBAL_RANGE ) * RAD ), 1 );
 			VECTOR3 tv1 = _V( -sin( range( -RL10_GIMBAL_RANGE, RL10_Y - RL10_R, RL10_GIMBAL_RANGE ) * RAD ), sin( range( -RL10_GIMBAL_RANGE, RL10_P, RL10_GIMBAL_RANGE ) * RAD ), 1 );
@@ -397,93 +396,74 @@ void SSU_Centaur::DefineGPrimeAnimations( void )
 	RegisterAnimation();
 }
 
-/*bool SSU_Centaur::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp )
-{
-	if (!separated) return true;
-
-	char cbuf[64];
-	double Ypos = 0.3;
-
-	sprintf_s( cbuf, 64, "ACS available: %.2f Kg", GetPropellantMass( phACS ) );
-	skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
-	Ypos += 0.03;
-
-	if (!RL10_ENA)
-	{
-		sprintf_s( cbuf, 64, "RL-10 inhibits removed in: %.0f s", RL10_ENA_DELAY - timer_RL10_ENA );
-		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
-		Ypos += 0.03;
-	}
-	else if ((RL10_startseq) && (RL10_chill))
-	{
-		sprintf_s( cbuf, 64, "RL-10 ignition in: %.0f s", RL10_START_SEQ - timer_RL10_startseq );
-		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
-		Ypos += 0.03;
-	}
-
-	if (!ACS_ENA)
-	{
-		sprintf_s( cbuf, 64, "ACS inhibits removed in: %.0f s", ACS_ENA_DELAY - timer_ACS_ENA );
-		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
-		Ypos += 0.03;
-	}
-
-	OBJHANDLE earth = GetGravityRef();
-	char str[8];
-	oapiGetObjectName( earth, str, 8 ); 
-	if (!_strnicmp( str, "Earth", 5 ))
-	{
-		VECTOR3 vel;
-		VECTOR3 pos;
-		GetRelativeVel( earth, vel );
-		GetRelativePos( earth, pos );
-		double v = length( vel );
-		double r = length( pos );
-		double mu = 398600439968871.19;
-		double C3 = ((0.5 * v * v) - (mu / r)) * 0.000002;
-		sprintf_s( cbuf, 64, "C3 energy: %.2f km^2/sec^2", C3 );
-		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
-	}
-	return true;
-}*/
-
-
 int SSU_Centaur::clbkConsumeBufferedKey( DWORD key, bool down, char* kstate )
 {
 	if (!down)
 	{
 		// man gimbal
-		if ((manP == -RL10_MAN_GIMBAL_RATE) && (key == OAPI_KEY_NUMPAD2))
+		if (key == OAPI_KEY_NUMPAD2)
 		{
-			manP = 0;
+			manP -= VEHICLE_MAX_RATE_CMD;
 			return 1;
 		}
-		else if ((manP == RL10_MAN_GIMBAL_RATE) && (key == OAPI_KEY_NUMPAD8))
+		else if (key == OAPI_KEY_NUMPAD8)
 		{
-			manP = 0;
+			manP -= -VEHICLE_MAX_RATE_CMD;
 			return 1;
 		}
-		else if ((manY == -RL10_MAN_GIMBAL_RATE) && (key == OAPI_KEY_NUMPAD1))
+		else if (key == OAPI_KEY_NUMPAD1)
 		{
-			manY = 0;
+			manY -= VEHICLE_MAX_RATE_CMD;
 			return 1;
 		}
-		else if ((manY == RL10_MAN_GIMBAL_RATE) && (key == OAPI_KEY_NUMPAD3))
+		else if (key == OAPI_KEY_NUMPAD3)
 		{
-			manY = 0;
+			manY -= -VEHICLE_MAX_RATE_CMD;
 			return 1;
 		}
-		else if ((manR == -RL10_MAN_GIMBAL_RATE) && (key == OAPI_KEY_NUMPAD6))
+		else if (key == OAPI_KEY_NUMPAD6)
 		{
-			manR = 0;
+			manR -= VEHICLE_MAX_RATE_CMD;
 			return 1;
 		}
-		else if ((manR == RL10_MAN_GIMBAL_RATE) && (key == OAPI_KEY_NUMPAD4))
+		else if (key == OAPI_KEY_NUMPAD4)
 		{
-			manR = 0;
+			manR -= -VEHICLE_MAX_RATE_CMD;
 			return 1;
 		}
 		return 0;	
+	}
+
+	// man gimbal
+	if (key == OAPI_KEY_NUMPAD2)
+	{
+		manP += VEHICLE_MAX_RATE_CMD;
+		return 1;
+	}
+	else if (key == OAPI_KEY_NUMPAD8)
+	{
+		manP += -VEHICLE_MAX_RATE_CMD;
+		return 1;
+	}
+	else if (key == OAPI_KEY_NUMPAD1)
+	{
+		manY += VEHICLE_MAX_RATE_CMD;
+		return 1;
+	}
+	else if (key == OAPI_KEY_NUMPAD3)
+	{
+		manY += -VEHICLE_MAX_RATE_CMD;
+		return 1;
+	}
+	else if (key == OAPI_KEY_NUMPAD6)
+	{
+		manR += VEHICLE_MAX_RATE_CMD;
+		return 1;
+	}
+	else if (key == OAPI_KEY_NUMPAD4)
+	{
+		manR += -VEHICLE_MAX_RATE_CMD;
+		return 1;
 	}
 
 	if ((KEYMOD_SHIFT( kstate ) == false) && (KEYMOD_CONTROL( kstate ) == true) && (KEYMOD_ALT( kstate ) == false))// only CTRL key modifier
@@ -532,47 +512,6 @@ int SSU_Centaur::clbkConsumeBufferedKey( DWORD key, bool down, char* kstate )
 				SetThrusterGroupLevel( THGROUP_ATT_FORWARD, 0 );
 				RL10_chill = 0;
 				EnablePitchYawRollACS();
-				return 1;
-			}
-		}
-
-		// man gimbal
-		if (manP == 0)
-		{
-			if (key == OAPI_KEY_NUMPAD2)
-			{
-				manP = -RL10_MAN_GIMBAL_RATE;
-				return 1;
-			}
-			else if (key == OAPI_KEY_NUMPAD8)
-			{
-				manP = RL10_MAN_GIMBAL_RATE;
-				return 1;
-			}
-		}
-		if (manY == 0)
-		{
-			if (key == OAPI_KEY_NUMPAD1)
-			{
-				manY = -RL10_MAN_GIMBAL_RATE;
-				return 1;
-			}
-			else if (key == OAPI_KEY_NUMPAD3)
-			{
-				manY = RL10_MAN_GIMBAL_RATE;
-				return 1;
-			}
-		}
-		if (manR == 0)
-		{
-			if (key == OAPI_KEY_NUMPAD6)
-			{
-				manR = -RL10_MAN_GIMBAL_RATE;
-				return 1;
-			}
-			else if (key == OAPI_KEY_NUMPAD4)
-			{
-				manR = RL10_MAN_GIMBAL_RATE;
 				return 1;
 			}
 		}

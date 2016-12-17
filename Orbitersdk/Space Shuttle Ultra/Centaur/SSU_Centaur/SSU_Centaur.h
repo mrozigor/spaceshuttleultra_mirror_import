@@ -101,9 +101,9 @@ const double RL10_ENA_DELAY = 2700 - RL10_START_SEQ;// s
 const double ANTENNA_DEPLOY_RATE = 2;// 1/s
 const double ANTENNA_DEPLOY_DELAY = 60;// s
 
-const double RL10_MAN_GIMBAL_RATE = 1;// deg/s
-const double RL10_AUTO_GIMBAL_RATE = 1;// deg/s
-const double RL10_GIMBAL_RANGE = 4;// deg
+const double VEHICLE_MAX_RATE_CMD = 5.0;// deg/s
+const double RL10_MAX_GIMBAL_RATE = 2.0;// deg/s
+const double RL10_GIMBAL_RANGE = 4.0;// deg
 
 
 class SSU_Centaur: public VESSEL4
@@ -116,7 +116,6 @@ class SSU_Centaur: public VESSEL4
 
 		void clbkSetClassCaps( FILEHANDLE cfg );
 		void clbkPreStep( double simt, double simdt, double mjd );
-		//bool clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp );
 		int clbkConsumeBufferedKey( DWORD key, bool down, char* kstate );
 		void clbkAnimate( double simt );
 		void clbkVisualCreated( VISHANDLE vis, int refcount );

@@ -212,56 +212,54 @@ void SSU_IUS::clbkPostStep(double simt, double simdt, double mjd)
 		}
 	}
 
-	if (GetThrusterLevel( th_main[0] ) != 0)
+	// engine TVC (rate command)
+	if (GetThrusterLevel( th_main[0] ) != 0)// SRM-1
 	{
-		// engine tvc
 		VECTOR3 avel;
 		GetAngularVel( avel );
-		if (manP != 0) SRM_P += manP * simdt;// man
-		else
-		{
-			double newP = ctrlSRM_P.Step( avel.x * DEG, simdt );// auto (drive to 0º/s)
-			//nozzle rate limit
-			if ((newP - SRM_P) > SRM_AUTO_GIMBAL_RATE) newP = SRM_P + SRM_AUTO_GIMBAL_RATE;
-			else if ((newP - SRM_P) < -SRM_AUTO_GIMBAL_RATE) newP = SRM_P - SRM_AUTO_GIMBAL_RATE;
-			SRM_P = newP;
-		}
-		if (manY != 0) SRM_Y += manY * simdt;// man
-		else
-		{
-			double newY = ctrlSRM_Y.Step( avel.y * DEG, simdt );// auto (drive to 0º/s)
-			//nozzle rate limit
-			if ((newY - SRM_Y) > SRM_AUTO_GIMBAL_RATE) newY = SRM_Y + SRM_AUTO_GIMBAL_RATE;
-			else if ((newY - SRM_Y) < -SRM_AUTO_GIMBAL_RATE) newY = SRM_Y - SRM_AUTO_GIMBAL_RATE;
-			SRM_Y = newY;
-		}
+
+		// pitch
+		// command rate
+		double newP = ctrlSRM_P.Step( (avel.x * DEG) - manP, simdt );
+		// nozzle rate limit
+		if ((newP - SRM_P) > SRM_MAX_GIMBAL_RATE) newP = SRM_P + SRM_MAX_GIMBAL_RATE;
+		else if ((newP - SRM_P) < -SRM_MAX_GIMBAL_RATE) newP = SRM_P - SRM_MAX_GIMBAL_RATE;
+		SRM_P = newP;
+
+		// yaw
+		// command rate
+		double newY = ctrlSRM_Y.Step( (avel.y * DEG) - manY, simdt );
+		// nozzle rate limit
+		if ((newY - SRM_Y) > SRM_MAX_GIMBAL_RATE) newY = SRM_Y + SRM_MAX_GIMBAL_RATE;
+		else if ((newY - SRM_Y) < -SRM_MAX_GIMBAL_RATE) newY = SRM_Y - SRM_MAX_GIMBAL_RATE;
+		SRM_Y = newY;
+
 		// output
 		VECTOR3 tv = _V( -sin( range( -SRM1_GIMBAL_RANGE, SRM_Y, SRM1_GIMBAL_RANGE ) * RAD ), sin( range( -SRM1_GIMBAL_RANGE, SRM_P, SRM1_GIMBAL_RANGE ) * RAD ), 1 );
 		normalise( tv );
 		SetThrusterDir( th_main[0], tv );
 	}
-	else if (GetThrusterLevel( th_main[1] ) != 0)
+	else if (GetThrusterLevel( th_main[1] ) != 0)// SRM-2
 	{
 		VECTOR3 avel;
 		GetAngularVel( avel );
-		if (manP != 0) SRM_P += manP * simdt;// man
-		else
-		{
-			double newP = ctrlSRM_P.Step( avel.x * DEG, simdt );// auto (drive to 0º/s)
-			//nozzle rate limit
-			if ((newP - SRM_P) > SRM_AUTO_GIMBAL_RATE) newP = SRM_P + SRM_AUTO_GIMBAL_RATE;
-			else if ((newP - SRM_P) < -SRM_AUTO_GIMBAL_RATE) newP = SRM_P - SRM_AUTO_GIMBAL_RATE;
-			SRM_P = newP;
-		}
-		if (manY != 0) SRM_Y += manY * simdt;// man
-		else
-		{
-			double newY = ctrlSRM_Y.Step( avel.y * DEG, simdt );// auto (drive to 0º/s)
-			//nozzle rate limit
-			if ((newY - SRM_Y) > SRM_AUTO_GIMBAL_RATE) newY = SRM_Y + SRM_AUTO_GIMBAL_RATE;
-			else if ((newY - SRM_Y) < -SRM_AUTO_GIMBAL_RATE) newY = SRM_Y - SRM_AUTO_GIMBAL_RATE;
-			SRM_Y = newY;
-		}
+
+		// pitch
+		// command rate
+		double newP = ctrlSRM_P.Step( (avel.x * DEG) - manP, simdt );
+		// nozzle rate limit
+		if ((newP - SRM_P) > SRM_MAX_GIMBAL_RATE) newP = SRM_P + SRM_MAX_GIMBAL_RATE;
+		else if ((newP - SRM_P) < -SRM_MAX_GIMBAL_RATE) newP = SRM_P - SRM_MAX_GIMBAL_RATE;
+		SRM_P = newP;
+
+		// yaw
+		// command rate
+		double newY = ctrlSRM_Y.Step( (avel.y * DEG) - manY, simdt );
+		// nozzle rate limit
+		if ((newY - SRM_Y) > SRM_MAX_GIMBAL_RATE) newY = SRM_Y + SRM_MAX_GIMBAL_RATE;
+		else if ((newY - SRM_Y) < -SRM_MAX_GIMBAL_RATE) newY = SRM_Y - SRM_MAX_GIMBAL_RATE;
+		SRM_Y = newY;
+
 		// output
 		VECTOR3 tv = _V( -sin( range( -SRM2_GIMBAL_RANGE, SRM_Y, SRM2_GIMBAL_RANGE ) * RAD ), sin( range( -SRM2_GIMBAL_RANGE, SRM_P, SRM2_GIMBAL_RANGE ) * RAD ), 1 );
 		normalise( tv );
@@ -269,8 +267,12 @@ void SSU_IUS::clbkPostStep(double simt, double simdt, double mjd)
 	}
 	else if (rollRCSonly)
 	{
+		// re-enable RCS after burns
 		EnablePitchYawRCS();
 		rollRCSonly = false;
+		// reset gimbal command
+		SRM_P = 0.0;
+		SRM_Y = 0.0;
 	}
 
 	// animation
@@ -297,76 +299,54 @@ void SSU_IUS::DefineAnimations(void)
 	RegisterAnimation();
 }
 
-/*bool SSU_IUS::clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp )
-{
-	if (!separated) return true;
-
-	char cbuf[64];
-	double Ypos = 0.3;
-
-	sprintf_s( cbuf, 64, "RCS available: %.2f Kg", GetPropellantMass( ph_rcs ) );
-	skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
-	Ypos += 0.03;
-
-	if (!SRM_ENA)
-	{
-		sprintf_s( cbuf, 64, "SRM inhibits removed in: %.0f s", SRM_ENA_DELAY - timer_SRM_ENA );
-		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
-		Ypos += 0.03;
-	}
-
-	if (!RCS_ENA)
-	{
-		sprintf_s( cbuf, 64, "RCS inhibits removed in: %.0f s", RCS_ENA_DELAY - timer_RCS_ENA );
-		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
-		Ypos += 0.03;
-	}
-
-	OBJHANDLE earth = GetGravityRef();
-	char str[8];
-	oapiGetObjectName( earth, str, 8 ); 
-	if (!_strnicmp( str, "Earth", 5 ))
-	{
-		VECTOR3 vel;
-		VECTOR3 pos;
-		GetRelativeVel( earth, vel );
-		GetRelativePos( earth, pos );
-		double v = length( vel );
-		double r = length( pos );
-		double mu = 398600439968871.19;
-		double C3 = ((0.5 * v * v) - (mu / r)) * 0.000002;
-		sprintf_s( cbuf, 64, "C3 energy: %.2f km^2/sec^2", C3 );
-		skp->Text( (int)(hps->W * 0.01), (int)(hps->H * Ypos), cbuf, strlen( cbuf ) );
-	}
-	return true;
-}*/
-
 int SSU_IUS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 {
 	if (!down)
 	{
 		// man gimbal
-		if ((manP == -SRM_MAN_GIMBAL_RATE) && (key == OAPI_KEY_NUMPAD2))
+		if (key == OAPI_KEY_NUMPAD2)
 		{
-			manP = 0;
+			manP -= VEHICLE_MAX_RATE_CMD;
 			return 1;
 		}
-		else if ((manP == SRM_MAN_GIMBAL_RATE) && (key == OAPI_KEY_NUMPAD8))
+		else if (key == OAPI_KEY_NUMPAD8)
 		{
-			manP = 0;
+			manP -= -VEHICLE_MAX_RATE_CMD;
 			return 1;
 		}
-		else if ((manY == -SRM_MAN_GIMBAL_RATE) && (key == OAPI_KEY_NUMPAD1))
+		else if (key == OAPI_KEY_NUMPAD1)
 		{
-			manY = 0;
+			manY -= VEHICLE_MAX_RATE_CMD;
 			return 1;
 		}
-		else if ((manY == SRM_MAN_GIMBAL_RATE) && (key == OAPI_KEY_NUMPAD3))
+		else if (key == OAPI_KEY_NUMPAD3)
 		{
-			manY = 0;
+			manY -= -VEHICLE_MAX_RATE_CMD;
 			return 1;
 		}
-		return 0;	
+		return 0;
+	}
+
+	// man gimbal
+	if (key == OAPI_KEY_NUMPAD2)
+	{
+		manP += VEHICLE_MAX_RATE_CMD;
+		return 1;
+	}
+	else if (key == OAPI_KEY_NUMPAD8)
+	{
+		manP += -VEHICLE_MAX_RATE_CMD;
+		return 1;
+	}
+	else if (key == OAPI_KEY_NUMPAD1)
+	{
+		manY += VEHICLE_MAX_RATE_CMD;
+		return 1;
+	}
+	else if (key == OAPI_KEY_NUMPAD3)
+	{
+		manY += -VEHICLE_MAX_RATE_CMD;
+		return 1;
 	}
 
 	if ((KEYMOD_SHIFT( kstate ) == false) && (KEYMOD_CONTROL( kstate ) == true) && (KEYMOD_ALT( kstate ) == false))// only CTRL key modifier
@@ -438,34 +418,6 @@ int SSU_IUS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 					InhibitPitchYawRCS();
 					return 1;
 				}
-			}
-		}
-
-		// man gimbal
-		if (manP == 0)
-		{
-			if (key == OAPI_KEY_NUMPAD2)
-			{
-				manP = -SRM_MAN_GIMBAL_RATE;
-				return 1;
-			}
-			else if (key == OAPI_KEY_NUMPAD8)
-			{
-				manP = SRM_MAN_GIMBAL_RATE;
-				return 1;
-			}
-		}
-		if (manY == 0)
-		{
-			if (key == OAPI_KEY_NUMPAD1)
-			{
-				manY = -SRM_MAN_GIMBAL_RATE;
-				return 1;
-			}
-			else if (key == OAPI_KEY_NUMPAD3)
-			{
-				manY = SRM_MAN_GIMBAL_RATE;
-				return 1;
 			}
 		}
 	}

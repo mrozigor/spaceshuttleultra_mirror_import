@@ -98,10 +98,10 @@ const double SRM_ENA_DELAY = 3600;// s
 const double STAGE2_EEC_DEPLOY_RATE = 0.1;// s^-1
 const double STAGE2_EEC_DEPLOY_DELAY = 7;// s
 
-const double SRM_MAN_GIMBAL_RATE = 1;// deg/s
-const double SRM_AUTO_GIMBAL_RATE = 1;// deg/s
-const double SRM1_GIMBAL_RANGE = 4;// deg
-const double SRM2_GIMBAL_RANGE = 7;// deg
+const double VEHICLE_MAX_RATE_CMD = 5.0;// deg/s
+const double SRM_MAX_GIMBAL_RATE = 2.0;// deg/s
+const double SRM1_GIMBAL_RANGE = 4.0;// deg
+const double SRM2_GIMBAL_RANGE = 7.0;// deg
 
 
 class SSU_IUS:public VESSEL4
@@ -157,7 +157,6 @@ class SSU_IUS:public VESSEL4
 		void clbkSetClassCaps(FILEHANDLE cfg);
 		void clbkPostStep(double simtt, double simdt, double mjd);
 		void DefineAnimations(void);
-		//bool clbkDrawHUD( int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp );
 		int clbkConsumeBufferedKey(DWORD key, bool down, char *kstate);
 		void clbkAnimate( double simt );
 		void clbkVisualCreated(VISHANDLE vis, int refcount);
