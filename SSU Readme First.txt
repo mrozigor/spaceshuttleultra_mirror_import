@@ -3,7 +3,6 @@ This release, created from Rev. 25xx of the Space Shuttle Ultra code, is for use
 Installation:
 1. Install Orbiter and other required addons:
 	OrbiterSound 4.0 (http://orbiter.dansteph.com/index.php?disp=d)
-	KSC hires tiles (http://www.orbithangar.com/searchid.php?ID=5583)
 	Vandenberg AFB (http://www.orbithangar.com/searchid.php?ID=2380)
 	Antelope Valley scenery pack (http://orbit.medphys.ucl.ac.uk/mirrors/orbiter_radio/tex_mirror.html)
 2. Extract files into Orbiter folder, overwriting any existing files.

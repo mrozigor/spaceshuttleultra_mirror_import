@@ -449,7 +449,6 @@ bool BasicPanel<TVessel>::OnVCMouseEvent(int id, int _event, VECTOR3 &p)
 			
 			return DistributeMouseEvent(_event, p);
 		}
-		return true;
 	}
 	else {
 		return false;

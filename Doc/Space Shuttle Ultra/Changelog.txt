@@ -1,27 +1,16 @@
-*** Major changes from SSU 4.1 ***
+*** Major changes from SSU 4.2 ***
 
-corrected issues with orbiter mesh
-added normal maps to OMS pods
-corrected MECO parameters of some missions
-
-
-*** Major changes from SSU 3.0 ***
-
-corrected orbiter vehicle textures
-corrections to external airlock and tunnel adapter
-fixed orbiter vehicle mesh
-fixed Item 27 issue for OMS-2
-small corrections to RMS systems and its cameras
-corrected colors in displays
-added some functionality to Ku-band antenna (radar and manual slew)
-added Centaur upper stage and its vc panel
-added IUS upper stage and its vc panels
-updated HUD graphics
-fixed wrong WT parameter in MNVR display
-fixed issue with timer
-new texture for RMS
-fixed position of PLB handrails
-fixed reentry mesh not showing
-corrected the painting scheme on FWC SRBs
-corrected RMS and OBSS meshes
-new ET meshes
+updated SSU to run in Orbiter 2016
+integrated CRTMFD into the SpaceShuttleUltra vessel
+moved HUD outputs in IUS and Centaur into own MFDs
+extensive overhaul of the CRTMFD displays: corrected MDU screen aspect ratio, all displays reworked and converted to 512x512 resolution, separate code for MOGE and D3D9, added fonts, improved resource allocation
+improved CRT keyboard data entry
+improved memory cleanup on exit
+updated 7-segment displays to the "UV system"
+improved VC mesh performance
+corrected position of White Sands surface base
+added manual control capability during ascent
+added FCS lights checkout in MM801
+improved RHC, THC and SBTC simulation and added RPTA
+fixed pad lights glare
+changed IUS and Centaur engine gimbal to be rate command

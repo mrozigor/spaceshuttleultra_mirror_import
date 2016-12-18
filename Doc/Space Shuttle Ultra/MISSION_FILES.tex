@@ -74,7 +74,7 @@ The SSU installation already has some mission files for the included scenarios.
 	Orbiter & String & Orbiter name (also determines orbiter vehicle empty mass and default texture), valid values$\colon$ ''Columbia'', ''Challenger'', ''Discovery'', ''Atlantis'', ''Endeavour'' & Atlantis\\
 	\hline
 	\rule{0pt}{2ex}
-	OrbiterTexture & String & Orbiter texture name (located in ''<orbiter\_installation>\textbackslash Textures\textbackslash SSU''. Currently available textures for each Orbiter$\colon$ \newline
+	OrbiterTexture & String & Orbiter texture name (located in ''<orbiter\_installation>\textbackslash Textures\textbackslash SSU''). Currently available textures for each Orbiter$\colon$ \newline
 Columbia$\colon$ \newline
 $\Rightarrow$ ''Columbia\_original'', ''Columbia\_8thmod''\newline
 Challenger$\colon$\newline
@@ -85,6 +85,12 @@ Endeavour$\colon$\newline
 $\Rightarrow$ ''Endeavour\_original'', ''Endeavour\_3rdmod''\newline
 Atlantis$\colon$\newline
 $\Rightarrow$ ''Atlantis\_original'', ''Atlantis\_5thmod''	& (the last on each Orbiter list)\\
+	\hline
+	\rule{0pt}{2ex}
+	LOMSPodTexture & String & Name of left OMS pod texture (located in ''<orbiter\_installation>\textbackslash Textures\textbackslash SSU'') & -\\
+	\hline
+	\rule{0pt}{2ex}
+	ROMSPodTexture & String & Name of right OMS pod texture (located in ''<orbiter\_installation>\textbackslash Textures\textbackslash SSU'') & -\\
 	\hline
 	\rule{0pt}{2ex}
 	TargetInc & Number & Target inclination for MECO (deg) & 28.5\\
@@ -120,7 +126,7 @@ $\Rightarrow$ ''Atlantis\_original'', ''Atlantis\_5thmod''	& (the last on each O
 	UseRMS & Boolean & RMS is installed & FALSE\\
 	\hline
 	\rule{0pt}{2ex}
-	UseKUBand & Boolean & KU-Band antenna is installed & TRUE\\
+	UseKUBand & Boolean & KU-Band antenna is installed & FALSE\\
 	\hline
 	\rule{0pt}{2ex}
 	UseSTBDMPM & Boolean & Starboard MPMs are installed & FALSE\\
@@ -141,7 +147,7 @@ $\Rightarrow$ ''Atlantis\_original'', ''Atlantis\_5thmod''	& (the last on each O
 	HasBulkheadFloodlights & Boolean & Forward bulkhead floodlight and docking light are installed (Discovery and Endeavour only, always installed on others) & TRUE\\
 	\hline
 	\rule{0pt}{2ex}
-	HasDragChute & Boolean & OV has drag chute & TRUE\\
+	HasDragChute & Boolean & OV has drag chute & FALSE\\
 	\hline
 	\rule{0pt}{2ex}
 	Bridgerails & Comma-separated numbers & Comma-separated list of numbers indicating which bridgerails are present. Each number in list should be between 0 and 12 inclusive & -\\
