@@ -247,7 +247,7 @@ void VLiftCoeff(VESSEL *v, double aoa, double M, double Re, void* lv, double *cl
 		if (abs(aoa) > 90.0*RAD) aoa = 0.0; // handle Orbitersim bug which results in very large AOA at first timestep
 
 		AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
-		GetShuttleVerticalAeroCoefficients(M, aoa*DEG, v->GetAltitude(), aerosurfaces, cl, cm, cd);
+		GetShuttleVerticalAeroCoefficients(M, aoa*DEG, v->GetAltitude( ALTMODE_GROUND ), aerosurfaces, cl, cm, cd);
 	}
 	else {
 		*cl = 0.0;
