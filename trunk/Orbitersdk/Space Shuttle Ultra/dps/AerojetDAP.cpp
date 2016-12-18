@@ -4067,7 +4067,8 @@ void AerojetDAP::LoadLandingSiteList()
 	vLandingSites.back().SetSecRunwayParameters( 15000 / MPS2FPS, 300 / MPS2FPS );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDW15", "EDW18L" ) );// 44
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
-	vLandingSites.push_back(LandingSiteData(34.9173476*RAD, -117.8595079*RAD, 704.0, 34.8941050*RAD, -117.9051869*RAD, 704.0, 238.16, 58.16, "EDW22", "EDW04"));// 45
+	vLandingSites.push_back( LandingSiteData( 34.9162877 * RAD, -117.8624059 * RAD, 704.0, 34.8960151 * RAD, -117.9021312 * RAD, 704.0, 238.16, 58.16, "EDW22", "EDW04", 14995 / MPS2FPS, 300 / MPS2FPS ) );// 45
+	vLandingSites.back().SetSecRunwayParameters( 13995 / MPS2FPS, 300 / MPS2FPS );// length/width data above is for primary runway
 }
 
 bool AerojetDAP::GetAutoPitchState( void ) const
