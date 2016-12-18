@@ -34,7 +34,6 @@ namespace vc
 			oapiWriteLog( pszBuffer );
 			return true;
 		}
-		return false;
 	}
 
 	bool CircuitBreaker::GetStateString( unsigned long ulBufferSize, char* pszBuffer )

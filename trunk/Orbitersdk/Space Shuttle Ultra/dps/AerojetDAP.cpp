@@ -2918,7 +2918,7 @@ void AerojetDAP::PaintVERTSIT1Display( vc::MDU* pMDU ) const
 	// digital data
 	sprintf_s( cbuf, 8, "%3.0f", STS()->aerosurfaces.speedbrake );
 	pMDU->mvprint( 36, 14, cbuf );
-	sprintf_s( cbuf, 8, "%3.0f", STS()->spdb_tgt * 100 );
+	sprintf_s( cbuf, 8, "%3.0f", GetAutoSpeedbrakeCommand() );
 	pMDU->mvprint( 36, 15, cbuf );
 
 	VECTOR3 lift, drag, gravity;
@@ -2996,7 +2996,7 @@ void AerojetDAP::PaintVERTSIT2Display( vc::MDU* pMDU ) const
 	// digital data
 	sprintf_s( cbuf, 8, "%3.0f", STS()->aerosurfaces.speedbrake );
 	pMDU->mvprint( 38, 14, cbuf );
-	sprintf_s( cbuf, 8, "%3.0f", STS()->spdb_tgt * 100 );
+	sprintf_s( cbuf, 8, "%3.0f", GetAutoSpeedbrakeCommand() );
 	pMDU->mvprint( 38, 15, cbuf );
 
 	VECTOR3 lift, drag, gravity;

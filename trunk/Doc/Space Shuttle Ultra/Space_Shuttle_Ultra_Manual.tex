@@ -75,7 +75,7 @@
 
 \textsc{\LARGE Space Shuttle Ultra}\\[1.5cm]
 
-\textsc{\Large Version 4.2}\\[0.5cm]
+\textsc{\Large Version 5.0}\\[0.5cm]
 
 \huge \bfseries SSU Operations Manual\\[0.4cm]
 
@@ -108,7 +108,7 @@ Charles F. Bolden Jr. - NASA Administrator, 2015
 %\addcontentsline{toc}{section}{PREFACE}
 Space Shuttle Ultra (SSU) is an addon for Orbiter Space Flight Simulator.  The purpose of this addon is to fully simulate the NASA's Space Transportation System Program.  Currently only a few elements have been completed and work on others is ongoing.\\
 \\
-The basis for this addon was the Space Shuttle Deluxe but through adding additional subsystems and taking full advantage of the 2010 version of Orbiter, the current SSU has few similarities to the original Deluxe.  Currently, SSU simulates a number of systems, displays, and procedures of the real shuttle and can be used along with real NASA Flight Data File (FDF) checklists to complete tasks.  These checklists can be found at the \href{http://www.nasa.gov/centers/johnson/news/flightdatafiles/index.html}{NASA Flight Data Files} web page (\url{http://www.nasa.gov/centers/johnson/news/flightdatafiles/index.html}), and provide a good reference for other procedures. The NASA Flight Data Files site includes checklists for all missions after STS-107, as well as generic checklists. \\
+The basis for this addon was the Space Shuttle Deluxe but through adding additional subsystems and taking full advantage of the 2016 version of Orbiter, the current SSU has few similarities to the original Deluxe.  Currently, SSU simulates a number of systems, displays, and procedures of the real shuttle and can be used along with real NASA Flight Data File (FDF) checklists to complete tasks.  These checklists can be found at the \href{http://www.nasa.gov/centers/johnson/news/flightdatafiles/index.html}{NASA Flight Data Files} web page (\url{http://www.nasa.gov/centers/johnson/news/flightdatafiles/index.html}), and provide a good reference for other procedures. The NASA Flight Data Files site includes checklists for all missions after STS-107, as well as generic checklists. \\
 \\
 Additional documentation containing background information about the shuttle and its systems can be found \href{http://sourceforge.net/projects/shuttleultra/files/References/}{here} (\url{http://sourceforge.net/projects/shuttleultra/files/References/}).\\
 \\
@@ -133,15 +133,16 @@ This document is formatted to look the same as the SCOM to facilitate changing f
 SSU requires the following addons to be installed:
 \begin{enumerate}
 \item OrbiterSound 4.0 (\url{http://orbiter.dansteph.com/index.php?disp=d})
-\item KSC hires tiles (\url{http://www.orbithangar.com/searchid.php?ID=5583})
 \item Vandenberg AFB (\url{http://www.orbithangar.com/searchid.php?ID=2380})
+\item Antelope Valley scenery pack (\url{http://orbit.medphys.ucl.ac.uk/mirrors/orbiter_radio/tex_mirror.html})
 \end{enumerate}
-CRT MFD needs to be enabled (Orbiter Launchpad $\rightarrow$ Modules $\rightarrow$ check \textit{CRT} box).\\
+Install the ''SSU\_Font\_A'' and ''SSU\_Font\_B'' fonts, located in the Orbiter base directory, by opening it and selecting install. After installation the files can be deleted.\\
 The following lines need to be added to the list of textures of the ''<orbiter\_installation>\textbackslash Config\textbackslash Base.cfg'' file$\colon$\\
-$\rightarrow$ NOR1735tex\\
-$\rightarrow$ NOR2305tex\\
+$\rightarrow$ SSU\textbackslash NOR1735tex\\
+$\rightarrow$ SSU\textbackslash NOR2305tex\\
 Using the D3D9 graphics client is strongly recommended (although not required). The \textit{Enable geometry instancing} option in the D3D9 Advanced Setup dialog (Orbiter Launchpad $\rightarrow$ Video $\rightarrow$ Advanced) should be unchecked.\\
 If you encounter the error ''msvcp120.dll is missing'' you need to download the Microsoft Visual C++ Redistributable for Visual Studio 2013.\\
+The displays in SSU require the MFD resolution of 512 x 512 (Orbiter Launchpad $\rightarrow$ Extra $\rightarrow$ Instruments and panels $\rightarrow$ MFD parameter configuration $\rightarrow$ MFD texture size).\\
 \\
 \noindent
 \WARNING{The SSU installation overwrites the default Earth.cfg file.}
@@ -307,14 +308,8 @@ The ultimate goal of SSU is to provide a complete simulation of the Space Shuttl
   Ctrl+A - toggle between controlling RCS thrusters and RMS motion\\
   Ctrl+G - arm landing gear\\
   G - deploy landing gear\\
-  comma - open speedbrake by 5 percent\\
-  period - close speedbrake by 5 percent\\
-  \vspace{\baselineskip}
-
-  \textbf{Alternate Translation Commands (valid only if RCS is in Rot mode)}\\
-  Left/Right Arrow - left/right translation (equivalent to 1/3 on Numpad)\\
-  Up/Down Arrow - up/down translation (equivalent to 8/2 on Numpad)\\
-  Insert/Delete - forward/aft translation (equivalent to 9/6 on Numpad)\\
+	Comma - left brake\\
+	Period - right brake\\
   \vspace{\baselineskip}
 
   \textbf{RMS}\\
@@ -324,21 +319,36 @@ The ultimate goal of SSU is to provide a complete simulation of the Space Shuttl
 \end{center}
 
 \begin{multicols*}{2}
-\subsubsection{RHC/THC}
-The regular Orbitersim thruster control commands (either keyboard or joystick) are used to simulate the RHC \& THC. When controlling the RCS thrusters, the appropriate \textit{FLT CNTLR PWR} switch must be on for RHC/THC inputs to be used. There are no such restrictions when controlling the RMS (although the RMS needs to be powered on before it can move).
+\subsubsection{Rotational Hand Controller / Translational Hand Controller}
+The regular Orbitersim thruster control commands (either keyboard or joystick) are used to simulate the Rotational Hand Controller (RHC) \& Translational Hand Controller (THC). When controlling the RCS thrusters, the appropriate \textit{FLT CNTLR PWR} switch must be on for RHC/THC inputs to be used. There are no such restrictions when controlling the RMS (although the RMS needs to be powered on before it can move).
 \\
 \\
 The RHCs on the real shuttle have a "soft stop" and a "hard stop" (the mechanical limit of movement). Moving the RHC out of detent (up to the soft stop) will command either a constant rotation rate or a pulse of RCS firings to change the rotation rate by a specified amount (depending on whether \textit{DISC RATE} or \textit{PULSE} has been selected). Moving the RHC past the soft stop will result in continuous thruster firings in the appropriate axis. In SSU, a thruster command of <75\% is considered to be within the soft stop; a thruster command of >75\% is treated as RHC deflection beyond the soft stop. When using keyboard controls, the normal keyboard controls are equivalent to full RHC deflection, while holding down the Ctrl key is equivalent to deflection within the soft stop. The THC (and the RMS controls) does not have this idea of a soft stop. When \textit{NORM} is selected in a translational axis, the thrusters will fire continuously if the THC is moved out of detent. When \textit{PULSE} is selected, the thrusters will fire to provide a specified $\Delta$V (the TRAN PLS rate specified on the SPEC 20 DAP CONFIG display). When controlling the RMS, the commanded rotation/translation rates are always directly proportional to the RHC/THC deflection.
 
+\begin{figure}[H]
+  \includegraphics[width=0.99\hsize]{RHC_THC_keys.png}
+  \caption{RHC/THC key mapping}
+  \label{fig:RHC_THC_keys}
+\end{figure}
+
 \subsubsection{Speedbrake/Thrust Controller}
-On the real shuttle, the Speedbrake/Thrust Controller (SBTC) controls both SSME throttling during ascent and the speedbrake during entry. In Orbiter, the SBTC is simulated using the main engine key controls. The Orbitersim throttle setting is mapped to the SBTC range. During ascent, 0\% Orbitersim main thrust corresponds to 67\% SSME throttle; 100\% Orbitersim main thrust corresponds to 104.5\% (109\% during some abort cases) SSME thrust. During entry, 0\% Orbitersim main thrust corresponds to the speedbrake being \textbf{fully open}; 100\% Orbitersim main thrust corresponds to the speedbrake being commanded \textbf{fully closed}.
+The Speedbrake/Thrust Controller (SBTC) controls both SSME throttling during ascent and the speedbrake setting during entry. In Orbiter, the SBTC is controlled in 5\% intervals, in the forward direction by the numpad \textit{Subtract} key, and in the aft direction via the numpad \textit{Add} key. The takeover switch, used to initiate manual control of the SSME throttle or speedbrake settings, is simulated by the \textit{Minus} key. The appropriate \textit{FLT CNTLR PWR} switch must be on for the SBTC to be active. Each SBTC is animated so the user can tell what setting is being commanded. During ascent, a full aft SBTC position corresponds to 67\% SSME throttle; full forward SBTC position corresponds to 104.5\% (109\% during some abort cases) SSME throttle. During entry, full aft SBTC position corresponds to the speedbrake being \textbf{fully open}; full forward SBTC position corresponds to the speedbrake being commanded \textbf{fully closed}.
 
 \paragraph{Ascent}
-During ascent, SSME throttling is usually controlled by autopilot; in this case, the \textit{AUTO} portion of the \textit{SPD BK/THROT} PBIs on Panel F2 \& Panel F4 is lit. To takeover manual control, move the SBTC (by changing the Orbitersim main engine throttle) to match the current autopilot command. At this point, both \textit{AUTO} PBIs will go out and the PLT \textit{SBD BK/THROT MAN} PBI will be lit (the CDR PBI will not be lit; in real life, only the PLT SBTC can be used during ascent, although SSU allows the SBTC to be used from both CDR and PLT seats). A manual MECO can be commanded by pressing the NUMPAD * key (in real life, this is done by simultaneously pressing all 3 \textit{MAIN ENGINE SHUT DOWN} pushbuttons on Panel C3; this is not possible in Orbiter).
+During ascent, SSME throttling is usually controlled by autopilot; in this case, the \textit{AUTO} portion of the \textit{SPD BK/THROT} PBIs on Panel F2 \& Panel F4 is lit, and \textbf{THRTL: Auto} is displayed in the A/E PFD display. To takeover manual control of the SSME throttle command, press the SBTC takeover switch and move the SBTC to match the current SSME auto command (displayed in the Ascent Traj displays. When the SBTC takeover switch is pressed both \textit{AUTO} PBIs will go out, indicating a manual takeover is in progress, but not completed. When the SBTC-commanded SSME throttle setting matches the auto command within 4\%, the PLT \textit{SBD BK/THROT MAN} PBI will be lit and the \textbf{THRTL: Man} appears in the A/E PFD display, indicating that the SSME throttle is now under manual control. To return to auto SSME throttle control, press either \textit{SBD BK/THROT MAN} PBI. A manual MECO can be commanded by pressing the NUMPAD * key (in real life, this is done by simultaneously pressing all 3 \textit{MAIN ENGINE SHUT DOWN} push buttons on Panel C3; this is not possible in Orbiter).
 
 \paragraph{Entry}
 \label{sec:entry}
-The speedbrake is usually controlled automatically throughout entry. To take over manual control move the SBTC; the speedbrake will immediately move to the position commanded by the SBTC and the \textit{AUTO} portion of the \textit{SPD BK/THROT} PBIs will go out and the \textit{MAN} PBI will be lit on either the CDR or PLT position (depending on the current VC position). Pressing the \textit{SPD BK/THROT} PBI will put the speedbrake into \textit{AUTO} mode again.
+The speedbrake is usually controlled automatically throughout entry, with the \textit{AUTO} portion of the \textit{SPD BK/THROT} PBIs on Panel F2 \& Panel F4 is lit, and \textbf{SB: Auto} is displayed in the A/E PFD display. To take over manual control of the speedbrake press the SBTC takeover switch; the speedbrake will immediately move to the position commanded by the SBTC, the \textit{AUTO} portion of the \textit{SPD BK/THROT} PBIs will go out and the \textit{MAN} PBI will be lit on either the CDR or PLT position (depending on what SBTC takeover switch was last pressed). Pressing the either \textit{SPD BK/THROT} PBI, will put the speedbrake into \textit{AUTO} mode again.
+
+\subsubsection{Rudder Pedal Transducer Assembly}
+The Rudder Pedal Transducer Assembly (RPTA) allows the rudder during the later part of reentry, as well as nose wheel steering during rollout. The RPTA also contains the brake pedals, which in addition to braking provide another means of lateral control during rollout. The appropriate \textit{FLT CNTLR PWR} switch must be on for the RPTA to be active. Although the rudder is automatically controlled, manual control is available when the P/Y channel is in CSS.
+
+\begin{figure}[H]
+  \includegraphics[width=0.99\hsize]{SBTC_RPTA_keys.png}
+  \caption{SBTC/RPTA key mapping}
+  \label{fig:SBTC_RPTA_keys}
+\end{figure}
 
 %\newpage
 
@@ -346,7 +356,7 @@ The speedbrake is usually controlled automatically throughout entry. To take ove
 %\addcontentsline{toc}{subsection}{Camera Views}
 SSU includes the four payload bay cameras and the docking port centerline camera. The PLB cameras are controlled via their switches on panel A7U on the flight deck and are no longer controlled with a dialog window. In the PLB camera VC views, the cameras can be rotated using ALT+Arrow Key.
 
-\paragraph{Navigating the Virtual Cockpit}
+\subsubsection{Navigating the Virtual Cockpit}
 Changing between Virtual Cockpit (VC) views is identical to the system used in the default Atlantis but with several more positions around the cockpit that we call stations. You can switch between different stations using the Ctrl+Arrow key combination (See Chart below for all combinations.) The Commander (CDR) Station is the front left seat on the flight deck, while the Pilot (PLT) station is the right seat (while looking forward).\\
 
 Table \ref{tab:VC_navigation} is set up to show the different ways to move about the crew module. The first column is the camera position you are in and the other columns show the views you can change to using the Ctrl+Arrow key combination at the top of the table. For additional assistance in navigating the views, the name of the view is shown for a few seconds at the top of the screen during the simulation. The names in the table are identical to those that appear on-screen.
@@ -434,7 +444,7 @@ The scenario file entries needed to add payloads to SSU are covered in Section \
 Extra Vehicular Activity (EVA), or spacewalk, is used on some missions for work outside the shuttle, either for retrieving a satellite or most recently, for the assembly of the ISS. Independently of mission tasks, all missions have contingency EVA capability for manual payload bay door closure. EVA requires the use of an airlock, which on the shuttle can be located inside the middeck (Internal Airlock), or outside on the payload bay (External Airlock). EVA is currently not supported by SSU.\\
 For missions requiring docking with the ISS or Mir, the orbiter need to be fitted with the Orbiter Docking System (ODS). The ODS is mounted on top of the External Airlock, and is controlled by buttons on panel A7L, allowing ODS powerup and docking ring extension and retraction.\\
 \\
-\WARNING{The next version of SSU will introduce changes to the docking port format. In addition to the docking port, there must exist an child attachment, in the same location, with the id ''APAS'' to achieve soft-docking. Without the attachment, docking will not be possible.}\\
+\WARNING{A future version of SSU will introduce changes to the docking port format. In addition to the docking port, there must exist an child attachment, in the same location, with the id ''APAS'' to achieve soft-docking. Without the attachment, docking will not be possible.}\\
 \\
 \\
 For missions requiring the ODS to be located aft of its normal position (e.g. STS-88), the Tunnel Adapter Assembly (TAA) is positioned between the External Airlock and the forward bulkhead, effectively acting as a spacer. The TAA must also be used on missions carrying the Spacelab or the SpaceHAB modules. It must be placed at the forward end of the tunnel to provide a way in/out of the airlock during an EVA.\\
@@ -455,30 +465,25 @@ The mission file entries to define the ODS, External Airlock and TAA are defined
 \newpage
 \section{CHANGE LOG}
 \noindent
-\textbf{Major changes from SSU 4.1}\\\\
-$\rightarrow$ corrected issues with orbiter mesh\\
-$\rightarrow$ added normal maps to OMS pods\\
-$\rightarrow$ corrected MECO parameters of some missions\\
-\\\\
-\textbf{Major changes from SSU 3.0}\\\\
-$\rightarrow$ corrected orbiter vehicle textures\\
-$\rightarrow$ corrections to external airlock and tunnel adapter\\
-$\rightarrow$ fixed orbiter vehicle mesh\\
-$\rightarrow$ fixed Item 27 issue for OMS-2\\
-$\rightarrow$ small corrections to RMS systems and its cameras\\
-$\rightarrow$ corrected colors in displays\\
-$\rightarrow$ added some functionality to Ku-band antenna (radar and manual slew)\\
-$\rightarrow$ added Centaur upper stage and its vc panel\\
-$\rightarrow$ added IUS upper stage and its vc panels\\
-$\rightarrow$ updated HUD graphics\\
-$\rightarrow$ fixed wrong WT parameter in MNVR display\\
-$\rightarrow$ fixed issue with timer\\
-$\rightarrow$ new texture for RMS\\
-$\rightarrow$ fixed position of PLB handrails\\
-$\rightarrow$ fixed reentry mesh not showing\\
-$\rightarrow$ corrected the painting scheme on FWC SRBs\\
-$\rightarrow$ corrected RMS and OBSS meshes\\
-$\rightarrow$ new ET meshes\\
+%\textbf{Major changes from SSU 4.1}\\\\
+%$\rightarrow$ TODO\\
+%\\\\
+\textbf{Major changes from SSU 4.2}\\\\
+$\rightarrow$ updated SSU to run in Orbiter 2016\\
+$\rightarrow$ integrated CRTMFD into the SpaceShuttleUltra vessel\\
+$\rightarrow$ moved HUD outputs in IUS and Centaur into own MFDs\\
+$\rightarrow$ extensive overhaul of the CRTMFD displays: corrected MDU screen aspect ratio, all displays reworked and converted to 512x512 resolution, separate code for MOGE and D3D9, added fonts, improved resource allocation\\
+$\rightarrow$ improved CRT keyboard data entry\\
+$\rightarrow$ improved memory cleanup on exit\\
+$\rightarrow$ updated 7-segment displays to the \"UV system\"\\
+$\rightarrow$ improved VC mesh performance\\
+$\rightarrow$ corrected position of White Sands surface base\\
+$\rightarrow$ added manual control capability during ascent\\
+$\rightarrow$ added FCS lights checkout in MM801\\
+$\rightarrow$ improved RHC, THC and SBTC simulation and added RPTA\\
+$\rightarrow$ fixed pad lights glare\\
+$\rightarrow$ changed IUS and Centaur engine gimbal to be rate command\\
+
 
 
 \newpage

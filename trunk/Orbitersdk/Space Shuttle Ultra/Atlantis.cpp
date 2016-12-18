@@ -4017,8 +4017,6 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 	char pszBuffer[256];
 	char pszLogBuffer[256];
 
-	spdb_status = AnimState::CLOSED; spdb_proc = 0.0;
-
 	while (oapiReadScenario_nextline(scn, line))
 	{
 		if (!_strnicmp(line, "CONFIGURATION", 13))

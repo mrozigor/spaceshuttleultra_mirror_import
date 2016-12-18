@@ -360,7 +360,7 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   DISPLAY 1
   MENU 1
   @ENDOBJECT
-  "Cdr Flt Cntlr Pwr" OFF
+  "Cdr Flt Cntlr Pwr" ON
   @ENDPANEL 
   @PANEL F7
   @OBJECT "CRT1"
@@ -393,7 +393,7 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   DISPLAY 4
   MENU 2
   @ENDOBJECT
-  "Plt Flt Cntlr Pwr" OFF
+  "Plt Flt Cntlr Pwr" ON
   @ENDPANEL 
   @PANEL R2
   "Boiler1 N2 Supply" ON

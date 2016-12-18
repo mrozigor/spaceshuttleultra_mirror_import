@@ -25,9 +25,9 @@ namespace vc
 
 	void _7SegDisp_RCSOMS_PRPLT_QTY::Controller( void )
 	{
-		short qtyL;
-		short qtyF;
-		short qtyR;
+		short qtyL = 0;
+		short qtyF = 0;
+		short qtyR = 0;
 
 		if (pRCSOMS_PRPLT_QTY_RCSOXID.IsSet())
 		{
