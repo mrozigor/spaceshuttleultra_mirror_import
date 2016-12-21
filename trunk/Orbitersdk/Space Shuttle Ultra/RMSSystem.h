@@ -38,12 +38,12 @@ const double RMS_STOWED_ANGLE = 11.88; // angle between RMS and vertical when RM
 const VECTOR3 RMS_MESH_OFFSET = _V(-0.1, 1.04, 0.0326);
 
 // RMS joint positions
-const VECTOR3 RMS_SY_JOINT = _V(-2.466, -0.6535, 7.123);
-const VECTOR3 RMS_SP_JOINT = _V(-2.632, -0.173, 7.124);
-const VECTOR3 RMS_EP_JOINT = _V(-2.581, -0.3285, 0.757);
-const VECTOR3 RMS_WP_JOINT = _V(-2.632, -0.173, -6.293);
-const VECTOR3 RMS_WY_JOINT = _V(-2.632, -0.173, -6.734);
-const VECTOR3 RMS_EE_POS = _V(-2.632, -0.173, -8.0);
+const VECTOR3 RMS_SY_JOINT = _V(-2.44969, -0.690394, 7.12342);
+const VECTOR3 RMS_SP_JOINT = _V(-2.6178, -0.211925, 7.12408);
+const VECTOR3 RMS_EP_JOINT = _V(-2.55946, -0.365969, 0.74787);
+const VECTOR3 RMS_WP_JOINT = _V(-2.61831, -0.21101, -6.30574);
+const VECTOR3 RMS_WY_JOINT = _V(-2.61835, -0.211035, -6.91154);
+const VECTOR3 RMS_EE_POS = _V(-2.61841, -0.211668, -8.18752);
 
 const double RMS_SP_EP_DIST = length(RMS_EP_JOINT-RMS_SP_JOINT);
 // distance (metres) from SP joint to EP joint
@@ -88,10 +88,10 @@ const double RMS_EXTEND_SPEED = 0.142857;
 const double SHOULDER_BRACE_SPEED = 0.11765;
 // shoulder brace speed (8.5 seconds)
 
-const VECTOR3 RMS_EE_CAM_POS = _V(-2.6359, 0.0769995, -7.45687);
+const VECTOR3 RMS_EE_CAM_POS = _V(-2.62021, 0.0436686, -7.64594);
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
-const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.37968, 0.296129, -0.0332794);
-const VECTOR3 RMS_EE_LIGHT_POS = _V(-2.6359, 0.2296, -7.45687);
+const VECTOR3 RMS_EE_LIGHT_POS = _V(-2.62109, 0.192216, -7.63126);
+const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.46038, 0.355655, -0.0432792);
 
 const VECTOR3 RMS_Z_AXIS = _V( 0.0, 1.0, 0.0 ); // axis along which RMS EE camera & light are mounted
 const double RMS_Z_AXIS_ANGLE = acos(dotp(RMS_Z_AXIS, RotateVectorZ(_V(0, 1, 0), RMS_ROLLOUT_ANGLE))); // angle between RMS Z axis and Z axis of IK frame
