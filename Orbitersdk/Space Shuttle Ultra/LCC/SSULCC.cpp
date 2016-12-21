@@ -35,8 +35,6 @@ SSULCC::~SSULCC()
 
 void SSULCC::clbkPostCreation()
 {
-	VESSEL2::clbkPostCreation();
-
 	//get pointer to SSUPad vessel
 	OBJHANDLE hPad=oapiGetVesselByName(PadName);
 	if(hPad!=NULL) {
