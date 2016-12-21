@@ -166,7 +166,7 @@ void RMSSystem::CreateArm()
 	//rollout animation
 	static UINT RMSRolloutGrp[2] = {GRP_RMS_MPMS, GRP_BASE};
 	MGROUP_ROTATE* pRMS_rollout_anim = new MGROUP_ROTATE(mesh_index, RMSRolloutGrp, 2,
-		_V(-2.34, -0.97, 0.0), _V(0, 0, 1), (float)((RMS_ROLLOUT_ANGLE+RMS_STOWED_ANGLE)*RAD));
+		_V(-2.3337, -0.9983, 0.0), _V(0, 0, 1), (float)((RMS_ROLLOUT_ANGLE+RMS_STOWED_ANGLE)*RAD));
 	anim_mpm = STS()->CreateAnimation(1.0);
 	ANIMATIONCOMPONENT_HANDLE parent = STS()->AddManagedAnimationComponent(anim_mpm, 0, 1, pRMS_rollout_anim);
 
@@ -557,8 +557,8 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 
 		/*** Update output lines to LEDs ***/
 		// calculate position
-		VECTOR3 ee_pos_output=(arm_tip[0]-RMS_SP_JOINT)*12/fps_to_ms;
-		ee_pos_output = _V(ee_pos_output.z, ee_pos_output.x, -ee_pos_output.y) + _V(-688.9, -108.0, -445.0);
+		VECTOR3 ee_pos_output=(arm_tip[0]-RMS_SP_JOINT) / INCH;
+		ee_pos_output = _V(ee_pos_output.z, ee_pos_output.x, -ee_pos_output.y) + _V( -679.5, -108.0, -444.77 );
 
 		// calculate attitude
 		VECTOR3 ee_frame_x, ee_frame_y, ee_frame_z; // reference frame define by EE direction
