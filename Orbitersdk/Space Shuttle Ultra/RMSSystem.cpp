@@ -194,12 +194,12 @@ void RMSSystem::CreateArm()
 	//RMS elbow camera
 	static UINT RMSElbowCamGrp[2] = {GRP_ELBOW_CAM, GRP_PANTILT_ELBOW_CAM};
 	MGROUP_ROTATE* pRMSElbowCamPan = new MGROUP_ROTATE(mesh_index, RMSElbowCamGrp+1, 1,
-		_V(-2.5594, 0.1833, 0.1668), _V(0.397185, 0.917739, 0), (float)(340*RAD));
+		_V(-2.54439, 0.145388, 0.15683), _V(0.397185, 0.917739, 0), (float)(340*RAD));
 	ANIMATIONCOMPONENT_HANDLE parent2;
 	anim_camRMSElbow[PAN]=STS()->CreateAnimation(0.5);
 	parent2 = STS()->AddManagedAnimationComponent (anim_camRMSElbow[PAN], 0, 1, pRMSElbowCamPan, parent);
 	MGROUP_ROTATE* pRMSElbowCamTilt = new MGROUP_ROTATE(mesh_index, RMSElbowCamGrp, 1,
-		_V(-2.47476, 0.392612, 0.16463), _V(0.917758, -0.397141, 0), (float)(340*RAD));
+		_V(-2.46462, 0.343234, 0.15463), _V(0.917758, -0.397141, 0), (float)(340*RAD));
 	anim_camRMSElbow[TILT]=STS()->CreateAnimation(0.5);
 	parent2 = STS()->AddManagedAnimationComponent(anim_camRMSElbow[TILT], 0, 1, pRMSElbowCamTilt, parent2);
 	MGROUP_ROTATE* pRMSElbowCamLoc = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(camRMSElbowLoc), 2,
