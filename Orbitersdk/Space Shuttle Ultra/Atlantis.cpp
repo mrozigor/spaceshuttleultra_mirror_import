@@ -608,8 +608,8 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	for (i = 0; i < 11; i++)
 		mfdbright[i] = 1.0;
 	huds.ngroup = GRP_VIRTUALHUD_VC;
-	huds.size = 0.176558;
-
+	huds.size = 0.13372;
+	
 	scnVCMode = 0;
 
 	// propellant resources
@@ -2298,7 +2298,7 @@ void Atlantis::CreateETAndSRBAttachments(const VECTOR3 &ofs)
 
 void Atlantis::AddOrbiterVisual()
 {
-	huds.hudcnt = _V(-0.671257, 2.523535, 14.969);
+	huds.hudcnt = VC_HUDPOS_CDR;
 
 	bHasODS = pMission->HasODS();
 	bHasExtAL = pMission->HasExtAL();
