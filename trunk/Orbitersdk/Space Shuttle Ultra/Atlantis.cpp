@@ -4313,8 +4313,7 @@ void Atlantis::clbkPostCreation()
 	try
 	{
 		//oapiWriteLog("In clbkPostCreation");
-		VESSEL3::clbkPostCreation(); //may not be necessary
-
+		
 		SoundID = ConnectToOrbiterSoundDLL(GetHandle());
 		if (SoundID != -1) {
 			//NOTE: (char*) casts in OrbiterSound calls should be safe; I think function just stores the file names (SiameseCat)
