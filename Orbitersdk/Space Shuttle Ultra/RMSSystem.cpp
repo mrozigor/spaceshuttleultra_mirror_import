@@ -14,7 +14,6 @@ RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	joint_pos[WRIST_ROLL] = 0.5;
 	arm_tip[0] = RMS_EE_POS;
 	arm_tip[1] = RMS_EE_POS+_V(0.0, 0.0, -1.0); // to calculate EE attachment direction (-Z coordinate of attachment point is negative, so subtract 1 here)
-	//arm_tip[2] = RMS_EE_POS+_V(0.0, 1.0, 0.0);
 	arm_tip[2] = RMS_EE_POS+RMS_Z_AXIS; // to calculate rot vector for attachment
 	arm_tip[3] = RMS_EE_POS+RotateVectorZ(_V(0.0, -1.0, 0.0), RMS_ROLLOUT_ANGLE); // to calculate arm_ee_rot (rot vector in IK frame)
 	arm_tip[4] = RMS_EE_CAM_POS; // to calculate EE camera position
@@ -37,7 +36,7 @@ RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	//RMS elbow camera
 	camRMSElbowLoc[0]=RMS_ELBOW_CAM_POS;
 	camRMSElbowLoc[1]=camRMSElbowLoc[0]+_V(0, 0, -1);
-	//camRMSElbow_rotation[0]=camRMSElbow_rotation[1]=0;
+	camRMSElbowLoc[2] = camRMSElbowLoc[0] + RMS_ELBOW_CAM_AXIS;
 	camRMSElbow[PAN] = 0.0;
 	camRMSElbow[TILT] = 0.0;
 	camera_moved=false;
@@ -202,7 +201,7 @@ void RMSSystem::CreateArm()
 		_V(-2.46462, 0.343234, 0.15463), _V(0.917758, -0.397141, 0), (float)(340*RAD));
 	anim_camRMSElbow[TILT]=STS()->CreateAnimation(0.5);
 	parent2 = STS()->AddManagedAnimationComponent(anim_camRMSElbow[TILT], 0, 1, pRMSElbowCamTilt, parent2);
-	MGROUP_ROTATE* pRMSElbowCamLoc = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(camRMSElbowLoc), 2,
+	MGROUP_ROTATE* pRMSElbowCamLoc = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(camRMSElbowLoc), 3,
 		_V(-2.37968, 0.296129, -0.0332794), _V(1, 0, 0), 0.0f);
 	STS()->AddManagedAnimationComponent(anim_camRMSElbow[TILT], 0, 1, pRMSElbowCamLoc, parent2);
 
@@ -467,18 +466,6 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 	}
 
-	/*for(int i=0;i<2;i++) {
-		if(camRMSElbow_rotation[i]!=0) {
-			if(camLowSpeed) camRMSElbow[i]+=camRMSElbow_rotation[i]*PTU_LOWRATE_SPEED*DeltaT;
-			else camRMSElbow[i]+=camRMSElbow_rotation[i]*PTU_HIGHRATE_SPEED*DeltaT;
-
-			double anim=linterp(-170, 0, 170, 1, camRMSElbow[i]);
-			STS()->SetAnimation(anim_camRMSElbow[i], anim);
-
-			camera_moved=true;
-			camRMSElbow_rotation[i]=0;
-		}
-	}*/
 	if(ElbowCamPanLeft) {
 		if(CamLowSpeed) camRMSElbow[PAN] = max(camRMSElbow[PAN]-PTU_LOWRATE_SPEED*DeltaT, -MAX_PLB_CAM_PAN);
 		else camRMSElbow[PAN] = max(camRMSElbow[PAN]-PTU_HIGHRATE_SPEED*DeltaT, -MAX_PLB_CAM_PAN);
@@ -724,26 +711,6 @@ void RMSSystem::RotateJoint(RMS_JOINT joint, bool positive)
 	else joint_motion[joint]=-1;
 }
 
-/*void RMSSystem::TranslateEE(const VECTOR3 &direction)
-{
-	for (int i=0;i<3;i++) {
-		if(direction.data[i]>0.25) ee_translation[i]=1;
-		else if(direction.data[i]<-0.25) ee_translation[i]=-1;
-		else ee_translation[i]=0;
-	}
-}*/
-
-/*void RMSSystem::RotateElbowCam(int pitch, int yaw)
-{
-	camRMSElbow_rotation[PAN]=yaw;
-	camRMSElbow_rotation[TILT]=pitch;
-}*/
-
-/*void RMSSystem::SetElbowCamRotSpeed(bool low)
-{
-	camLowSpeed=low;
-}*/
-
 void RMSSystem::Translate(const VECTOR3 &dPos, VECTOR3& newPos)
 {
 	if(RMSMode[5].IsSet()) { // END EFF
@@ -895,15 +862,28 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTO
 	bSoftStop = false;
 	for(int i=SHOULDER_YAW;i<=WRIST_ROLL;i++)
 	{
-		//if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) return false;
+		// allow use of full motion range of the wrist roll joint
+		if (i == WRIST_ROLL)
+		{
+			if ((joint_angle[i] - new_joint_angles[i]) > 180.0)
+			{
+				new_joint_angles[i] += 360.0;
+			}
+			else if ((joint_angle[i] - new_joint_angles[i]) < -180.0)
+			{
+				new_joint_angles[i] -= 360.0;
+			}
+		}
+
 		if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) {
 			//sprintf_s(oapiDebugString(), 255, "Error: joint %d reached angle limit %f", i, new_joint_angles[i]);
 			bSoftStop = true;
 			return false;
 		}
+
 		double speed = abs(new_joint_angles[i]-joint_angle[i])/DeltaT;
-		//if(speed > RMS_JOINT_MAX_ROTATION_SPEED[i]) return false;
-		if(speed > RMS_JOINT_MAX_ROTATION_SPEED[i]) {
+		if (speed > RMS_JOINT_MAX_ROTATION_SPEED[i])
+		{
 			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached speed limit %f", i, speed);
 			return false;
 		}
@@ -1034,7 +1014,14 @@ void RMSSystem::UpdateEECamView() const
 void RMSSystem::UpdateElbowCamView() const
 {
 	if(oapiCameraInternal()) {
-		STS()->SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0], 0.4189 + ((1 - MPMRollout.pos) * ((RMS_ROLLOUT_ANGLE + RMS_STOWED_ANGLE) * RAD)));// 0.4189rad = 24º when MPMs deployed
+		VECTOR3 dir = camRMSElbowLoc[1]-camRMSElbowLoc[0];
+		if(Eq(dotp(dir, _V(0, -1, 0)), 1.0, 1e-4)) dir = _V(1.74532924314e-4, -0.999999984769, 0.0);
+		else if(Eq(dotp(dir, _V(0, 1, 0)), 1.0, 1e-4)) dir = _V(1.74532924314e-4, 0.999999984769, 0.0);
+		VECTOR3 orbiter_cam_rot = crossp(crossp(dir, _V(0, 1, 0)), dir);
+		orbiter_cam_rot /= length(orbiter_cam_rot);
+		if(orbiter_cam_rot.y < 0) orbiter_cam_rot = -orbiter_cam_rot;
+		double angle = SignedAngle(orbiter_cam_rot, camRMSElbowLoc[2]-camRMSElbowLoc[0], dir);
+		STS()->SetCameraDefaultDirection( dir, angle );
 		STS()->SetCameraOffset(STS()->GetOrbiterCoGOffset()+camRMSElbowLoc[0]+RMS_MESH_OFFSET);
 		oapiCameraSetCockpitDir(0.0, 0.0);
 	}

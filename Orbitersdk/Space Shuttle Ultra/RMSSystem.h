@@ -92,6 +92,7 @@ const VECTOR3 RMS_EE_CAM_POS = _V(-2.62021, 0.0436686, -7.64594);
 // Wrist camera offset from grapple point (assuming wrist roll angle of 0.0)
 const VECTOR3 RMS_EE_LIGHT_POS = _V(-2.62109, 0.192216, -7.63126);
 const VECTOR3 RMS_ELBOW_CAM_POS = _V(-2.46038, 0.355655, -0.0432792);
+const VECTOR3 RMS_ELBOW_CAM_AXIS = _V( 0.422618, 0.906308, 0.0 );// 25º tilt inboard
 
 const VECTOR3 RMS_Z_AXIS = _V( 0.0, 1.0, 0.0 ); // axis along which RMS EE camera & light are mounted
 const double RMS_Z_AXIS_ANGLE = acos(dotp(RMS_Z_AXIS, RotateVectorZ(_V(0, 1, 0), RMS_ROLLOUT_ANGLE))); // angle between RMS Z axis and Z axis of IK frame
@@ -124,10 +125,6 @@ public:
 	 * @param positive true if joint should rotate in positive direction
 	 */
 	void RotateJoint(RMS_JOINT joint, bool positive);
-	//void TranslateEE(const VECTOR3 &direction);
-
-	//void RotateElbowCam(int pitch, int yaw);
-	//void SetElbowCamRotSpeed(bool low);
 
 	void SetEECameraView(bool Active);
 	void SetElbowCamView(bool Active);
@@ -198,9 +195,7 @@ private:
 
 	//RMS Camera rot/direction
 	double camRMSElbow[2];
-	//bool camLowSpeed;
-	//int camRMSElbow_rotation[2];
-	VECTOR3 camRMSElbowLoc[2];
+	VECTOR3 camRMSElbowLoc[3];
 	bool camera_moved;
 
 	bool bLastCamInternal;
