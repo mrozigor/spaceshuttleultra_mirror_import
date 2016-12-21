@@ -71,7 +71,7 @@ const double VC_EL_CDR_L = -5 * RAD;
 const VECTOR3 VC_OFS_CDR_R = _V( 0.3, 0, 0 );// window 1
 const double VC_AZ_CDR_R = -20 * RAD;
 const double VC_EL_CDR_R = -27 * RAD;
-const VECTOR3 VC_HUDPOS_CDR = _V( -0.6515, 2.568, 14.614 );
+const VECTOR3 VC_HUDPOS_CDR = _V( -0.6527025, 2.59925, 14.614 );
 
 const static char* VC_LBL_PLT = "Pilot seat";
 const VECTOR3 VC_POS_PLT = _V( 0.671257, 2.629396, 14.1 );
@@ -85,7 +85,7 @@ const double VC_EL_PLT_L = -27 * RAD;
 const VECTOR3 VC_OFS_PLT_R = _V( 0.2, -0.1, 0.25 );// panel R2
 const double VC_AZ_PLT_R = -90 * RAD;
 const double VC_EL_PLT_R = -72 * RAD;
-const VECTOR3 VC_HUDPOS_PLT = _V(0.6515, 2.568, 14.614);
+const VECTOR3 VC_HUDPOS_PLT = _V(0.6528925, 2.59925, 14.614);
 
 const static char* VC_LBL_MS2 = "MS2/FE seat";
 const VECTOR3 VC_POS_MS2 = _V( 0, 2.629396, 13.25 );
