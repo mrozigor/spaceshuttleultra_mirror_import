@@ -76,10 +76,10 @@ The Centaur Integrated Support Structure (CISS) is the interface between the Cen
 \subsubsection{Deployment}
 The deployment sequence is similar for both Centaur versions, and is controlled by panel L12U. A checklist is available in section \ref{sec:flight-data-files}.
 \\
-Inhibits are placed on the operation of the ACS and of the RL-10 engines, as to protect the orbiter vehicle. At deployment, timers are started to remove those inhibits. The status of those timers is displayed in the HUD, as well as the remaining ACS propellant.
+Inhibits are placed on the operation of the ACS and of the RL-10 engines, as to protect the orbiter vehicle. At deployment, timers are started to remove those inhibits. The status of those timers is displayed in the SSU\_Centaur MFD (Ctrl+T), as well as the remaining ACS propellant.
 
 \subsubsection{Autonomous flight control}
-After separation from the CISS and the engine inhibits have been removed, the Centaur is controlled by using the standard Orbiter keys. The ''+'' key is used to initiate the start sequence for the RL-10 engines. The start sequence is a 270-second chill-down of the RL-10s concurrent with a propellant settling burn by the forward-thrusting ACS. After the chill-down is complete, RL-10 ignition occurs automatically. After the start sequence is initiated, the time remaining until ignition is shown in the HUD. Currently there are no restrictions on the number of times the RL-10 engines can be started. The ''-'' key is used to shutdown the engines once the desired $\Delta$V has been achieved. During RL-10 burns the attitude in completely controlled by gimballing the engine nozzles.
+After separation from the CISS and the engine inhibits have been removed, the Centaur is controlled by using the standard Orbiter keys. The ''+'' key is used to initiate the start sequence for the RL-10 engines. The start sequence is a 270-second chill-down of the RL-10s concurrent with a propellant settling burn by the forward-thrusting ACS. After the chill-down is complete, RL-10 ignition occurs automatically. After the start sequence is initiated, the time remaining until ignition is shown in the SSU\_Centaur MFD. Currently there are no restrictions on the number of times the RL-10 engines can be started. The ''-'' key is used to shutdown the engines once the desired $\Delta$V has been achieved. During RL-10 burns the attitude in completely controlled by gimballing the engine nozzles.
 \\
 \\
 \WARNING{Engine gimballing is much more powerful than the ACS, so it must be used carefully so the stage is not put into a tumble that might be impossible for the ACS to correct after the burn.}
@@ -157,7 +157,7 @@ The IUS deployment sequence is controlled by panel L10.
 \\
 TODO
 \\
-Inhibits are placed on the operation of the RCS and of the $1^{st}$ stage motor, as to protect the orbiter vehicle. At deployment, timers are started to remove those inhibits. The status of those timers is displayed in the HUD, as well as the remaining RCS propellant.
+Inhibits are placed on the operation of the RCS and of the $1^{st}$ stage motor, as to protect the orbiter vehicle. At deployment, timers are started to remove those inhibits. The status of those timers is displayed in the SSU\_IUS MFD (Ctrl+T), as well as the remaining RCS propellant.
 
 \subsubsection{Autonomous flight control}
 After separation from the ASE and the engine inhibits have been removed, the IUS is controlled by using the standard Orbiter keys. The ''+'' key is used to ignite the SRMs. During SRM burns the attitude in the pitch and yaw axis is controlled by gimballing the engine nozzle, while roll remains under RCS control.
