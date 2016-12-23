@@ -14,3 +14,4 @@ added FCS lights checkout in MM801
 improved RHC, THC and SBTC simulation and added RPTA
 fixed pad lights glare
 changed IUS and Centaur engine gimbal to be rate command
+fixed several RMS issues

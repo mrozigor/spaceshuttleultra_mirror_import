@@ -13,7 +13,7 @@ Installation:
 SSU\NOR1735tex
 SSU\NOR2305tex
 
-5. If using the D3D9 graphics client, the geometry instancing option should be off (Orbiter Launchpad > Video > Advanced > uncheck "Enable geometry instancing").
+5. If using the D3D9 graphics client, the "Disable near clip plane compatibility mode" option (Orbiter Launchpad > Video > Advanced) should be enabled.
 
 6. If you encounter the error "msvcp120.dll is missing" you need to download the Microsoft Visual C++ Redistributable for Visual Studio 2013.
 
