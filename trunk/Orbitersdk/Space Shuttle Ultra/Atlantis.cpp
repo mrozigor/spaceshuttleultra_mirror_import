@@ -6146,6 +6146,7 @@ bool Atlantis::SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir)
 
 bool Atlantis::SetSSMEGimbalAngles(unsigned usMPSNo, double degPitch, double degYaw)
 {
+	// HACK has temporary exception for the start of the simulation, so scenario setting can be used
 	switch (usMPSNo)
 	{
 		case 0:
@@ -6153,7 +6154,7 @@ bool Atlantis::SetSSMEGimbalAngles(unsigned usMPSNo, double degPitch, double deg
 				SetSSMEGimbalAngles(2, degPitch, degYaw) &&
 				SetSSMEGimbalAngles(3, degPitch, degYaw);
 		case 1:
-			if ((pAPU[0]->GetHydraulicPressure() >= 1500) || (pAPU[2]->GetHydraulicPressure() >= 1500))
+			if ((pAPU[0]->GetHydraulicPressure() >= 1500) || (pAPU[2]->GetHydraulicPressure() >= 1500) || (oapiGetSimTime() == 0.0))
 			{
 				VECTOR3 dir = RotateVectorX( SSMEInstalledNullPos[0], range( -10.5, degPitch, 10.5 ) );
 				SSMECurrentPos[0] = RotateVectorY( dir, range( -8.5, degYaw, 8.5 ) );
@@ -6162,7 +6163,7 @@ bool Atlantis::SetSSMEGimbalAngles(unsigned usMPSNo, double degPitch, double deg
 			}
 			return true;
 		case 2:
-			if ((pAPU[1]->GetHydraulicPressure() >= 1500) || (pAPU[0]->GetHydraulicPressure() >= 1500))
+			if ((pAPU[1]->GetHydraulicPressure() >= 1500) || (pAPU[0]->GetHydraulicPressure() >= 1500) || (oapiGetSimTime() == 0.0))
 			{
 				VECTOR3 dir = RotateVectorX( SSMEInstalledNullPos[1], range( -10.5, degPitch, 10.5 ) );
 				SSMECurrentPos[1] = RotateVectorY( dir, range( -8.5, degYaw, 8.5 ) );
@@ -6171,7 +6172,7 @@ bool Atlantis::SetSSMEGimbalAngles(unsigned usMPSNo, double degPitch, double deg
 			}
 			return true;
 		case 3:
-			if ((pAPU[2]->GetHydraulicPressure() >= 1500) || (pAPU[1]->GetHydraulicPressure() >= 1500))
+			if ((pAPU[2]->GetHydraulicPressure() >= 1500) || (pAPU[1]->GetHydraulicPressure() >= 1500) || (oapiGetSimTime() == 0.0))
 			{
 				VECTOR3 dir = RotateVectorX( SSMEInstalledNullPos[2], range( -10.5, degPitch, 10.5 ) );
 				SSMECurrentPos[2] = RotateVectorY( dir, range( -8.5, degYaw, 8.5 ) );
