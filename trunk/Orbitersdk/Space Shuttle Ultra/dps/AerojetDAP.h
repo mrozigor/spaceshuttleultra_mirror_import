@@ -614,6 +614,8 @@ private:
 	void PaintENTRYTRAJ5Display( vc::MDU* pMDU ) const;
 	void PaintVERTSIT1Display( vc::MDU* pMDU ) const;
 	void PaintVERTSIT2Display( vc::MDU* pMDU ) const;
+
+	void SetHUDBrightness( void );
 };
 
 };
