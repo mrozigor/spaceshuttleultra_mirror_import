@@ -149,9 +149,9 @@ namespace vc
 				ADI_ERROR_A( hDC, atterr.x, atterr.z, atterr.y, adierr );
 				break;
 			case 304:
-				AEPFD_Header_AerojetDAP( hDC, 304, MachNumber );
+				AEPFD_Header_AerojetDAP( hDC, 304, vr );
 				Tape_MV_KEAS( hDC, 'R', vr );
-				Tape_Alpha( hDC, MachNumber );
+				Tape_Alpha( hDC, vr );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				ADI_STATIC( hDC );
 				ADI( hDC, attPitch, attRoll, attYaw );
@@ -166,10 +166,10 @@ namespace vc
 				AEPFD_HACCEL( hDC );
 				break;
 			case 305:
-				AEPFD_Header_AerojetDAP( hDC, 305, MachNumber );
-				if (MachNumber >= 0.9) Tape_MV_KEAS( hDC, 'R', vr );
-				else Tape_KEAS_MVR( hDC, MachNumber );
-				Tape_Alpha( hDC, MachNumber );
+				AEPFD_Header_AerojetDAP( hDC, 305, vr );
+				if (vr >= 0.9) Tape_MV_KEAS( hDC, 'R', vr );
+				else Tape_KEAS_MVR( hDC, vr );
+				Tape_Alpha( hDC, vr );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				ADI_STATIC( hDC );
 				ADI( hDC, attPitch, attRoll, attYaw );
@@ -207,9 +207,9 @@ namespace vc
 				AEPFD_RANGERW( hDC );
 				break;
 			case 602:
-				AEPFD_Header_AerojetDAP( hDC, 602, MachNumber );
+				AEPFD_Header_AerojetDAP( hDC, 602, vr );
 				Tape_MV_KEAS( hDC, 'R', vr );
-				Tape_Alpha( hDC, MachNumber );
+				Tape_Alpha( hDC, vr );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				ADI_STATIC( hDC );
 				ADI( hDC, attPitch, attRoll, attYaw );
@@ -225,10 +225,10 @@ namespace vc
 				AEPFD_HACCEL( hDC );
 				break;
 			case 603:
-				AEPFD_Header_AerojetDAP( hDC, 603, MachNumber );
-				if (MachNumber >= 0.9) Tape_MV_KEAS( hDC, 'R', vr );
-				else Tape_KEAS_MVR( hDC, MachNumber );
-				Tape_Alpha( hDC, MachNumber );
+				AEPFD_Header_AerojetDAP( hDC, 603, vr );
+				if (vr >= 0.9) Tape_MV_KEAS( hDC, 'R', vr );
+				else Tape_KEAS_MVR( hDC, vr );
+				Tape_Alpha( hDC, vr );
 				Tape_H_Hdot( hDC, Altitude_ft, vel.y );
 				ADI_STATIC( hDC );
 				ADI( hDC, attPitch, attRoll, attYaw );
@@ -408,9 +408,9 @@ namespace vc
 				ADI_ERROR_A( skp, atterr.x, atterr.z, atterr.y, adierr );
 				break;
 			case 304:
-				AEPFD_Header_AerojetDAP( skp, 304, MachNumber );
+				AEPFD_Header_AerojetDAP( skp, 304, vr );
 				Tape_MV_KEAS( skp, 'R', vr );
-				Tape_Alpha( skp, MachNumber );
+				Tape_Alpha( skp, vr );
 				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
@@ -425,10 +425,10 @@ namespace vc
 				AEPFD_HACCEL( skp );
 				break;
 			case 305:
-				AEPFD_Header_AerojetDAP( skp, 305, MachNumber );
-				if (MachNumber >= 0.9) Tape_MV_KEAS( skp, 'R', vr );
-				else Tape_KEAS_MVR( skp, MachNumber );
-				Tape_Alpha( skp, MachNumber );
+				AEPFD_Header_AerojetDAP( skp, 305, vr );
+				if (vr >= 0.9) Tape_MV_KEAS( skp, 'R', vr );
+				else Tape_KEAS_MVR( skp, vr );
+				Tape_Alpha( skp, vr );
 				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
@@ -466,9 +466,9 @@ namespace vc
 				AEPFD_RANGERW( skp );
 				break;
 			case 602:
-				AEPFD_Header_AerojetDAP( skp, 602, MachNumber );
+				AEPFD_Header_AerojetDAP( skp, 602, vr );
 				Tape_MV_KEAS( skp, 'R', vr );
-				Tape_Alpha( skp, MachNumber );
+				Tape_Alpha( skp, vr );
 				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
@@ -484,10 +484,10 @@ namespace vc
 				AEPFD_HACCEL( skp );
 				break;
 			case 603:
-				AEPFD_Header_AerojetDAP( skp, 603, MachNumber );
-				if (MachNumber >= 0.9) Tape_MV_KEAS( skp, 'R', vr );
-				else Tape_KEAS_MVR( skp, MachNumber );
-				Tape_Alpha( skp, MachNumber );
+				AEPFD_Header_AerojetDAP( skp, 603, vr );
+				if (vr >= 0.9) Tape_MV_KEAS( skp, 'R', vr );
+				else Tape_KEAS_MVR( skp, vr );
+				Tape_Alpha( skp, vr );
 				Tape_H_Hdot( skp, Altitude_ft, vel.y );
 				ADI_STATIC( skp );
 				ADI( skp, attPitch, attRoll, attYaw );
@@ -1185,7 +1185,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::Tape_KEAS_MVR( HDC hDC, double MachNumber )
+	void MDU::Tape_KEAS_MVR( HDC hDC, double vel )
 	{
 		char cbuf[8];
 		double keas = sqrt( STS()->GetDynPressure() * PA2PSF ) * 17.18;
@@ -1211,13 +1211,13 @@ namespace vc
 		SetTextAlign( hDC, TA_RIGHT );
 		sprintf_s( cbuf, 8, "%.0f", keas );
 		TextOut( hDC, 49, 151, cbuf, strlen( cbuf ) );
-		sprintf_s( cbuf, 8, "%.2f", MachNumber );
+		sprintf_s( cbuf, 8, "%.2f", vel );
 		TextOut( hDC, 57, 285, cbuf, strlen( cbuf ) );
 		SetTextAlign( hDC, TA_LEFT );
 		return;
 	}
 
-	void MDU::Tape_KEAS_MVR( oapi::Sketchpad2* skp, double MachNumber )
+	void MDU::Tape_KEAS_MVR( oapi::Sketchpad2* skp, double vel )
 	{
 		char cbuf[8];
 		double keas = sqrt( STS()->GetDynPressure() * PA2PSF ) * 17.18;
@@ -1248,7 +1248,7 @@ namespace vc
 		skp->SetTextAlign( oapi::Sketchpad::RIGHT );
 		sprintf_s( cbuf, 8, "%.0f", keas );
 		skp->Text( 49, 151, cbuf, strlen( cbuf ) );
-		sprintf_s( cbuf, 8, "%.2f", MachNumber );
+		sprintf_s( cbuf, 8, "%.2f", vel );
 		skp->Text( 57, 285, cbuf, strlen( cbuf ) );
 		skp->SetTextAlign( oapi::Sketchpad::LEFT );
 		return;
@@ -1322,7 +1322,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::Tape_Alpha( HDC hDC, double MachNumber )
+	void MDU::Tape_Alpha( HDC hDC, double vel )
 	{
 		SelectObject( hDC, gdiSSUAFont_h11w9 );
 		SetTextColor( hDC, CR_LIGHT_GRAY );
@@ -1338,14 +1338,14 @@ namespace vc
 
 		BitBlt( hDC, 69, 55, 43, 217, hDC_Tape_Alpha, 0, 1698 - Round( alpha * 9.435 ), SRCCOPY );
 
-		if ((MachNumber > 0) && (MachNumber < 3))
+		if ((vel > 0) && (vel < 3))
 		{
 			// max L/D (linear aprox)
 			double maxLD;
-			if (MachNumber < 0.9) maxLD = 10.5;
-			else if (MachNumber < 1.1) maxLD = (MachNumber * 15) - 3;
-			else if (MachNumber < 2) maxLD = (MachNumber * 1.6667) + 11.6667;
-			else maxLD = (MachNumber * 2) + 11;
+			if (vel < 0.9) maxLD = 10.5;
+			else if (vel < 1.1) maxLD = (vel * 15) - 3;
+			else if (vel < 2) maxLD = (vel * 1.6667) + 11.6667;
+			else maxLD = (vel * 2) + 11;
 
 			maxLD -= alpha;
 			if (fabs( maxLD ) < 11)
@@ -1388,7 +1388,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::Tape_Alpha( oapi::Sketchpad2* skp, double MachNumber )
+	void MDU::Tape_Alpha( oapi::Sketchpad2* skp, double vel )
 	{
 		skp->SetFont( skpSSUAFont_h11 );
 		skp->SetTextColor( CR_LIGHT_GRAY );
@@ -1409,14 +1409,14 @@ namespace vc
 		src.bottom = src.top + 217;
 		skp->CopyRect( sfh_Tape_Alpha, &src, 69, 56 );
 
-		if ((MachNumber > 0) && (MachNumber < 3))
+		if ((vel > 0) && (vel < 3))
 		{
 			// max L/D (linear aprox)
 			double maxLD;
-			if (MachNumber < 0.9) maxLD = 10.5;
-			else if (MachNumber < 1.1) maxLD = (MachNumber * 15) - 3;
-			else if (MachNumber < 2) maxLD = (MachNumber * 1.6667) + 11.6667;
-			else maxLD = (MachNumber * 2) + 11;
+			if (vel < 0.9) maxLD = 10.5;
+			else if (vel < 1.1) maxLD = (vel * 15) - 3;
+			else if (vel < 2) maxLD = (vel * 1.6667) + 11.6667;
+			else maxLD = (vel * 2) + 11;
 
 			maxLD -= alpha;
 			if (fabs( maxLD ) < 11)
@@ -4552,7 +4552,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_Header_AerojetDAP( HDC hDC, int MM, double MachNumber )
+	void MDU::AEPFD_Header_AerojetDAP( HDC hDC, int MM, double vel )
 	{
 		char cbuf[8];
 		SetTextColor( hDC, CR_LIGHT_GRAY );
@@ -4568,7 +4568,7 @@ namespace vc
 		if (GetIDP()->GetAutoPitchState() == true) TextOut( hDC, 85, 3, "Auto", 4 );
 		else
 		{
-			if (MachNumber > 1)
+			if (vel > 1)
 			{
 				SelectObject( hDC, gdiYellowPen );
 				SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
@@ -4580,7 +4580,7 @@ namespace vc
 		if (GetIDP()->GetAutoRollYawState() == true) TextOut( hDC, 85, 18, "Auto", 4 );
 		else
 		{
-			if (MachNumber > 1)
+			if (vel > 1)
 			{
 				SelectObject( hDC, gdiYellowPen );
 				SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );
@@ -4608,7 +4608,7 @@ namespace vc
 		return;
 	}
 
-	void MDU::AEPFD_Header_AerojetDAP( oapi::Sketchpad2* skp, int MM, double MachNumber )
+	void MDU::AEPFD_Header_AerojetDAP( oapi::Sketchpad2* skp, int MM, double vel )
 	{
 		char cbuf[8];
 		skp->SetTextColor( CR_LIGHT_GRAY );
@@ -4624,7 +4624,7 @@ namespace vc
 		if (GetIDP()->GetAutoPitchState() == true) skp->Text( 85, 3, "Auto", 4 );
 		else
 		{
-			if (MachNumber > 1)
+			if (vel > 1)
 			{
 				skp->SetPen( skpYellowPen );
 				skp->SetBrush( NULL );
@@ -4636,7 +4636,7 @@ namespace vc
 		if (GetIDP()->GetAutoRollYawState() == true) skp->Text( 85, 18, "Auto", 4 );
 		else
 		{
-			if (MachNumber > 1)
+			if (vel > 1)
 			{
 				skp->SetPen( skpYellowPen );
 				skp->SetBrush( NULL );

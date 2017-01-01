@@ -276,10 +276,10 @@ namespace vc {
 		void SPI( HDC hDC );
 		void SPI( oapi::Sketchpad2* skp );
 
-		void Tape_Alpha( HDC hDC, double MachNumber );
-		void Tape_Alpha( oapi::Sketchpad2* skp, double MachNumber );
-		void Tape_KEAS_MVR( HDC hDC, double MachNumber );
-		void Tape_KEAS_MVR( oapi::Sketchpad2* skp, double MachNumber );
+		void Tape_Alpha( HDC hDC, double vel );
+		void Tape_Alpha( oapi::Sketchpad2* skp, double vel );
+		void Tape_KEAS_MVR( HDC hDC, double vel );
+		void Tape_KEAS_MVR( oapi::Sketchpad2* skp, double vel );
 		void Tape_MV_KEAS( HDC hDC, char label, double vel );
 		void Tape_MV_KEAS( oapi::Sketchpad2* skp, char label, double vel );
 		void Tape_H_Hdot( HDC hDC, double Altitude_ft, double Hdot );
@@ -323,8 +323,8 @@ namespace vc {
 		void AEPFD_Header_AscentDAP( oapi::Sketchpad2* skp, int MM, int adiatt );
 		void AEPFD_Header_TransDAP( HDC hDC, int MM, int adiatt );
 		void AEPFD_Header_TransDAP( oapi::Sketchpad2* skp, int MM, int adiatt );
-		void AEPFD_Header_AerojetDAP( HDC hDC, int MM, double MachNumber );
-		void AEPFD_Header_AerojetDAP( oapi::Sketchpad2* skp, int MM, double MachNumber );
+		void AEPFD_Header_AerojetDAP( HDC hDC, int MM, double vel );
+		void AEPFD_Header_AerojetDAP( oapi::Sketchpad2* skp, int MM, double vel );
 		void AEPFD_BETA( HDC hDC );
 		void AEPFD_BETA( oapi::Sketchpad2* skp );
 		void AEPFD_GMETER_STATIC( HDC hDC );
