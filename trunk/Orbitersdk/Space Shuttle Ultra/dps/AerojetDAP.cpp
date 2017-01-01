@@ -22,6 +22,9 @@ const double VTRAN = 10500/MPS2FPS;
 const double VQ = 5000/MPS2FPS;
 const double VQ2 = VQ*VQ;
 
+
+const double SCALE = 25.788502804088015;// (px/º) use with angular distance from boresight (CX,CY)
+
 /**
  * Draws pitch ladder line on HUD.
  * Rotated font (for labelling line) is assumed to be selected into sketchpad
@@ -41,63 +44,69 @@ bool DrawHUDPitchLine(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, int ladderP
 
 	VECTOR3 line_rot_vector;
 	VECTOR3 line_dir_vector = RotateVectorZ(_V(1, 0, 0), orbiterBank);
-	VECTOR3 line_pos = RotateVectorZ(_V(5*hps->Scale, curPitchDelta*hps->Scale, 0), orbiterBank);
+	VECTOR3 line_pos = RotateVectorZ(_V(4*SCALE, curPitchDelta*hps->Scale, 0), orbiterBank) - line_dir_vector * 5 * SCALE * sin( orbiterBank * RAD );
 	line_pos.x = hps->CX-line_pos.x;
 	line_pos.y = hps->CY-line_pos.y;
 	if(line_pos.y < 0 || line_pos.x < 0) return false;
 	if(line_pos.y > hps->W || line_pos.x > hps->H) return false;
-	VECTOR3 line_end = line_pos + line_dir_vector*10*hps->Scale;
+	VECTOR3 line_end = line_pos + line_dir_vector*8*SCALE;
 	if(line_end.y < 0 || line_end.x < 0) return false;
 	if(line_end.y > hps->W || line_end.x > hps->H) return false;
 	
 	// draw line
 	if(ladderPitch < 0) { // 2 dashed lines
-		VECTOR3 line_seg1_end = line_pos + line_dir_vector*0.85*hps->Scale;
-		skp->Line(Round(line_pos.x), Round(line_pos.y),
-			Round(line_seg1_end.x), Round(line_seg1_end.y));
-		VECTOR3 line_seg2_start = line_seg1_end + line_dir_vector*0.3*hps->Scale;
-		VECTOR3 line_seg2_end = line_pos + line_dir_vector*2*hps->Scale;
-		skp->Line(Round(line_seg2_start.x), Round(line_seg2_start.y), Round(line_seg2_end.x), Round(line_seg2_end.y));
-		VECTOR3 line_seg3_start = line_end - line_dir_vector*2*hps->Scale;
-		VECTOR3 line_seg3_end = line_seg3_start + line_dir_vector*0.85*hps->Scale;
-		skp->Line(Round(line_seg3_start.x), Round(line_seg3_start.y),
-			Round(line_seg3_end.x), Round(line_seg3_end.y));
-		VECTOR3 line_seg4_start = line_seg3_end + line_dir_vector*0.3*hps->Scale;
-		skp->Line(Round(line_seg4_start.x), Round(line_seg4_start.y),
-			Round(line_end.x), Round(line_end.y));
-	}
-	else { //  2 solid lines
-		VECTOR3 line_seg1_end = line_pos + line_dir_vector*2*hps->Scale;
+		VECTOR3 line_seg1_end = line_pos + line_dir_vector*0.666666*SCALE;
 		skp->Line(Round(line_pos.x), Round(line_pos.y), Round(line_seg1_end.x), Round(line_seg1_end.y));
-		VECTOR3 line_seg2_start = line_end - line_dir_vector*2*hps->Scale;		
+		VECTOR3 line_seg2_start = line_seg1_end + line_dir_vector*0.666666*SCALE;
+		VECTOR3 line_seg2_end = line_pos + line_dir_vector*2*SCALE;
+		skp->Line(Round(line_seg2_start.x), Round(line_seg2_start.y), Round(line_seg2_end.x), Round(line_seg2_end.y));
+
+		VECTOR3 line_seg3_start = line_end - line_dir_vector*2*SCALE;
+		VECTOR3 line_seg3_end = line_seg3_start + line_dir_vector*0.666666*SCALE;
+		skp->Line(Round(line_seg3_start.x), Round(line_seg3_start.y), Round(line_seg3_end.x), Round(line_seg3_end.y));
+		VECTOR3 line_seg4_start = line_seg3_end + line_dir_vector*0.666666*SCALE;
+		skp->Line(Round(line_seg4_start.x), Round(line_seg4_start.y), Round(line_end.x), Round(line_end.y));
+	}
+	else if(ladderPitch > 0) { //  2 solid lines
+		VECTOR3 line_seg1_end = line_pos + line_dir_vector*2*SCALE;
+		skp->Line(Round(line_pos.x), Round(line_pos.y), Round(line_seg1_end.x), Round(line_seg1_end.y));
+		VECTOR3 line_seg2_start = line_end - line_dir_vector*2*SCALE;		
 		skp->Line(Round(line_seg2_start.x), Round(line_seg2_start.y), Round(line_end.x), Round(line_end.y));
+	}
+	else { //  2 solid thick lines
+		// draw a line above main line to save a thick line pen
+		line_rot_vector = RotateVectorZ(_V(0, 1, 0), orbiterBank);
+		VECTOR3 line_seg1_end = line_pos + line_dir_vector*2.2*SCALE;
+		skp->Line(Round(line_pos.x), Round(line_pos.y), Round(line_seg1_end.x), Round(line_seg1_end.y));
+		skp->Line(Round(line_pos.x + line_rot_vector.x), Round(line_pos.y + line_rot_vector.y), Round(line_seg1_end.x + line_rot_vector.x), Round(line_seg1_end.y + line_rot_vector.y));
+		VECTOR3 line_seg2_start = line_end - line_dir_vector*2.2*SCALE;
+		skp->Line(Round(line_seg2_start.x), Round(line_seg2_start.y), Round(line_end.x), Round(line_end.y));
+		skp->Line(Round(line_seg2_start.x + line_rot_vector.x), Round(line_seg2_start.y + line_rot_vector.y), Round(line_end.x + line_rot_vector.x), Round(line_end.y + line_rot_vector.y));
 	}
 	// draw lines pointing toward horizon
 	if(ladderPitch > 0) {
 		line_rot_vector = RotateVectorZ(_V(0, 1, 0), orbiterBank);
-		VECTOR3 left_line_end = line_pos + line_rot_vector*0.5*hps->Scale;
+		VECTOR3 left_line_end = line_pos + line_rot_vector*0.25*SCALE;
 		skp->Line(Round(left_line_end.x), Round(left_line_end.y), Round(line_pos.x), Round(line_pos.y));
-		VECTOR3 right_line_end = line_end + line_rot_vector*0.5*hps->Scale;
+		VECTOR3 right_line_end = line_end + line_rot_vector*0.25*SCALE;
 		skp->Line(Round(right_line_end.x), Round(right_line_end.y), Round(line_end.x), Round(line_end.y));
 	}
 	else if(ladderPitch < 0) {
 		line_rot_vector = RotateVectorZ(_V(0, -1, 0), orbiterBank);
-		VECTOR3 left_line_end = line_pos + line_rot_vector*0.5*hps->Scale;
+		VECTOR3 left_line_end = line_pos + line_rot_vector*0.25*SCALE;
 		skp->Line(Round(left_line_end.x), Round(left_line_end.y), Round(line_pos.x), Round(line_pos.y));
-		VECTOR3 right_line_end = line_end + line_rot_vector*0.5*hps->Scale;
+		VECTOR3 right_line_end = line_end + line_rot_vector*0.25*SCALE;
 		skp->Line(Round(right_line_end.x), Round(right_line_end.y), Round(line_end.x), Round(line_end.y));
 	}
 
 	// print angle
 	if(ladderPitch != 0) {
-		sprintf_s(pszBuf, 20, "%d", ladderPitch);
-		//skp->Text(static_cast<int>(line_end.x)+3, static_cast<int>(line_end.y)-textHeight/2, pszBuf, strlen(pszBuf));
+		sprintf_s(pszBuf, 20, "%d", abs( ladderPitch ));
 		int textWidth = skp->GetTextWidth(pszBuf);
-		VECTOR3 textPos = line_end - line_dir_vector*(1+textWidth) + line_rot_vector*(1+textHeight);
-		//VECTOR3 textEnd = line_end - line_rot_vector*2;
+		VECTOR3 textPos = line_end - line_dir_vector*(1+textWidth);
+		if (ladderPitch < 0) textPos = textPos + line_rot_vector*(2+textHeight);
+		else textPos = textPos + line_rot_vector*(12-textHeight);
 		skp->Text(Round(textPos.x), Round(textPos.y), pszBuf, strlen(pszBuf));
-		//skp->TextBox(static_cast<int>(textPos.x), static_cast<int>(textPos.y),
-			//static_cast<int>(textEnd.x), static_cast<int>(textEnd.y), cbuf, strlen(cbuf));
 	}
 
 	return true;
@@ -121,24 +130,514 @@ void DrawTriangle(oapi::Sketchpad *skp, const VECTOR3& pt1, const VECTOR3& pt2, 
  * @param trianglePitch pitch corresponding to triangle being drawn
  * @param orbiterPitch current pitch angle of orbiter
  * @param orbiterBank current bank angle of orbiter
+ * @param fdvv_x current x position of FD/VV symbol, so triangles are drawn on the sides
  */
-void DrawHUDGuidanceTriangles(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, double degTrianglePitch, double degOrbiterPitch, double degOrbiterBank)
+void DrawHUDGuidanceTriangles(oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, double degTrianglePitch, double degOrbiterPitch, double degOrbiterBank, double fdvv_x )
 {
 	double curPitchDelta = degTrianglePitch - degOrbiterPitch;
 
 	VECTOR3 line_dir_vector = RotateVectorZ(_V(1, 0, 0), degOrbiterBank);
 	VECTOR3 line_rot_vector = RotateVectorZ(_V(0, 1, 0), degOrbiterBank);
-	VECTOR3 line_pos = _V(hps->CX, hps->CY, 0) - line_rot_vector*(curPitchDelta*hps->Scale); // midpoint between triangles
+	VECTOR3 line_pos = _V( fdvv_x, hps->CY, 0) - line_rot_vector*(curPitchDelta*hps->Scale); // midpoint between triangles
 
-	VECTOR3 leftTrianglePt1 = line_pos - line_dir_vector*hps->Scale;
-	VECTOR3 leftTrianglePt2 = line_pos - line_dir_vector*1.7*hps->Scale - line_rot_vector*0.35*hps->Scale;
-	VECTOR3 leftTrianglePt3 = leftTrianglePt2 + line_rot_vector*0.7*hps->Scale;
+	VECTOR3 leftTrianglePt1 = line_pos - line_dir_vector*0.8*SCALE;
+	VECTOR3 leftTrianglePt2 = line_pos - line_dir_vector*1.2*SCALE - line_rot_vector*0.2*SCALE;
+	VECTOR3 leftTrianglePt3 = leftTrianglePt2 + line_rot_vector*0.4*SCALE;
 	DrawTriangle(skp, leftTrianglePt1, leftTrianglePt2, leftTrianglePt3);
 
-	VECTOR3 rightTrianglePt1 = line_pos + line_dir_vector*hps->Scale;
-	VECTOR3 rightTrianglePt2 = line_pos + line_dir_vector*1.7*hps->Scale - line_rot_vector*0.35*hps->Scale;
-	VECTOR3 rightTrianglePt3 = rightTrianglePt2 + line_rot_vector*0.7*hps->Scale;
+	VECTOR3 rightTrianglePt1 = line_pos + line_dir_vector*0.8*SCALE;
+	VECTOR3 rightTrianglePt2 = line_pos + line_dir_vector*1.2*SCALE - line_rot_vector*0.2*SCALE;
+	VECTOR3 rightTrianglePt3 = rightTrianglePt2 + line_rot_vector*0.4*SCALE;
 	DrawTriangle(skp, rightTrianglePt1, rightTrianglePt2, rightTrianglePt3);
+}
+
+/**
+ * Calculates y distance between 2 altitudes in scale 3.
+ * \param x1	HUD altitude 1
+ * \param x2	HUD altitude 2
+ * \return	y distance between altitudes (> 0 if x1 > x2)
+ */
+double HUDScale3Diff( double x1, double x2 )
+{// y distance between 2 altitudes in scale 3, returns > 0 if x1 > x2
+	double a = 0.00005;
+	double b = -0.065;
+	return (((x2 * x2) - (x1 * x1)) * a) + ((x2 - x1) * b);
+}
+
+/**
+ * Draws selected altitude tape scale in the HUD.
+ * \param skp	HUD Sketchpad instance
+ * \param hps	HUD HUDPAINTSPEC instance
+ * \param scale	selects altitude scale to draw
+ * \param pos	y position to start drawing scale
+ * \param alt	current altitude (ft), rounded to scale interval
+ * \param up	if true, prints scale upward from pos parameter
+ * \return	false if reached display edge (drawing done on that side)
+ */
+bool DrawHUDAltTapeScale( oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, int scale, int& pos, int &alt, bool up )
+{
+	char cbuf[255];
+	double display_top = -1;
+	double display_bottom = 11;
+
+	// draw tape
+	if (scale == 0)
+	{
+		// 400k-100k
+		if (up)
+		{
+			while (alt <= 400000)
+			{
+				if (pos < (hps->CY + Round( SCALE * display_top ))) return false;
+
+				if (alt % 10000 == 0)// number w 'K'
+				{
+					sprintf_s( cbuf, 255, "%dK", (int)(alt * 0.001) );
+					skp->Text( hps->CX + Round( SCALE * 3.7 ), pos - 10, cbuf, strlen( cbuf ) );
+				}
+				else skp->Line( hps->CX + Round( SCALE * 5.2 ), pos, hps->CX + Round( SCALE * 5.5 ), pos );// line
+
+				pos -= Round( SCALE * 2.5 );
+				alt += 5000;
+			}
+		}
+		else
+		{
+			while (alt >= 100000)
+			{
+				if (pos > (hps->CY + Round( SCALE * display_bottom ))) return false;
+				
+				if (alt % 10000 == 0)// number w 'K'
+				{
+					sprintf_s( cbuf, 255, "%dK", (int)(alt * 0.001) );
+					skp->Text( hps->CX + Round( SCALE * 3.7 ), pos - 10, cbuf, strlen( cbuf ) );
+				}
+				else skp->Line( hps->CX + Round( SCALE * 5.2 ), pos, hps->CX + Round( SCALE * 5.5 ), pos );// line
+
+				pos += Round( SCALE * 2.5 );
+				alt -= 5000;
+			}
+			// correct pos and alt for next scale
+			pos -= Round( SCALE * 2.5 ) - Round( SCALE * 1.666667 );// TODO this scale
+			alt += 5000 - 500;// correct alt for next scale
+		}
+	}
+	else if (scale == 1)
+	{
+		// 100k-1500
+		if (up)
+		{
+			while (alt < 100000)
+			{
+				if (pos < (hps->CY + Round( SCALE * display_top ))) return false;
+				
+				if (alt % 5000 == 0)// number w 'K'
+				{
+					sprintf_s( cbuf, 255, "%2dK", (int)(alt * 0.001) );
+					skp->Text( hps->CX + Round( SCALE * 4.2 ), pos - 10, cbuf, strlen( cbuf ) );
+				}
+				else if (alt % 1000 == 0)// number w/o 'K'
+				{
+					sprintf_s( cbuf, 255, "%3d", (int)(alt * 0.001) );
+					skp->Text( hps->CX + Round( SCALE * 4.2 ), pos - 10, cbuf, strlen( cbuf ) );
+				}
+				else skp->Line( hps->CX + Round( SCALE * 5.2 ), pos, hps->CX + Round( SCALE * 5.5 ), pos );// line
+
+				pos -= Round( SCALE * 1.666667 );
+				alt += 500;
+			}
+		}
+		else
+		{
+			while (alt >= 1500)
+			{
+				if (pos > (hps->CY + Round( SCALE * display_bottom ))) return false;
+				
+				if (alt % 5000 == 0)// number w 'K'
+				{
+					sprintf_s( cbuf, 255, "%2dK", (int)(alt * 0.001) );
+					skp->Text( hps->CX + Round( SCALE * 4.2 ), pos - 10, cbuf, strlen( cbuf ) );
+				}
+				else if (alt % 1000 == 0)// number w/o 'K'
+				{
+					sprintf_s( cbuf, 255, "%3d", (int)(alt * 0.001) );
+					skp->Text( hps->CX + Round( SCALE * 4.2 ), pos - 10, cbuf, strlen( cbuf ) );
+				}
+				else skp->Line( hps->CX + Round( SCALE * 5.2 ), pos, hps->CX + Round( SCALE * 5.5 ), pos );// line
+
+				pos += Round( SCALE * 1.666667 );
+				alt -= 500;
+			}
+		}
+	}
+	else if (scale == 2)
+	{
+		// 1500-500
+		if (up)
+		{
+			while (alt < 1500)
+			{
+				if (pos < (hps->CY + Round( SCALE * display_top ))) return false;
+				
+				if (alt % 1000 == 0)// number w 'K'
+				{
+					sprintf_s( cbuf, 255, "%2dK", (int)(alt * 0.001) );
+					skp->Text( hps->CX + Round( SCALE * 4.2 ), pos - 10, cbuf, strlen( cbuf ) );
+				}
+				else// number w/o 'K'
+				{
+					sprintf_s( cbuf, 255, "%3d", alt );
+					skp->Text( hps->CX + Round( SCALE * 4.2 ), pos - 10, cbuf, strlen( cbuf ) );
+				}
+
+				pos -= Round( SCALE * 1.666667 );
+				alt += 500;
+			}
+		}
+		else
+		{
+			while (alt >= 500)
+			{
+				if (pos > (hps->CY + Round( SCALE * display_bottom ))) return false;
+				
+				if (alt % 1000 == 0)// number w 'K'
+				{
+					sprintf_s( cbuf, 255, "%2dK", (int)(alt * 0.001) );
+					skp->Text( hps->CX + Round( SCALE * 4.2 ), pos - 10, cbuf, strlen( cbuf ) );
+				}
+				else// number w/o 'K'
+				{
+					sprintf_s( cbuf, 255, "%3d", alt );
+					skp->Text( hps->CX + Round( SCALE * 4.2 ), pos - 10, cbuf, strlen( cbuf ) );
+				}
+
+				pos += Round( SCALE * 1.666667 );
+				alt -= 500;
+			}
+			// correct pos and alt for next scale
+			alt += 500;
+			pos -= Round( SCALE * 1.666667 ) - Round( HUDScale3Diff( alt, alt - 50 ) * SCALE );
+			alt -= 50;
+		}
+	}
+	else if (scale == 3)
+	{
+		// 500-100
+		if (up)
+		{
+			while (alt < 500)
+			{
+				if (pos < (hps->CY + Round( SCALE * display_top ))) return false;
+
+				if (alt % 100 == 0)// number
+				{
+					sprintf_s( cbuf, 255, "%3d", alt );
+					skp->Text( hps->CX + Round( SCALE * 4.2 ), pos - 10, cbuf, strlen( cbuf ) );
+				}
+				else skp->Line( hps->CX + Round( SCALE * 5.2 ), pos, hps->CX + Round( SCALE * 5.5 ), pos );// line
+				
+				pos -= Round( HUDScale3Diff( alt + 50, alt ) * SCALE );
+				alt += 50;
+			}
+		}
+		else
+		{
+			while (alt >= 100)
+			{
+				if (pos > (hps->CY + Round( SCALE * display_bottom ))) return false;
+
+				if (alt % 100 == 0)// number
+				{
+					sprintf_s( cbuf, 255, "%3d", alt );
+					skp->Text( hps->CX + Round( SCALE * 4.2 ), pos - 10, cbuf, strlen( cbuf ) );
+				}
+				else skp->Line( hps->CX + Round( SCALE * 5.2 ), pos, hps->CX + Round( SCALE * 5.5 ), pos );// line
+
+				pos += Round( HUDScale3Diff( alt, alt - 50 ) * SCALE );
+				alt -= 50;
+			}
+			// correct pos and alt for next scale
+			alt += 50;
+			pos -= Round( HUDScale3Diff( alt, alt - 50 ) * SCALE ) - Round( SCALE * 1.25 );
+			alt -= 25;
+		}
+	}
+	else if (scale == 4)
+	{
+		// 100-50
+		if (up)
+		{
+			while (alt < 100)
+			{
+				if (pos < (hps->CY + Round( SCALE * display_top ))) return false;
+
+				if (alt % 50 == 0)// number
+				{
+					sprintf_s( cbuf, 255, "%3d", alt );
+					skp->Text( hps->CX + Round( SCALE * 4.2 ), pos - 10, cbuf, strlen( cbuf ) );
+				}
+				else skp->Line( hps->CX + Round( SCALE * 5.2 ), pos, hps->CX + Round( SCALE * 5.5 ), pos );// line
+
+				pos -= Round( SCALE * 1.25 );
+				alt += 25;
+			}
+		}
+		else
+		{
+			while (alt >= 50)
+			{
+				if (pos > (hps->CY + Round( SCALE * display_bottom ))) return false;
+
+				if (alt % 50 == 0)// number
+				{
+					sprintf_s( cbuf, 255, "%3d", alt );
+					skp->Text( hps->CX + Round( SCALE * 4.2 ), pos - 10, cbuf, strlen( cbuf ) );
+				}
+				else skp->Line( hps->CX + Round( SCALE * 5.2 ), pos, hps->CX + Round( SCALE * 5.5 ), pos );// line
+
+				pos += Round( SCALE * 1.25 );
+				alt -= 25;
+			}
+			// correct pos and alt for next scale
+			pos -= Round( SCALE * 1.25 ) - Round( SCALE * 0.6 );
+			alt += 25 - 10;
+		}
+	}
+	else// if (scale == 5)
+	{
+		// 50-0
+		if (up)
+		{
+			while (alt < 50)
+			{
+				if (pos < (hps->CY + Round( SCALE * display_top ))) return false;
+
+				if (alt == 0) skp->Text( hps->CX + Round( SCALE * 4.2 ), pos - 10, "  0", 3 );
+				else skp->Line( hps->CX + Round( SCALE * 5.2 ), pos, hps->CX + Round( SCALE * 5.5 ), pos );// line
+
+				pos -= Round( SCALE * 0.6 );
+				alt += 10;
+			}
+		}
+		else
+		{
+			while (alt >= 0)
+			{
+				if (pos > (hps->CY + Round( SCALE * display_bottom ))) return false;
+
+				if (alt == 0) skp->Text( hps->CX + Round( SCALE * 4.2 ), pos - 10, "  0", 3 );
+				else skp->Line( hps->CX + Round( SCALE * 5.2 ), pos, hps->CX + Round( SCALE * 5.5 ), pos );// line
+
+				pos += Round( SCALE * 0.6 );
+				alt -= 10;
+			}
+		}
+	}
+	return true;
+}
+
+/**
+ * Draws altitude tape in the HUD.
+ * \param skp	HUD Sketchpad instance
+ * \param hps	HUD HUDPAINTSPEC instance
+ * \param alt	current altitude (ft)
+ */
+void DrawHUDAltTape( oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, double alt )
+{
+	if (alt >= 400000) alt = 400000;
+
+	int tmpalt = Round( alt );
+	int ialt = 0;
+	int offset;
+	int altscale;
+
+	if (alt >= 100000)
+	{
+		altscale = 0;// 400k-100k
+		ialt = Round( alt * 0.0002 ) * 5000;
+		offset = Round( (tmpalt - ialt) * SCALE * 0.0005 );// 10000ft / 5º (?)
+	}
+	else if (alt >= 1500)
+	{
+		altscale = 1;// 100k-1500
+		ialt = Round( alt * 0.002 ) * 500;
+		offset = Round( (tmpalt - ialt) * SCALE * 0.003333 );// 1500ft / 5º
+	}
+	else if (alt >= 500)
+	{
+		altscale = 2;// 1500-500
+		ialt = Round( alt * 0.002 ) * 500;
+		offset = Round( (tmpalt - ialt) * SCALE * 0.003333 );// 1500ft / 5º
+	}
+	else if (alt >= 100)
+	{
+		altscale = 3;// 500-100
+		ialt = Round( alt * 0.02 ) * 50;
+		offset = Round( HUDScale3Diff( tmpalt, ialt ) * SCALE );
+	}
+	else if (alt >= 50)
+	{
+		altscale = 4;// 100-50
+		ialt = Round( alt * 0.04 ) * 25;
+		offset = Round( (tmpalt - ialt) * SCALE * 0.05 );// 100ft / 5º
+	}
+	else
+	{
+		altscale = 5;// 50-0
+		ialt = Round( alt * 0.1 ) * 10;
+		offset = Round( (tmpalt - ialt) * SCALE * 0.06 );// 50ft / 3º
+	}
+
+	int tmp = ialt;
+	int ytmp = offset + hps->CY + Round( SCALE * 5 );
+	int tmp_altscale = altscale;
+	// up
+	do
+	{
+		if (DrawHUDAltTapeScale( skp, hps, tmp_altscale, ytmp, tmp, true ) == false) break;
+		tmp_altscale--;
+	}
+	while (tmp_altscale >= 0);
+
+	tmp = ialt;
+	ytmp = offset + hps->CY + Round( SCALE * 5 );
+	tmp_altscale = altscale;
+	// advance so it doesn't print the center-most symbol twice
+	if (altscale == 0)
+	{
+		tmp -= 5000;
+		ytmp += Round( SCALE * 2.5 );
+	}
+	else if (altscale == 1)
+	{
+		tmp -= 500;
+		ytmp += Round( SCALE * 1.666667 );
+	}
+	else if (altscale == 2)
+	{
+		tmp -= 500;
+		ytmp += Round( SCALE * 1.666667 );
+	}
+	else if (altscale == 3)
+	{
+		tmp -= 50;
+		ytmp += Round( HUDScale3Diff( tmp + 50, tmp ) * SCALE );
+	}
+	else if (altscale == 4)
+	{
+		tmp -= 25;
+		ytmp += Round( SCALE * 1.25 );
+	}
+	else// if (altscale == 5)
+	{
+		tmp -= 10;
+		ytmp += Round( SCALE * 0.6 );
+	}
+	// down
+	do
+	{
+		if (DrawHUDAltTapeScale( skp, hps, tmp_altscale, ytmp, tmp, false ) == false) break;
+		tmp_altscale++;
+	}
+	while (tmp_altscale <= 5);
+	return;
+}
+
+/**
+ * Draws Speedbrake scale in the HUD.
+ * \param skp	HUD Sketchpad instance
+ * \param hps	HUD HUDPAINTSPEC instance
+ * \param I_PHASE	current guidance
+ * \param P_MODE	current guidance
+ */
+void DrawHUDLowerLeftWindow( oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, int I_PHASE, int P_MODE )
+{
+	char cbuf[8];
+
+	switch (I_PHASE)
+	{
+		case 0:
+			strcpy_s( cbuf, "S_TRN" );
+			break;
+		case 1:
+			strcpy_s( cbuf, "ACQ" );
+			break;
+		case 2:
+			strcpy_s( cbuf, "HDG" );
+			break;
+		case 3:
+			strcpy_s( cbuf, "PRFNL" );
+			break;
+		case 4:
+			switch (P_MODE)// HACK assume I_PHASE = 4
+			{
+				case 1:
+					strcpy_s( cbuf, "CAPT" );
+					break;
+				case 2:
+					strcpy_s( cbuf, "OGS" );
+					break;
+				case 3:
+					strcpy_s( cbuf, "FLARE" );
+					break;
+				case 4:
+					strcpy_s( cbuf, "FNLFL" );
+					break;
+			}
+			break;
+		}
+		skp->Text( hps->CX - Round( SCALE * 4 ), hps->CY + Round( SCALE * 12.1 ), cbuf, strlen( cbuf ) );
+	return;
+}
+
+/**
+ * Draws Speedbrake scale in the HUD.
+ * \param skp	HUD Sketchpad instance
+ * \param hps	HUD HUDPAINTSPEC instance
+ * \param pos	current speedbrake position (between 0 and 1)
+ * \param cmd	commanded speedbrake position (between 0 and 1)
+ */
+void DrawHUDSBScale( oapi::Sketchpad *skp, const HUDPAINTSPEC *hps, double pos, double cmd )
+{
+	skp->Line( hps->CX + Round( SCALE * 0.4 ), hps->CY + Round( SCALE * 12.5 ), hps->CX + Round( SCALE * 3.5 ), hps->CY + Round( SCALE * 12.5 ) );
+	
+	skp->Line( hps->CX + Round( SCALE * 0.4 ), hps->CY + Round( SCALE * 12.28 ), hps->CX + Round( SCALE * 0.4 ), hps->CY + Round( SCALE * 12.72 ) );
+	skp->Line( hps->CX + Round( SCALE * 1.175 ), hps->CY + Round( SCALE * 12.37 ), hps->CX + Round( SCALE * 1.175 ), hps->CY + Round( SCALE * 12.63 ) );
+	skp->Line( hps->CX + Round( SCALE * 1.95 ), hps->CY + Round( SCALE * 12.37 ), hps->CX + Round( SCALE * 1.95 ), hps->CY + Round( SCALE * 12.63 ) );
+	skp->Line( hps->CX + Round( SCALE * 2.725 ), hps->CY + Round( SCALE * 12.37 ), hps->CX + Round( SCALE * 2.725 ), hps->CY + Round( SCALE * 12.63 ) );
+	skp->Line( hps->CX + Round( SCALE * 3.5 ), hps->CY + Round( SCALE * 12.28 ), hps->CX + Round( SCALE * 3.5 ), hps->CY + Round( SCALE * 12.72 ) );
+
+	int commanded = Round( SCALE * (0.4 + cmd * 3.1) );
+	int act = Round( SCALE * (0.4 + pos * 3.1) );
+	//actual
+	skp->MoveTo( hps->CX + act, hps->CY + Round( SCALE * 12.49 ) );
+	skp->LineTo( hps->CX + act - Round( SCALE * 0.2 ), hps->CY + Round( SCALE * 12.09 ) );
+	skp->LineTo( hps->CX + act + Round( SCALE * 0.2 ), hps->CY + Round( SCALE * 12.09 ) );
+	skp->LineTo( hps->CX + act, hps->CY + Round( SCALE * 12.49 ) );
+	//commanded
+	skp->MoveTo( hps->CX + commanded, hps->CY + Round( SCALE * 12.51 ) );
+	skp->LineTo( hps->CX + commanded - Round( SCALE * 0.2 ), hps->CY + Round( SCALE * 12.91 ) );
+	skp->LineTo( hps->CX + commanded + Round( SCALE * 0.2 ), hps->CY + Round( SCALE * 12.91 ) );
+	skp->LineTo( hps->CX + commanded, hps->CY + Round( SCALE * 12.51 ) );
+	skp->Line( hps->CX + commanded, hps->CY + Round( SCALE * 12.91 ), hps->CX + commanded, hps->CY + Round( SCALE * 13.2 ) );
+	return;
+}
+
+/**
+ * Draws deceleration scale in the HUD.
+ * \param skp	HUD Sketchpad instance
+ * \param hps	HUD HUDPAINTSPEC instance
+ */
+void DrawHUDDecelerationScale( oapi::Sketchpad *skp, const HUDPAINTSPEC *hps )
+{
+	skp->Line( hps->CX + Round( SCALE * 4.98 ), hps->CY - Round( SCALE * 1.0 ), hps->CX + Round( SCALE * 5.42 ), hps->CY - Round( SCALE * 1.0 ) );
+	skp->Line( hps->CX + Round( SCALE * 5.07 ), hps->CY + Round( SCALE * 0.5 ), hps->CX + Round( SCALE * 5.33 ), hps->CY + Round( SCALE * 0.5 ) );
+	skp->Line( hps->CX + Round( SCALE * 5.07 ), hps->CY + Round( SCALE * 2.0 ), hps->CX + Round( SCALE * 5.33 ), hps->CY + Round( SCALE * 2.0 ) );
+	skp->Line( hps->CX + Round( SCALE * 5.07 ), hps->CY + Round( SCALE * 3.5 ), hps->CX + Round( SCALE * 5.33 ), hps->CY + Round( SCALE * 3.5 ) );
+	skp->Line( hps->CX + Round( SCALE * 4.98 ), hps->CY + Round( SCALE * 5.0 ), hps->CX + Round( SCALE * 5.42 ), hps->CY + Round( SCALE * 5.0 ) );
+
+	// TODO calc current deceleration and rate to stop at 1000ft
+	return;
 }
 
 VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad)
@@ -335,7 +834,7 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	}
 
 	if(HUDFlashTime <= SimT) {
-		HUDFlashTime = SimT+0.1;
+		HUDFlashTime = SimT+0.25;
 		bHUDFlasher = !bHUDFlasher;
 	}
 
@@ -959,9 +1458,9 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 
 	if ((GetMajorMode() == 305) && power)
 	{
-		// draw cross at center
-		skp->Line(hps->CX-5, hps->CY, hps->CX+5, hps->CY);
-		skp->Line(hps->CX, hps->CY-5, hps->CX, hps->CY+5);
+		// boresight
+		skp->Line( hps->CX - 8, hps->CY, hps->CX + 8, hps->CY );
+		skp->Line( hps->CX, hps->CY - 8, hps->CX, hps->CY + 8 );
 
 		if (dclt != 3)
 		{
@@ -972,83 +1471,68 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 			STS()->GetHorizonAirspeedVector(Velocity);
 
 			// show gear deployment status
-			if ((tGear > 0) && (tGear < 5)) skp->Text(hps->CX-60, hps->CY+5, "GR-DN", 5);
-			else if (STS()->GetGearState()==AnimState::OPENING) skp->Text(hps->CX-60, hps->CY+5, "//GR//", 6);
+			if ((tGear > 0) && (tGear < 5)) skp->Text( hps->CX - Round( SCALE * 4 ), hps->CY + Round( SCALE * 0.75 ), "GR-DN", 5 );
+			else if (STS()->GetGearState()==AnimState::OPENING) skp->Text( hps->CX - Round( SCALE * 4 ), hps->CY + Round( SCALE * 0.75 ), "/GR//", 5 );
 
-			// guidance mode
 			if (pLanding_SOP->GetWOWLON() == false)
 			{
-				switch(TAEMGuidanceMode) {
-				case ACQ:
-					strcpy_s(cbuf, "ACQ");
-					break;
-				case HDG:
-					strcpy_s(cbuf, "HDG");
-					break;
-				case PRFNL:
-					strcpy_s(cbuf, "PRFNL");
-					break;
-				case OGS:
-					strcpy_s(cbuf, "OGS");
-					break;
-				case FLARE:
-					strcpy_s(cbuf, "FLARE");
-					break;
-				case FNLFL:
-					strcpy_s(cbuf, "FNLFL");
-					break;
+				// guidance mode
+				switch (TAEMGuidanceMode)
+				{
+					case ACQ:
+						DrawHUDLowerLeftWindow( skp, hps, 1, 0 );
+						break;
+					case HDG:
+						DrawHUDLowerLeftWindow( skp, hps, 2, 0 );
+						break;
+					case PRFNL:
+						DrawHUDLowerLeftWindow( skp, hps, 3, 0 );
+						break;
+					case OGS:
+						DrawHUDLowerLeftWindow( skp, hps, 4, 2 );
+						break;
+					case FLARE:
+						DrawHUDLowerLeftWindow( skp, hps, 4, 3 );
+						break;
+					case FNLFL:
+						DrawHUDLowerLeftWindow( skp, hps, 4, 4 );
+						break;
 				}
-				skp->Text(30, hps->H-85, cbuf, strlen(cbuf));
+			}
+			else
+			{
+				// deceleration scale
+				DrawHUDDecelerationScale( skp, hps );
 			}
 
 			// speedbrake
-			skp->MoveTo((hps->CX), hps->H-85);
-			skp->LineTo((hps->CX)+50, hps->H-85);
-			for(int i=0;i<=50;i+=10)
-			{
-				skp->Line((hps->CX)+i, hps->H-80, (hps->CX)+i, hps->H-90);
-			}
-			double spdb_tgt = STS()->GetTgtSpeedbrakePosition();
-			double spdb_act = STS()->GetActSpeedbrakePosition();
-			int commanded=(int)(spdb_tgt*50);
-			int act=(int)(spdb_act*50);
-			//actual
-			skp->MoveTo((hps->CX)+act, hps->H-85);
-			skp->LineTo((hps->CX)+act-4, hps->H-90);
-			skp->LineTo((hps->CX)+act+4, hps->H-90);
-			skp->LineTo((hps->CX)+act, hps->H-85);
-			//commanded
-			skp->MoveTo((hps->CX)+commanded, hps->H-85);
-			skp->LineTo((hps->CX)+commanded-4, hps->H-80);
-			skp->LineTo((hps->CX)+commanded+4, hps->H-80);
-			skp->LineTo((hps->CX)+commanded, hps->H-85);
-			skp->Line( hps->CX + commanded, hps->H - 80, hps->CX + commanded, hps->H - 75 );
+			DrawHUDSBScale( skp, hps, STS()->GetTgtSpeedbrakePosition(), STS()->GetActSpeedbrakePosition() );
 
 			// draw velocity vector
 			double glideslope_center_y, glideslope_center_x;
 			if(TAEMGuidanceMode>=PRFNL) {
-				glideslope_center_y = hps->CY + STS()->GetAOA()*DEG*hps->Scale;
-				glideslope_center_x = hps->CX - STS()->GetSlipAngle()*DEG*hps->Scale;
+				glideslope_center_y = hps->CY + STS()->GetAOA()*DEG * SCALE;
+				glideslope_center_x = hps->CX - STS()->GetSlipAngle()*DEG * SCALE;
 				if(prfnlBankFader > 1.0) {
 					double HUD_Center_X = static_cast<double>(hps->CX);
-					double HUD_Center_Y = static_cast<double>(hps->H)/2.0 - 25.0;
+					double HUD_Center_Y = static_cast<double>(hps->CY + SCALE * 5);
 					glideslope_center_x = HUD_Center_X + (glideslope_center_x-HUD_Center_X)/prfnlBankFader;
 					glideslope_center_y = HUD_Center_Y + (glideslope_center_y-HUD_Center_Y)/prfnlBankFader;
 				}
-				if (pLanding_SOP->GetWOWLON() == false) skp->Ellipse(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
+				if (pLanding_SOP->GetWOWLON() == false) skp->Ellipse(Round(glideslope_center_x)-6, Round(glideslope_center_y)-6, Round(glideslope_center_x)+6, Round(glideslope_center_y)+6);
 			}
 			else {
 				// before PRFNL mode, we have square at center of HUD
-				glideslope_center_y = static_cast<double>(hps->H)/2.0 - 25.0;
+				glideslope_center_y = static_cast<double>(hps->CY + SCALE * 5);
 				glideslope_center_x = static_cast<double>(hps->CX);
-				skp->Rectangle(Round(glideslope_center_x)-5, Round(glideslope_center_y)-5, Round(glideslope_center_x)+5, Round(glideslope_center_y)+5);
+				skp->Rectangle(Round(glideslope_center_x)-6, Round(glideslope_center_y)-6, Round(glideslope_center_x)+6, Round(glideslope_center_y)+6);
 			}
 			// lines are the same for both VV and center square modes
 			if (pLanding_SOP->GetWOWLON() == false)
 			{
-				skp->Line(Round(glideslope_center_x)-10, Round(glideslope_center_y), Round(glideslope_center_x)-5, Round(glideslope_center_y));
-				skp->Line(Round(glideslope_center_x)+9, Round(glideslope_center_y), Round(glideslope_center_x)+4, Round(glideslope_center_y));
-				skp->Line(Round(glideslope_center_x), Round(glideslope_center_y)-10, Round(glideslope_center_x), Round(glideslope_center_y)-5);
+				skp->Line(Round(glideslope_center_x)-16, Round(glideslope_center_y), Round(glideslope_center_x)-6, Round(glideslope_center_y));
+				skp->Line(Round(glideslope_center_x)+15, Round(glideslope_center_y), Round(glideslope_center_x)+5, Round(glideslope_center_y));
+				skp->Line(Round(glideslope_center_x), Round(glideslope_center_y)-11, Round(glideslope_center_x), Round(glideslope_center_y)-6);
 			}
 
 			if(TAEMGuidanceMode != FNLFL) {
@@ -1087,14 +1571,22 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 				}
 
 				// draw guidance triangles
-				if(TAEMGuidanceMode >= OGS) DrawHUDGuidanceTriangles(skp, hps, degTargetGlideslope, dPitch, bank);
+				if(TAEMGuidanceMode >= PRFNL) DrawHUDGuidanceTriangles(skp, hps, degTargetGlideslope, dPitch, bank, glideslope_center_x );
+				
+				// circle position from runway (all meters)
+				double pullupcircle_r = 9000.0;// obtained by trial and error
+				double pullupcircle_x = -OGS_AIMPOINT + (2000 * fps_to_ms / tan( 20 * RAD )) - (pullupcircle_r * cos( 70 * RAD ));
+				double pullupcircle_y = (2000 * fps_to_ms) + pullupcircle_r * sin( 70 * RAD );
+				VECTOR3 rw_pos = -GetRunwayRelPos();
+				double pulluppitch = -atan2( rw_pos.x - pullupcircle_x, pullupcircle_y - rw_pos.z ) * DEG;
+				if(TAEMGuidanceMode == OGS) DrawHUDGuidanceTriangles(skp, hps, pulluppitch, dPitch, bank, glideslope_center_x );
 			}
 
 			// nz accel
 			if (TAEMGuidanceMode < PRFNL)
 			{
-				sprintf_s( cbuf, 255, "%.1f G", GetNZ() );
-				skp->Text( hps->CX - 50, hps->CY + 50, cbuf, strlen( cbuf ) );
+				sprintf_s( cbuf, 255, "%4.1f G", GetNZ() );
+				skp->Text( hps->CX - Round( SCALE * 3.0 ), hps->CY + Round( SCALE * 5.75 ), cbuf, strlen( cbuf ) );
 			}
 
 			// css status
@@ -1104,13 +1596,13 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 				{
 					if (tCSS < 5)
 					{
-						if (bHUDFlasher) skp->Text( hps->W - 75, 70, "CSS", 3 );// window 2 (flashing)
+						if (bHUDFlasher) skp->Text( hps->CX + Round( SCALE * 2 ), hps->CY + Round( SCALE * 0.75 ), "CSS", 3 );// window 2 (flashing)
 					}
-					else skp->Text( 20, hps->H - 70, "CSS", 3 );// window 4
+					else skp->Text( hps->CX - Round( SCALE * 5 ), hps->CY + Round( SCALE * 14 ), "CSS", 3 );// window 4
 				}
 			}
 
-			if (dclt == 0)
+			if ((dclt == 0) && (pLanding_SOP->GetWOWLON() == false))
 			{
 				// runway overlay
 				VECTOR3 rwy1_end, lrwy1;
@@ -1164,103 +1656,82 @@ bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
 			// draw pitch ladder
 			int nPitch = static_cast<int>(dPitch);
 			int pitchBar = nPitch - (nPitch%5); // display lines at 5-degree increments
-			if ((dclt == 0) || (dclt == 1))
+			if (((dclt == 0) || (dclt == 1)) || ((pLanding_SOP->GetWOWLON() == true) && (pLanding_SOP->GetWONG() == false)))
 			{
 				// create rotated font for HUD pitch markings
-				oapi::Font* pFont = oapiCreateFont(12, false, "Fixed", FONT_NORMAL, -static_cast<int>(10*bank));
+				oapi::Font* pFont = oapiCreateFont(20, false, "Fixed", FONT_NORMAL, -static_cast<int>(10*bank));
 				oapi::Font* pOldFont = skp->SetFont(pFont);
 				// draw pitch lines
-				int curPitchLine = pitchBar+5;
-				while(DrawHUDPitchLine(skp, hps, curPitchLine, dPitch, bank))
-					curPitchLine+=5;	
-				curPitchLine = pitchBar-5;
-				while(DrawHUDPitchLine(skp, hps, curPitchLine, dPitch, bank))
-					curPitchLine-=5;
+				for (int i = 0; i >= -10; i-=5) DrawHUDPitchLine( skp, hps, pitchBar + i, dPitch, bank );
 				// deselect rotated font
 				skp->SetFont(pOldFont);
 				oapiReleaseFont(pFont);
 			}
-
-			// horizon line
-			DrawHUDPitchLine( skp, hps, 0, dPitch, bank );
+			else if (pLanding_SOP->GetWONG() == false) DrawHUDPitchLine( skp, hps, 0, dPitch, bank );// horizon line (if not printed before)
 
 			// alt/vel
 			double keas = STS()->GetKEAS();
+			if (keas > 500) keas = 500;
 			double alt = (int)(STS()->GetAltitude()* MPS2FPS)-17;
-			if (dclt == 2)
+			if ((dclt == 2) || (pLanding_SOP->GetWOWLON() == true))
 			{
 				// numeric
 				sprintf_s(cbuf, 255, "%3.0f", keas);
 				if (pLanding_SOP->GetWOWLON() == false)
 				{
-					skp->Text( (int)glideslope_center_x - 45, (int)glideslope_center_y - 15, cbuf, strlen( cbuf ) );
+					skp->Text( Round( glideslope_center_x - (SCALE * 2.5) ), Round( glideslope_center_y - (SCALE * 1) ), cbuf, strlen( cbuf ) );
 
 					int tmpalt;
-					if (alt > 1000) tmpalt = Round( alt * 0.005 ) * 200;
+					if (alt >= 32767) tmpalt = 32767;
+					else if (alt > 1000) tmpalt = Round( alt * 0.005 ) * 200;
 					else if (alt > 400) tmpalt = Round( alt * 0.01 ) * 100;
 					else if (alt > 50) tmpalt = Round( alt * 0.1 ) * 10;
 					else tmpalt = Round( alt );
 					sprintf_s( cbuf, 255, "%d", tmpalt );
-					skp->Text( (int)glideslope_center_x + 25, (int)glideslope_center_y - 15, cbuf, strlen( cbuf ) );
+					skp->Text( Round( glideslope_center_x + (SCALE * 1.1) ), Round( glideslope_center_y - (SCALE * 1) ), cbuf, strlen( cbuf ) );
 				}
-				else if (pLanding_SOP->GetGSENBL() == false) skp->Text( hps->CX - 26, hps->CY - 14, cbuf, strlen( cbuf ) );
+				else if (pLanding_SOP->GetGSENBL() == false) skp->Text( hps->CX - Round( SCALE * 1.5 ), hps->CY - Round( SCALE * 0.75 ), cbuf, strlen( cbuf ) );
 				else
 				{
-					skp->Text( hps->CX - 40, hps->CY - 14, "G", 1 );
+					skp->Text( hps->CX - Round( SCALE * 2.1 ), hps->CY - Round( SCALE * 0.75 ), "G", 1 );
 					sprintf_s(cbuf, 255, "%3.0f", STS()->GetGroundspeed() * MPS2KTS );
-					skp->Text( hps->CX - 26, hps->CY - 14, cbuf, strlen( cbuf ) );
+					skp->Text( hps->CX - Round( SCALE * 1.5 ), hps->CY - Round( SCALE * 0.75 ), cbuf, strlen( cbuf ) );
 				}
 			}
 			else
 			{
 				// tape
-				int yline = (int)(hps->H / 2.0) - 25;
+				int yline = hps->CY + Round( SCALE * 5 );
 				int ikeas = Round( keas * 0.2 ) * 5;
-				int offset = yline + (int)((ikeas - keas) * 4);// 5/20px
+				int offset = yline + (int)((ikeas - keas) * Round( SCALE * 0.333333 ));// 15kn / 5º
 				int tmp;
 				int ytmp;
 				for (int i = 0; i < 7; i++)
 				{
 					tmp = ikeas + ((i - 3) * 5);
 					if (tmp < 0) continue;
-					ytmp = offset + ((i - 3) * 20);
+					else if (tmp > 500) break;
+					ytmp = offset + ((i - 3) * Round( SCALE * 1.666666 ));
 					if (tmp % 10 == 0)
 					{
 						// number
 						sprintf_s( cbuf, 255, "%d", tmp );
-						skp->Text( 20, ytmp - 7, cbuf, strlen( cbuf ) );
+						skp->Text( hps->CX - Round( SCALE * 5.5 ), ytmp - 10, cbuf, strlen( cbuf ) );
 					}
-					else skp->Line( 20, ytmp, 25, ytmp );// line
+					else skp->Line( hps->CX - Round( SCALE * 5.5 ), ytmp, hps->CX - Round( SCALE * 5.2 ), ytmp );// line
 				}
-				skp->Line( 10, yline - 1, 20, yline - 1 );
-				skp->Line( 10, yline, 20, yline );
-				skp->Line( 10, yline + 1, 20, yline + 1 );
+				skp->Line( hps->CX - Round( SCALE * 6.1 ), yline - 2, hps->CX - Round( SCALE * 5.5 ), yline - 2 );
+				skp->Line( hps->CX - Round( SCALE * 6.1 ), yline - 1, hps->CX - Round( SCALE * 5.5 ), yline - 1 );
+				skp->Line( hps->CX - Round( SCALE * 6.1 ), yline, hps->CX - Round( SCALE * 5.5 ), yline );
+				skp->Line( hps->CX - Round( SCALE * 6.1 ), yline + 1, hps->CX - Round( SCALE * 5.5 ), yline + 1 );
+				skp->Line( hps->CX - Round( SCALE * 6.1 ), yline + 2, hps->CX - Round( SCALE * 5.5 ), yline + 2 );
 
-				int tmpalt = Round( alt );
-				int ialt = Round( alt * 0.002 ) * 500;
-				offset = yline + (int)((tmpalt - ialt) * 0.04);// 500/20px
-				for (int i = 0; i < 7; i++)
-				{
-					tmp = ialt + ((3 - i) * 500);
-					if (tmp < 0) break;
-					ytmp = offset - ((3 - i) * 20);
-					if (tmp % 5000 == 0)
-					{
-						// number w 'K'
-						sprintf_s( cbuf, 255, "%2dK", (int)(tmp * 0.001) );
-						skp->Text( hps->W - 40, ytmp - 7, cbuf, strlen( cbuf ) );
-					}
-					else if (tmp % 1000 == 0)
-					{
-						// number w/o 'K'
-						sprintf_s( cbuf, 255, "%3d", (int)(tmp * 0.001) );
-						skp->Text( hps->W - 40, ytmp - 7, cbuf, strlen( cbuf ) );
-					}
-					else skp->Line( hps->W - 25, ytmp, hps->W - 20, ytmp );// line
-				}
-				skp->Line( hps->W - 20, yline - 1, hps->W - 10, yline - 1 );
-				skp->Line( hps->W - 20, yline, hps->W - 10, yline );
-				skp->Line( hps->W - 20, yline + 1, hps->W - 10, yline + 1 );
+				DrawHUDAltTape( skp, hps, alt );
+				skp->Line( hps->CX + Round( SCALE * 6.1 ), yline - 2, hps->CX + Round( SCALE * 5.5 ), yline - 2 );
+				skp->Line( hps->CX + Round( SCALE * 6.1 ), yline - 1, hps->CX + Round( SCALE * 5.5 ), yline - 1 );
+				skp->Line( hps->CX + Round( SCALE * 6.1 ), yline, hps->CX + Round( SCALE * 5.5 ), yline );
+				skp->Line( hps->CX + Round( SCALE * 6.1 ), yline + 1, hps->CX + Round( SCALE * 5.5 ), yline + 1 );
+				skp->Line( hps->CX + Round( SCALE * 6.1 ), yline + 2, hps->CX + Round( SCALE * 5.5 ), yline + 2 );
 			}
 		}
 	}
