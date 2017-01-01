@@ -825,6 +825,8 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	if(GetMajorMode() != 304 && GetMajorMode() != 305) return; // AerojetDAP software runs in MMs 301-303 as well to drive SPEC 50 HORIZ SIT display, but does not perform any control operations
 
+	SetHUDBrightness();
+
 	// on first step, Orbiter gives some incorrect data, so ignore this step
 	if(bFirstStep) {
 		filteredQBar = STS()->GetDynPressure()*PA2PSF;
@@ -1128,59 +1130,6 @@ void AerojetDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 		else dclt_sw_on[i] = false;
 	}
-	// if in PLT seat use PLT settings, otherwise use CDR
-	if (STS()->VCMode == 1)// VC_PLT
-	{
-		if (HUDBrightNightPLT.IsSet())// night: 10, 20, 30, 40, 50
-		{
-			for (int i = 0; i < 5; i++)
-			{
-				if (HUDBrightPLT[i].IsSet())
-				{
-					oapiSetHUDIntensity( (i + 1) * 0.1 );
-					break;
-				}
-			}
-		}
-		else if (HUDBrightDayPLT.IsSet())// day: 60, 70, 80, 90, 100
-		{
-			for (int i = 0; i < 5; i++)
-			{
-				if (HUDBrightPLT[i].IsSet())
-				{
-					oapiSetHUDIntensity( ((i + 1) * 0.1) + 0.5 );
-					break;
-				}
-			}
-		}
-		else oapiSetHUDIntensity( 0.55 );// auto: 55
-	}
-	else
-	{
-		if (HUDBrightNightCDR.IsSet())// night: 10, 20, 30, 40, 50
-		{
-			for (int i = 0; i < 5; i++)
-			{
-				if (HUDBrightCDR[i].IsSet())
-				{
-					oapiSetHUDIntensity( (i + 1) * 0.1 );
-					break;
-				}
-			}
-		}
-		else if (HUDBrightDayCDR.IsSet())// day: 60, 70, 80, 90, 100
-		{
-			for (int i = 0; i < 5; i++)
-			{
-				if (HUDBrightCDR[i].IsSet())
-				{
-					oapiSetHUDIntensity( ((i + 1) * 0.1) + 0.5 );
-					break;
-				}
-			}
-		}
-		else oapiSetHUDIntensity( 0.55 );// auto: 55
-	}
 
 	if (tCSS == -1)
 	{
@@ -1443,6 +1392,64 @@ bool AerojetDAP::OnPaint(int spec, vc::MDU* pMDU) const
 		return true;
 	}
 	return false;
+}
+
+void AerojetDAP::SetHUDBrightness( void )
+{
+	// if in PLT seat use PLT settings, otherwise use CDR
+	if (STS()->VCMode == 1)// VC_PLT
+	{
+		if (HUDBrightNightPLT.IsSet())// night: 10, 20, 30, 40, 50
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				if (HUDBrightPLT[i].IsSet())
+				{
+					oapiSetHUDIntensity( (i + 1) * 0.1 );
+					break;
+				}
+			}
+		}
+		else if (HUDBrightDayPLT.IsSet())// day: 60, 70, 80, 90, 100
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				if (HUDBrightPLT[i].IsSet())
+				{
+					oapiSetHUDIntensity( ((i + 1) * 0.1) + 0.5 );
+					break;
+				}
+			}
+		}
+		else oapiSetHUDIntensity( 0.55 );// auto: 55
+	}
+	else
+	{
+		if (HUDBrightNightCDR.IsSet())// night: 10, 20, 30, 40, 50
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				if (HUDBrightCDR[i].IsSet())
+				{
+					oapiSetHUDIntensity( (i + 1) * 0.1 );
+					break;
+				}
+			}
+		}
+		else if (HUDBrightDayCDR.IsSet())// day: 60, 70, 80, 90, 100
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				if (HUDBrightCDR[i].IsSet())
+				{
+					oapiSetHUDIntensity( ((i + 1) * 0.1) + 0.5 );
+					break;
+				}
+			}
+		}
+		else oapiSetHUDIntensity( 0.55 );// auto: 55
+	}
+	return;
 }
 
 bool AerojetDAP::OnDrawHUD(const HUDPAINTSPEC* hps, oapi::Sketchpad* skp) const
