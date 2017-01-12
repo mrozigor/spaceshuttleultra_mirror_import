@@ -290,7 +290,7 @@ namespace vc
 				if (oapiGetMFDMode( usMDUID ) != 0) oapiOpenMFD( 1000, usMDUID );
 			}
 		}
-		else if(y >= btnPwrYmin && y<= btnPwrYmax && x >= btnPwrXmin && x <= btnPwrXmax)
+		else if(y >= btnBrtYmin && y<= btnBrtYmax && x >= btnBrtXmin && x <= btnBrtXmax)
 		{
 			//sprintf_s(oapiDebugString(), 80, "MDU %s BRIGHTNESS", GetQualifiedIdentifier().c_str());
 		}
