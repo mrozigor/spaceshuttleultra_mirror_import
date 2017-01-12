@@ -379,6 +379,8 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 	}
 
+	CheckSoftwareStop();
+
 	if(EEAuto || EEMan) {
 		if(Grapple_State.Moving()) {
 			Grapple_State.Move(DeltaT*RMS_GRAPPLE_SPEED);
@@ -497,6 +499,8 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		if(Rigid_State.Closed()) bEERigidized = true;
 		else if(Rigid_State.Open()) bEEDerigidized = true;
 
+		SoftStopTB.SetLine( (int)bSoftStop * 5.0f );
+
 		EECapture.SetLine( (int)bEECapture * 5.0f );
 		EEExtended.SetLine( (int)bEEExtended * 5.0f );
 		EEClosed.SetLine( (int)bEEClosed * 5.0f );
@@ -607,12 +611,12 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 	}
 
 	// handle light and talkback outputs
-	CWLights[10].ResetLine();
 	if (RMSSelect)
 	{
 		if(Eq(shoulder_brace, 0.0, 0.01)) ShoulderBraceReleased.SetLine();
 
 		// check reach limits
+		CWLights[10].ResetLine();
 		for (int i = SHOULDER_YAW; i <= WRIST_ROLL; i++)
 		{
 			if ((joint_angle[i] < RMS_JOINT_REACHLIMITS[0][i]) || (joint_angle[i] > RMS_JOINT_REACHLIMITS[1][i]))
@@ -637,7 +641,11 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 	{
 		ShoulderBraceReleased.ResetLine();
 
-		for (int i = 0; i < 12; i++) ModeLights[i].ResetLine();
+		for (int i = 0; i < 12; i++)
+		{
+			ModeLights[i].ResetLine();
+			CWLights[i].ResetLine();
+		}
 
 		SoftStopTB.ResetLine();
 		
@@ -857,37 +865,32 @@ bool RMSSystem::MoveEE(const VECTOR3 &newPos, const VECTOR3 &newDir, const VECTO
 
 	new_joint_angles[WRIST_PITCH]=phi-new_joint_angles[SHOULDER_PITCH]-new_joint_angles[ELBOW_PITCH];
 
+
+	// allow use of full motion range of the wrist roll joint
+	if ((joint_angle[WRIST_ROLL] - new_joint_angles[WRIST_ROLL]) > 180.0)
+	{
+		new_joint_angles[WRIST_ROLL] += 360.0;
+	}
+	else if ((joint_angle[WRIST_ROLL] - new_joint_angles[WRIST_ROLL]) < -180.0)
+	{
+		new_joint_angles[WRIST_ROLL] -= 360.0;
+	}
+
 	// check values are within bounds
 	// make sure speed of each joint is within limits
-	bSoftStop = false;
+	bool move = true;
 	for(int i=SHOULDER_YAW;i<=WRIST_ROLL;i++)
 	{
-		// allow use of full motion range of the wrist roll joint
-		if (i == WRIST_ROLL)
-		{
-			if ((joint_angle[i] - new_joint_angles[i]) > 180.0)
-			{
-				new_joint_angles[i] += 360.0;
-			}
-			else if ((joint_angle[i] - new_joint_angles[i]) < -180.0)
-			{
-				new_joint_angles[i] -= 360.0;
-			}
-		}
-
-		if(new_joint_angles[i]<RMS_JOINT_SOFTSTOPS[0][i] || new_joint_angles[i]>RMS_JOINT_SOFTSTOPS[1][i]) {
-			//sprintf_s(oapiDebugString(), 255, "Error: joint %d reached angle limit %f", i, new_joint_angles[i]);
-			bSoftStop = true;
-			return false;
-		}
+		if (bSoftStop) move = false;
 
 		double speed = abs(new_joint_angles[i]-joint_angle[i])/DeltaT;
 		if (speed > RMS_JOINT_MAX_ROTATION_SPEED[i])
 		{
 			sprintf_s(oapiDebugString(), 255, "Error: joint %d reached speed limit %f", i, speed);
-			return false;
+			move = false;
 		}
 	}
+	if (move == false) return false;
 
 	for(int i=SHOULDER_YAW;i<=WRIST_ROLL;i++) {
 		SetJointAngle(static_cast<RMS_JOINT>(i), new_joint_angles[i]);
@@ -1073,4 +1076,19 @@ void RMSSystem::AutoReleaseSequence()
 		else if(!Extend_State.Open()) Extend_State.action=AnimState::OPENING;
 		else bAutoRelease=false;
 	}
+}
+
+void RMSSystem::CheckSoftwareStop( void )
+{
+	bSoftStop = false;
+
+	for (int i = SHOULDER_YAW; i <= WRIST_ROLL; i++)
+	{
+		if ((joint_angle[i] < RMS_JOINT_SOFTSTOPS[0][i]) || (joint_angle[i] > RMS_JOINT_SOFTSTOPS[1][i]))
+		{
+			bSoftStop = true;
+			return;
+		}
+	}
+	return;
 }
