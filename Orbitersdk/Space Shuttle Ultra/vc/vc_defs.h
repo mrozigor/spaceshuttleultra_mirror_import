@@ -344,7 +344,7 @@ namespace vc {
 	const int MDUID_CRT4 = 7;
 	const int MDUID_MFD1 = 8;
 	const int MDUID_MFD2 = 9;
-	const int MDUID_AFD  = 10;
+	const int MDUID_AFD1 = 10;
 
 
 	class MDU;

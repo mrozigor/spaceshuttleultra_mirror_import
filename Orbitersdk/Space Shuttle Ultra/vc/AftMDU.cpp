@@ -9,7 +9,7 @@ namespace vc
 	AftMDU::AftMDU(Atlantis* _sts)
 		: AtlantisPanel(_sts, "AftMDU")
 	{
-		Add(pAFD = new MDU(_sts, "AFD", MDUID_AFD, true));
+		Add(pAFD = new MDU(_sts, "AFD", MDUID_AFD1, true));
 	}
 
 	AftMDU::~AftMDU()
@@ -21,7 +21,7 @@ namespace vc
 		AddAIDToMouseEventList(AID_MDU_AFD1);
 
 		pAFD->SetMouseRegion(0.0, 0.0, 1.0, 1.0);
-		pAFD->DefineVCGroup(MFDGROUPS[MDUID_AFD]);
+		pAFD->DefineVCGroup(MFDGROUPS[MDUID_AFD1]);
 	}
 
 	void AftMDU::RegisterVC()
