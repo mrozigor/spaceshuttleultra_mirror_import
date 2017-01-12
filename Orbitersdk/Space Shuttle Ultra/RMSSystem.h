@@ -188,6 +188,11 @@ private:
 	void AutoGrappleSequence();
 	void AutoReleaseSequence();
 
+	/**
+	 * Checks if any joint is past its software stop.
+	 */
+	void CheckSoftwareStop( void );
+
 	DiscInPort RMSSelect;
 
 	UINT anim_camRMSElbow[2];
@@ -251,6 +256,9 @@ private:
 
 	enum {NONE, EE, ELBOW} RMSCameraMode;
 
+	/**
+	 * True is any joint is past its software stop.
+	 */
 	bool bSoftStop;
 
 	bool bEECapture;
