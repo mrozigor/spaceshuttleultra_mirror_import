@@ -67,7 +67,7 @@ bool StateVectorSoftware::OnMajorModeChange(unsigned int newMajorMode)
 	return false;
 }
 
-bool StateVectorSoftware::ItemInput(int spec, int item, const char * Data)
+bool StateVectorSoftware::ItemInput(int spec, int item, const char * Data, bool &IllegalEntry )
 {
 	return false;
 }

@@ -94,6 +94,8 @@ namespace dps {
 		unsigned short usDISP;
 		char cScratchPadLine[120];
 		short sScratchPadLength;
+		char cFaultMessageLine[120];
+		bool syntaxerr;
 		unsigned short usGPCDriver;
 		unsigned short usSelectedFC;
 		DiscInPort KeybSelectA;// Left IDP/CRT Sel
@@ -148,6 +150,8 @@ namespace dps {
 		virtual const char* GetScratchPadLineString_B( void ) const;
 		virtual const char* GetScratchPadLineScan() const;
 		virtual int GetFlashingEntry( void ) const;
+		void PrintScratchPadLine( vc::MDU* pMDU ) const;
+		void PrintFaultMessageLine( vc::MDU* pMDU ) const;
 
 		/**
 		 * Perform a initial program load.

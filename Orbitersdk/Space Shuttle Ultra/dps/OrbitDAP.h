@@ -178,7 +178,7 @@ public:
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 
 	virtual bool OnMajorModeChange(unsigned int newMajorMode);
-	virtual bool ItemInput(int spec, int item, const char* Data);
+	virtual bool ItemInput(int spec, int item, const char* Data, bool &IllegalEntry );
 	//virtual bool ExecPressed(int spec);
 	virtual bool OnPaint(int spec, vc::MDU* pMDU) const;
 

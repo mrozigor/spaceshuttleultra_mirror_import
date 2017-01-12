@@ -89,8 +89,8 @@ namespace dps
 			void OnPaint_ASCENTTRAJ1_PASS( vc::MDU* pMDU ) const;
 			void OnPaint_ASCENTTRAJ2_PASS( vc::MDU* pMDU ) const;
 
-			void ItemInput_SPEC112( int item, const char* Data );
-			void ItemInput_SPEC113( int item, const char* Data );
+			void ItemInput_SPEC112( int item, const char* Data, bool &IllegalEntry );
+			void ItemInput_SPEC113( int item, const char* Data, bool &IllegalEntry );
 
 			// BFS dislays
 			void OnPaint_DISP18_BFS( vc::MDU* pMDU ) const;
@@ -117,7 +117,7 @@ namespace dps
 
 			bool OnMajorModeChange( unsigned int newMajorMode );
 
-			bool ItemInput( int spec, int item, const char* Data );
+			bool ItemInput( int spec, int item, const char* Data, bool &IllegalEntry );
 
 			bool OnPaint( int spec, vc::MDU* pMDU ) const;
 	};

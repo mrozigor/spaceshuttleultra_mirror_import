@@ -1304,61 +1304,89 @@ bool AerojetDAP::OnMajorModeChange(unsigned int newMajorMode)
 	return false;
 }
 
-bool AerojetDAP::ItemInput(int spec, int item, const char* Data)
+bool AerojetDAP::ItemInput(int spec, int item, const char* Data, bool &IllegalEntry )
 {
 	if(spec == 50) {
 		if(item == 3) {
-			SEC = false;
-			InitializeRunwayData();
-			HACDirection = OVHD;// reset to overhead
-			SelectHAC();
+			if (strlen( Data ) == 0)
+			{
+				SEC = false;
+				InitializeRunwayData();
+				HACDirection = OVHD;// reset to overhead
+				SelectHAC();
+			}
+			else IllegalEntry = true;
 			return true;
 		}
 		else if(item == 4) {
-			SEC = true;
-			InitializeRunwayData();
-			HACDirection = OVHD;// reset to overhead
-			SelectHAC();
+			if (strlen( Data ) == 0)
+			{
+				SEC = true;
+				InitializeRunwayData();
+				HACDirection = OVHD;// reset to overhead
+				SelectHAC();
+			}
+			else IllegalEntry = true;
 			return true;
 		}
 		else if(item == 6) {
-			if(TAEMGuidanceMode <= ACQ) { // if we are already in HDG mode (on HAC), it's too late to change from OVHD to STRT
-				if(HACDirection == OVHD) HACDirection = STRT;
-				else HACDirection = OVHD;
-				SelectHAC();
+			if (strlen( Data ) == 0)
+			{
+				if(TAEMGuidanceMode <= ACQ) { // if we are already in HDG mode (on HAC), it's too late to change from OVHD to STRT
+					if(HACDirection == OVHD) HACDirection = STRT;
+					else HACDirection = OVHD;
+					SelectHAC();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
+			return true;
 		}
 		else if (item == 8)
 		{
-			if (GetApproachAndLandState() == false)// valid until A/L
+			if (strlen( Data ) == 0)
 			{
-				if (OGS_AIMPOINT == OGS_AIMPOINT_NOM) OGS_AIMPOINT = OGS_AIMPOINT_CLOSE;
-				else OGS_AIMPOINT = OGS_AIMPOINT_NOM;
+				if (GetApproachAndLandState() == false)// valid until A/L
+				{
+					if (OGS_AIMPOINT == OGS_AIMPOINT_NOM) OGS_AIMPOINT = OGS_AIMPOINT_CLOSE;
+					else OGS_AIMPOINT = OGS_AIMPOINT_NOM;
 
-				X_AL_INTERCEPT = OGS_AIMPOINT + Y_AL_INTERCEPT/AL_GS;
-				HAC_CENTER_X = OGS_AIMPOINT - 33020.0/MPS2FPS;
+					X_AL_INTERCEPT = OGS_AIMPOINT + Y_AL_INTERCEPT/AL_GS;
+					HAC_CENTER_X = OGS_AIMPOINT - 33020.0/MPS2FPS;
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 			return true;
 		}
 		else if (item == 39)
 		{
-			if (GetApproachAndLandState() == false)// valid until A/L
+			if (strlen( Data ) == 0)
 			{
-				if (SBControlLogic == NOM) SBControlLogic = SHORT;
-				else if (SBControlLogic == SHORT) SBControlLogic = ELS;
-				else SBControlLogic = NOM;
+				if (GetApproachAndLandState() == false)// valid until A/L
+				{
+					if (SBControlLogic == NOM) SBControlLogic = SHORT;
+					else if (SBControlLogic == SHORT) SBControlLogic = ELS;
+					else SBControlLogic = NOM;
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 			return true;
 		}
 		else if(item == 41) {
 			int nNew;
-			sscanf_s(Data, "%d", &nNew);
-			if(nNew>=0 && nNew<=static_cast<int>(vLandingSites.size())) {
-				SITE_ID = nNew-1;
-				SEC = false;// reset to PRI
-				HACDirection = OVHD;// reset to overhead
-				InitializeRunwayData();
+			if (GetIntegerUnsigned( Data, nNew ))
+			{
+				if ((nNew > 0) && (nNew <= static_cast<int>(vLandingSites.size()))) {
+					SITE_ID = nNew-1;
+					SEC = false;// reset to PRI
+					HACDirection = OVHD;// reset to overhead
+					InitializeRunwayData();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 			return true;
 		}
 	}

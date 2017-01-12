@@ -24,7 +24,7 @@ class OMSBurnSoftware : public SimpleGPCSoftware
 	VECTOR3 DeltaV; // DV in m/s (LVLH at TIG frame)
 	double C1, C2, HT, ThetaT; // PEG4 Targets
 	VECTOR3 Trim; // 0=P, 1=LY, 2=RY
-	double TV_ROLL;
+	int TV_ROLL;
 	double DeltaVTot;
 	double BurnTime;
 	VECTOR3 VGO; // fps, body vector frame (VGO values displayed on CRT display)
@@ -63,7 +63,7 @@ public:
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 
 	virtual bool OnMajorModeChange(unsigned int newMajorMode);
-	virtual bool ItemInput(int spec, int item, const char* Data);
+	virtual bool ItemInput(int spec, int item, const char* Data, bool &IllegalEntry );
 	virtual bool ExecPressed(int spec);
 	virtual bool OnPaint(int spec, vc::MDU* pMDU) const;
 

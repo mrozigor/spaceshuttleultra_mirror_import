@@ -355,11 +355,12 @@ void SimpleGPCSystem::OnSaveState(FILEHANDLE scn) const
 
 bool SimpleGPCSystem::ItemInput(int spec, int item, const char* Data)
 {
+	bool illegalentry = false;
 	for(unsigned int i=0;i<vActiveSoftware.size();i++) {
-		if(vActiveSoftware[i]->ItemInput(spec, item, Data))
-			return true;
+		if(vActiveSoftware[i]->ItemInput(spec, item, Data, illegalentry ))
+			break;
 	}
-	return false;
+	return !illegalentry;
 }
 
 bool SimpleGPCSystem::ExecPressed(int spec)

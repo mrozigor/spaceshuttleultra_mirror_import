@@ -66,53 +66,89 @@ bool OrbitTgtSoftware::OnMajorModeChange(unsigned int newMajorMode)
 	return false;
 }
 
-bool OrbitTgtSoftware::ItemInput(int spec, int item, const char* Data)
+bool OrbitTgtSoftware::ItemInput(int spec, int item, const char* Data, bool &IllegalEntry )
 {
 	if(spec != 34) return false;
 
-	//int nValue;
-	//double dValue, dTemp;
+	int nValue;
+	double dValue;
 	double dTemp;
 	switch(item) {
 	case 2:
 	case 3:
 	case 4:
 	case 5:
-		TIG_T1[item-2] = atoi(Data);
-		// recalculate T2 TIG (defined as T1 TIG + DT)
-		dTemp = ConvertDDHHMMSSToSeconds(TIG_T1) + transferTime*60;
-		ConvertSecondsToDDHHMMSS(dTemp, TIG_T2);
-		bValuesChanged = true;
+		if (GetIntegerUnsigned( Data, nValue ))
+		{
+			if (((item == 2) && (nValue < 366)) || ((item == 3) && (nValue < 24)) || ((item == 4) && (nValue < 60)) || ((item == 5) && (nValue < 60)))
+			{
+				TIG_T1[item-2] = nValue;
+				// recalculate T2 TIG (defined as T1 TIG + DT)
+				dTemp = ConvertDDHHMMSSToSeconds(TIG_T1) + transferTime*60;
+				ConvertSecondsToDDHHMMSS(dTemp, TIG_T2);
+				bValuesChanged = true;
+			}
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	case 13:
 	case 14:
 	case 15:
 	case 16:
-		TIG_T2[item-13] = atoi(Data);
-		transferTime = ConvertDDHHMMSSToSeconds(TIG_T2) - ConvertDDHHMMSSToSeconds(TIG_T1);
-		bValuesChanged = true;
+		if (GetIntegerUnsigned( Data, nValue ))
+		{
+			if (((item == 13) && (nValue < 366)) || ((item == 14) && (nValue < 24)) || ((item == 15) && (nValue < 60)) || ((item == 16) && (nValue < 60)))
+			{
+				TIG_T2[item-13] = nValue;
+				transferTime = ConvertDDHHMMSSToSeconds(TIG_T2) - ConvertDDHHMMSSToSeconds(TIG_T1);
+				bValuesChanged = true;
+			}
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	case 17:
-		transferTime = atof(Data);
-		dTemp = ConvertDDHHMMSSToSeconds(TIG_T1) + transferTime*60;
-		ConvertSecondsToDDHHMMSS(dTemp, TIG_T2);
-		bValuesChanged = true;
+		if (GetDoubleSigned( Data, dValue ))
+		{
+			transferTime = dValue;
+			dTemp = ConvertDDHHMMSSToSeconds(TIG_T1) + transferTime*60;
+			ConvertSecondsToDDHHMMSS(dTemp, TIG_T2);
+			bValuesChanged = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	case 18:
 	case 19:
 	case 20:
-		relPos_T2.data[item-18] = atof(Data);
-		bValuesChanged = true;
+		if (GetDoubleSigned( Data, dValue ))
+		{
+			relPos_T2.data[item-18] = dValue;
+			bValuesChanged = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	case 21:
 	case 22:
 	case 23:
 	case 24:
-		BASE_TIME[item-21] = atoi(Data);
+		if (GetIntegerUnsigned( Data, nValue ))
+		{
+			if (((item == 21) && (nValue < 366)) || ((item == 22) && (nValue < 24)) || ((item == 23) && (nValue < 60)) || ((item == 24) && (nValue < 60)))
+			{
+				BASE_TIME[item-21] = nValue;
+			}
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	case 28:
-		bCalculatingT1Burn = true;
-		StartCalculatingT1Burn();
+		if (strlen( Data ) == 0)
+		{
+			bCalculatingT1Burn = true;
+			StartCalculatingT1Burn();
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 

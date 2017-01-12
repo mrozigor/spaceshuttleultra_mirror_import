@@ -1142,15 +1142,12 @@ namespace vc
 		else {
 			PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
 		}
+
+		// print fault message line
+		prim_idp->PrintFaultMessageLine( this );
 		
 		//print Scratch Pad line
-		const char* scratch_pad = prim_idp->GetScratchPadLineString_B();
-		int flashingentry = prim_idp->GetFlashingEntry();
-		if (flashingentry != 0)
-		{
-			PrintToBuffer( scratch_pad, flashingentry, 1, 25, dps::DEUATT_FLASHING );
-		}
-		PrintToBuffer( scratch_pad + flashingentry, strlen( scratch_pad + flashingentry ), 1 + flashingentry, 25, 0 );
+		prim_idp->PrintScratchPadLine( this );
 	}
 
 	void MDU::PrintToBuffer(const char* string, int length, int col, int row, char attributes)

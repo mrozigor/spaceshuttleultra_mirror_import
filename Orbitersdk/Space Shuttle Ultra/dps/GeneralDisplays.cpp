@@ -125,7 +125,7 @@ namespace dps
 		return true;
 	}
 
-	bool GeneralDisplays::ItemInput( int spec, int item, const char* Data )
+	bool GeneralDisplays::ItemInput( int spec, int item, const char* Data, bool &IllegalEntry )
 	{
 		switch (spec)
 		{
@@ -138,22 +138,22 @@ namespace dps
 			case 99:
 				return true;*/
 			case 112:
-				ItemInput_SPEC112( item, Data );
+				ItemInput_SPEC112( item, Data, IllegalEntry );
 				return true;
 			case 113:
-				ItemInput_SPEC113( item, Data );
+				ItemInput_SPEC113( item, Data, IllegalEntry );
 				return true;
 		}
 		return false;
 	}
 
-	void GeneralDisplays::ItemInput_SPEC112( int item, const char* Data )
+	void GeneralDisplays::ItemInput_SPEC112( int item, const char* Data, bool &IllegalEntry )
 	{
 		// TODO
 		return;
 	}
 
-	void GeneralDisplays::ItemInput_SPEC113( int item, const char* Data )
+	void GeneralDisplays::ItemInput_SPEC113( int item, const char* Data, bool &IllegalEntry )
 	{
 		// TODO
 		return;

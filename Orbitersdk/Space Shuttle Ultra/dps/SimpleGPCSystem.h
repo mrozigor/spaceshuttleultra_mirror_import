@@ -49,7 +49,7 @@ public:
 
 	/**
 	 * Handles Item entry on shuttle's keyboard.
-	 * Returns true if item/spec are supported, false otherwise.
+	 * Returns true if item entry is legal, false otherwise.
 	 * @param spec spec currently displayed
 	 * @param item ITEM number
 	 * @param Data string containing data entered

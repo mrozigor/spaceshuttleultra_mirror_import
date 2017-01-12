@@ -192,41 +192,59 @@ namespace dps
 		return true;
 	}
 
-	bool MM801::ItemInput(int spec, int item, const char* Data)
+	bool MM801::ItemInput(int spec, int item, const char* Data, bool &IllegalEntry )
 	{
+		if (spec != dps::MODE_UNDEFINED) return false;
+
 		if (item == 7)
 		{
-			ModeLT = true;
-			ModeLT_On();
+			if (strlen( Data ) == 0)
+			{
+				ModeLT = true;
+				ModeLT_On();
+			}
+			else IllegalEntry = true;
 			return true;
 		}
 		if (item == 8)
 		{
-			ModeLT = false;
-			ModeLT_Off();
+			if (strlen( Data ) == 0)
+			{
+				ModeLT = false;
+				ModeLT_Off();
+			}
+			else IllegalEntry = true;
 			return true;
 		}
 		
-		if(item == 10 && STS()->HydraulicsOK())
+		if (item == 10)
 		{
-			bFCSTestActive = true;
-			bFCSTestEnding = false;
-			ElevonTargetIdx = FV1;
-			RudderTargetIdx = FV1;
-			SpeedbrakeTargetIdx = FV1;
+			if (strlen( Data ) == 0)
+			{
+				bFCSTestActive = true;
+				bFCSTestEnding = false;
+				ElevonTargetIdx = FV1;
+				RudderTargetIdx = FV1;
+				SpeedbrakeTargetIdx = FV1;
 
-			ElevonTarget = ElevonCommandRead.GetVoltage()*33.0;
-			RudderTarget = STS()->aerosurfaces.rudder;
-			SpeedbrakeTarget = STS()->GetActSpeedbrakePosition()*100.0;
+				ElevonTarget = ElevonCommandRead.GetVoltage()*33.0;
+				RudderTarget = STS()->aerosurfaces.rudder;
+				SpeedbrakeTarget = STS()->GetActSpeedbrakePosition()*100.0;
+			}
+			else IllegalEntry = true;
 			return true;
 		}
 
 		if(item == 11)
 		{
-			bFCSTestEnding = true;
-			ElevonTargetIdx = FV3;
-			RudderTargetIdx = FV3;
-			SpeedbrakeTargetIdx = FV3;
+			if (strlen( Data ) == 0)
+			{
+				bFCSTestEnding = true;
+				ElevonTargetIdx = FV3;
+				RudderTargetIdx = FV3;
+				SpeedbrakeTargetIdx = FV3;
+			}
+			else IllegalEntry = true;
 			return true;
 		}
 		return false;
