@@ -532,6 +532,9 @@
     <ClCompile Include="vc\CircuitBreaker.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="vc\7SegDisp_RMS.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -1074,6 +1077,9 @@
     <ClInclude Include="vc\CircuitBreaker.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="vc\7SegDisp_RMS.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Atlantis.rc" />
@@ -1086,7 +1092,6 @@
     <Image Include="Bitmaps\DEU_Raw_overbright.bmp" />
     <Image Include="Bitmaps\clocknums.bmp" />
     <Image Include="Bitmaps\DEU_Raw.bmp" />
-    <Image Include="Bitmaps\digits.bmp" />
     <Image Include="Bitmaps\ODSbuttons.bmp" />
     <Image Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
   </ItemGroup>

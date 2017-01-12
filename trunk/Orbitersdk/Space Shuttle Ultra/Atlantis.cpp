@@ -6326,10 +6326,6 @@ DLLCLBK void InitModule(HINSTANCE hModule)
 	if (g_Param.clock_digits == NULL) {
 		oapiWriteLog("Loading bitmap \"CLOCK_DIGITS\" failed.");
 	}
-	g_Param.digits_7seg = oapiCreateSurface(LOADBMP(IDB_7SEGDIGITS));
-	if (g_Param.digits_7seg == NULL) {
-		oapiWriteLog("Loading bitmap \"DIGITS_7SEG\" failed.");
-	}
 
 	g_Param.odslights = oapiCreateSurface(LOADBMP(IDB_ODSBUTTONS));
 	if (g_Param.odslights == NULL) {
@@ -6391,10 +6387,6 @@ DLLCLBK void ExitModule(HINSTANCE hModule)
 	if (g_Param.clock_digits)
 	{
 		oapiDestroySurface(g_Param.clock_digits);
-	}
-	if (g_Param.digits_7seg)
-	{
-		oapiDestroySurface(g_Param.digits_7seg);
 	}
 	if (g_Param.odslights)
 	{

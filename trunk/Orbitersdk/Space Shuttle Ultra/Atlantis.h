@@ -127,7 +127,6 @@ typedef struct {
 	SURFHANDLE pbi_lights;
 	SURFHANDLE tkbk_label;
 	SURFHANDLE clock_digits;
-	SURFHANDLE digits_7seg;
 	SURFHANDLE odslights;
 	SURFHANDLE ssme_lights;
 	SURFHANDLE a8_lights;
