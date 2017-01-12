@@ -20,6 +20,8 @@ namespace dps {
 		usDISP=dps::MODE_UNDEFINED;
 		majfunc=GNC;
 		cScratchPadLine[0] = '\0';
+		cFaultMessageLine[0] = 0;
+		syntaxerr = false;
 
 		dk_channel.Init(this, this, "DK", 10);
 		fc_channel[0].Init(this, this, "FC1", 9+usIDPID);
@@ -209,7 +211,11 @@ namespace dps {
 				ClearScratchPadLine();
 				AppendScratchPadLine( cKey );
 				break;
+			case SSU_KEY_MSGRESET:
+				OnMsgReset();
+				break;
 			default:
+				if(IsCompleteLine()) ClearScratchPadLine();
 				AppendScratchPadLine(cKey);
 				break;
 		}
@@ -233,6 +239,7 @@ namespace dps {
 
 	void IDP::ClearScratchPadLine() {
 		cScratchPadLine[0] = '\0';
+		syntaxerr = false;
 	}
 
 	void IDP::ConnectToMDU(vc::PMDU pMDU, bool bPrimary)
@@ -276,9 +283,10 @@ namespace dps {
 
 	void IDP::OnClear() {
 
-		if(IsCompleteLine()) {
+		if(IsCompleteLine() & !syntaxerr) {
 			ClearScratchPadLine();
 		} else {
+			syntaxerr = false;
 			DelFromScratchPadLine();
 		}
 		
@@ -287,52 +295,150 @@ namespace dps {
 	void IDP::OnExec() {
 		// check if EXEC was pressed without any ITEM input
 		if(cScratchPadLine[0]=='\0' || IsCompleteLine()) {
-			//STS()->Input(GetIDPID()-1, 10, NULL);
 			STS()->pSimpleGPC->ExecPressed(GetSpec());
 		}
 		else {
 			std::string scratchPad=GetScratchPadLineString();
 			int ITEM=scratchPad.find("ITEM ");
+			int IORESET = scratchPad.find( "I/O RESET" );
+			int GPCCRT = scratchPad.find( "GPC/CRT " );
 
-			if(ITEM!=string::npos) {
+			if(ITEM!=string::npos)
+			{
 				scratchPad=scratchPad.erase(ITEM, 5);
 
-				//parse entry
-				unsigned int i;
-				bool delim=false;
-				string Data="", Name="";
-				for(i=0;i<scratchPad.length();i++) {
-					if(scratchPad[i]=='+' || scratchPad[i]=='-') {
-						if(delim) break;
-						delim=true;
-					}
-					if(!delim) Name+=scratchPad[i];
-					else {
-						Data+=scratchPad[i];
-					}
-				}
-				//STS()->Input(GetIDPID(), 1, Name.c_str(), Data.c_str());
-				unsigned int item=atoi(Name.c_str());
-				STS()->pSimpleGPC->ItemInput(GetSpec(), item, Data.c_str());
-				Data=""; //clear string
-				while(i<scratchPad.length()) {
-					if(scratchPad[i]=='+' || scratchPad[i]=='-') {
-						if(Data.length()>1) {// needs to be at least 2 chars: sign and one number
-							item++;
-							STS()->pSimpleGPC->ItemInput(GetSpec(), item, Data.c_str());
+				// parse entry
+				vector<pair<int,string>> items;
+				string Data = "";
+				int item = 0;
+
+				// find item number
+				if (scratchPad.length() > 0)// must have something after ITEM
+				{
+					if ((scratchPad[0] >= '0') && (scratchPad[0] <= '9'))// first must be number
+					{
+						if (scratchPad.length() > 1)// check for 2-digit item, or data
+						{
+							if ((scratchPad[1] >= '0') && (scratchPad[1] <= '9'))// second must be number...
+							{
+								if (scratchPad.length() > 2)// check for data
+								{
+									if ((scratchPad[2] == '+') || (scratchPad[2] == '-'))
+									{
+										// 2-digit item, with data
+										item = ((scratchPad[0] - 48) * 10) + (scratchPad[1] - 48);
+										scratchPad.erase( 0, 2 );
+									}
+									else syntaxerr = true;
+								}
+								else
+								{
+									if ((scratchPad[0] != '0') || (scratchPad[1] != '0'))// can't be both 0
+									{
+										// 2-digit item, no data
+										items.push_back( make_pair( ((scratchPad[0] - 48) * 10) + (scratchPad[1] - 48), "" ) );
+									}
+									else syntaxerr = true;
+								}
+							}
+							else if ((scratchPad[1] == '+') || (scratchPad[1] == '-'))// ... or delimiter
+							{
+								// 1-digit item, with data
+								item = scratchPad[0] - 48;
+								scratchPad.erase( 0, 1 );
+							}
+							else syntaxerr = true;
 						}
-						else if (Data.length() == 1) item++;// skip item
-						Data=""; //clear string
+						else
+						{
+							if (scratchPad[0] != '0')// can't be 0
+							{
+								// 1-digit item, no data
+								items.push_back( make_pair( scratchPad[0] - 48, "" ) );
+							}
+							else syntaxerr = true;
+						}
 					}
-					Data+=scratchPad[i];
-					i++;
+					else syntaxerr = true;
 				}
-				if(Data.length()>1) {// needs to be at least 2 chars: sign and one number
-					item++;
-					STS()->pSimpleGPC->ItemInput(GetSpec(), item, Data.c_str());
+				else syntaxerr = true;
+
+				// find data
+				if ((item > 0) && (!syntaxerr))// if 0 the entry is only an item with no data
+				{
+					bool lastchardelimiter = false;
+					for (unsigned int i = 0; i < scratchPad.length(); i++)
+					{
+						if ((scratchPad[i] == '+') || (scratchPad[i] == '-'))// delimiter
+						{
+							lastchardelimiter = true;
+							if (i == 0)// first run
+							{
+								Data += scratchPad[i];
+							}
+							else
+							{
+								items.push_back( make_pair( item, Data.c_str() ) );
+								item++;
+								Data = "";
+								Data += scratchPad[i];
+							}
+						}
+						else
+						{
+							lastchardelimiter = false;
+							Data += scratchPad[i];
+						}
+					}
+					if (lastchardelimiter)
+					{
+						syntaxerr = true;
+					}
+					else
+					{
+						items.push_back( make_pair( item, Data.c_str() ) );
+					}
+				}
+
+				// pass inputs to GPCs if no error
+				if (!syntaxerr)
+				{
+					for (unsigned int k = 0; k < items.size(); k++)
+					{
+						if (!STS()->pSimpleGPC->ItemInput( GetSpec(), items[k].first, items[k].second.c_str() ))
+							strcpy_s( cFaultMessageLine, "ILLEGAL ENTRY" );
+					}
 				}
 			}
+			else if (IORESET != string::npos)
+			{
+				scratchPad = scratchPad.erase( IORESET, 9 );
+				if (scratchPad.length() == 0)
+				{
+					// TODO
+				}
+				else syntaxerr = true;
+			}
+			else if (GPCCRT != string::npos)
+			{
+				scratchPad = scratchPad.erase( GPCCRT, 8 );
+				if (scratchPad.length() == 2)
+				{
+					if ((scratchPad[0] >= '0') && (scratchPad[0] <= '5'))// GPC between 0 and 5
+					{
+						if ((scratchPad[1] >= '1') && (scratchPad[1] <= '4'))// IDP between 1 and 4
+						{
+							// TODO
+						}
+						else syntaxerr = true;
+					}
+					else syntaxerr = true;
+				}
+				else syntaxerr = true;
+			}
+			else syntaxerr = true;
 		}
+		return;
 	}
 
 	void IDP::OnPro()
@@ -342,30 +448,81 @@ namespace dps {
 		int SPEC=scratchPad.find("SPEC ");
 
 		if(OPS != std::string::npos) { // OPS entered
-			//STS()->Input(GetIDPID()-1, 0, scratchPad.substr(OPS+4).c_str());
-			unsigned int newMM = static_cast<unsigned int>(atoi(scratchPad.substr(OPS+4).c_str()));
-			if(STS()->pSimpleGPC->IsValidMajorModeTransition(newMM)) {
-				STS()->pSimpleGPC->SetMajorMode(newMM);
+			scratchPad.erase( OPS, 4 );
+
+			if (scratchPad.length() == 3)
+			{
+				if ((scratchPad[0] >= '0') && (scratchPad[0] <= '9') && (scratchPad[1] >= '0') && (scratchPad[1] <= '9') && (scratchPad[2] >= '0') && (scratchPad[2] <= '9'))
+				{
+					unsigned int newMM = ((scratchPad[0] - 48) * 100) + ((scratchPad[1] - 48) * 10) + (scratchPad[2] - 48);
+					if(STS()->pSimpleGPC->IsValidMajorModeTransition(newMM)) {
+						// if OPS transition, clear SPEC and DISP displays
+						// HACK only clears the displays on this IDP
+						if ((int)(newMM / 100) != (int)(STS()->pSimpleGPC->GetMajorMode() / 100))
+						{
+							SetSpec( dps::MODE_UNDEFINED );
+							SetDisp( dps::MODE_UNDEFINED );
+						}
+						STS()->pSimpleGPC->SetMajorMode(newMM);
+					}
+					else
+					{
+						strcpy_s( cFaultMessageLine, "ILLEGAL ENTRY" );
+					}
+				}
+				else syntaxerr = true;
 			}
+			else syntaxerr = true;
 		}
 		else if(SPEC != std::string::npos) { // SPEC entered
-			//STS()->Input(GetIDPID()-1, 2, scratchPad.substr(SPEC+5).c_str());
-			int newSpec = atoi(scratchPad.substr(SPEC+5).c_str());
-			if(STS()->pSimpleGPC->IsValidSPEC( newSpec ))
+			scratchPad.erase( SPEC, 5 );
+
+			int newSpec;
+			if (scratchPad.length() > 0)
 			{
-				// choose between DISP and SPEC
-				if (IsDisp( newSpec ) == true)
+				if ((scratchPad[0] >= '0') && (scratchPad[0] <= '9'))
 				{
-					SetSpec( dps::MODE_UNDEFINED );
-					SetDisp( static_cast<unsigned short>(newSpec) );
+					newSpec = scratchPad[0] - 48;
+					if (scratchPad.length() > 1)
+					{
+						if ((scratchPad[1] >= '0') && (scratchPad[1] <= '9'))
+						{
+							newSpec = (newSpec * 10) + scratchPad[1] - 48;
+							if (scratchPad.length() > 2)
+							{
+								if ((scratchPad[2] >= '0') && (scratchPad[2] <= '9'))
+								{
+									newSpec = (newSpec * 10) + scratchPad[2] - 48;
+									if (scratchPad.length() > 3) syntaxerr = true;
+								}
+								else syntaxerr = true;
+							}
+						}
+						else syntaxerr = true;
+					}
 				}
-				else
+				else syntaxerr = true;
+			}
+			else syntaxerr = true;
+
+			if (!syntaxerr)
+			{
+				if(STS()->pSimpleGPC->IsValidSPEC( newSpec ))
 				{
-					SetSpec(static_cast<unsigned short>(newSpec));
-					SetDisp( dps::MODE_UNDEFINED );
+					// choose between DISP and SPEC
+					if (IsDisp( newSpec ) == true)
+					{
+						SetDisp( static_cast<unsigned short>(newSpec) );
+					}
+					else
+					{
+						SetSpec(static_cast<unsigned short>(newSpec));
+						SetDisp( dps::MODE_UNDEFINED );
+					}
 				}
 			}
 		}
+		else syntaxerr = true;
 	}
 
 	void IDP::OnResume()
@@ -410,19 +567,20 @@ namespace dps {
 		{
 			if (GetDisp() == 18) SetDisp( 19 );
 			else SetDisp( 18 );
-			SetSpec( dps::MODE_UNDEFINED );
 		}
 		else if (GetMajfunc() == dps::SM)
 		{
 			if (GetDisp() == 78) SetDisp( 79 );
 			else SetDisp( 78 );
-			SetSpec( dps::MODE_UNDEFINED );
 		}
 		return;
 	}
 
 
-	void IDP::OnMsgReset() {
+	void IDP::OnMsgReset( void )
+	{
+		cFaultMessageLine[0] = 0;
+		return;
 	}
 
 	
@@ -631,6 +789,23 @@ namespace dps {
 		return cbufout;
 	}
 
+	void IDP::PrintScratchPadLine( vc::MDU* pMDU ) const
+	{
+		const char* str = GetScratchPadLineString_B();
+
+		int flashingentry = GetFlashingEntry();
+		if (flashingentry != 0)
+		{
+			char str2[16];
+			strncpy_s( str2, str, flashingentry );
+			pMDU->mvprint( 1, 25, str2, dps::DEUATT_FLASHING );
+		}
+		pMDU->mvprint( 1 + flashingentry, 25, str + flashingentry );
+
+		if (syntaxerr) pMDU->mvprint( strlen( str ) + 1, 25, " ERR", dps::DEUATT_FLASHING );
+		return;
+	}
+
 	int IDP::GetFlashingEntry( void ) const
 	{
 		if (IsCompleteLine()) return 0;
@@ -649,6 +824,12 @@ namespace dps {
 			default:
 				return 0;
 		}
+	}
+
+	void IDP::PrintFaultMessageLine( vc::MDU* pMDU ) const
+	{
+		pMDU->mvprint( 1, 24, cFaultMessageLine, dps::DEUATT_FLASHING );
+		return;
 	}
 
 	bool IDP::IsDisp( int code ) const

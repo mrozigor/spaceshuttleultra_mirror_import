@@ -665,309 +665,465 @@ bool OrbitDAP::OnMajorModeChange(unsigned int newMajorMode)
 	return false;
 }
 
-bool OrbitDAP::ItemInput(int spec, int item, const char* Data)
+bool OrbitDAP::ItemInput(int spec, int item, const char* Data, bool &IllegalEntry )
 {
 	if(spec==dps::MODE_UNDEFINED) {
 		if(GetMajorMode()!=201) return false;
 
 		if(item>=1 && item<=4) {
-			int nNew=atoi(Data);
-			if((item==1 && nNew<365) || (item==2 && nNew<24) || (item>2 && nNew<60)) {
-				START_TIME[item-1]=nNew;
+			int nNew = 0;
+			if (GetIntegerUnsigned( Data, nNew ))
+			{
+				if((item==1 && nNew<365) || (item==2 && nNew<24) || (item>2 && nNew<60)) START_TIME[item-1]=nNew;
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==5 || item==6) {
-			double dNew=atof(Data);
-			if(dNew>=0.0 && dNew<360.0) {
-				if(item==5) MNVR_OPTION.data[ROLL]=dNew;
-				else MNVR_OPTION.data[PITCH]=dNew;
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if (dNew<360.0)
+				{
+					if(item==5) MNVR_OPTION.data[ROLL]=dNew;
+					else MNVR_OPTION.data[PITCH]=dNew;
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==7) {
-			double dNew=atof(Data);
-			if((dNew>=0.0 && dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) {
-				MNVR_OPTION.data[YAW]=dNew;
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if ((dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) MNVR_OPTION.data[YAW]=dNew;
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
-		if(item==8) {
-			int nNew=atoi(Data);
-			if(nNew==2 || nNew==4) {
-				TGT_ID=nNew;
+		else if(item==8) {
+			int nNew;
+			if (GetIntegerUnsigned( Data, nNew ))
+			{
+				if(nNew==2 || nNew==4) TGT_ID=nNew;
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
-		if(item==14) {
-			int nNew=atoi(Data);
-			if(nNew>=1 && nNew<=5) {
-				BODY_VECT=nNew;
-				if(BODY_VECT==1) {
-					P=0.0;
-					Y=0.0;
+		else if(item==14) {
+			int nNew;
+			if (GetIntegerUnsigned( Data, nNew ))
+			{
+				if(nNew>=1 && nNew<=5)
+				{
+					BODY_VECT=nNew;
+					if(BODY_VECT==1) {
+						P=0.0;
+						Y=0.0;
+					}
+					else if(BODY_VECT==2) {
+						P=180.0;
+						Y=0.0;
+					}
+					else if(BODY_VECT==3) {
+						P=90.0;
+						Y=0.0;
+					}
+					else if(BODY_VECT==4) {
+						P=90.0;
+						Y=79.333;
+					}
 				}
-				else if(BODY_VECT==2) {
-					P=180.0;
-					Y=0.0;
-				}
-				else if(BODY_VECT==3) {
-					P=90.0;
-					Y=0.0;
-				}
-				else if(BODY_VECT==4) {
-					P=90.0;
-					Y=79.333;
-				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
-		if(item==15 && BODY_VECT==5) {
-			double dNew=atof(Data);
-			if(dNew>=0.0 && dNew<360.0) {
-				P=dNew;
+		else if(item==15) {
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if ((dNew < 360.0) && (BODY_VECT == 5)) P=dNew;
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
-		if(item==16 && BODY_VECT==5) {
-			double dNew=atof(Data);
-			if((dNew>=0.0 && dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) {
-				Y=dNew;
+		else if(item==16) {
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if (((dNew <= 90.0) || ((dNew >= 270.0) && (dNew < 360.0))) && (BODY_VECT == 5)) Y=dNew;
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
-		if(item==17) {
-			double dNew=atof(Data);
-			if(dNew>=0.0 && dNew<360.0) {
-				OM=dNew;
+		else if(item==17) {
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew<360.0) OM=dNew;
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==18) {
-			//VECTOR3 radTargetAtt = ConvertAnglesBetweenM50AndOrbiter(MNVR_OPTION*RAD, true);
-			MATRIX3 tgtAtt = GetRotationMatrixYZX(_V(MNVR_OPTION.data[ROLL], MNVR_OPTION.data[PITCH], MNVR_OPTION.data[YAW])*RAD);
-			double startTime = START_TIME[0]*86400.0+ START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
-			if(startTime <= STS()->GetMET()) {
-				LoadCurINRTLManeuver(tgtAtt);
+			if (strlen( Data ) == 0)
+			{
+				//VECTOR3 radTargetAtt = ConvertAnglesBetweenM50AndOrbiter(MNVR_OPTION*RAD, true);
+				MATRIX3 tgtAtt = GetRotationMatrixYZX(_V(MNVR_OPTION.data[ROLL], MNVR_OPTION.data[PITCH], MNVR_OPTION.data[YAW])*RAD);
+				double startTime = START_TIME[0]*86400.0+ START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
+				if(startTime <= STS()->GetMET()) {
+					LoadCurINRTLManeuver(tgtAtt);
+				}
+				else {
+					FutMnvrStartTime = startTime;
+					LoadFutINRTLManeuver(tgtAtt);
+				}
 			}
-			else {
-				FutMnvrStartTime = startTime;
-				LoadFutINRTLManeuver(tgtAtt);
-			}
+			else IllegalEntry = true;
 		}
 		else if(item==19) {
-			//VECTOR3 radTargetAtt = ConvertPYOMToBodyAngles(P*RAD, Y*RAD, OM*RAD);
-			MATRIX3 tgtAtt = ConvertPYOMToLVLH(P*RAD, Y*RAD, OM*RAD);
-			double startTime = START_TIME[0]*86400.0 + START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
-			if(startTime <= STS()->GetMET()) {
-				if(TGT_ID == 2) {
-					LoadCurLVLHManeuver(tgtAtt);
+			if (strlen( Data ) == 0)
+			{
+				//VECTOR3 radTargetAtt = ConvertPYOMToBodyAngles(P*RAD, Y*RAD, OM*RAD);
+				MATRIX3 tgtAtt = ConvertPYOMToLVLH(P*RAD, Y*RAD, OM*RAD);
+				double startTime = START_TIME[0]*86400.0 + START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
+				if(startTime <= STS()->GetMET()) {
+					if(TGT_ID == 2) {
+						LoadCurLVLHManeuver(tgtAtt);
+					}
+				}
+				else {
+					FutMnvrStartTime = startTime;
+					if(TGT_ID == 2) {
+						LoadFutLVLHManeuver(tgtAtt);
+					}
 				}
 			}
-			else {
-				FutMnvrStartTime = startTime;
-				if(TGT_ID == 2) {
-					LoadFutLVLHManeuver(tgtAtt);
-				}
-			}
+			else IllegalEntry = true;
 		}
 		/*else if(item==20) {
 		LoadRotationManeuver();
 		}*/
 		else if(item==21) {
-			CurManeuver.IsValid = false;
-			FutManeuver.IsValid = false;
-			RotatingAxis[YAW]=false;
-			RotatingAxis[PITCH]=false;
-			RotatingAxis[ROLL]=false;
+			if (strlen( Data ) == 0)
+			{
+				CurManeuver.IsValid = false;
+				FutManeuver.IsValid = false;
+				RotatingAxis[YAW]=false;
+				RotatingAxis[PITCH]=false;
+				RotatingAxis[ROLL]=false;
 
-			DAPControlMode=INRTL;
-			//StartINRTLManeuver(radCurrentOrbiterAtt);
-			StartManeuver(curM50Matrix, AttManeuver::MNVR);
+				DAPControlMode=INRTL;
+				//StartINRTLManeuver(radCurrentOrbiterAtt);
+				StartManeuver(curM50Matrix, AttManeuver::MNVR);
+			}
+			else IllegalEntry = true;
 		}
-		else if (item == 23) ERRTOT = true;// ERR TOT
-		else if (item == 24) ERRTOT = false;// ERR DAP
+		else if (item == 23)
+		{
+			if (strlen( Data ) == 0) ERRTOT = true;// ERR TOT
+			else IllegalEntry = true;
+		}
+		else if (item == 24)
+		{
+			if (strlen( Data ) == 0) ERRTOT = false;// ERR DAP
+			else IllegalEntry = true;
+		}
 		return true;
 	}
 	else if(spec==20) {
 		if(item==3 || item==4) {
-			editDAP=item-3;
-			DAPConfiguration[2]=DAPConfiguration[editDAP];
+			int num;
+			if (GetIntegerUnsigned( Data, num ))
+			{
+				if (num <= 15)
+				{
+					// TODO use num
+					editDAP=item-3;
+					DAPConfiguration[2]=DAPConfiguration[editDAP];
+				}
+				else IllegalEntry = true;
+			}
+			else IllegalEntry = true;
 		}
 		else if(item==5) {
-			if(editDAP != -1) DAPConfiguration[editDAP]=DAPConfiguration[2];
-			editDAP=-1;
+			if (strlen( Data ) == 0)
+			{
+				if(editDAP != -1) DAPConfiguration[editDAP]=DAPConfiguration[2];
+				editDAP=-1;
+			}
+			else IllegalEntry = true;
 		}
 		if(item==10 || item==30 || item==50) {
-			double dNew=atof(Data);
-			if(dNew>=0.05 && dNew<=2.0) {
-				DAPConfiguration[convert[item]].PRI_ROT_RATE=dNew;
-				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.05 && dNew<=2.0) {
+					DAPConfiguration[convert[item]].PRI_ROT_RATE=dNew;
+					if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==11 || item==31 || item==51) {
-			double dNew=atof(Data);
-			if(dNew>0.10 && dNew<=40.0) {
-				DAPConfiguration[convert[item]].PRI_ATT_DB=dNew;
-				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>0.10 && dNew<=40.0) {
+					DAPConfiguration[convert[item]].PRI_ATT_DB=dNew;
+					if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==12 || item==32 || item==52) {
-			double dNew=atof(Data);
-			if(dNew>=0.10 && dNew<=5.0) {
-				DAPConfiguration[convert[item]].PRI_RATE_DB=dNew;
-				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.10 && dNew<=5.0) {
+					DAPConfiguration[convert[item]].PRI_RATE_DB=dNew;
+					if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==13 || item==33 || item==53) {
-			double dNew=atof(Data);
-			if(dNew>=0.04 && dNew<=1.0) {
-				DAPConfiguration[convert[item]].PRI_ROT_PLS=dNew;
-				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.04 && dNew<=1.0) {
+					DAPConfiguration[convert[item]].PRI_ROT_PLS=dNew;
+					if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==14 || item==34 || item==54) {
-			double dNew=atof(Data);
-			if(dNew>=0.0 && dNew<=0.999) {
-				DAPConfiguration[convert[item]].PRI_COMP=dNew;
-				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if (dNew<=0.999) {
+					DAPConfiguration[convert[item]].PRI_COMP=dNew;
+					if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==15 || item==35 || item==55) {
-			if(DAPConfiguration[convert[item]].PRI_P_OPTION<2) {
-				DAPConfiguration[convert[item]].PRI_P_OPTION++;
-				if(DAPMode==PRI) {
-					if(DAPConfiguration[DAPSelect].PRI_P_OPTION==1) {
-						STS()->DisableThrusters(AftPitchThrusters, 2);
-						UpdateDAPParameters();
+			if (strlen( Data ) == 0)
+			{
+				if(DAPConfiguration[convert[item]].PRI_P_OPTION<2) {
+					DAPConfiguration[convert[item]].PRI_P_OPTION++;
+					if(DAPMode==PRI) {
+						if(DAPConfiguration[DAPSelect].PRI_P_OPTION==1) {
+							STS()->DisableThrusters(AftPitchThrusters, 2);
+							UpdateDAPParameters();
+						}
+						else if(DAPConfiguration[DAPSelect].PRI_P_OPTION==2) {
+							STS()->EnableThrusters(AftPitchThrusters, 2);
+							STS()->DisableThrusters(NosePitchThrusters, 2);
+							UpdateDAPParameters();
+						}
 					}
-					else if(DAPConfiguration[DAPSelect].PRI_P_OPTION==2) {
-						STS()->EnableThrusters(AftPitchThrusters, 2);
-						STS()->DisableThrusters(NosePitchThrusters, 2);
+				}
+				else {
+					DAPConfiguration[convert[item]].PRI_P_OPTION=0;
+					if(DAPConfiguration[DAPSelect].PRI_P_OPTION==0) {
+						STS()->EnableThrusters(NosePitchThrusters, 2);
 						UpdateDAPParameters();
 					}
 				}
 			}
-			else {
-				DAPConfiguration[convert[item]].PRI_P_OPTION=0;
-				if(DAPConfiguration[DAPSelect].PRI_P_OPTION==0) {
-					STS()->EnableThrusters(NosePitchThrusters, 2);
-					UpdateDAPParameters();
-				}
-			}
+			else IllegalEntry = true;
 		}
 		else if(item==16 || item==36 || item==56) {
-			if(DAPConfiguration[convert[item]].PRI_Y_OPTION<2) {
-				DAPConfiguration[convert[item]].PRI_Y_OPTION++;
-				if(DAPMode==PRI) {
-					if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==1) {
-						STS()->DisableThrusters(AftYawThrusters, 2);
-						UpdateDAPParameters();
+			if (strlen( Data ) == 0)
+			{
+				if(DAPConfiguration[convert[item]].PRI_Y_OPTION<2) {
+					DAPConfiguration[convert[item]].PRI_Y_OPTION++;
+					if(DAPMode==PRI) {
+						if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==1) {
+							STS()->DisableThrusters(AftYawThrusters, 2);
+							UpdateDAPParameters();
+						}
+						else if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==2) {
+							STS()->EnableThrusters(AftYawThrusters, 2);
+							STS()->DisableThrusters(NoseYawThrusters, 2);
+							UpdateDAPParameters();
+						}
 					}
-					else if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==2) {
-						STS()->EnableThrusters(AftYawThrusters, 2);
-						STS()->DisableThrusters(NoseYawThrusters, 2);
+				}
+				else {
+					DAPConfiguration[convert[item]].PRI_Y_OPTION=0;
+					if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==0) {
+						STS()->EnableThrusters(NoseYawThrusters, 2);
 						UpdateDAPParameters();
 					}
 				}
 			}
-			else {
-				DAPConfiguration[convert[item]].PRI_Y_OPTION=0;
-				if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==0) {
-					STS()->EnableThrusters(NoseYawThrusters, 2);
-					UpdateDAPParameters();
-				}
-			}
+			else IllegalEntry = true;
 		}
 		else if(item==17 || item==37 || item==57) {
-			double dNew=atof(Data);
-			if(dNew>=0.01 && dNew<=5.0) {
-				DAPConfiguration[convert[item]].PRI_TRAN_PLS=dNew;
-				if(convert[item]== DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.01 && dNew<=5.0) {
+					DAPConfiguration[convert[item]].PRI_TRAN_PLS=dNew;
+					if(convert[item]== DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==18 || item==38 || item==58) {
-			double dNew=atof(Data);
-			if(dNew>=0.05 && dNew<=5.0) {
-				DAPConfiguration[convert[item]].ALT_RATE_DB=dNew;
-				if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.05 && dNew<=5.0) {
+					DAPConfiguration[convert[item]].ALT_RATE_DB=dNew;
+					if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==19 || item==39 || item==59) {
-			if(DAPConfiguration[convert[item]].ALT_JET_OPT==0) {
-				DAPConfiguration[convert[item]].ALT_JET_OPT=2;
-				if(DAPMode==ALT) {
-					if(DAPConfiguration[DAPSelect].ALT_JET_OPT==2) {
-						STS()->DisableThrusters(NoseRotThrusters, 6);
-						STS()->EnableThrusters(AftRotThrusters, 6);
-						UpdateDAPParameters();
+			if (strlen( Data ) == 0)
+			{
+				if(DAPConfiguration[convert[item]].ALT_JET_OPT==0) {
+					DAPConfiguration[convert[item]].ALT_JET_OPT=2;
+					if(DAPMode==ALT) {
+						if(DAPConfiguration[DAPSelect].ALT_JET_OPT==2) {
+							STS()->DisableThrusters(NoseRotThrusters, 6);
+							STS()->EnableThrusters(AftRotThrusters, 6);
+							UpdateDAPParameters();
+						}
+					}
+				}
+				else {
+					DAPConfiguration[convert[item]].ALT_JET_OPT=0;
+					if(DAPMode==ALT) {
+						if(DAPConfiguration[DAPSelect].ALT_JET_OPT==0) {
+							STS()->EnableThrusters(NoseRotThrusters, 6);
+							UpdateDAPParameters();
+						}
 					}
 				}
 			}
-			else {
-				DAPConfiguration[convert[item]].ALT_JET_OPT=0;
-				if(DAPMode==ALT) {
-					if(DAPConfiguration[DAPSelect].ALT_JET_OPT==0) {
-						STS()->EnableThrusters(NoseRotThrusters, 6);
-						UpdateDAPParameters();
-					}
-				}
-			}
+			else IllegalEntry = true;
 		}
 		else if(item==20 || item==40 || item==60) {
-			int nNew=atoi(Data);
-			if(nNew>=1 && nNew<=3) {
-				DAPConfiguration[convert[item]].ALT_JETS=nNew;
-				if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+			int nNew;
+			if (GetIntegerUnsigned( Data, nNew ))
+			{
+				if(nNew>=1 && nNew<=3) {
+					DAPConfiguration[convert[item]].ALT_JETS=nNew;
+					if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==21 || item==41 || item==61) {
-			double dNew=atof(Data);
-			if(dNew>=0.08 && dNew<=9.99) {
-				DAPConfiguration[convert[item]].ALT_ON_TIME=dNew;
-				if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.08 && dNew<=9.99) {
+					DAPConfiguration[convert[item]].ALT_ON_TIME=dNew;
+					if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==22 || item==42 || item==62) {
-			double dNew=atof(Data);
-			if(dNew>=0.0 && dNew<=99.99) {
-				DAPConfiguration[convert[item]].ALT_DELAY=dNew;
-				if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if (dNew<=99.99) {
+					DAPConfiguration[convert[item]].ALT_DELAY=dNew;
+					if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==23 || item==43 || item==63) {
-			double dNew=atof(Data);
-			if(dNew>=0.002 && dNew<=1.0) {
-				DAPConfiguration[convert[item]].VERN_ROT_RATE=dNew;
-				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.002 && dNew<=1.0) {
+					DAPConfiguration[convert[item]].VERN_ROT_RATE=dNew;
+					if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==24 || item==44 || item==64) {
-			double dNew=atof(Data);
-			if(dNew>=0.01 && dNew<=40.0) {
-				DAPConfiguration[convert[item]].VERN_ATT_DB=dNew;
-				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.01 && dNew<=40.0) {
+					DAPConfiguration[convert[item]].VERN_ATT_DB=dNew;
+					if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==25 || item==45 || item==65) {
-			double dNew=atof(Data);
-			if(dNew>=0.01 && dNew<=0.5) {
-				DAPConfiguration[convert[item]].VERN_RATE_DB=dNew;
-				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.01 && dNew<=0.5) {
+					DAPConfiguration[convert[item]].VERN_RATE_DB=dNew;
+					if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==26 || item==46 || item==66) {
-			double dNew=atof(Data);
-			if(dNew>=0.001 && dNew<=0.5) {
-				DAPConfiguration[convert[item]].VERN_ROT_PLS=dNew;
-				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.001 && dNew<=0.5) {
+					DAPConfiguration[convert[item]].VERN_ROT_PLS=dNew;
+					if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==27 || item==47 || item==67) {
-			double dNew=atof(Data);
-			if(dNew>=0.0 && dNew<=0.999) {
-				DAPConfiguration[convert[item]].VERN_COMP=dNew;
-				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if (dNew<=0.999) {
+					DAPConfiguration[convert[item]].VERN_COMP=dNew;
+					if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==28 || item==48 || item==68) {
-			int nNew=atoi(Data);
-			if(nNew>=0 && nNew<=9) {
-				DAPConfiguration[convert[item]].VERN_CNTL_ACC=nNew;
-				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			int nNew;
+			if (GetIntegerUnsigned( Data, nNew ))
+			{
+				if (nNew<=9) {
+					DAPConfiguration[convert[item]].VERN_CNTL_ACC=nNew;
+					if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		return true;
 	}

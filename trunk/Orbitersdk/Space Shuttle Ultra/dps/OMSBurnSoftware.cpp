@@ -44,7 +44,7 @@ pOrbitDAP(NULL), pStateVector(NULL)
 {
 	TIG[0]=TIG[1]=TIG[2]=TIG[3]=0.0;
 	OMS = 0;
-	TV_ROLL=0.0;
+	TV_ROLL=0;
 	PEG7 = _V(0.0, 0.0, 0.0);
 	Trim = _V(0.0, 0.0, 0.0);
 
@@ -240,94 +240,150 @@ bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 	return false;
 }
 
-bool OMSBurnSoftware::ItemInput(int spec, int item, const char* Data)
+bool OMSBurnSoftware::ItemInput(int spec, int item, const char* Data, bool &IllegalEntry )
 {
 	double dNew;
 	if(spec != dps::MODE_UNDEFINED) return false;
 	if(item>=1 && item<=4) {
-		OMS=item-1;
+		if (strlen( Data ) == 0)
+		{
+			OMS=item-1;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 	if(item==5) {
-		dNew=atof(Data);
-		if(dNew>=0.0 && dNew<=359.99)
-			TV_ROLL=dNew;
+		int num;
+		if (GetIntegerUnsigned( Data, num ))
+		{
+			if (num <= 359) TV_ROLL = num;
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item>=6 && item<=8) {
-		dNew=atof(Data);
-		if(fabs(dNew)<=6.0) 
+		if (GetDoubleSigned( Data, dNew ))
 		{
-			Trim.data[item-6]=dNew;
+			if(fabs(dNew)<=6.0) 
+			{
+				Trim.data[item-6]=dNew;
+			}
+			else IllegalEntry = true;
 		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==9) {
-		//dNew=atof(Data);
-		WT=atof(Data);
+		int num;
+		if (GetIntegerUnsigned( Data, num ))
+		{
+			WT = num;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
-	else if(item>=10 && item<=13) {
-		if(item==13) dNew=atof(Data);
-		else dNew=atoi(Data);
-		if((item==10 && dNew<365.0) || (item==11 && dNew<24.0) || (item>11 && dNew<60.0)) {
-			TIG[item-10]=dNew;
+	else if(item>=10 && item<=12) {
+		int num;
+		if (GetIntegerUnsigned( Data, num ))
+		{
+			if (((item == 10) && (num < 365)) || ((item == 11) && (num < 24)) || ((item == 12) && (num < 60))) TIG[item - 10] = num;
+			else IllegalEntry = true;
 		}
+		else IllegalEntry = true;
+		return true;
+	}
+	else if (item == 13) {
+		if (GetDoubleUnsigned( Data, dNew ))
+		{
+			if (dNew < 60.0) TIG[3] = dNew;
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==14 && GetMajorMode()!=202) {
-		dNew=atof(Data);
-		if(dNew >= 0.0 && dNew <= 99999.0) C1 = dNew;
+		int num;
+		if (GetIntegerUnsigned( Data, num ))
+		{
+			if (num <= 99999) C1 = num;
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==15 && GetMajorMode()!=202) {
-		dNew=atof(Data);
-		if(fabs(dNew)<10.0) {
-			C2=dNew;
+		if (GetDoubleSigned( Data, dNew ))
+		{
+			if(fabs(dNew)<10.0) C2=dNew;
+			else IllegalEntry = true;
 		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==16 && GetMajorMode()!=202) {
-		dNew=atof(Data);
-		if(dNew >= 0.0 && dNew <= 999.999) HT = dNew;
+		if (GetDoubleUnsigned( Data, dNew ))
+		{
+			if (dNew <= 999.999) HT = dNew;
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==17 && GetMajorMode()!=202) {
-		dNew=atof(Data);
-		if(dNew >= 0.0 && dNew <= 540.0) ThetaT = dNew;
+		if (GetDoubleUnsigned( Data, dNew ))
+		{
+			if (dNew <= 540.0) ThetaT = dNew;
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item>=19 && item<=21) {
-		dNew=atof(Data);
-		if((item == 19 && fabs(dNew) <= 9999.9) || (item != 19 && fabs(dNew) <= 999.9)) {
-			PEG7.data[item-19]=dNew;
-		}
+		if (GetDoubleSigned( Data, dNew ))
+		{
+			if((item == 19 && fabs(dNew) <= 9999.9) || (item != 19 && fabs(dNew) <= 999.9)) PEG7.data[item-19]=dNew;
+			else IllegalEntry = true;
+			}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==22) {
-		if(GetMajorMode() != 303) {
-			// in OPS 1 & 3, use PEG4 targets if PEG4 values are nonzero
-			// PEG 7 is always used in OPS 2 
-			if(GetMajorMode() != 202 && !Eq(ThetaT, 0.0, 0.001)) StartCalculatingPEG4Targets();
-			else LoadManeuver();
+		if (strlen( Data ) == 0)
+		{
+			if(GetMajorMode() != 303) {
+				// in OPS 1 & 3, use PEG4 targets if PEG4 values are nonzero
+				// PEG 7 is always used in OPS 2 
+				if(GetMajorMode() != 202 && !Eq(ThetaT, 0.0, 0.001)) StartCalculatingPEG4Targets();
+				else LoadManeuver();
+			}
 		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==23) {
-		if(MnvrLoad) bShowTimer = true;
+		if (strlen( Data ) == 0)
+		{
+			if(MnvrLoad) bShowTimer = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==27) {
-		if(!MnvrToBurnAtt) {
-			//STS()->LoadBurnAttManeuver(BurnAtt);
-			MnvrToBurnAtt = true;
-			//pOrbitDAP->ManeuverToLVLHAttitude(BurnAtt);
-			pOrbitDAP->ManeuverToINRTLAttitude(BurnAtt);
+		if (strlen( Data ) == 0)
+		{
+			if(!MnvrToBurnAtt) {
+				//STS()->LoadBurnAttManeuver(BurnAtt);
+				MnvrToBurnAtt = true;
+				//pOrbitDAP->ManeuverToLVLHAttitude(BurnAtt);
+				pOrbitDAP->ManeuverToINRTLAttitude(BurnAtt);
+			}
+			/*else {
+				STS()->TerminateManeuver();
+				MnvrToBurnAtt=false;
+			}*/
 		}
-		/*else {
-			STS()->TerminateManeuver();
-			MnvrToBurnAtt=false;
-		}*/
+		else IllegalEntry = true;
 		return true;
 	}
 
@@ -426,7 +482,7 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(1, 4, "RCS SEL  4");
 	pMDU->mvprint(11, OMS+1, "*");
 
-	sprintf_s(cbuf, 255, "5 TV ROLL %3d", Round(TV_ROLL));
+	sprintf_s(cbuf, 255, "5 TV ROLL %3d", TV_ROLL );
 	pMDU->mvprint(1, 5, cbuf);
 	pMDU->Underline( 11, 5 );
 	pMDU->Underline( 12, 5 );
@@ -737,7 +793,7 @@ bool OMSBurnSoftware::OnParseLine(const char* keyword, const char* value)
 		return true;
 	}
 	else if(!_strnicmp(keyword, "TV_ROLL", 7)) {
-		sscanf_s(value, "%lf", &TV_ROLL);
+		sscanf_s(value, "%d", &TV_ROLL);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "MNVR", 4)) {
@@ -765,7 +821,7 @@ void OMSBurnSoftware::OnSaveState(FILEHANDLE scn) const
 	oapiWriteScenario_float(scn, "WT", WT);
 	sprintf_s(cbuf, 255, "%0.0f %0.0f %0.0f %0.1f", TIG[0], TIG[1], TIG[2], TIG[3]);
 	oapiWriteScenario_string(scn, "TIG", cbuf);
-	oapiWriteScenario_float(scn, "TV_ROLL", TV_ROLL);
+	oapiWriteScenario_int(scn, "TV_ROLL", TV_ROLL);
 	sprintf_s(cbuf, 255, "%d %d", MnvrLoad, MnvrToBurnAtt);
 	oapiWriteScenario_string(scn, "MNVR", cbuf);
 	if(bShowTimer) oapiWriteScenario_string(scn, "TIMER", "");

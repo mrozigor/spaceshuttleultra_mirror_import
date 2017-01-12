@@ -44,7 +44,7 @@ void SimpleGPCSoftware::OnSaveState(FILEHANDLE scn) const
 {
 }
 
-bool SimpleGPCSoftware::ItemInput(int spec, int item, const char* Data)
+bool SimpleGPCSoftware::ItemInput(int spec, int item, const char* Data, bool &IllegalEntry )
 {
 	return false;
 }
@@ -104,4 +104,47 @@ void SimpleGPCSoftware::PrintCommonHeader(const char* header, vc::MDU* pMDU) con
 
 	pMDU->mvprint(1, 0, cbuf);
 }
+
+bool SimpleGPCSoftware::GetIntegerSigned( const char *data, int &num ) const
+{
+	int itmp = 0;
+	char* stmp = NULL;
+	itmp = strtol( data, &stmp, 10 );
+
+	if ((strlen( data ) > 0) && (strlen( stmp ) == 0))
+	{
+		num = itmp;
+		return true;
+	}
+	else return false;
+}
+
+bool SimpleGPCSoftware::GetIntegerUnsigned( const char *data, int &num ) const
+{
+	bool ret = GetIntegerSigned( data, num );
+	num = abs( num );
+	return ret;
+}
+
+bool SimpleGPCSoftware::GetDoubleSigned( const char *data, double &num ) const
+{
+	double dtmp = 0.0;
+	char* stmp = NULL;
+	dtmp = strtod( data, &stmp );
+
+	if ((strlen( data ) > 0) && (strlen( stmp ) == 0))
+	{
+		num = dtmp;
+		return true;
+	}
+	else return false;
+}
+
+bool SimpleGPCSoftware::GetDoubleUnsigned( const char *data, double &num ) const
+{
+	bool ret = GetDoubleSigned( data, num );
+	num = fabs( num );
+	return ret;
+}
+
 };
