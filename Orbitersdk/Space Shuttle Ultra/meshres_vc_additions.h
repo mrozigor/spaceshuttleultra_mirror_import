@@ -43,7 +43,3 @@
 #define TEX_CCTVMON_VC		43
 #define TEX_MON1VIEW_VC		44
 #define TEX_MON2VIEW_VC		45
-
-// from panel A8
-#define TEX_A8TOP_VC		4
-#define TEX_A8BOTTOM_VC		5

@@ -306,6 +306,7 @@
     <ClCompile Include="vc\7SegDisp_MissionTime.cpp" />
     <ClCompile Include="vc\7SegDisp_RCSOMS_PRPLT_QTY.cpp" />
     <ClCompile Include="vc\7SegDisp_RE_RRA.cpp" />
+    <ClCompile Include="vc\7SegDisp_RMS.cpp" />
     <ClCompile Include="vc\AftMDU.cpp" />
     <ClCompile Include="AirDataProbeSystem.cpp" />
     <ClCompile Include="dps\AP101S.cpp" />
@@ -500,6 +501,7 @@
     <ClInclude Include="vc\7SegDisp_MissionTime.h" />
     <ClInclude Include="vc\7SegDisp_RCSOMS_PRPLT_QTY.h" />
     <ClInclude Include="vc\7SegDisp_RE_RRA.h" />
+    <ClInclude Include="vc\7SegDisp_RMS.h" />
     <ClInclude Include="vc\AftMDU.h" />
     <ClInclude Include="dps\AP101S.h" />
     <ClInclude Include="APU.h" />
@@ -615,7 +617,6 @@
     <Image Include="Bitmaps\DEU_Raw_overbright.bmp" />
     <Image Include="Bitmaps\clocknums.bmp" />
     <Image Include="Bitmaps\DEU_Raw.bmp" />
-    <Image Include="Bitmaps\digits.bmp" />
     <Image Include="Bitmaps\ODSbuttons.bmp" />
     <Image Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
   </ItemGroup>

@@ -32,6 +32,7 @@
 #include "StandardRotarySwitch.h"
 #include "Talkback.h"
 #include "StandardLight.h"
+#include "7SegDisp_RMS.h"
 
 
 namespace vc
@@ -51,21 +52,21 @@ namespace vc
 		StandardSwitchCover* pPortMPMCover;
 		StandardSwitchCover* pStbdMPMCover;
 
-		StandardTalkback* pPortMRLTb;
-		StandardTalkback* pStbdMRLTb;
-		StandardTalkback* pPortMPMTb;
-		StandardTalkback* pStbdMPMTb;
+		StandardTalkback_2* pPortMRLTb;
+		StandardTalkback_2* pStbdMRLTb;
+		StandardTalkback_2* pPortMPMTb;
+		StandardTalkback_2* pStbdMPMTb;
 
-		Std2SegTalkback* pPortMRL_RTL[3];
-		Std2SegTalkback* pStbdMRL_RTL[3];
-		Std2SegTalkback* pEECapture;
-		Std2SegTalkback* pEEExtend;
-		Std2SegTalkback* pEEClose;
-		Std2SegTalkback* pEEOpen;
-		Std2SegTalkback* pEERigid;
-		Std2SegTalkback* pEEDerigid;
-		Std2SegTalkback* pShoulderBraceTb;
-		Std2SegTalkback* pSoftStopTB;
+		StandardTalkback_2* pPortMRL_RTL[3];
+		StandardTalkback_2* pStbdMRL_RTL[3];
+		StandardTalkback_2* pEECapture;
+		StandardTalkback_2* pEEExtend;
+		StandardTalkback_2* pEEClose;
+		StandardTalkback_2* pEEOpen;
+		StandardTalkback_2* pEERigid;
+		StandardTalkback_2* pEEDerigid;
+		StandardTalkback_2* pShoulderBraceTb;
+		StandardTalkback_2* pSoftStopTB;
 
 		RotaryDemuxSwitch* pLEDParameter;
 		RotaryDemuxSwitch* pLEDJoint;
@@ -74,12 +75,12 @@ namespace vc
 		StandardLight* pModeLights[12];
 		StandardLight* pCWLights[12];
 		StandardLight* pSequenceLights[2];
+
+		_7SegDisp_RMS* pRMS;
+
 	public:
 		PanelA8(Atlantis* _sts);
 		virtual ~PanelA8();
-
-		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
-		virtual bool OnVCRedrawEvent(int id, int _event, SURFHANDLE surf);
 
 		virtual void RegisterVC();
 		virtual void DefineVC();
@@ -92,11 +93,6 @@ namespace vc
 	private:
 		MESHHANDLE hPanelMesh;
 		UINT mesh_index;
-
-		DiscInPort RMSJointAngles[6], EEPosition[3], EEAttitude[3];
-		DiscInPort LED_JointSelect[8], LED_ParameterSelect[8];
-
-		double LEDValues[3];
 	};
 };
 
