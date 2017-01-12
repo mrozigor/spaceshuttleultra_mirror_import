@@ -112,9 +112,10 @@ const static char* TEXT_RMSCONTROL = "Controlling RMS";
 // ==========================================================
 
  const int MFDGROUPS[11] = {
-	GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
-	GRP_MFD1_VC, GRP_MFD4_VC, GRP_MFD3_VC, GRP_MFD_AFT_VC, GRP_MFD2_VC, GRP_MFD5_VC,
-	GRP_MFD11_VC
+	GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC, 
+	GRP_CRT1_VC, GRP_CRT2_VC, GRP_CRT3_VC, GRP_CRT4_VC, 
+	GRP_MFD1_VC, GRP_MFD2_VC, 
+	GRP_AFD1_VC
 	};
 
 // ==========================================================
