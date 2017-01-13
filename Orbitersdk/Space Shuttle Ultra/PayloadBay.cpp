@@ -7,8 +7,9 @@
 PayloadBay::PayloadBay( AtlantisSubsystemDirector* _director ):AtlantisSubsystem( _director, "PayloadBay" )
 {
 	// Cargo bay doors
-	BayDoorStatus.Set (AnimState::CLOSED, 0);
-	for(int i = 0; i < 4; i++) CLBayDoorLatch[i].Set(AnimState::CLOSED, 0);
+	PayloadBayDoor[0].Set (AnimState::CLOSED, 0);
+	PayloadBayDoor[1].Set (AnimState::CLOSED, 0);
+	for(int i = 0; i < 8; i++) PLBDLatch[i].Set(AnimState::CLOSED, 0);
 
 	// Radiators
 	RadiatorStatus[0].Set( AnimState::CLOSED, 0 );
@@ -29,8 +30,11 @@ PayloadBay::~PayloadBay( void )
 
 bool PayloadBay::OnParseLine( const char* line )
 {
-	if (!_strnicmp (line, "CARGODOOR", 9)) {
-		sscan_state ((char*)(line+9), BayDoorStatus);
+	if (!_strnicmp (line, "DOOR_PORT", 9)) {
+		sscan_state ((char*)(line+9), PayloadBayDoor[0]);
+		return true;
+	} else if (!_strnicmp (line, "DOOR_STBD", 9)) {
+		sscan_state ((char*)(line+9), PayloadBayDoor[1]);
 		return true;
 	} else if (!_strnicmp (line, "RADIATOR_PORT", 13)) {
 		sscan_state ((char*)(line+13), RadiatorStatus[0]);
@@ -44,13 +48,14 @@ bool PayloadBay::OnParseLine( const char* line )
 	} else if (!_strnicmp (line, "RADLATCH_PSTBD", 13)) {
 		sscan_state ((char*)(line+13), RadLatchStatus[1]);
 		return true;
+	} else if (!_strnicmp (line, "DOORLATCH", 9)) {
+		int latch;
+		sscanf_s (line+9, "%d", &latch);
+		assert( (latch >= 0) && (latch <= 7) && "PayloadBay::OnParseLine.DOORLATCH" );
+		sscan_state ((char*)(line+10), PLBDLatch[latch]);
 	} else if (!_strnicmp (line, "KUBAND", 6)) {
 		sscan_state ((char*)(line+6), KuAntennaStatus);
 		return true;
-	} else if (!_strnicmp (line, "BAYDOORLATCH", 12)) {
-		int latch;
-		sscanf_s (line+12, "%d", &latch);
-		sscan_state ((char*)(line+13), CLBayDoorLatch[latch]);
 	}
 	return false;
 }
@@ -59,16 +64,17 @@ void PayloadBay::OnSaveState( FILEHANDLE scn ) const
 {
 	char cbuf[256];
 
-	WriteScenario_state (scn, "CARGODOOR", BayDoorStatus);
+	WriteScenario_state( scn, "DOOR_PORT", PayloadBayDoor[0] );
+	WriteScenario_state( scn, "DOOR_STBD", PayloadBayDoor[1] );
 	WriteScenario_state (scn, "RADIATOR_PORT", RadiatorStatus[0]);
 	WriteScenario_state (scn, "RADIATOR_STBD", RadiatorStatus[1]);
 	WriteScenario_state (scn, "RADLATCH_PORT", RadLatchStatus[0]);
 	WriteScenario_state (scn, "RADLATCH_STBD", RadLatchStatus[1]);
-	if (hasAntenna == true) WriteScenario_state (scn, "KUBAND", KuAntennaStatus);
-	for(int i=0;i<4;i++) {
-		sprintf_s(cbuf, 255, "BAYDOORLATCH%d", i);
-		WriteScenario_state (scn, cbuf, CLBayDoorLatch[i]);
+	for(int i=0;i<8;i++) {
+		sprintf_s(cbuf, 255, "DOORLATCH%d", i);
+		WriteScenario_state (scn, cbuf, PLBDLatch[i]);
 	}
+	if (hasAntenna == true) WriteScenario_state (scn, "KUBAND", KuAntennaStatus);
 	return;
 }
 
@@ -149,139 +155,253 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 	{
 		if (PLBayDoor_CLOSE.IsSet())
 		{
-			if (!BayDoorStatus.Closed())
+			if (!PayloadBayDoor[0].Closed())// port door
 			{
-				double da = fDeltaT * DOOR_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
-				// close doors
-				if (BayDoorStatus.pos > 0.0)
+				double da = fDeltaT * PLBD_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
+				
+				if (PayloadBayDoor[0].pos > 0.0)
 				{
-					BayDoorStatus.action = AnimState::CLOSING;
-					BayDoorStatus.pos = max (0.0, BayDoorStatus.pos-da);
+					PayloadBayDoor[0].action = AnimState::CLOSING;
+					PayloadBayDoor[0].pos = max (0.0, PayloadBayDoor[0].pos-da);
 				}
-				else BayDoorStatus.action = AnimState::CLOSED;
-				STS()->SetBayDoorPosition (BayDoorStatus.pos);
+				else PayloadBayDoor[0].action = AnimState::CLOSED;
+				STS()->SetPayloadBayDoorPosition( 0, PayloadBayDoor[0].pos );
 			}
-			else if (!CLBayDoorLatch[0].Closed())
+			else if (!PLBDLatch[4].Closed())// port fwd, port aft
 			{
-				double da=fDeltaT*DOORLATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
-				// close latches 1 and 4
-				if (CLBayDoorLatch[0].pos > 0.0)
+				double da = fDeltaT * PLBD_CENTERLINE_LATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
+				
+				if (PLBDLatch[4].pos > 0.0)
 				{
-					CLBayDoorLatch[0].action=AnimState::CLOSING;
-					CLBayDoorLatch[3].action=AnimState::CLOSING;
-					CLBayDoorLatch[0].pos=max(0.0, CLBayDoorLatch[0].pos-da);
-					CLBayDoorLatch[3].pos = CLBayDoorLatch[0].pos;
+					PLBDLatch[4].action=AnimState::CLOSING;
+					PLBDLatch[5].action=AnimState::CLOSING;
+					PLBDLatch[4].pos=max(0.0, PLBDLatch[4].pos-da);
+					PLBDLatch[5].pos = PLBDLatch[5].pos;
 				}
 				else
 				{
-					CLBayDoorLatch[0].action=AnimState::CLOSED;
-					CLBayDoorLatch[3].action=AnimState::CLOSED;
+					PLBDLatch[4].action=AnimState::CLOSED;
+					PLBDLatch[5].action=AnimState::CLOSED;
 				}
-				STS()->SetBayDoorLatchPosition(0, CLBayDoorLatch[0].pos);
-				STS()->SetBayDoorLatchPosition(3, CLBayDoorLatch[3].pos);
 			}
-			else
+			else if (!PayloadBayDoor[1].Closed())// stbd door
 			{
-				double da=fDeltaT*DOORLATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
-				// close latches 2 and 3
-				if (CLBayDoorLatch[1].pos > 0.0)
+				double da = fDeltaT * PLBD_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
+				
+				if (PayloadBayDoor[1].pos > 0.0)
 				{
-					CLBayDoorLatch[1].action=AnimState::CLOSING;
-					CLBayDoorLatch[2].action=AnimState::CLOSING;
-					CLBayDoorLatch[1].pos=max(0.0, CLBayDoorLatch[1].pos-da);
-					CLBayDoorLatch[2].pos = CLBayDoorLatch[1].pos;
+					PayloadBayDoor[1].action = AnimState::CLOSING;
+					PayloadBayDoor[1].pos = max (0.0, PayloadBayDoor[1].pos-da);
+				}
+				else PayloadBayDoor[1].action = AnimState::CLOSED;
+				STS()->SetPayloadBayDoorPosition( 1, PayloadBayDoor[1].pos );
+			}
+			else if (!PLBDLatch[6].Closed())// stbd fwd, stbd aft
+			{
+				double da = fDeltaT * PLBD_CENTERLINE_LATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
+				
+				if (PLBDLatch[6].pos > 0.0)
+				{
+					PLBDLatch[6].action=AnimState::CLOSING;
+					PLBDLatch[7].action=AnimState::CLOSING;
+					PLBDLatch[6].pos=max(0.0, PLBDLatch[6].pos-da);
+					PLBDLatch[7].pos = PLBDLatch[6].pos;
 				}
 				else
 				{
-					CLBayDoorLatch[1].action=AnimState::CLOSED;
-					CLBayDoorLatch[2].action=AnimState::CLOSED;
+					PLBDLatch[6].action=AnimState::CLOSED;
+					PLBDLatch[7].action=AnimState::CLOSED;
 				}
-				STS()->SetBayDoorLatchPosition(1, CLBayDoorLatch[1].pos);
-				STS()->SetBayDoorLatchPosition(2, CLBayDoorLatch[2].pos);
+			}
+			else if (!PLBDLatch[0].Closed())// c/l 1-4, c/l 13-16
+			{
+				double da = fDeltaT * PLBD_CENTERLINE_LATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
+				
+				if (PLBDLatch[0].pos > 0.0)
+				{
+					PLBDLatch[0].action=AnimState::CLOSING;
+					PLBDLatch[3].action=AnimState::CLOSING;
+					PLBDLatch[0].pos=max(0.0, PLBDLatch[0].pos-da);
+					PLBDLatch[3].pos = PLBDLatch[0].pos;
+				}
+				else
+				{
+					PLBDLatch[0].action=AnimState::CLOSED;
+					PLBDLatch[3].action=AnimState::CLOSED;
+				}
+				STS()->SetPayloadBayDoorLatchPosition(0, PLBDLatch[0].pos);
+				STS()->SetPayloadBayDoorLatchPosition(3, PLBDLatch[3].pos);
+			}
+			else// c/l 5-8, c/l 9-12
+			{
+				double da = fDeltaT * PLBD_CENTERLINE_LATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
+				
+				if (PLBDLatch[1].pos > 0.0)
+				{
+					PLBDLatch[1].action=AnimState::CLOSING;
+					PLBDLatch[2].action=AnimState::CLOSING;
+					PLBDLatch[1].pos=max(0.0, PLBDLatch[1].pos-da);
+					PLBDLatch[2].pos = PLBDLatch[1].pos;
+				}
+				else
+				{
+					PLBDLatch[1].action=AnimState::CLOSED;
+					PLBDLatch[2].action=AnimState::CLOSED;
+				}
+				STS()->SetPayloadBayDoorLatchPosition(1, PLBDLatch[1].pos);
+				STS()->SetPayloadBayDoorLatchPosition(2, PLBDLatch[2].pos);
 			}
 		}
 		else if (PLBayDoor_OPEN.IsSet())
 		{
-			if (!CLBayDoorLatch[1].Open())
+			if (!PLBDLatch[1].Open())// c/l 5-8, c/l 9-12
 			{
-				double da=fDeltaT*DOORLATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
-				// open latches 2 and 3
-				if(CLBayDoorLatch[1].pos < 1.0)
+				double da = fDeltaT * PLBD_CENTERLINE_LATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
+				
+				if(PLBDLatch[1].pos < 1.0)
 				{
-					CLBayDoorLatch[1].action=AnimState::OPENING;
-					CLBayDoorLatch[2].action=AnimState::OPENING;
-					CLBayDoorLatch[1].pos=min(1.0, CLBayDoorLatch[1].pos+da);
-					CLBayDoorLatch[2].pos = CLBayDoorLatch[1].pos;
+					PLBDLatch[1].action=AnimState::OPENING;
+					PLBDLatch[2].action=AnimState::OPENING;
+					PLBDLatch[1].pos=min(1.0, PLBDLatch[1].pos+da);
+					PLBDLatch[2].pos = PLBDLatch[1].pos;
 				}
 				else
 				{
-					CLBayDoorLatch[1].action=AnimState::OPEN;
-					CLBayDoorLatch[2].action=AnimState::OPEN;
+					PLBDLatch[1].action=AnimState::OPEN;
+					PLBDLatch[2].action=AnimState::OPEN;
 				}
-				STS()->SetBayDoorLatchPosition(1, CLBayDoorLatch[1].pos);
-				STS()->SetBayDoorLatchPosition(2, CLBayDoorLatch[2].pos);
+				STS()->SetPayloadBayDoorLatchPosition(1, PLBDLatch[1].pos);
+				STS()->SetPayloadBayDoorLatchPosition(2, PLBDLatch[2].pos);
 			}
-			else if (!CLBayDoorLatch[0].Open())
+			else if (!PLBDLatch[0].Open())// c/l 1-4, c/l 13-16
 			{
-				double da=fDeltaT*DOORLATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
-				// open latches 1 and 4
-				if(CLBayDoorLatch[0].pos < 1.0)
+				double da = fDeltaT * PLBD_CENTERLINE_LATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
+				
+				if(PLBDLatch[0].pos < 1.0)
 				{
-					CLBayDoorLatch[0].action=AnimState::OPENING;
-					CLBayDoorLatch[3].action=AnimState::OPENING;
-					CLBayDoorLatch[0].pos=min(1.0, CLBayDoorLatch[0].pos+da);
-					CLBayDoorLatch[3].pos = CLBayDoorLatch[0].pos;
+					PLBDLatch[0].action=AnimState::OPENING;
+					PLBDLatch[3].action=AnimState::OPENING;
+					PLBDLatch[0].pos=min(1.0, PLBDLatch[0].pos+da);
+					PLBDLatch[3].pos = PLBDLatch[0].pos;
 				}
 				else
 				{
-					CLBayDoorLatch[0].action=AnimState::OPEN;
-					CLBayDoorLatch[3].action=AnimState::OPEN;
+					PLBDLatch[0].action=AnimState::OPEN;
+					PLBDLatch[3].action=AnimState::OPEN;
 				}
-				STS()->SetBayDoorLatchPosition(0, CLBayDoorLatch[0].pos);
-				STS()->SetBayDoorLatchPosition(3, CLBayDoorLatch[3].pos);
+				STS()->SetPayloadBayDoorLatchPosition(0, PLBDLatch[0].pos);
+				STS()->SetPayloadBayDoorLatchPosition(3, PLBDLatch[3].pos);
 			}
-			else
+			else if (!PLBDLatch[6].Open())// stbd fwd, stbd aft
 			{
-				double da = fDeltaT * DOOR_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
-				// open doors
-				if (BayDoorStatus.pos < 1.0)
+				double da = fDeltaT * PLBD_BULKHEAD_LATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
+				
+				if(PLBDLatch[6].pos < 1.0)
 				{
-					BayDoorStatus.action = AnimState::OPENING;
-					BayDoorStatus.pos = min (1.0, BayDoorStatus.pos+da);
+					PLBDLatch[6].action=AnimState::OPENING;
+					PLBDLatch[7].action=AnimState::OPENING;
+					PLBDLatch[6].pos=min(1.0, PLBDLatch[6].pos+da);
+					PLBDLatch[7].pos = PLBDLatch[6].pos;
 				}
-				else BayDoorStatus.action = AnimState::OPEN;
-				STS()->SetBayDoorPosition (BayDoorStatus.pos);
+				else
+				{
+					PLBDLatch[6].action=AnimState::OPEN;
+					PLBDLatch[7].action=AnimState::OPEN;
+				}
+			}
+			else if (!PayloadBayDoor[1].Open())// stbd door
+			{
+				double da = fDeltaT * PLBD_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
+				
+				if (PayloadBayDoor[1].pos < 1.0)
+				{
+					PayloadBayDoor[1].action = AnimState::OPENING;
+					PayloadBayDoor[1].pos = min (1.0, PayloadBayDoor[1].pos+da);
+				}
+				else PayloadBayDoor[1].action = AnimState::OPEN;
+				STS()->SetPayloadBayDoorPosition( 1, PayloadBayDoor[1].pos );
+			}
+			else if (!PLBDLatch[4].Open())// port fwd, port aft
+			{
+				double da = fDeltaT * PLBD_BULKHEAD_LATCH_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
+				
+				if(PLBDLatch[4].pos < 1.0)
+				{
+					PLBDLatch[4].action=AnimState::OPENING;
+					PLBDLatch[5].action=AnimState::OPENING;
+					PLBDLatch[4].pos=min(1.0, PLBDLatch[4].pos+da);
+					PLBDLatch[5].pos = PLBDLatch[5].pos;
+				}
+				else
+				{
+					PLBDLatch[4].action=AnimState::OPEN;
+					PLBDLatch[5].action=AnimState::OPEN;
+				}
+			}
+			else// port door
+			{
+				double da = fDeltaT * PLBD_OPERATING_SPEED * 0.5 * ((int)PLBayDoorSYS_ENABLE[0] + (int)PLBayDoorSYS_ENABLE[1]);
+				
+				if (PayloadBayDoor[0].pos < 1.0)
+				{
+					PayloadBayDoor[0].action = AnimState::OPENING;
+					PayloadBayDoor[0].pos = min (1.0, PayloadBayDoor[0].pos+da);
+				}
+				else PayloadBayDoor[0].action = AnimState::OPEN;
+				STS()->SetPayloadBayDoorPosition( 0, PayloadBayDoor[0].pos );
 			}
 		}
 		else
 		{
 			// stop everything
-			if (BayDoorStatus.Moving()) BayDoorStatus.action = AnimState::STOPPED;
-			if (CLBayDoorLatch[0].Moving())
+			if (PayloadBayDoor[0].Moving()) PayloadBayDoor[0].action = AnimState::STOPPED;
+			if (PayloadBayDoor[1].Moving()) PayloadBayDoor[1].action = AnimState::STOPPED;
+			if (PLBDLatch[0].Moving())
 			{
-				CLBayDoorLatch[0].action=AnimState::STOPPED;
-				CLBayDoorLatch[3].action=AnimState::STOPPED;
+				PLBDLatch[0].action=AnimState::STOPPED;
+				PLBDLatch[3].action=AnimState::STOPPED;
 			}
-			if (CLBayDoorLatch[1].Moving())
+			if (PLBDLatch[1].Moving())
 			{
-				CLBayDoorLatch[1].action=AnimState::STOPPED;
-				CLBayDoorLatch[2].action=AnimState::STOPPED;
+				PLBDLatch[1].action=AnimState::STOPPED;
+				PLBDLatch[2].action=AnimState::STOPPED;
+			}
+			if (PLBDLatch[4].Moving())
+			{
+				PLBDLatch[4].action=AnimState::STOPPED;
+				PLBDLatch[5].action=AnimState::STOPPED;
+			}
+			if (PLBDLatch[6].Moving())
+			{
+				PLBDLatch[6].action=AnimState::STOPPED;
+				PLBDLatch[7].action=AnimState::STOPPED;
 			}
 		}
 	}
 	else
 	{
 		// stop everything
-		if (BayDoorStatus.Moving()) BayDoorStatus.action = AnimState::STOPPED;
-		if (CLBayDoorLatch[0].Moving())
+		if (PayloadBayDoor[0].Moving()) PayloadBayDoor[0].action = AnimState::STOPPED;
+		if (PayloadBayDoor[1].Moving()) PayloadBayDoor[1].action = AnimState::STOPPED;
+		if (PLBDLatch[0].Moving())
 		{
-			CLBayDoorLatch[0].action=AnimState::STOPPED;
-			CLBayDoorLatch[3].action=AnimState::STOPPED;
+			PLBDLatch[0].action=AnimState::STOPPED;
+			PLBDLatch[3].action=AnimState::STOPPED;
 		}
-		if (CLBayDoorLatch[1].Moving())
+		if (PLBDLatch[1].Moving())
 		{
-			CLBayDoorLatch[1].action=AnimState::STOPPED;
-			CLBayDoorLatch[2].action=AnimState::STOPPED;
+			PLBDLatch[1].action=AnimState::STOPPED;
+			PLBDLatch[2].action=AnimState::STOPPED;
+		}
+		if (PLBDLatch[4].Moving())
+		{
+			PLBDLatch[4].action=AnimState::STOPPED;
+			PLBDLatch[5].action=AnimState::STOPPED;
+		}
+		if (PLBDLatch[6].Moving())
+		{
+			PLBDLatch[6].action=AnimState::STOPPED;
+			PLBDLatch[7].action=AnimState::STOPPED;
 		}
 	}
 
@@ -336,13 +456,13 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 		da = fDeltaT * RAD_OPERATING_SPEED * 0.5 * 
 			(((int)PLBayMECHPWRSYS_ON[0] * ((int)RadiatorControlSYS_DEPLOY[0] - (int)RadiatorControlSYS_STOW[0])) + 
 			((int)PLBayMECHPWRSYS_ON[1] * ((int)RadiatorControlSYS_DEPLOY[1] - (int)RadiatorControlSYS_STOW[1])));
-		if ((da > 0) && BayDoorStatus.Open() && RadLatchStatus[0].Open())
+		if ((da > 0) && PayloadBayDoor[0].Open() && RadLatchStatus[0].Open())
 		{
 			// deploy
 			RadiatorStatus[0].action = AnimState::OPENING;
 			RadiatorStatus[0].Move( da );
 		}
-		else if ((da < 0) && BayDoorStatus.Open())
+		else if ((da < 0) && PayloadBayDoor[0].Open())
 		{
 			// stow
 			RadiatorStatus[0].action = AnimState::CLOSING;
@@ -356,13 +476,13 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 		STS()->SetRadiatorPosition( RadiatorStatus[0].pos, 0 );
 
 		// stbd drive
-		if ((da > 0) && BayDoorStatus.Open() && RadLatchStatus[1].Open())
+		if ((da > 0) && PayloadBayDoor[1].Open() && RadLatchStatus[1].Open())
 		{
 			// deploy
 			RadiatorStatus[1].action = AnimState::OPENING;
 			RadiatorStatus[1].Move( da );
 		}
-		else if ((da < 0) && BayDoorStatus.Open())
+		else if ((da < 0) && PayloadBayDoor[1].Open())
 		{
 			// stow
 			RadiatorStatus[1].action = AnimState::CLOSING;
@@ -455,12 +575,16 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 void PayloadBay::SetTalkbacks( void )
 {
 	// talkback output
-	if (BayDoorStatus.Open())
+	if (PayloadBayDoor[0].Open() && PayloadBayDoor[1].Open() && 
+		PLBDLatch[0].Open() && PLBDLatch[1].Open() && PLBDLatch[2].Open() && PLBDLatch[3].Open() &&
+		PLBDLatch[4].Open() && PLBDLatch[5].Open() && PLBDLatch[6].Open() && PLBDLatch[7].Open())
 	{
 		PLBayDoorTB_OP.SetLine();
 		PLBayDoorTB_CL.ResetLine();
 	}
-	else if (BayDoorStatus.Closed())
+	else if (PayloadBayDoor[0].Closed() && PayloadBayDoor[1].Closed() && 
+		PLBDLatch[0].Closed() && PLBDLatch[1].Closed() && PLBDLatch[2].Closed() && PLBDLatch[3].Closed() &&
+		PLBDLatch[4].Closed() && PLBDLatch[5].Closed() && PLBDLatch[6].Closed() && PLBDLatch[7].Closed())
 	{
 		PLBayDoorTB_OP.ResetLine();
 		PLBayDoorTB_CL.SetLine();

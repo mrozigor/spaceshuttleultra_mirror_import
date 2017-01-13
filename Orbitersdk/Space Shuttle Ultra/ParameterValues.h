@@ -90,21 +90,14 @@ const double SPEEDBRAKE_OPERATING_SPEED = 0.20284;
 // Deployment speed of the speedbrake (1/sec)
 // cycle is 4.93 sec
 
-//const double AIR_DATA_PROBE_SPEED = 0.06666667;
-
-//const double DYNP_MAX = 100e3;
-// Max. allowed dynamic pressure [Pa]
-//const double GEAR_MAX_DEPLOY_SPEED = 450/1.943844;
-// Max. safe gear deploy speed [m/s]
-
-const double DOOR_OPERATING_SPEED = 0.00537634;
+const double PLBD_OPERATING_SPEED = 0.0158730;
 // Opening/closing speed of payload bay doors (1/sec)
-// This contains the door opening sequence (63 sec for each door)
-// plus 30 sec before each door opening for bulkhead latches
 
-const double DOORLATCH_OPERATING_SPEED = 0.05;
-// Opening/closing speed of payload bay door latch gang (1/sec)
-// 20 sec for each gang
+const double PLBD_CENTERLINE_LATCH_OPERATING_SPEED = 0.05;
+// Opening/closing speed of payload bay door centerline latch gang (1/sec)
+
+const double PLBD_BULKHEAD_LATCH_OPERATING_SPEED = 0.0333333;
+// Opening/closing speed of payload bay door bulkhead latch gang (1/sec)
 
 const double RAD_OPERATING_SPEED = 0.023255814;
 // Deployment/stowing speed of radiators (1/sec)

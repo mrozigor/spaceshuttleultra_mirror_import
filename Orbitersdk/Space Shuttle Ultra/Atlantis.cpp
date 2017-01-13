@@ -1706,97 +1706,87 @@ void Atlantis::DefineAnimations(void)
 	ANIMATIONCOMPONENT_HANDLE parent;
 	BeginLoggingAnims();
 
-	// ***** 1. Cargo door and radiator animations *****
-	// DaveS edit: Updated animations to work with the new scaled down orbiter mesh
+	// ***** 1. Payload bay door and radiator animations *****
+	static UINT PLBD_PORT_Grp[4] = {GRP_LEFT_PLBD_EXT, GRP_PORT_PLBD_INTERIOR, GRP_PORT_PLB_RADIATOR_3, GRP_PORT_PLB_RADIATOR_4};
+	MGROUP_ROTATE* PLBD_PORT = new MGROUP_ROTATE( midx, PLBD_PORT_Grp, 4, PLBD_PORT_P3, -PLBD_PORT_AXIS, (float)(360 * RAD) );
+	anim_door_port = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_port", anim_door_port );
+	parent = AddManagedAnimationComponent( anim_door_port, 0.0, 1.0, PLBD_PORT );
 
-	static UINT RCargoDoorGrp[4] = { GRP_RIGHT_PLBD_EXT, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4, };
-	MGROUP_ROTATE* pRCargoDoor = new MGROUP_ROTATE(midx, RCargoDoorGrp, 4,
-		_V(2.6942, 0.2449, 0.0), _V(0, 0, 1), (float)(-175.5*RAD));
-	static UINT LCargoDoorGrp[4] = { GRP_LEFT_PLBD_EXT, GRP_PORT_PLBD_INTERIOR, GRP_PORT_PLB_RADIATOR_3, GRP_PORT_PLB_RADIATOR_4 };
-	MGROUP_ROTATE* pLCargoDoor = new MGROUP_ROTATE(midx, LCargoDoorGrp, 4,
-		_V(-2.6942, 0.2449, 0.0), _V(0, 0, 1), (float)(175.5*RAD));
+	static UINT PLB_RAD_PORT_Grp[3] = {GRP_PORT_PLB_RADIATOR_1, GRP_PORT_PLB_RADIATOR_2, GRP_PORT_FWD_RADIATOR_COOLANT_LINES};
+	MGROUP_ROTATE* PLB_RAD_PORT = new MGROUP_ROTATE( midx, PLB_RAD_PORT_Grp, 3, _V( -2.587, 0.348, 0.0 ), _V( 0, 0, 1 ), (float)(-31.6 * RAD) );
+	anim_rad[0] = CreateAnimation( 0.0 );
+	LogAnim( "anim_rad[0]", anim_rad[0] );
+	AddManagedAnimationComponent( anim_rad[0], 0.0, 1.0, PLB_RAD_PORT, parent );
 
-	static UINT RRadiatorGrp[3] = { GRP_STBD_PLB_RADIATOR_1, GRP_STBD_PLB_RADIATOR_2, GRP_STBD_FWD_RADIATOR_COOLANT_LINES };
-	MGROUP_ROTATE* pRRadiator = new MGROUP_ROTATE(midx, RRadiatorGrp, 3,
-		_V(2.587, 0.348, 0.0), _V(0, 0, 1), (float)(31.6*RAD));
-	static UINT LRadiatorGrp[3] = { GRP_PORT_PLB_RADIATOR_1, GRP_PORT_PLB_RADIATOR_2, GRP_PORT_FWD_RADIATOR_COOLANT_LINES };
-	MGROUP_ROTATE* pLRadiator = new MGROUP_ROTATE(midx, LRadiatorGrp, 3,
-		_V(-2.587, 0.348, 0.0), _V(0, 0, 1), (float)(-31.6*RAD));
+	static UINT PLBD_PULLROD_PORT_Grp[1] = {GRP_PORTDOOR_PULL};
+	MGROUP_ROTATE* PLBD_PULLROD_PORT = new MGROUP_ROTATE( midx, PLBD_PULLROD_PORT_Grp, 1, PLBD_PORT_P2, PLBD_PORT_AXIS, (float)(360 * RAD) );
+	anim_door_port_pullrod = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_port_pullrod", anim_door_port_pullrod );
+	AddManagedAnimationComponent( anim_door_port_pullrod, 0.0, 1.0, PLBD_PULLROD_PORT, parent );
 
-	static UINT PORTPUSH_RODGrp[1] = { GRP_PORTPUSH_ROD };
-	MGROUP_ROTATE* pPORTPushRod = new MGROUP_ROTATE(midx, PORTPUSH_RODGrp, 1,
-		_V(-2.567, 0.059, 0.0), _V(0, 0, 1), static_cast<float>(-90.0*RAD));
+	static UINT PLBD_CLAMP_PORT_Grp[1] = {GRP_PORT_CLAMP};
+	MGROUP_ROTATE* PLBD_CLAMP_PORT = new MGROUP_ROTATE( midx, PLBD_CLAMP_PORT_Grp, 1, PLBD_PORT_P4, PLBD_PORT_AXIS, (float)(360 * RAD) );
+	anim_door_port_clamp = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_port_clamp", anim_door_port_clamp );
+	parent = AddManagedAnimationComponent( anim_door_port_clamp, 0.0, 1.0, PLBD_CLAMP_PORT );
+	
+	static UINT PLBD_PUSHROD_PORT_Grp[1] = {GRP_PORTPUSH_ROD};
+	MGROUP_ROTATE* PLBD_PUSH_ROD_PORT = new MGROUP_ROTATE( midx, PLBD_PUSHROD_PORT_Grp, 1, PLBD_PORT_P5, PLBD_PORT_AXIS, static_cast<float>(360 * RAD) );
+	anim_door_port_pushrod = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_port_pushrod", anim_door_port_pushrod );
+	AddManagedAnimationComponent( anim_door_port_pushrod, 0.0, 1.0, PLBD_PUSH_ROD_PORT, parent );
 
-	static UINT PORT_CLAMPGrp[1] = { GRP_PORT_CLAMP };
-	MGROUP_ROTATE* pPORT_CLAMP = new MGROUP_ROTATE(midx, PORT_CLAMPGrp, 1,
-		_V(-2.6289, 0.1321, 0.0), _V(0, 0, 1), (float)(90 * RAD));
 
-	static UINT PORT_PullRodGrp[1] = { GRP_PORTDOOR_PULL };
-	MGROUP_ROTATE* pPORTPullRod = new MGROUP_ROTATE(midx, PORT_PullRodGrp, 1,
-		_V(-2.427, 0.294, 0.0), _V(0, 0, 1), (float)(-10 * RAD));
+	static UINT PLBD_STBD_Grp[4] = {GRP_RIGHT_PLBD_EXT, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4};
+	MGROUP_ROTATE* PLBD_STBD = new MGROUP_ROTATE( midx, PLBD_STBD_Grp, 4, PLBD_STBD_P3, -PLBD_STBD_AXIS, (float)(360 * RAD) );
+	anim_door_stbd = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_stbd", anim_door_stbd );
+	parent = AddManagedAnimationComponent( anim_door_stbd, 0.0, 1.0, PLBD_STBD );
 
-	static UINT STBDPUSH_RODGrp[1] = { GRP_STBDPUSH_ROD };
-	MGROUP_ROTATE* pSTBDPushRod = new MGROUP_ROTATE(midx, STBDPUSH_RODGrp, 1,
-		_V(2.567, 0.059, 0.0), _V(0, 0, 1), static_cast<float>(90.0*RAD));
+	static UINT PLB_RAD_STBD_Grp[3] = {GRP_STBD_PLB_RADIATOR_1, GRP_STBD_PLB_RADIATOR_2, GRP_STBD_FWD_RADIATOR_COOLANT_LINES};
+	MGROUP_ROTATE* PLB_RAD_STBD = new MGROUP_ROTATE( midx, PLB_RAD_STBD_Grp, 3, _V( 2.587, 0.348, 0.0 ), _V( 0, 0, 1 ), (float)(31.6 * RAD) );
+	anim_rad[1] = CreateAnimation( 0.0 );
+	LogAnim( "anim_rad[1]", anim_rad[1] );
+	AddManagedAnimationComponent( anim_rad[1], 0.0, 1.0, PLB_RAD_STBD, parent );
 
-	static UINT STBD_CLAMPGrp[1] = { GRP_STBD_CLAMP };
-	MGROUP_ROTATE* pSTBD_CLAMP = new MGROUP_ROTATE(midx, STBD_CLAMPGrp, 1,
-		_V(2.6289, 0.1321, 0.0), _V(0, 0, 1), (float)(-90 * RAD));
+	static UINT CLatch1_4Grp[1] = {GRP_FWD_HOOKS};
+	static MGROUP_ROTATE CLatch1_4( midx, CLatch1_4Grp, 1, _V( 0.0234, 2.1905, 0.0 ), _V( 0, 0, 1 ), (float)(90 * RAD) );
+	anim_clatch[0] = CreateAnimation( 0.0 );
+	AddAnimationComponent( anim_clatch[0], 0.0, 1.0, &CLatch1_4, parent );
 
-	static UINT STBD_PullRodGrp[1] = { GRP_STBDDOOR_PULL };
-	MGROUP_ROTATE* pSTBDPullRod = new MGROUP_ROTATE(midx, STBD_PullRodGrp, 1,
-		_V(2.427, 0.294, 0.0), _V(0, 0, 1), (float)(10.0*RAD));
+	static UINT CLatch5_8Grp[1] = {GRP_MID_FWD_HOOKS};
+	static MGROUP_ROTATE CLatch5_8( midx, CLatch5_8Grp, 1, _V( 0.0234, 2.1905, 0.0 ), _V( 0, 0, 1 ), (float)(90 * RAD) );
+	anim_clatch[1] = CreateAnimation( 0.0 );
+	AddAnimationComponent( anim_clatch[1], 0.0, 1.0, &CLatch5_8, parent );
 
-	//latches
-	static UINT CLatch1_4Grp[1] = { GRP_FWD_HOOKS };
-	static MGROUP_ROTATE CLatch1_4(midx, CLatch1_4Grp, 1,
-		_V(0.0234, 2.1905, 0.0), _V(0, 0, 1), (float)(90 * RAD));
+	static UINT CLatch9_12Grp[1] = {GRP_MID_AFT_HOOKS};
+	static MGROUP_ROTATE CLatch9_12( midx, CLatch9_12Grp, 1, _V( 0.0234, 2.1905, 0.0 ), _V( 0, 0, 1 ), (float)(90 * RAD) );
+	anim_clatch[2] = CreateAnimation( 0.0 );
+	AddAnimationComponent( anim_clatch[2], 0.0, 1.0, &CLatch9_12, parent );
 
-	static UINT CLatch5_8Grp[1] = { GRP_MID_FWD_HOOKS };
-	static MGROUP_ROTATE CLatch5_8(midx, CLatch5_8Grp, 1,
-		_V(0.0234, 2.1905, 0.0), _V(0, 0, 1), (float)(90 * RAD));
+	static UINT CLatch13_16Grp[1] = {GRP_AFT_HOOKS};
+	static MGROUP_ROTATE CLatch13_16( midx, CLatch13_16Grp, 1, _V( 0.0234, 2.1905, 0.0 ), _V( 0, 0, 1 ), (float)(90 * RAD) );
+	anim_clatch[3] = CreateAnimation( 0.0 );
+	AddAnimationComponent( anim_clatch[3], 0.0, 1.0, &CLatch13_16, parent );
 
-	static UINT CLatch9_12Grp[1] = { GRP_MID_AFT_HOOKS };
-	static MGROUP_ROTATE CLatch9_12(midx, CLatch9_12Grp, 1,
-		_V(0.0234, 2.1905, 0.0), _V(0, 0, 1), (float)(90 * RAD));
+	static UINT PLBD_PULLROD_STBD_Grp[1] = {GRP_STBDDOOR_PULL};
+	MGROUP_ROTATE* PLBD_PULLROD_STBD = new MGROUP_ROTATE( midx, PLBD_PULLROD_STBD_Grp, 1, PLBD_STBD_P2, PLBD_STBD_AXIS, (float)(360 * RAD));
+	anim_door_stbd_pullrod = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_stbd_pullrod", anim_door_stbd_pullrod );
+	AddManagedAnimationComponent( anim_door_stbd_pullrod, 0.0, 1.0, PLBD_PULLROD_STBD, parent );
 
-	static UINT CLatch13_16Grp[1] = { GRP_AFT_HOOKS };
-	static MGROUP_ROTATE CLatch13_16(midx, CLatch13_16Grp, 1,
-		_V(0.0234, 2.1905, 0.0), _V(0, 0, 1), (float)(90 * RAD));
+	static UINT PLBD_CLAMP_STBD_Grp[1] = {GRP_STBD_CLAMP};
+	MGROUP_ROTATE* PLBD_CLAMP_STBD = new MGROUP_ROTATE( midx, PLBD_CLAMP_STBD_Grp, 1, PLBD_STBD_P4, PLBD_STBD_AXIS, (float)(360 * RAD));
+	anim_door_stbd_clamp = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_stbd_clamp", anim_door_stbd_clamp );
+	parent = AddManagedAnimationComponent( anim_door_stbd_clamp, 0.0, 1.0, PLBD_CLAMP_STBD );
 
-	anim_door = CreateAnimation(0);
-	LogAnim("anim_door", anim_door);
-	anim_rad[0] = CreateAnimation(0);
-	LogAnim("anim_rad[0]", anim_rad[0]);
-	anim_rad[1] = CreateAnimation(0);
-	LogAnim("anim_rad[1]", anim_rad[1]);
-	anim_clatch[0] = CreateAnimation(0);
-	anim_clatch[1] = CreateAnimation(0);
-	anim_clatch[2] = CreateAnimation(0);
-	anim_clatch[3] = CreateAnimation(0);
-	// **************************************************************************************
-	//right (starboard) side
-	// **************************************************************************************
-	parent = AddManagedAnimationComponent(anim_door, 0.161290, 0.5, pRCargoDoor);
-	AddManagedAnimationComponent(anim_rad[1], 0, 1, pRRadiator, parent);
-	//latches
-	AddAnimationComponent(anim_clatch[0], 0, 1, &CLatch1_4, parent);
-	AddAnimationComponent(anim_clatch[1], 0, 1, &CLatch5_8, parent);
-	AddAnimationComponent(anim_clatch[2], 0, 1, &CLatch9_12, parent);
-	AddAnimationComponent(anim_clatch[3], 0, 1, &CLatch13_16, parent);
-	//right push/pull rods
-	parent = AddManagedAnimationComponent(anim_door, 0.161290, 0.5, pSTBD_CLAMP);
-	AddManagedAnimationComponent(anim_door, 0, 0.4632, pSTBDPullRod, parent);
-	AddManagedAnimationComponent(anim_door, 0, 0.4632, pSTBDPushRod, parent);
-	// **************************************************************************************
-	//left(port) side
-	// **************************************************************************************
-	parent = AddManagedAnimationComponent(anim_door, 0.661290, 1.0, pLCargoDoor);
-	AddManagedAnimationComponent(anim_rad[0], 0, 1, pLRadiator, parent);
-	//left push/pull rods
-	parent = AddManagedAnimationComponent(anim_door, 0.661290, 1.0, pPORT_CLAMP);
-	AddManagedAnimationComponent(anim_door, 0.5368, 1.0, pPORTPullRod, parent);
-	AddManagedAnimationComponent(anim_door, 0.5368, 1.0, pPORTPushRod, parent);
+	static UINT PLBD_PUSHROD_STBD_Grp[1] = {GRP_STBDPUSH_ROD};
+	MGROUP_ROTATE* PLBD_PUSH_ROD_STBD = new MGROUP_ROTATE( midx, PLBD_PUSHROD_STBD_Grp, 1, PLBD_STBD_P5, PLBD_STBD_AXIS, static_cast<float>(360 * RAD));
+	anim_door_stbd_pushrod = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_stbd_pushrod", anim_door_stbd_pushrod );
+	AddManagedAnimationComponent( anim_door_stbd_pushrod, 0.0, 1.0, PLBD_PUSH_ROD_STBD, parent );
 
 	// ***** 2. Landing gear animation *****
 	static UINT LNosewheelDoorGrp[1] = { GRP_LEFT_NLG_DOOR };
@@ -2618,8 +2608,9 @@ void Atlantis::UpdateMesh()
 {
 	// update animation states
 	SetAnimation(anim_spdb, spdb_proc);
-	SetAnimation(anim_door, pPayloadBay->BayDoorStatus.pos);
-	for (int i = 0; i < 4; i++) SetAnimation(anim_clatch[i], pPayloadBay->CLBayDoorLatch[i].pos);
+	SetPayloadBayDoorPosition( 0, pPayloadBay->PayloadBayDoor[0].pos );
+	SetPayloadBayDoorPosition( 1, pPayloadBay->PayloadBayDoor[1].pos );
+	for (int i = 0; i < 4; i++) SetAnimation(anim_clatch[i], pPayloadBay->PLBDLatch[i].pos);
 	SetAnimation(anim_rad[0], pPayloadBay->RadiatorStatus[0].pos);
 	SetAnimation(anim_rad[1], pPayloadBay->RadiatorStatus[1].pos);
 	SetAnimation( anim_kubd, pPayloadBay->KuAntennaStatus.pos );
@@ -2815,14 +2806,138 @@ void Atlantis::ClearMeshes()
 	mesh_vc = MESH_UNDEFINED;
 }
 
-void Atlantis::SetBayDoorPosition(double pos)
+void Atlantis::SetPayloadBayDoorPosition( int side, double pos )
 {
-	SetAnimation(anim_door, pos);
-	rdoor_drag = sqrt(min(1.0, pos*3.0));
-	ldoor_drag = sqrt(min(1.0, max(0.0, pos - 0.3656)*3.0));
+	if (side == 0)// port
+	{
+		// motor/push rod/crank part
+		double r5 = length( PLBD_PORT_P4 - PLBD_PORT_P5 );
+		double r6 = length( PLBD_PORT_P5 - PLBD_PORT_P6 );
+		double r7 = length( PLBD_PORT_P4 - PLBD_PORT_P7 );
+		double r8 = length( PLBD_PORT_P7 - PLBD_PORT_P6 );
+
+		double theta5o = 2 * PI - angle( PLBD_PORT_P5 - PLBD_PORT_P4, _V( -1.0, 0.0, 0.0 ) );
+		double theta6o = 2 * PI - angle( PLBD_PORT_P6 - PLBD_PORT_P5, _V( -1.0, 0.0, 0.0 ) );
+		double theta7 = 2 * PI - angle( PLBD_PORT_P7 - PLBD_PORT_P4, _V( -1.0, 0.0, 0.0 ) );
+		double theta8o = 2 * PI - angle( PLBD_PORT_P6 - PLBD_PORT_P7, _V( -1.0, 0.0, 0.0 ) );
+
+		double theta8 = theta8o + (pos * PLBD_MOTOR_RANGE);
+		if (theta8 > (2 * PI)) theta8 -= 2 * PI;
+
+		double xa = r7 * cos( theta7 ) + r8 * cos( theta8 );
+		double ya = r7 * sin( theta7 ) + r8 * sin( theta8 );
+
+		double theta6 = 2 * PI + atan2( ya, xa ) + acos( ((xa * xa) + (ya * ya) + (r6 * r6) - (r5 * r5)) / (2 * r6 * sqrt( (xa * xa) + (ya * ya) )) );
+
+		double theta5 = 2 * PI + atan2( ya - r6 * sin( theta6 ), xa - r6 * cos( theta6 ) );
+		if (theta5 > (2 * PI)) theta5 -= 2 * PI;
+
+		// clamp/pull rod/door part
+		double r1 = length( PLBD_PORT_P2 - PLBD_PORT_P1 );
+		double r2 = length( PLBD_PORT_P3 - PLBD_PORT_P2 );
+		double r3 = length( PLBD_PORT_P3 - PLBD_PORT_P4 );
+		double r4 = length( PLBD_PORT_P4 - PLBD_PORT_P1 );
+
+		double theta1o = 2 * PI - angle( PLBD_PORT_P1 - PLBD_PORT_P2, _V( -1.0, 0.0, 0.0 ) );
+		double theta2o = angle( PLBD_PORT_P2 - PLBD_PORT_P3, _V( -1.0, 0.0, 0.0 ) );
+		double theta3 = 2 * PI - angle( PLBD_PORT_P4 - PLBD_PORT_P3, _V( -1.0, 0.0, 0.0 ) );
+		double theta4o = angle( PLBD_PORT_P1 - PLBD_PORT_P4, _V( -1.0, 0.0, 0.0 ) );
+
+		double theta4 = theta4o - (theta5o - theta5);
+
+		xa = r3 * cos( theta3 ) + r4 * cos( theta4 );
+		ya = r3 * sin( theta3 ) + r4 * sin( theta4 );
+
+		double theta2 = 2 * PI + atan2( ya, xa ) - acos( ((xa * xa) + (ya * ya) + (r2 * r2) - (r1 * r1)) / (2 * r2 * sqrt( (xa * xa) + (ya * ya) )) );
+		if (theta2 > (2 * PI)) theta2 -= 2 * PI;
+
+		double theta1 = 2 * PI + atan2( ya - r2 * sin( theta2 ), xa - r2 * cos( theta2 ) );
+		if (theta1 > (2 * PI)) theta1 -= 2 * PI;
+
+		
+		SetAnimation( anim_door_port_pushrod, (theta6 - theta6o - (theta4 - theta4o)) / (2 * PI) );
+		
+		double tmp = (theta4 - theta4o) / (2 * PI);
+		if (tmp < 0.0) tmp += 1.0;
+		SetAnimation( anim_door_port_clamp, tmp );
+		
+		tmp = (theta1 - theta1o + (theta2o - theta2)) / (2 * PI);
+		if (tmp < 0.0) tmp += 1.0;
+		SetAnimation( anim_door_port_pullrod, tmp );
+		
+		tmp = (theta2o - theta2) / (2 * PI);
+		if (tmp < 0.0) tmp += 1.0;
+		SetAnimation( anim_door_port, tmp );
+
+		ldoor_drag = sqrt( min( 1.0, pos ) );
+	}
+	else// starboard
+	{
+		// motor/push rod/crank part
+		double r5 = length( PLBD_STBD_P4 - PLBD_STBD_P5 );
+		double r6 = length( PLBD_STBD_P5 - PLBD_STBD_P6 );
+		double r7 = length( PLBD_STBD_P4 - PLBD_STBD_P7 );
+		double r8 = length( PLBD_STBD_P7 - PLBD_STBD_P6 );
+
+		double theta5o = 2 * PI - angle( PLBD_STBD_P5 - PLBD_STBD_P4, _V( 1.0, 0.0, 0.0 ) );
+		double theta6o = 2 * PI - angle( PLBD_STBD_P6 - PLBD_STBD_P5, _V( 1.0, 0.0, 0.0 ) );
+		double theta7 = 2 * PI - angle( PLBD_STBD_P7 - PLBD_STBD_P4, _V( 1.0, 0.0, 0.0 ) );
+		double theta8o = 2 * PI - angle( PLBD_STBD_P6 - PLBD_STBD_P7, _V( 1.0, 0.0, 0.0 ) );
+
+		double theta8 = theta8o + (pos * PLBD_MOTOR_RANGE);
+		if (theta8 > (2 * PI)) theta8 -= 2 * PI;
+
+		double xa = r7 * cos( theta7 ) + r8 * cos( theta8 );
+		double ya = r7 * sin( theta7 ) + r8 * sin( theta8 );
+
+		double theta6 = 2 * PI + atan2( ya, xa ) + acos( ((xa * xa) + (ya * ya) + (r6 * r6) - (r5 * r5)) / (2 * r6 * sqrt( (xa * xa) + (ya * ya) )) );
+
+		double theta5 = 2 * PI + atan2( ya - r6 * sin( theta6 ), xa - r6 * cos( theta6 ) );
+		if (theta5 > (2 * PI)) theta5 -= 2 * PI;
+
+		// clamp/pull rod/door part
+		double r1 = length( PLBD_STBD_P2 - PLBD_STBD_P1 );
+		double r2 = length( PLBD_STBD_P3 - PLBD_STBD_P2 );
+		double r3 = length( PLBD_STBD_P3 - PLBD_STBD_P4 );
+		double r4 = length( PLBD_STBD_P4 - PLBD_STBD_P1 );
+
+		double theta1o = 2 * PI - angle( PLBD_STBD_P1 - PLBD_STBD_P2, _V( 1.0, 0.0, 0.0 ) );
+		double theta2o = angle( PLBD_STBD_P2 - PLBD_STBD_P3, _V( 1.0, 0.0, 0.0 ) );
+		double theta3 = 2 * PI - angle( PLBD_STBD_P4 - PLBD_STBD_P3, _V( 1.0, 0.0, 0.0 ) );
+		double theta4o = angle( PLBD_STBD_P1 - PLBD_STBD_P4, _V( 1.0, 0.0, 0.0 ) );
+
+		double theta4 = theta4o - (theta5o - theta5);
+
+		xa = r3 * cos( theta3 ) + r4 * cos( theta4 );
+		ya = r3 * sin( theta3 ) + r4 * sin( theta4 );
+
+		double theta2 = 2 * PI + atan2( ya, xa ) - acos( ((xa * xa) + (ya * ya) + (r2 * r2) - (r1 * r1)) / (2 * r2 * sqrt( (xa * xa) + (ya * ya) )) );
+		if (theta2 > (2 * PI)) theta2 -= 2 * PI;
+
+		double theta1 = 2 * PI + atan2( ya - r2 * sin( theta2 ), xa - r2 * cos( theta2 ) );
+		if (theta1 > (2 * PI)) theta1 -= 2 * PI;
+
+		
+		SetAnimation( anim_door_stbd_pushrod, (theta6 - theta6o - (theta4 - theta4o)) / (2 * PI) );
+		
+		double tmp = (theta4 - theta4o) / (2 * PI);
+		if (tmp < 0.0) tmp += 1.0;
+		SetAnimation( anim_door_stbd_clamp, tmp );
+		
+		tmp = (theta1 - theta1o + (theta2o - theta2)) / (2 * PI);
+		if (tmp < 0.0) tmp += 1.0;
+		SetAnimation( anim_door_stbd_pullrod, tmp );
+		
+		tmp = (theta2o - theta2) / (2 * PI);
+		if (tmp < 0.0) tmp += 1.0;
+		SetAnimation( anim_door_stbd, tmp );
+
+		rdoor_drag = sqrt( min( 1.0, pos ) );
+	}
+	return;
 }
 
-void Atlantis::SetBayDoorLatchPosition(int gang, double pos)
+void Atlantis::SetPayloadBayDoorLatchPosition(int gang, double pos)
 {
 	SetAnimation(anim_clatch[gang], pos);
 }
@@ -2858,7 +2973,7 @@ void Atlantis::SetETUmbDoorPosition(double pos, int door)
 
 		double theta4 = atan2( ya, xa ) + acos( ((xa * xa) + (ya * ya) + (r4 * r4) - (r1 * r1)) / (2 * r4 * sqrt( (xa * xa) + (ya * ya) )) );
 
-		double theta1 = atan2( (ya - r4 * sin( theta4 )) / r1, (xa - r4 * cos( theta4 )) / r1 );
+		double theta1 = atan2( ya - r4 * sin( theta4 ), xa - r4 * cos( theta4 ) );
 
 		SetAnimation( anim_letumbdoor, (theta1o - theta1) / (2 * PI) );
 		SetAnimation( anim_letumbarm, (theta3o - theta3) / ETUMB_ARM_RANGE );
@@ -2885,7 +3000,7 @@ void Atlantis::SetETUmbDoorPosition(double pos, int door)
 
 		double theta4 = atan2( ya, xa ) + acos( ((xa * xa) + (ya * ya) + (r4 * r4) - (r1 * r1)) / (2 * r4 * sqrt( (xa * xa) + (ya * ya) )) );
 
-		double theta1 = atan2( (ya - r4 * sin( theta4 )) / r1, (xa - r4 * cos( theta4 )) / r1 );
+		double theta1 = atan2( ya - r4 * sin( theta4 ), xa - r4 * cos( theta4 ) );
 
 		SetAnimation( anim_retumbdoor, (theta1o - theta1) / (2 * PI) );
 		SetAnimation( anim_retumbarm, (theta3o - theta3) / ETUMB_ARM_RANGE );
