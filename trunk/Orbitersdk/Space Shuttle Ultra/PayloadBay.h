@@ -70,10 +70,10 @@ class PayloadBay:public AtlantisSubsystem
 		DiscInPort BoomStowEnableII;
 
 		// physical status
-		AnimState BayDoorStatus;
-		AnimState CLBayDoorLatch[4]; //1_4, 5_8, 9_12, 13_16
-		AnimState RadiatorStatus[2];// left, right
-		AnimState RadLatchStatus[2];// left, right
+		AnimState PayloadBayDoor[2];// port, stbd
+		AnimState PLBDLatch[8];// 1_4, 5_8, 9_12, 13_16, port fwd, port aft, stbd fwd, stbd aft
+		AnimState RadiatorStatus[2];// port, stbd
+		AnimState RadLatchStatus[2];// port, stbd
 		AnimState KuAntennaStatus;
 
 		bool KuRndz_Radar_Stow_Ind[2];

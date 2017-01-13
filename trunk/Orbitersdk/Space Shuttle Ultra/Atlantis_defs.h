@@ -66,6 +66,30 @@ const VECTOR3 PROBER_REF = _V( 1.12,-2.346,17.092);
 
 const VECTOR3 PROBE_AXIS = _V(-0.0918181,0.94801,0.304708);
 
+
+// ============================================================
+// Payload Bay Door animation constants
+// ============================================================
+const double PLBD_MOTOR_RANGE = 107.6 * RAD;// tunes how much the doors open
+
+const VECTOR3 PLBD_PORT_AXIS = _V( 0.0, 0.0, -1.0 );
+const VECTOR3 PLBD_PORT_P1 = _V( -2.4190, 0.2540, 0.0 );// clamp/pull rod axis
+const VECTOR3 PLBD_PORT_P2 = _V( -2.5833, 0.2861, 0.0 );// pull rod/door axis
+const VECTOR3 PLBD_PORT_P3 = _V( -2.7047, 0.2591, 0.0 );// door axis
+const VECTOR3 PLBD_PORT_P4 = _V( -2.6347, 0.1366, 0.0 );// clamp axis
+const VECTOR3 PLBD_PORT_P5 = _V( -2.5658, 0.0407, 0.0 );// push rod/clamp axis
+const VECTOR3 PLBD_PORT_P6 = _V( -2.5664, -0.2550, 0.0 );// motor/push rod axis
+const VECTOR3 PLBD_PORT_P7 = _V( -2.5200, -0.1700, 0.0 );// motor axis
+
+const VECTOR3 PLBD_STBD_AXIS = _V( 0.0, 0.0, 1.0 );
+const VECTOR3 PLBD_STBD_P1 = _V( 2.4190, 0.2540, 0.0 );// clamp/pull rod axis
+const VECTOR3 PLBD_STBD_P2 = _V( 2.5833, 0.2861, 0.0 );// pull rod/door axis
+const VECTOR3 PLBD_STBD_P3 = _V( 2.7047, 0.2591, 0.0 );// door axis
+const VECTOR3 PLBD_STBD_P4 = _V( 2.6347, 0.1366, 0.0 );// clamp axis
+const VECTOR3 PLBD_STBD_P5 = _V( 2.5658, 0.0407, 0.0 );// push rod/clamp axis
+const VECTOR3 PLBD_STBD_P6 = _V( 2.5664, -0.2550, 0.0 );// motor/push rod axis
+const VECTOR3 PLBD_STBD_P7 = _V( 2.5200, -0.1700, 0.0 );// motor axis
+
 // ============================================================
 // ET umbilical door animation constants
 // ============================================================

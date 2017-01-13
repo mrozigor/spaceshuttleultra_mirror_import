@@ -438,8 +438,8 @@ public:
 	 * Setters
 	 *****************************************************************/
 	virtual void SetAirDataProbeDeployment(int side, double position);
-	void SetBayDoorLatchPosition (int gang, double pos);
-	void SetBayDoorPosition (double pos);
+	void SetPayloadBayDoorLatchPosition (int gang, double pos);
+	void SetPayloadBayDoorPosition (int side, double pos);
 	void SetETUmbDoorPosition(double pos, int door);
 	void SetKuAntennaDAPosition (double pos);
 	virtual void SetKuGimbalAngles(double fAlpha, double fbeta);
@@ -803,7 +803,14 @@ private:
 	// *******************************************************************************
 	// Animations
 	// *******************************************************************************
-	UINT anim_door;                            // handle for cargo door animation
+	UINT anim_door_port;			// handle for port payload bay door animation
+	UINT anim_door_port_pushrod;		// handle for port payload bay door push rod animation
+	UINT anim_door_port_clamp;		// handle for port payload bay door clamp animation
+	UINT anim_door_port_pullrod;		// handle for port payload bay door pull rod animation
+	UINT anim_door_stbd;			// handle for starboard payload bay door animation
+	UINT anim_door_stbd_pushrod;		// handle for starboard payload bay door push rod animation
+	UINT anim_door_stbd_clamp;		// handle for starboard payload bay door clamp animation
+	UINT anim_door_stbd_pullrod;		// handle for starboard payload bay door pull rod animation
 	UINT anim_rad[2];                             // handle for radiator animation
 	UINT anim_clatch[4];					   // handle for center line latch gangs
 
