@@ -366,6 +366,7 @@ namespace vc {
 		dps::IDP* sec_idp;
 		bool bInverseX;
 		bool bUseSecondaryPort;
+		bool bPortConfigMan;
 		EXTMFDSPEC mfdspec;
 		double fBrightness;
 		bool bPower;
@@ -388,6 +389,8 @@ namespace vc {
 
 		void DrawMenuButton( HDC hDC, int x );
 		void DrawMenuButton( oapi::Sketchpad* skp, int x );
+
+		void TogglePort( void );
 
 	public:
 		MDU(Atlantis* _sts, const string& _ident, unsigned short usMDUID, bool _bUseCRTMFD = true);

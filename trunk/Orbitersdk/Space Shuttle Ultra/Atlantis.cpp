@@ -553,20 +553,24 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 	//connect CRT MDUs to IDPs
 	mdus[vc::MDUID_CDR1]->SetPrimaryIDP(pIDP[2]);
+	mdus[vc::MDUID_CDR1]->SetSecondaryIDP(pIDP[0]);
 	mdus[vc::MDUID_CDR2]->SetPrimaryIDP(pIDP[0]);
+	mdus[vc::MDUID_CDR2]->SetSecondaryIDP(pIDP[1]);
 	mdus[vc::MDUID_CRT1]->SetPrimaryIDP(pIDP[0]);
 	mdus[vc::MDUID_CRT2]->SetPrimaryIDP(pIDP[1]);
 	mdus[vc::MDUID_CRT3]->SetPrimaryIDP(pIDP[2]);
 	mdus[vc::MDUID_CRT4]->SetPrimaryIDP(pIDP[3]);
 	mdus[vc::MDUID_MFD1]->SetPrimaryIDP(pIDP[1]);
+	mdus[vc::MDUID_MFD1]->SetSecondaryIDP(pIDP[2]);
 	mdus[vc::MDUID_MFD2]->SetPrimaryIDP(pIDP[0]);
+	mdus[vc::MDUID_MFD2]->SetSecondaryIDP(pIDP[2]);
 	mdus[vc::MDUID_PLT1]->SetPrimaryIDP(pIDP[1]);
+	mdus[vc::MDUID_PLT1]->SetSecondaryIDP(pIDP[0]);
 	mdus[vc::MDUID_PLT2]->SetPrimaryIDP(pIDP[2]);
+	mdus[vc::MDUID_PLT2]->SetSecondaryIDP(pIDP[1]);
 	mdus[vc::MDUID_AFD1]->SetPrimaryIDP(pIDP[3]);
-	/*for (i=0;i<3;i++) {
-		//pIDP[i]->ConnectToMDU(mdus[i+vc::MDUID_CRT1]);
-		if(mdus[i+vc::MDUID_CRT1]) mdus[i+vc::MDUID_CRT1]->SetPrimaryIDP(pIDP[i]);
-		}*/
+	mdus[vc::MDUID_AFD1]->SetSecondaryIDP(pIDP[1]);
+
 
 	met = 0.0;
 

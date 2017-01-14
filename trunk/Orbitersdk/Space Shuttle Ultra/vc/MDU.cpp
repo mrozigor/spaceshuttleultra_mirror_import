@@ -99,7 +99,7 @@ namespace vc
 
 	MDU::MDU(Atlantis* _sts, const string& _ident, unsigned short _usMDUID, bool _bUseCRTMFD)
 		: AtlantisVCComponent(_sts, _ident), usMDUID(_usMDUID),
-		prim_idp(NULL), sec_idp(NULL), bUseSecondaryPort(false),
+		prim_idp(NULL), sec_idp(NULL), bUseSecondaryPort(false), bPortConfigMan(false),
 		bInverseX(false), counting(false)
 	{
 		_sts->RegisterMDU(_usMDUID, this);
@@ -157,6 +157,17 @@ namespace vc
 			{
 				sscanf_s( (char*)(line + 4), "%d", &menu );
 			}
+			else if (!_strnicmp( line, "PORT_CFG", 8 ))
+			{
+				if (!_strnicmp( line + 9, "MAN", 3 )) bPortConfigMan = true;
+			}
+			else if (!_strnicmp( line, "PORT_SEL", 8 ))
+			{
+				if (!_strnicmp( line + 9, "SEC", 3 ))
+				{
+					if (sec_idp) bUseSecondaryPort = true;
+				}
+			}
 		}
 		return false;
 	}
@@ -165,6 +176,8 @@ namespace vc
 	{
 		oapiWriteScenario_int( scn, "DISPLAY", display );
 		oapiWriteScenario_int( scn, "MENU", menu );
+		if (bPortConfigMan) oapiWriteScenario_string( scn, "PORT_CFG", "MAN" );
+		if (bUseSecondaryPort) oapiWriteScenario_string( scn, "PORT_SEL", "SEC" );
 		return;
 	}
 
@@ -251,6 +264,16 @@ namespace vc
 			return true;
 		}
 		else return false;
+	}
+
+	void MDU::TogglePort( void )
+	{
+		if (bUseSecondaryPort)
+		{
+			if (prim_idp) bUseSecondaryPort = false;
+		}
+		else if (sec_idp) bUseSecondaryPort = true;
+		return;
 	}
 
 	
@@ -564,6 +587,9 @@ namespace vc
 					case OAPI_KEY_3:
 						display = 5;
 						return true;
+					case OAPI_KEY_4:
+						TogglePort();
+						return true;
 				}
 				break;
 			case 3:// DPS MENU
@@ -579,6 +605,9 @@ namespace vc
 				{
 					case OAPI_KEY_U:
 						menu = 0;
+						return true;
+					case OAPI_KEY_2:
+						menu = 7;
 						return true;
 					case OAPI_KEY_3:
 						menu = 5;
@@ -606,33 +635,49 @@ namespace vc
 						return true;
 				}
 				break;
+			case 7:// MDU CONFIGURATION MENU
+				switch (key)
+				{
+					case OAPI_KEY_U:
+						menu = 4;
+						return true;
+					case OAPI_KEY_1:
+						TogglePort();
+						return true;
+					case OAPI_KEY_2:
+						bPortConfigMan = !bPortConfigMan;
+						return true;
+				}
+				break;
 		}
 		return false;
 	}
 
 	char* MDU::ButtonLabel( int bt )
 	{
-		static char *label[7][5] = {{"", "FLT", "SUB", "DPS", "MEDS1"},
+		static char *label[8][5] = {{"", "FLT", "SUB", "DPS", "MEDS1"},
 			{"UP", "A/E", "ORBIT", "", ""},
-			{"UP", "OMS", "HYD", "SPI", ""},
+			{"UP", "OMS", "HYD", "SPI", "PORT"},
 			{"UP", "", "", "", ""},
-			{"UP", "", "", "CST", ""},
+			{"UP", "", "CFG", "CST", ""},
 			{"UP", "", "S_IDP", "", ""},
-			{"UP", "", "", "", ""}};
+			{"UP", "", "", "", ""},
+			{"UP", "PORT", "AU/MA", "", ""}};
 
-		return ((menu < 7 && bt < 5) ? label[menu][bt] : NULL);
+		return ((menu < 8 && bt < 5) ? label[menu][bt] : NULL);
 	}
 
 	int MDU::ButtonMenu( const MFDBUTTONMENU **menu ) const
 	{
-		static const MFDBUTTONMENU mnu[7][5] = {
+		static const MFDBUTTONMENU mnu[8][5] = {
 			{{"", 0, 'U'}, {"FLT INST", 0, '1'}, {"SUBSYS STATUS", 0, '2'}, {"DPS", 0, '3'}, {"MEDS MAINT", 0, '4'}},
 			{{"Move up", 0, 'U'}, {"A/E PFD", 0, '1'}, {"ORBIT PFD", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
-			{{"Move up", 0, 'U'}, {"OMS/MPS", 0, '1'}, {"HYD/APU", 0, '2'}, {"SPI", 0, '3'}, {"", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"OMS/MPS", 0, '1'}, {"HYD/APU", 0, '2'}, {"SPI", 0, '3'}, {"PORT SELECT", 0, '4'}},
 			{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
-			{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"CST", 0, '3'}, {"", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"", 0, '1'}, {"CONFIG STATUS", 0, '2'}, {"CST", 0, '3'}, {"", 0, '4'}},
 			{{"Move up", 0, 'U'}, {"", 0, '1'}, {"START IDP", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
-			{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"0", 0, '3'}, {"", 0, '4'}}
+			{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"0", 0, '3'}, {"", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"PORT SELECT", 0, '1'}, {"AUTO/MAN", 0, '2'}, {"0", 0, '3'}, {"", 0, '4'}}
 			};
 
 		if (menu) *menu = mnu[this->menu];
@@ -711,6 +756,12 @@ namespace vc
 				DrawMenuButton( hDC, x );
 			}
 		}
+		else if (menu == 7)
+		{
+			TextOut( hDC, x, 486, "PORT ", 5 );
+			TextOut( hDC, x, 499, "SELECT ", 7 );
+			DrawMenuButton( hDC, x );
+		}
 		else DrawMenuButton( hDC, x );
 
 		// button 3
@@ -759,10 +810,22 @@ namespace vc
 				DrawMenuButton( hDC, x );
 			}
 		}
+		else if (menu == 4)
+		{
+			TextOut( hDC, x, 486, "CONFIG ", 7 );
+			TextOut( hDC, x, 499, "STATUS ", 7 );
+			DrawMenuButton( hDC, x );
+		}
 		else if (menu == 5)
 		{
 			TextOut( hDC, x, 486, "START", 5 );
 			TextOut( hDC, x, 499, "IDP", 3 );
+			DrawMenuButton( hDC, x );
+		}
+		else if (menu == 7)
+		{
+			TextOut( hDC, x, 486, "AUTO/", 5 );
+			TextOut( hDC, x, 499, "MANUAL ", 7 );
 			DrawMenuButton( hDC, x );
 		}
 		else DrawMenuButton( hDC, x );
@@ -806,6 +869,11 @@ namespace vc
 			TextOut( hDC, x, 486, "MEDS ", 5 );
 			TextOut( hDC, x, 499, "MAINT", 5 );
 		}
+		else if (menu == 2)
+		{
+			TextOut( hDC, x, 486, "PORT ", 5 );
+			TextOut( hDC, x, 499, "SELECT ", 7 );
+		}
 
 		// button 6
 		x += 76;
@@ -840,19 +908,38 @@ namespace vc
 					TextOut( hDC, 226, 471, buf, strlen( buf ) );
 				}
 				break;
+			case 7:
+				TextOut( hDC, 226, 471, " MDU CONFIGURATION MENU", 23 );
+				break;
 			default:
 				// print nothing
 				break;
 		}
 
-		// printf configuration info
-		/*TextOut( hDC, 15, 486, "P1*", 3 );
-		TextOut( hDC, 15, 499, "S3 ", 3 );
-		TextOut( hDC, 497, 486, "FC2", 3 );
-		TextOut( hDC, 497, 499, "AUT", 3 );
+		// print configuration info
+		if (prim_idp)
+		{
+			char str[4];
+			str[0] = 'P';
+			str[1] = prim_idp->GetIDPID() + 48;
+			str[2] = bUseSecondaryPort ? ' ' : '*';
+			TextOut( hDC, 15, 486, str, 3 );
+		}
 
-		// printf MEDS fault line
-		if (!GetFlash())
+		if (sec_idp)
+		{
+			char str[4];
+			str[0] = 'S';
+			str[1] = sec_idp->GetIDPID() + 48;
+			str[2] = !bUseSecondaryPort ? ' ' : '*';
+			TextOut( hDC, 15, 499, str, 3 );
+		}
+		//TextOut( hDC, 497, 486, "FC2", 3 );
+		if (bPortConfigMan) TextOut( hDC, 497, 499, "MAN", 3 );
+		else TextOut( hDC, 497, 499, "AUT", 3 );
+
+		// print MEDS fault line
+		/*if (!GetFlash())
 		{
 			SetTextColor( hDC, CR_WHITE );
 			TextOut( hDC, 226, 458, "IDP 1 2 3 4 STILL WIP", 21 );
@@ -931,6 +1018,12 @@ namespace vc
 				DrawMenuButton( skp, x );
 			}
 		}
+		else if (menu == 7)
+		{
+			skp->Text( x, 486, "PORT ", 5 );
+			skp->Text( x, 499, "SELECT ", 7 );
+			DrawMenuButton( skp, x );
+		}
 		else DrawMenuButton( skp, x );
 
 		// button 3
@@ -979,10 +1072,22 @@ namespace vc
 				DrawMenuButton( skp, x );
 			}
 		}
+		else if (menu == 4)
+		{
+			skp->Text( x, 486, "CONFIG ", 7 );
+			skp->Text( x, 499, "STATUS ", 7 );
+			DrawMenuButton( skp, x );
+		}
 		else if (menu == 5)
 		{
 			skp->Text( x, 486, "START", 5 );
 			skp->Text( x, 499, "IDP", 3 );
+			DrawMenuButton( skp, x );
+		}
+		else if (menu == 7)
+		{
+			skp->Text( x, 486, "AUTO/", 5 );
+			skp->Text( x, 499, "MANUAL ", 7 );
 			DrawMenuButton( skp, x );
 		}
 		else DrawMenuButton( skp, x );
@@ -1026,6 +1131,11 @@ namespace vc
 			skp->Text( x, 486, "MEDS ", 5 );
 			skp->Text( x, 499, "MAINT", 5 );
 		}
+		else if (menu == 2)
+		{
+			skp->Text( x, 486, "PORT ", 5 );
+			skp->Text( x, 499, "SELECT ", 7 );
+		}
 
 		// button 6
 		x += 76;
@@ -1060,19 +1170,38 @@ namespace vc
 					skp->Text( 226, 471, buf, strlen( buf ) );
 				}
 				break;
+			case 7:
+				skp->Text( 226, 471, " MDU CONFIGURATION MENU", 23 );
+				break;
 			default:
 				// print nothing
 				break;
 		}
 
-		// printf configuration info
-		/*skp->Text( 15, 486, "P1*", 3 );
-		skp->Text( 15, 499, "S3 ", 3 );
-		skp->Text( 497, 486, "FC2", 3 );
-		skp->Text( 497, 499, "AUT", 3 );
+		// print configuration info
+		if (prim_idp)
+		{
+			char str[4];
+			str[0] = 'P';
+			str[1] = prim_idp->GetIDPID() + 48;
+			str[2] = bUseSecondaryPort ? ' ' : '*';
+			skp->Text( 15, 486, str, 3 );
+		}
 
-		// printf MEDS fault line
-		if (!GetFlash())
+		if (sec_idp)
+		{
+			char str[4];
+			str[0] = 'S';
+			str[1] = sec_idp->GetIDPID() + 48;
+			str[2] = !bUseSecondaryPort ? ' ' : '*';
+			skp->Text( 15, 499, str, 3 );
+		}
+		//skp->Text( 497, 486, "FC2", 3 );
+		if (bPortConfigMan) skp->Text( 497, 499, "MAN", 3 );
+		else skp->Text( 497, 499, "AUT", 3 );
+
+		// print MEDS fault line
+		/*if (!GetFlash())
 		{
 			skp->SetTextColor( CR_WHITE );
 			skp->Text( 226, 458, "IDP 1 2 3 4 STILL WIP", 21 );
