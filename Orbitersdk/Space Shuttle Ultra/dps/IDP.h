@@ -98,6 +98,7 @@ namespace dps {
 		bool syntaxerr;
 		unsigned short usGPCDriver;
 		unsigned short usSelectedFC;
+		DiscInPort Power;
 		DiscInPort KeybSelectA;// Left IDP/CRT Sel
 		DiscInPort KeybSelectB;// Right IDP/CRT Sel
 		DiscInPort MajorFuncGNC;
