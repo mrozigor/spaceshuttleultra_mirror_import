@@ -193,6 +193,8 @@ private:
 	 */
 	void CheckSoftwareStop( void );
 
+	void CheckRTL( void );
+
 	DiscInPort RMSSelect;
 
 	UINT anim_camRMSElbow[2];
