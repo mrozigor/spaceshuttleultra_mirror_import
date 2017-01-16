@@ -283,6 +283,8 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 	pEELight->Activate(lightOn);
 	EELight_bspec.active = lightOn;
 
+	if (bFirstStep) CheckRTL();
+
 	// make sure RMS is powered and can be operated
 	if(!RMSSelect) return;
 
@@ -533,18 +535,7 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		// due to bug in orbiter_ng/D3D9 client, this needs to be done on second timestep
 		if(hAttach) STS()->SetAttachmentParams(hAttach, STS()->GetOrbiterCoGOffset()+arm_tip[0]+RMS_MESH_OFFSET, arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0]);
 
-		for(int i=0;i<3;i++) MRL_RTL_Microswitches[i].ResetLine();
-		if(Eq(joint_angle[SHOULDER_YAW], 0.0, MRL_MAX_ANGLE_ERROR) && Eq(joint_angle[SHOULDER_PITCH], 0.0, MRL_MAX_ANGLE_ERROR)) {
-			MRL_RTL_Microswitches[0].SetLine();
-
-			if(Eq(joint_angle[ELBOW_PITCH], 0.0, MRL_MAX_ANGLE_ERROR)) {
-				MRL_RTL_Microswitches[1].SetLine();
-
-				if(Eq(joint_angle[WRIST_PITCH], 0.0, MRL_MAX_ANGLE_ERROR) && Eq(joint_angle[WRIST_YAW], 0.0, MRL_MAX_ANGLE_ERROR) && Eq(joint_angle[WRIST_ROLL], 0.0, MRL_MAX_ANGLE_ERROR)) {
-					MRL_RTL_Microswitches[2].SetLine();
-				}
-			}
-		}
+		CheckRTL();
 
 		/*** Update output lines to LEDs ***/
 		// calculate position
@@ -1088,6 +1079,27 @@ void RMSSystem::CheckSoftwareStop( void )
 		{
 			bSoftStop = true;
 			return;
+		}
+	}
+	return;
+}
+
+void RMSSystem::CheckRTL( void )
+{
+	for (int i = 0; i < 3; i++) MRL_RTL_Microswitches[i].ResetLine();
+	
+	if (Eq( joint_angle[SHOULDER_YAW], 0.0, MRL_MAX_ANGLE_ERROR ) && Eq( joint_angle[SHOULDER_PITCH], 0.0, MRL_MAX_ANGLE_ERROR ))
+	{
+		MRL_RTL_Microswitches[0].SetLine();
+
+		if (Eq( joint_angle[ELBOW_PITCH], 0.0, MRL_MAX_ANGLE_ERROR ))
+		{
+			MRL_RTL_Microswitches[1].SetLine();
+
+			if (Eq( joint_angle[WRIST_PITCH], 0.0, MRL_MAX_ANGLE_ERROR ) && Eq( joint_angle[WRIST_YAW], 0.0, MRL_MAX_ANGLE_ERROR ) && Eq( joint_angle[WRIST_ROLL], 0.0, MRL_MAX_ANGLE_ERROR ))
+			{
+				MRL_RTL_Microswitches[2].SetLine();
+			}
 		}
 	}
 	return;
