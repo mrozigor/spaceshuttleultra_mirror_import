@@ -1804,10 +1804,10 @@ void Atlantis::DefineAnimations(void)
 		_V(0, -3.038, 14.888), _V(1, 0, 0), (float)(114.5*RAD));
 	static UINT RGearDoorGrp[1] = { GRP_RIGHT_MLG_DOOR };
 	static MGROUP_ROTATE RGearDoor(midx, RGearDoorGrp, 1,
-		_V(4.54541, -3.65819, -3.9442), _V(-0.00301632, -0.0253688, -0.999674), (float)(-84.2*RAD));
+		_V(4.6598, -3.5055, -3.9442), _V(-0.00301632, -0.0253688, -0.999674), (float)(-84.2*RAD));
 	static UINT LGearDoorGrp[1] = { GRP_LEFT_MLG_DOOR };
 	static MGROUP_ROTATE LGearDoor(midx, LGearDoorGrp, 1,
-		_V(-4.54541, -3.65819, -3.9442), _V(0.00301632, -0.0253688, -0.999674), (float)(84.2*RAD));
+		_V(-4.6598, -3.5055, -3.9442), _V(0.00301632, -0.0253688, -0.999674), (float)(84.2*RAD));
 	static UINT MainGearGrp[6] = { GRP_RIGHT_MN_WHEELS, GRP_RIGHT_MLG_STRUT, GRP_RIGHT_MLG_SHOCK_STRUT, GRP_LEFT_MN_WHEELS, GRP_LEFT_MLG_STRUT, GRP_LEFT_MLG_SHOCK_STRUT };
 	static MGROUP_ROTATE MainGear(midx, MainGearGrp, 6,
 		_V(0, -3.24, -5.546), _V(1, 0, 0), (float)(94.5*RAD));
