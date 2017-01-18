@@ -37,8 +37,8 @@ namespace vc
 		hPanelMesh = oapiLoadMeshGlobal( DEFAULT_MESHNAME_PANELL12U_CENTAUR );
 		mesh_index = MESH_UNDEFINED;
 
-		Add( pSUPER_ZIP_PRI_FIRE = new StdSwitch3( _sts, "SUPER*ZIP PRI FIRE" ) );
-		pSUPER_ZIP_PRI_FIRE->SetLabel( 2, "FIRE" );
+		Add( pSUPER_ZIP_PRI_FIRE = new StdSwitch2( _sts, "SUPER*ZIP PRI FIRE" ) );
+		pSUPER_ZIP_PRI_FIRE->SetLabel( 1, "FIRE" );
 
 		Add( pSUPER_ZIP_PRI_ARM = new StdSwitch2( _sts, "SUPER*ZIP PRI ARM" ) );
 		pSUPER_ZIP_PRI_ARM->SetLabel( 0, "SAFE" );
@@ -61,8 +61,8 @@ namespace vc
 		pMECH_PRI_PWR->SetLabel( 2, "ON" );
 
 
-		Add( pSUPER_ZIP_BKUP_FIRE = new StdSwitch3( _sts, "SUPER*ZIP BKUP FIRE" ) );
-		pSUPER_ZIP_BKUP_FIRE->SetLabel( 2, "FIRE" );
+		Add( pSUPER_ZIP_BKUP_FIRE = new StdSwitch2( _sts, "SUPER*ZIP BKUP FIRE" ) );
+		pSUPER_ZIP_BKUP_FIRE->SetLabel( 1, "FIRE" );
 
 		Add( pSUPER_ZIP_BKUP_ARM = new StdSwitch2( _sts, "SUPER*ZIP BKUP ARM" ) );
 		pSUPER_ZIP_BKUP_ARM->SetLabel( 0, "SAFE" );
@@ -84,12 +84,12 @@ namespace vc
 		pMECH_BKUP_PWR->SetLabel( 0, "OFF" );
 		pMECH_BKUP_PWR->SetLabel( 2, "ON" );
 
-		Add( pMECH_PRI_PWR_TB = new StandardTalkback_2( _sts, "MECH PRI PWR TB", 1 ) );
-		Add( pPosition_PRI_TB = new StandardTalkback_2( _sts, "Position PRI TB", 1 ) );
-		Add( pSUPER_ZIP_PRI_ARM_TB = new StandardTalkback_2( _sts, "SUPER*ZIP PRI ARM TB", 1 ) );
-		Add( pMECH_BKUP_PWR_TB = new StandardTalkback_2( _sts, "MECH BKUP PWR TB", 1 ) );
-		Add( pPosition_BKUP_TB = new StandardTalkback_2( _sts, "Position BKUP TB", 1 ) );
-		Add( pSUPER_ZIP_BKUP_ARM_TB = new StandardTalkback_2( _sts, "SUPER*ZIP BKUP ARM TB", 1 ) );
+		Add( pMECH_PRI_PWR_TB = new StandardTalkback2( _sts, "MECH PRI PWR TB" ) );
+		Add( pPosition_PRI_TB = new StandardTalkback2( _sts, "Position PRI TB" ) );
+		Add( pSUPER_ZIP_PRI_ARM_TB = new StandardTalkback2( _sts, "SUPER*ZIP PRI ARM TB" ) );
+		Add( pMECH_BKUP_PWR_TB = new StandardTalkback2( _sts, "MECH BKUP PWR TB" ) );
+		Add( pPosition_BKUP_TB = new StandardTalkback2( _sts, "Position BKUP TB" ) );
+		Add( pSUPER_ZIP_BKUP_ARM_TB = new StandardTalkback2( _sts, "SUPER*ZIP BKUP ARM TB" ) );
 		return;
 	}
 
@@ -121,7 +121,7 @@ namespace vc
 		pSUPER_ZIP_PRI_FIRE->DefineSwitchGroup( GRP_L12US2_CENTAUR_VC );
 		pSUPER_ZIP_PRI_FIRE->SetReference( _V( -1.4561, 2.3776, 12.3233 ), SWITCH_ROT );
 		pSUPER_ZIP_PRI_FIRE->SetMouseRegion( 0.116959f, 0.351245f, 0.159764f, 0.441283f );
-		pSUPER_ZIP_PRI_FIRE->SetSpringLoaded( true );
+		pSUPER_ZIP_PRI_FIRE->SetSpringLoaded( true, 1 );
 
 		pSUPER_ZIP_PRI_ARM->SetInitialAnimState( 0.5f );
 		pSUPER_ZIP_PRI_ARM->DefineSwitchGroup( GRP_L12US3_CENTAUR_VC );
@@ -155,7 +155,7 @@ namespace vc
 		pSUPER_ZIP_BKUP_FIRE->DefineSwitchGroup( GRP_L12US14_CENTAUR_VC );
 		pSUPER_ZIP_BKUP_FIRE->SetReference( _V( -1.4561, 2.3776, 12.3233 ), SWITCH_ROT );
 		pSUPER_ZIP_BKUP_FIRE->SetMouseRegion( 0.591131f, 0.352536f, 0.636050f, 0.443414f );
-		pSUPER_ZIP_BKUP_FIRE->SetSpringLoaded( true );
+		pSUPER_ZIP_BKUP_FIRE->SetSpringLoaded( true, 1 );
 
 		pSUPER_ZIP_BKUP_ARM->SetInitialAnimState( 0.5f );
 		pSUPER_ZIP_BKUP_ARM->DefineSwitchGroup( GRP_L12US15_CENTAUR_VC );
@@ -184,13 +184,13 @@ namespace vc
 		pMECH_BKUP_PWR->SetMouseRegion( 0.692812f, 0.812956f, 0.735333f, 0.902322f );
 		pMECH_BKUP_PWR->SetSpringLoaded( true );
 
-		pSUPER_ZIP_PRI_ARM_TB->DefineMeshGroup( mesh_index, GRP_TB_PRI_ARM_CENTAUR_VC );
-		pPosition_PRI_TB->DefineMeshGroup( mesh_index, GRP_TB_DA_PRI_ROT_CENTAUR_VC );
-		pMECH_PRI_PWR_TB->DefineMeshGroup( mesh_index, GRP_TB_MECH_PRI_PWR_CENTAUR_VC );
+		pSUPER_ZIP_PRI_ARM_TB->DefineMeshGroups( mesh_index, GRP_TB_PRI_ARM_U_CENTAUR_VC, GRP_TB_PRI_ARM_L_CENTAUR_VC );
+		pPosition_PRI_TB->DefineMeshGroups( mesh_index, GRP_TB_DA_PRI_ROT_U_CENTAUR_VC, GRP_TB_DA_PRI_ROT_L_CENTAUR_VC );
+		pMECH_PRI_PWR_TB->DefineMeshGroups( mesh_index, GRP_TB_MECH_PRI_PWR_U_CENTAUR_VC, GRP_TB_MECH_PRI_PWR_L_CENTAUR_VC );
 
-		pSUPER_ZIP_BKUP_ARM_TB->DefineMeshGroup( mesh_index, GRP_TB_BKUP_ARM_CENTAUR_VC );
-		pPosition_BKUP_TB->DefineMeshGroup( mesh_index, GRP_TB_DA_BKUP_ROT_CENTAUR_VC );
-		pMECH_BKUP_PWR_TB->DefineMeshGroup( mesh_index, GRP_TB_MECH_BKUP_PWR_CENTAUR_VC );
+		pSUPER_ZIP_BKUP_ARM_TB->DefineMeshGroups( mesh_index, GRP_TB_BKUP_ARM_U_CENTAUR_VC, GRP_TB_BKUP_ARM_L_CENTAUR_VC );
+		pPosition_BKUP_TB->DefineMeshGroups( mesh_index, GRP_TB_DA_BKUP_ROT_U_CENTAUR_VC, GRP_TB_DA_BKUP_ROT_L_CENTAUR_VC );
+		pMECH_BKUP_PWR_TB->DefineMeshGroups( mesh_index, GRP_TB_MECH_BKUP_PWR_U_CENTAUR_VC, GRP_TB_MECH_BKUP_PWR_L_CENTAUR_VC );
 		return;
 	}
 
@@ -227,30 +227,30 @@ namespace vc
 	void PanelL12U_Centaur::Realize()
 	{
 		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "L12UtoCISS_PRI", 16 );
-		pSUPER_ZIP_PRI_FIRE->ConnectPort( 2, pBundle, 0 );
+		pSUPER_ZIP_PRI_FIRE->ConnectPort( 1, pBundle, 0 );
 		pSUPER_ZIP_PRI_ARM->ConnectPort( 1, pBundle, 1 );
-		pSUPER_ZIP_PRI_ARM_TB->SetInput( 0, pBundle, 2, TB_GRAY );
+		pSUPER_ZIP_PRI_ARM_TB->SetInput( pBundle, 2, TB_GRAY );
 		pDA_PRI_ROT->ConnectPort( 1, pBundle, 3 );
 		pDA_PRI_ROT->ConnectPort( 2, pBundle, 4 );
-		pPosition_PRI_TB->SetInput( 0, pBundle, 5, TB_GRAY );
+		pPosition_PRI_TB->SetInput( pBundle, 5, TB_GRAY );
 		pLOGIC_PRI_PWR->ConnectPort( 1, pBundle, 6 );
 		pSSP_PRI_PWR->ConnectPort( 1, pBundle, 7 );
 		pMECH_PRI_PWR->ConnectPort( 1, pBundle, 8 );
 		pMECH_PRI_PWR->ConnectPort( 2, pBundle, 9 );
-		pMECH_PRI_PWR_TB->SetInput( 0, pBundle, 10, TB_GRAY );
+		pMECH_PRI_PWR_TB->SetInput( pBundle, 10, TB_GRAY );
 
 		pBundle = STS()->BundleManager()->CreateBundle( "L12UtoCISS_BKUP", 16 );
-		pSUPER_ZIP_BKUP_FIRE->ConnectPort( 2, pBundle, 0 );
+		pSUPER_ZIP_BKUP_FIRE->ConnectPort( 1, pBundle, 0 );
 		pSUPER_ZIP_BKUP_ARM->ConnectPort( 1, pBundle, 1 );
-		pSUPER_ZIP_BKUP_ARM_TB->SetInput( 0, pBundle, 2, TB_GRAY );
+		pSUPER_ZIP_BKUP_ARM_TB->SetInput( pBundle, 2, TB_GRAY );
 		pDA_BKUP_ROT->ConnectPort( 1, pBundle, 3 );
 		pDA_BKUP_ROT->ConnectPort( 2, pBundle, 4 );
-		pPosition_BKUP_TB->SetInput( 0, pBundle, 5, TB_GRAY );
+		pPosition_BKUP_TB->SetInput( pBundle, 5, TB_GRAY );
 		pLOGIC_BKUP_PWR->ConnectPort( 1, pBundle, 6 );
 		pSSP_BKUP_PWR->ConnectPort( 1, pBundle, 7 );
 		pMECH_BKUP_PWR->ConnectPort( 1, pBundle, 8 );
 		pMECH_BKUP_PWR->ConnectPort( 2, pBundle, 9 );
-		pMECH_BKUP_PWR_TB->SetInput( 0, pBundle, 10, TB_GRAY );
+		pMECH_BKUP_PWR_TB->SetInput( pBundle, 10, TB_GRAY );
 		
 		AtlantisPanel::Realize();
 		return;

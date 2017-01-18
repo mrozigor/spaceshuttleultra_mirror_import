@@ -17,8 +17,8 @@ namespace vc {
 		pLGlareShieldFlood->SetLabel(1, "VAR");
 		pLGlareShieldFlood->SetLabel(2, "BRIGHT");
 
-		Add(pSTYDoorPosition = new StandardTalkback_2(_sts, "STAR TRACKER -Y DOOR POSITION (tb)", 2));
-		Add(pSTZDoorPosition = new StandardTalkback_2(_sts, "STAR TRACKER -Z DOOR POSITION (tb)", 2));
+		Add(pSTYDoorPosition = new StandardTalkback3(_sts, "STAR TRACKER -Y DOOR POSITION (tb)"));
+		Add(pSTZDoorPosition = new StandardTalkback3(_sts, "STAR TRACKER -Z DOOR POSITION (tb)"));
 
 		Add( pSTRKDoorControlSys1Cover = new StandardSwitchCover( _sts, "S TRK DR CNTL SYS1 Cover" ) );
 		pSTRKDoorControlSys1Cover->SetMouseRegion( 0, 0.656091f, 0.175973f, 0.700474f, 0.227679f );
@@ -160,15 +160,15 @@ namespace vc {
 		pGPC5Pwr->SetReference(_V(0.0, 3.09556, 13.98215), SWITCH_VERTICAL);
 		pGPC5Pwr->SetInitialAnimState(0.5f);
 
-		Add(pGPCOutput[0] = new StandardTalkback_2(_sts, "GPC Output 1 (tb)", 1));
+		Add( pGPCOutput[0] = new StandardTalkback2( _sts, "GPC Output 1 (tb)" ) );
 		
-		Add(pGPCOutput[1] = new StandardTalkback_2(_sts, "GPC Output 2 (tb)", 1));
+		Add( pGPCOutput[1] = new StandardTalkback2( _sts, "GPC Output 2 (tb)" ) );
 
-		Add(pGPCOutput[2] = new StandardTalkback_2(_sts, "GPC Output 3 (tb)", 1));
+		Add( pGPCOutput[2] = new StandardTalkback2( _sts, "GPC Output 3 (tb)" ) );
 
-		Add(pGPCOutput[3] = new StandardTalkback_2(_sts, "GPC Output 4 (tb)", 1));
+		Add( pGPCOutput[3] = new StandardTalkback2( _sts, "GPC Output 4 (tb)" ) );
 
-		Add(pGPCOutput[4] = new StandardTalkback_2(_sts, "GPC Output 5 (tb)", 1));
+		Add( pGPCOutput[4] = new StandardTalkback2( _sts, "GPC Output 5 (tb)" ) );
 
 		//_V(-0.0, 3.075613, 14.06777)
 
@@ -282,15 +282,15 @@ namespace vc {
 		Add(pIPL5 = new PushButton(_sts, "IPL5"));
 		pIPL5->SetMouseRegion(0.7554f, 0.7365f, 0.8026f, 0.7741f);
 
-		Add(pGPCMode[0] = new StandardTalkback_2(_sts, "GPC MODE 1 (tb)", 2));
+		Add( pGPCMode[0] = new StandardTalkback3( _sts, "GPC MODE 1 (tb)" ) );
 
-		Add(pGPCMode[1] = new StandardTalkback_2(_sts, "GPC MODE 2 (tb)", 2));
+		Add( pGPCMode[1] = new StandardTalkback3( _sts, "GPC MODE 2 (tb)" ) );
 
-		Add(pGPCMode[2] = new StandardTalkback_2(_sts, "GPC MODE 3 (tb)", 2));
+		Add( pGPCMode[2] = new StandardTalkback3( _sts, "GPC MODE 3 (tb)" ) );
 
-		Add(pGPCMode[3] = new StandardTalkback_2(_sts, "GPC MODE 4 (tb)", 2));
+		Add( pGPCMode[3] = new StandardTalkback3( _sts, "GPC MODE 4 (tb)" ) );
 
-		Add(pGPCMode[4] = new StandardTalkback_2(_sts, "GPC MODE 5 (tb)", 2));
+		Add( pGPCMode[4] = new StandardTalkback3( _sts, "GPC MODE 5 (tb)" ) );
 
 		//0.0,  3.033531,  14.23673
 		Add(pGPC1Mode = new LockableLever3(_sts, "GPC MODE 1"));
@@ -357,15 +357,15 @@ namespace vc {
 		
 		pSTZDoorPosition->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK1_VC );
 
-		pGPCOutput[0]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK3_VC );
+		pGPCOutput[0]->DefineMeshGroups( STS()->mesh_vc, GRP_O6TALKBACK3_U_VC, GRP_O6TALKBACK3_L_VC );
 		
-		pGPCOutput[1]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK4_VC );
+		pGPCOutput[1]->DefineMeshGroups( STS()->mesh_vc, GRP_O6TALKBACK4_U_VC, GRP_O6TALKBACK4_L_VC );
 		
-		pGPCOutput[2]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK5_VC );
+		pGPCOutput[2]->DefineMeshGroups( STS()->mesh_vc, GRP_O6TALKBACK5_U_VC, GRP_O6TALKBACK5_L_VC );
 		
-		pGPCOutput[3]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK6_VC );
+		pGPCOutput[3]->DefineMeshGroups( STS()->mesh_vc, GRP_O6TALKBACK6_U_VC, GRP_O6TALKBACK6_L_VC );
 		
-		pGPCOutput[4]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK7_VC );
+		pGPCOutput[4]->DefineMeshGroups( STS()->mesh_vc, GRP_O6TALKBACK7_U_VC, GRP_O6TALKBACK7_L_VC );
 
 		pGPCMode[0]->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK8_VC );
 		
@@ -404,7 +404,7 @@ namespace vc {
 		pIPL1->output.Connect(pBundle, 3);
 		pGPC1Mode->ConnectPort( 1, pBundle, 4 );
 		pGPC1Mode->ConnectPort( 2, pBundle, 5 );
-		pGPCOutput[0]->SetInput( 0, pBundle, 6, TB_GRAY );
+		pGPCOutput[0]->SetInput( pBundle, 6, TB_GRAY );
 		pGPCMode[0]->SetInput( 0, pBundle, 7, TB_RUN );
 		pGPCMode[0]->SetInput( 1, pBundle, 8, TB_IPL );
 		
@@ -415,7 +415,7 @@ namespace vc {
 		pIPL2->output.Connect(pBundle, 3);
 		pGPC2Mode->ConnectPort( 1, pBundle, 4 );
 		pGPC2Mode->ConnectPort( 2, pBundle, 5 );
-		pGPCOutput[1]->SetInput( 0, pBundle, 6, TB_GRAY );
+		pGPCOutput[1]->SetInput( pBundle, 6, TB_GRAY );
 		pGPCMode[1]->SetInput( 0, pBundle, 7, TB_RUN );
 		pGPCMode[1]->SetInput( 1, pBundle, 8, TB_IPL );
 		
@@ -426,7 +426,7 @@ namespace vc {
 		pIPL3->output.Connect(pBundle, 3);
 		pGPC3Mode->ConnectPort( 1, pBundle, 4 );
 		pGPC3Mode->ConnectPort( 2, pBundle, 5 );
-		pGPCOutput[2]->SetInput( 0, pBundle, 6, TB_GRAY );
+		pGPCOutput[2]->SetInput( pBundle, 6, TB_GRAY );
 		pGPCMode[2]->SetInput( 0, pBundle, 7, TB_RUN );
 		pGPCMode[2]->SetInput( 1, pBundle, 8, TB_IPL );
 
@@ -437,7 +437,7 @@ namespace vc {
 		pIPL4->output.Connect(pBundle, 3);
 		pGPC4Mode->ConnectPort( 1, pBundle, 4 );
 		pGPC4Mode->ConnectPort( 2, pBundle, 5 );
-		pGPCOutput[3]->SetInput( 0, pBundle, 6, TB_GRAY );
+		pGPCOutput[3]->SetInput( pBundle, 6, TB_GRAY );
 		pGPCMode[3]->SetInput( 0, pBundle, 7, TB_RUN );
 		pGPCMode[3]->SetInput( 1, pBundle, 8, TB_IPL );
 		
@@ -448,7 +448,7 @@ namespace vc {
 		pIPL5->output.Connect(pBundle, 3);
 		pGPC5Mode->ConnectPort( 1, pBundle, 4 );
 		pGPC5Mode->ConnectPort( 2, pBundle, 5 );
-		pGPCOutput[4]->SetInput( 0, pBundle, 6, TB_GRAY );
+		pGPCOutput[4]->SetInput( pBundle, 6, TB_GRAY );
 		pGPCMode[4]->SetInput( 0, pBundle, 7, TB_RUN );
 		pGPCMode[4]->SetInput( 1, pBundle, 8, TB_IPL );
 

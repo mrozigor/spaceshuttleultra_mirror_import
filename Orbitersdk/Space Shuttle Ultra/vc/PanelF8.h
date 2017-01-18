@@ -47,7 +47,7 @@ namespace vc {
 		StdSwitch3* pADIRate;
 		StdSwitch3* pAirData;
 
-		StandardTalkback_2* pLandingGearTB[3];
+		StandardTalkback3* pLandingGearTB[3];
 
 		StandardSwitchCover* pLandingGearArmDeployCover[2];
 		PushButtonIndicator *pLandingGearArmDeploy[2];

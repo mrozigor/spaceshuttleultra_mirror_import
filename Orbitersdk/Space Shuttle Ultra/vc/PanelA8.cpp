@@ -54,25 +54,25 @@ namespace vc
 		Add(pRMSSelect = new StdSwitch3(_sts, "RMS SELECT"));
 		Add(pSingleDirectDrive = new StdSwitch3(_sts, "Single/Direct Drive"));
 
-		Add( pPortMRLTb = new StandardTalkback_2( _sts, "Port MRL Talkback", 2 ) );
-		Add( pStbdMRLTb = new StandardTalkback_2( _sts, "Stbd MRL Talkback", 2 ) );
-		Add( pPortMPMTb = new StandardTalkback_2( _sts, "Port MPM Talkback", 2 ) );
-		Add( pStbdMPMTb = new StandardTalkback_2( _sts, "Stbd MPM Talkback", 2 ) );
+		Add( pPortMRLTb = new StandardTalkback3( _sts, "Port MRL Talkback" ) );
+		Add( pStbdMRLTb = new StandardTalkback3( _sts, "Stbd MRL Talkback" ) );
+		Add( pPortMPMTb = new StandardTalkback3( _sts, "Port MPM Talkback" ) );
+		Add( pStbdMPMTb = new StandardTalkback3( _sts, "Stbd MPM Talkback" ) );
 
-		Add( pPortMRL_RTL[0] = new StandardTalkback_2( _sts, "Port MRL RTL FWD", 1 ) );
-		Add( pPortMRL_RTL[1] = new StandardTalkback_2( _sts, "Port MRL RTL MID", 1 ) );
-		Add( pPortMRL_RTL[2] = new StandardTalkback_2( _sts, "Port MRL RTL AFT", 1 ) );
-		Add( pStbdMRL_RTL[0] = new StandardTalkback_2( _sts, "Stbd MRL RTL FWD", 1 ) );
-		Add( pStbdMRL_RTL[1] = new StandardTalkback_2( _sts, "Stbd MRL RTL MID", 1 ) );
-		Add( pStbdMRL_RTL[2] = new StandardTalkback_2( _sts, "Stbd MRL RTL AFT", 1 ) );
-		Add( pEECapture = new StandardTalkback_2( _sts, "EE Capture", 1 ) );
-		Add( pEEExtend = new StandardTalkback_2( _sts, "EE Extend", 1 ) );
-		Add( pEEClose = new StandardTalkback_2( _sts, "EE Close", 1 ) );
-		Add( pEEOpen = new StandardTalkback_2( _sts, "EE Open", 1 ) );
-		Add( pEERigid = new StandardTalkback_2( _sts, "EE Rigid", 1 ) );
-		Add( pEEDerigid = new StandardTalkback_2( _sts, "EE Derigid", 1 ) );
-		Add( pShoulderBraceTb = new StandardTalkback_2( _sts, "Shoulder Brace", 1 ) );
-		Add( pSoftStopTB = new StandardTalkback_2( _sts, "Software Stop", 1 ) );
+		Add( pPortMRL_RTL[0] = new StandardTalkback2( _sts, "Port MRL RTL FWD" ) );
+		Add( pPortMRL_RTL[1] = new StandardTalkback2( _sts, "Port MRL RTL MID" ) );
+		Add( pPortMRL_RTL[2] = new StandardTalkback2( _sts, "Port MRL RTL AFT" ) );
+		Add( pStbdMRL_RTL[0] = new StandardTalkback2( _sts, "Stbd MRL RTL FWD" ) );
+		Add( pStbdMRL_RTL[1] = new StandardTalkback2( _sts, "Stbd MRL RTL MID" ) );
+		Add( pStbdMRL_RTL[2] = new StandardTalkback2( _sts, "Stbd MRL RTL AFT" ) );
+		Add( pEECapture = new StandardTalkback2( _sts, "EE Capture" ) );
+		Add( pEEExtend = new StandardTalkback2( _sts, "EE Extend" ) );
+		Add( pEEClose = new StandardTalkback2( _sts, "EE Close" ) );
+		Add( pEEOpen = new StandardTalkback2( _sts, "EE Open" ) );
+		Add( pEERigid = new StandardTalkback2( _sts, "EE Rigid" ) );
+		Add( pEEDerigid = new StandardTalkback2( _sts, "EE Derigid" ) );
+		Add( pShoulderBraceTb = new StandardTalkback2( _sts, "Shoulder Brace" ) );
+		Add( pSoftStopTB = new StandardTalkback2( _sts, "Software Stop" ) );
 
 		Add(pLEDParameter = new RotaryDemuxSwitch(_sts, "Parameter", 8));
 		Add(pLEDJoint = new RotaryDemuxSwitch(_sts, "Joint", 8));
@@ -277,37 +277,37 @@ namespace vc
 		pRMSSelect->SetInitialAnimState(0.5f);
 		pRMSSelect->SetOrientation(true);
 
-		pPortMRLTb->DefineMeshGroup( mesh_index, GRP_TB_PORTLATCHES_A8_VC );
+		pPortMRLTb->DefineMeshGroup( mesh_index, GRP_A8L_DS5_A8_VC );
 
-		pStbdMRLTb->DefineMeshGroup( mesh_index, GRP_TB_STBDLATCHES_A8_VC );
+		pStbdMRLTb->DefineMeshGroup( mesh_index, GRP_A8L_DS2_A8_VC );
 
-		pPortMPMTb->DefineMeshGroup( mesh_index, GRP_TB_PORTRMS_A8_VC );
+		pPortMPMTb->DefineMeshGroup( mesh_index, GRP_A8L_DS4_A8_VC );
 
-		pStbdMPMTb->DefineMeshGroup( mesh_index, GRP_TB_STBDRMS_A8_VC );
+		pStbdMPMTb->DefineMeshGroup( mesh_index, GRP_A8L_DS1_A8_VC );
 
-		pStbdMRL_RTL[0]->DefineMeshGroup( mesh_index, GRP_TB_STBDRTLFWD_A8_VC );
-		pStbdMRL_RTL[1]->DefineMeshGroup( mesh_index, GRP_TB_STBDRTLMID_A8_VC );
-		pStbdMRL_RTL[2]->DefineMeshGroup( mesh_index, GRP_TB_STBDRTLAFT_A8_VC );
+		pStbdMRL_RTL[0]->DefineMeshGroups( mesh_index, GRP_A8L_DS9_U_A8_VC, GRP_A8L_DS9_L_A8_VC );
+		pStbdMRL_RTL[1]->DefineMeshGroups( mesh_index, GRP_A8L_DS7_U_A8_VC, GRP_A8L_DS7_L_A8_VC );
+		pStbdMRL_RTL[2]->DefineMeshGroups( mesh_index, GRP_A8L_DS3_U_A8_VC, GRP_A8L_DS3_L_A8_VC );
 		
-		pPortMRL_RTL[0]->DefineMeshGroup( mesh_index, GRP_TB_PORTRTLFWD_A8_VC );
-		pPortMRL_RTL[1]->DefineMeshGroup( mesh_index, GRP_TB_PORTRTLMID_A8_VC );
-		pPortMRL_RTL[2]->DefineMeshGroup( mesh_index, GRP_TB_PORTRTLAFT_A8_VC );
+		pPortMRL_RTL[0]->DefineMeshGroups( mesh_index, GRP_A8L_DS10_U_A8_VC, GRP_A8L_DS10_L_A8_VC );
+		pPortMRL_RTL[1]->DefineMeshGroups( mesh_index, GRP_A8L_DS8_U_A8_VC, GRP_A8L_DS8_L_A8_VC );
+		pPortMRL_RTL[2]->DefineMeshGroups( mesh_index, GRP_A8L_DS6_U_A8_VC, GRP_A8L_DS6_L_A8_VC );
 
-		pShoulderBraceTb->DefineMeshGroup( mesh_index, GRP_TB_SHOULDERBRACE_A8_VC );
+		pShoulderBraceTb->DefineMeshGroups( mesh_index, GRP_A8U_DS13_U_A8_VC, GRP_A8U_DS13_L_A8_VC );
 
-		pEECapture->DefineMeshGroup( mesh_index, GRP_TB_CAPTURE_A8_VC );
+		pEECapture->DefineMeshGroups( mesh_index, GRP_A8U_DS9_U_A8_VC, GRP_A8U_DS9_L_A8_VC );
 
-		pEEExtend->DefineMeshGroup( mesh_index, GRP_TB_EXTEND_A8_VC );
+		pEEExtend->DefineMeshGroups( mesh_index, GRP_A8U_DS12_U_A8_VC, GRP_A8U_DS12_L_A8_VC );
 
-		pEEClose->DefineMeshGroup( mesh_index, GRP_TB_CLOSE_A8_VC );
+		pEEClose->DefineMeshGroups( mesh_index, GRP_A8U_DS8_U_A8_VC, GRP_A8U_DS8_L_A8_VC );
 
-		pEEOpen->DefineMeshGroup( mesh_index, GRP_TB_OPEN_A8_VC );
+		pEEOpen->DefineMeshGroups( mesh_index, GRP_A8U_DS11_U_A8_VC, GRP_A8U_DS11_L_A8_VC );
 
-		pEERigid->DefineMeshGroup( mesh_index, GRP_TB_RIGID_A8_VC );
+		pEERigid->DefineMeshGroups( mesh_index, GRP_A8U_DS7_U_A8_VC, GRP_A8U_DS7_L_A8_VC );
 
-		pEEDerigid->DefineMeshGroup( mesh_index, GRP_TB_DERIGID_A8_VC );
+		pEEDerigid->DefineMeshGroups( mesh_index, GRP_A8U_DS10_U_A8_VC, GRP_A8U_DS10_L_A8_VC );
 
-		pSoftStopTB->DefineMeshGroup( mesh_index, GRP_TB_SWSTOP_A8_VC );
+		pSoftStopTB->DefineMeshGroups( mesh_index, GRP_A8U_DS3_U_A8_VC, GRP_A8U_DS3_L_A8_VC );
 
 		pLEDParameter->SetMouseRegion(0.45049f, 0.440562f, 0.531691f, 0.494226f);
 		pLEDParameter->DefineSwitchGroup(GRP_A8RS3_A8_VC);
@@ -548,7 +548,7 @@ namespace vc
 		pPortMPMTb->SetInput(1, pBundle, 3, TB_STO);
 		// for the moment, ignore STBD connections for shoulder brace
 		pShoulderBrace->outputB.Connect(pBundle, 4);
-		pShoulderBraceTb->SetInput( 0, pBundle, 5, TB_GRAY );
+		pShoulderBraceTb->SetInput( pBundle, 5, TB_GRAY );
 		pRMSSelect->outputB.Connect(pBundle, 6);
 
 		pBundle=STS()->BundleManager()->CreateBundle("RMS_MODE", 16);
@@ -557,7 +557,7 @@ namespace vc
 		pBundle=STS()->BundleManager()->CreateBundle("RMS_MRL", 16);
 		pPortMRL->outputB.Connect(pBundle, 0);
 		pPortMRL->outputA.Connect(pBundle, 1);
-		for(int i=0;i<3;i++) pPortMRL_RTL[i]->SetInput( 0, pBundle, i + 5, TB_GRAY );
+		for(int i=0;i<3;i++) pPortMRL_RTL[i]->SetInput( pBundle, i + 5, TB_GRAY );
 		pPortMRLTb->SetInput( 0, pBundle, 11, TB_REL );
 		pPortMRLTb->SetInput( 1, pBundle, 12, TB_LAT );
 
@@ -566,12 +566,12 @@ namespace vc
 		pEEMode->outputA.Connect(pBundle, 3);
 		pEEManContr->outputB.Connect(pBundle, 4);
 		pEEManContr->outputA.Connect(pBundle, 5);
-		pEECapture->SetInput( 0, pBundle, 6, TB_GRAY );
-		pEEExtend->SetInput( 0, pBundle, 7, TB_GRAY );
-		pEEClose->SetInput( 0, pBundle, 8, TB_GRAY );
-		pEEOpen->SetInput( 0, pBundle, 9, TB_GRAY );
-		pEERigid->SetInput( 0, pBundle, 10, TB_GRAY );
-		pEEDerigid->SetInput( 0, pBundle, 11, TB_GRAY );
+		pEECapture->SetInput( pBundle, 6, TB_GRAY );
+		pEEExtend->SetInput( pBundle, 7, TB_GRAY );
+		pEEClose->SetInput( pBundle, 8, TB_GRAY );
+		pEEOpen->SetInput( pBundle, 9, TB_GRAY );
+		pEERigid->SetInput( pBundle, 10, TB_GRAY );
+		pEEDerigid->SetInput( pBundle, 11, TB_GRAY );
 
 		pBundle=STS()->BundleManager()->CreateBundle("STBD_MPM", 16);
 		pStbdMPM->outputB.Connect(pBundle, 0);
@@ -582,7 +582,7 @@ namespace vc
 		pBundle=STS()->BundleManager()->CreateBundle("STBD_MPM_MRL", 16);
 		pStbdMRL->outputB.Connect(pBundle, 0);
 		pStbdMRL->outputA.Connect(pBundle, 1);
-		for(int i=0;i<3;i++) pStbdMRL_RTL[i]->SetInput( 0, pBundle, i + 5, TB_GRAY );
+		for(int i=0;i<3;i++) pStbdMRL_RTL[i]->SetInput( pBundle, i + 5, TB_GRAY );
 		pStbdMRLTb->SetInput( 0, pBundle, 11, TB_REL );
 		pStbdMRLTb->SetInput( 1, pBundle, 12, TB_LAT );
 
@@ -605,7 +605,7 @@ namespace vc
 
 		pBundle=STS()->BundleManager()->CreateBundle( "RMS_CWLIGHTS_TB", 16 );
 		for (int i = 0; i < 12; i++) pCWLights[i]->input.Connect( pBundle, i );
-		pSoftStopTB->SetInput( 0, pBundle, 12, TB_GRAY );
+		pSoftStopTB->SetInput( pBundle, 12, TB_GRAY );
 
 		pBundle = STS()->BundleManager()->CreateBundle( "RMS_MODELIGHTS", 16 );
 		for (int i = 0; i < 12; i++) pModeLights[i]->input.Connect( pBundle, i );

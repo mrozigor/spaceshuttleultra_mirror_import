@@ -64,13 +64,13 @@ namespace vc
 
 		LockableLever2* pLH2UllagePress;
 
-		StandardTalkback* pAPUReadyToStart[3];
+		StandardTalkback2* pAPUReadyToStart[3];
 
-		StandardTalkback* pETUmbDoorCLLatch;
-		StandardTalkback* pETUmbLDoor;
-		StandardTalkback* pETUmbLLatch;
-		StandardTalkback* pETUmbRDoor;
-		StandardTalkback* pETUmbRLatch;
+		StandardTalkback3* pETUmbDoorCLLatch;
+		StandardTalkback3* pETUmbLDoor;
+		StandardTalkback3* pETUmbLLatch;
+		StandardTalkback3* pETUmbRDoor;
+		StandardTalkback3* pETUmbRLatch;
 
 		DiscInPort APU_HydraulicPress[3];
 	public:

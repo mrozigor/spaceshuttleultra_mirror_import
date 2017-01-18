@@ -31,9 +31,9 @@ namespace vc {
 		pADIRate->SetLabel( 1, "MED" );
 		pADIRate->SetLabel( 2, "HIGH" );
 
-		Add( pLandingGearTB[0] = new StandardTalkback_2( _sts, "Landing Gear Nose", 2 ) );
-		Add( pLandingGearTB[1] = new StandardTalkback_2( _sts, "Landing Gear Left", 2 ) );
-		Add( pLandingGearTB[2] = new StandardTalkback_2( _sts, "Landing Gear Right", 2 ) );
+		Add( pLandingGearTB[0] = new StandardTalkback3( _sts, "Landing Gear Nose" ) );
+		Add( pLandingGearTB[1] = new StandardTalkback3( _sts, "Landing Gear Left" ) );
+		Add( pLandingGearTB[2] = new StandardTalkback3( _sts, "Landing Gear Right" ) );
 
 		Add( pLandingGearArmDeployCover[0] = new StandardSwitchCover( _sts, "Landing Gear ARM Cover" ) );
 		Add( pLandingGearArmDeployCover[1] = new StandardSwitchCover( _sts, "Landing Gear DN Cover" ) );

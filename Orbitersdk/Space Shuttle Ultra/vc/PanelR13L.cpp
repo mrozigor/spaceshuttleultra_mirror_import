@@ -64,18 +64,18 @@ namespace vc
 		pMMUGN2SPLYISOLVLV[1]->SetLabel( 1, "-" );
 		pMMUGN2SPLYISOLVLV[1]->SetLabel( 2, "OPEN" );
 
-		Add( pPLBayDoorTB = new StandardTalkback_2( psts, "PL Bay Door", 2 ) );
+		Add( pPLBayDoorTB = new StandardTalkback3( psts, "PL Bay Door" ) );
 
-		Add( pLatch[0] = new StandardTalkback_2( psts, "Latch STBD", 2 ) );
-		Add( pLatch[1] = new StandardTalkback_2( psts, "Latch PORT", 2 ) );
+		Add( pLatch[0] = new StandardTalkback3( psts, "Latch STBD" ) );
+		Add( pLatch[1] = new StandardTalkback3( psts, "Latch PORT" ) );
 
-		Add( pRadiator[0] = new StandardTalkback_2( psts, "Radiator STBD", 2 ) );
-		Add( pRadiator[1] = new StandardTalkback_2( psts, "Radiator PORT", 2 ) );
+		Add( pRadiator[0] = new StandardTalkback3( psts, "Radiator STBD" ) );
+		Add( pRadiator[1] = new StandardTalkback3( psts, "Radiator PORT" ) );
 
-		Add( pKUAntennaTB = new StandardTalkback_2( psts, "Ku Antenna", 2 ) );
+		Add( pKUAntennaTB = new StandardTalkback3( psts, "Ku Antenna" ) );
 
-		Add( pMMUGN2SPLYISOLVLVTB[0] = new StandardTalkback_2( psts, "MMU GN2 SPLY ISOL VLV A", 2 ) );
-		Add( pMMUGN2SPLYISOLVLVTB[1] = new StandardTalkback_2( psts, "MMU GN2 SPLY ISOL VLV B", 2 ) );
+		Add( pMMUGN2SPLYISOLVLVTB[0] = new StandardTalkback3( psts, "MMU GN2 SPLY ISOL VLV A" ) );
+		Add( pMMUGN2SPLYISOLVLVTB[1] = new StandardTalkback3( psts, "MMU GN2 SPLY ISOL VLV B" ) );
 
 		oapiWriteLog( "(PanelR13L::PanelR13L) Leave constructor." );
 	}

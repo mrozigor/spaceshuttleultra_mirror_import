@@ -127,14 +127,6 @@
 // Panel R2
 #define AID_R2_MIN     400
 #define AID_R2         400
-#define AID_R2_TKBK1   401
-#define AID_R2_TKBK2   402
-#define AID_R2_TKBK3   403
-#define AID_R2_TKBK4   404
-#define AID_R2_TKBK5   405
-#define AID_R2_TKBK6   406
-#define AID_R2_TKBK7   407
-#define AID_R2_TKBK8   408
 #define AID_R2_MAX     419
 
 #define AID_A4_MIN	   420
@@ -177,16 +169,6 @@
 #define AID_A6_PBI22   522
 #define AID_A6_PBI23   523
 #define AID_A6_PBI24   524
-#define AID_A6_TKBK1   525
-#define AID_A6_TKBK2   526
-#define AID_A6_TKBK3   527
-#define AID_A6_TKBK4   528
-#define AID_A6_TKBK5   529
-#define AID_A6_TKBK6   530
-#define AID_A6_TKBK7   531
-#define AID_A6_TKBK8   532
-#define AID_A6_TKBK9   533
-#define AID_A6_TKBK10  534
 #define AID_A6_WND0  535
 #define AID_A6_WND1  536
 #define AID_A6_WND2  537

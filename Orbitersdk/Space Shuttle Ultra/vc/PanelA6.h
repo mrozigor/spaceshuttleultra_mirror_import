@@ -78,8 +78,8 @@ namespace vc
 		DiscOutPort LogicPowerSys[3][2];
 		DiscInPort PLRetLogicPwrSysSwitch[2];
 
-		StandardTalkback* pLatchState[5];
-		StandardTalkback* pLatchRTL[5];
+		StandardTalkback3* pLatchState[5];
+		StandardTalkback2* pLatchRTL[5];
 
 		StdSwitch3* pADIAttitude;
 		StdSwitch3* pADIError;

@@ -4,7 +4,7 @@
 #define TEX_CLOCKNUMS_VC	4// D
 #define TEX_PANELA1L_VC		5
 #define TEX_PANELA1R_VC		6
-#define TEX_PANELR2_VC		7// D
+#define TEX_PANELR2_VC		7
 #define TEX_PANELO13O17_VC	8
 #define TEX_PANELL4_VC		9
 #define TEX_PANELR1L1_VC	10
