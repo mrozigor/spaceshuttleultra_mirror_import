@@ -35,8 +35,8 @@ namespace vc {
 	class PanelO6 : public AtlantisPanel {
 	private:
 		StdSwitch3* pLGlareShieldFlood;
-		StandardTalkback_2* pSTYDoorPosition;
-		StandardTalkback_2* pSTZDoorPosition;
+		StandardTalkback3* pSTYDoorPosition;
+		StandardTalkback3* pSTZDoorPosition;
 		StdSwitch3* pSTRKDoorControlSys1;
 		StdSwitch3* pSTRKDoorControlSys2;
 		StandardSwitchCover* pSTRKDoorControlSys1Cover;
@@ -76,7 +76,7 @@ namespace vc {
 		StdSwitch2* pGPC4Pwr;
 		StdSwitch2* pGPC5Pwr;
 
-		StandardTalkback_2* pGPCOutput[5];
+		StandardTalkback2* pGPCOutput[5];
 
 		StandardSwitchCover* pGPCOutputCover[5];
 
@@ -93,7 +93,7 @@ namespace vc {
 		PushButton* pIPL4;
 		PushButton* pIPL5;
 
-		StandardTalkback_2* pGPCMode[5];
+		StandardTalkback3* pGPCMode[5];
 
 		LockableLever3* pGPC1Mode;
 		LockableLever3* pGPC2Mode;

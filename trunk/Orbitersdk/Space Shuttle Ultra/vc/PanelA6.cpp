@@ -29,16 +29,16 @@ namespace vc
 		Add(pPayloadRetentionLatches[3] = new StdSwitch3(_sts, "Payload Ret Latch 4"));
 		Add(pPayloadRetentionLatches[4] = new StdSwitch3(_sts, "Payload Ret Latch 5"));
 		Add(pPayloadSelect = new RotaryDemuxSwitch(_sts, "Payload Select", 5));
-		Add(pLatchState[0] = new StandardTalkback(_sts, "Payload Ret Latch1 Tkbk", 2));
-		Add(pLatchState[1] = new StandardTalkback(_sts, "Payload Ret Latch2 Tkbk", 2));
-		Add(pLatchState[2] = new StandardTalkback(_sts, "Payload Ret Latch3 Tkbk", 2));
-		Add(pLatchState[3] = new StandardTalkback(_sts, "Payload Ret Latch4 Tkbk", 2));
-		Add(pLatchState[4] = new StandardTalkback(_sts, "Payload Ret Latch5 Tkbk", 2));
-		Add(pLatchRTL[0] = new StandardTalkback(_sts, "Payload Latch1 RTL", 1));
-		Add(pLatchRTL[1] = new StandardTalkback(_sts, "Payload Latch2 RTL", 1));
-		Add(pLatchRTL[2] = new StandardTalkback(_sts, "Payload Latch3 RTL", 1));
-		Add(pLatchRTL[3] = new StandardTalkback(_sts, "Payload Latch4 RTL", 1));
-		Add(pLatchRTL[4] = new StandardTalkback(_sts, "Payload Latch5 RTL", 1));
+		Add( pLatchState[0] = new StandardTalkback3( _sts, "Payload Ret Latch1 Tkbk" ) );
+		Add( pLatchState[1] = new StandardTalkback3( _sts, "Payload Ret Latch2 Tkbk" ) );
+		Add( pLatchState[2] = new StandardTalkback3( _sts, "Payload Ret Latch3 Tkbk" ) );
+		Add( pLatchState[3] = new StandardTalkback3( _sts, "Payload Ret Latch4 Tkbk" ) );
+		Add( pLatchState[4] = new StandardTalkback3( _sts, "Payload Ret Latch5 Tkbk" ) );
+		Add( pLatchRTL[0] = new StandardTalkback2( _sts, "Payload Latch1 RTL" ) );
+		Add( pLatchRTL[1] = new StandardTalkback2( _sts, "Payload Latch2 RTL" ) );
+		Add( pLatchRTL[2] = new StandardTalkback2( _sts, "Payload Latch3 RTL" ) );
+		Add( pLatchRTL[3] = new StandardTalkback2( _sts, "Payload Latch4 RTL" ) );
+		Add( pLatchRTL[4] = new StandardTalkback2( _sts, "Payload Latch5 RTL" ) );
 		Add( pADIAttitude = new StdSwitch3( _sts, "ADI Attitude" ) );
 		Add( pADIError = new StdSwitch3( _sts, "ADI Error" ) );
 		Add( pADIRate = new StdSwitch3( _sts, "ADI Rate" ) );
@@ -276,15 +276,17 @@ namespace vc
 			pPBIs[i]->SetDimensions(37, 11);
 		}
 
-		for(int i=0;i<5;i++) {
-			pLatchRTL[i]->AddAIDToRedrawEventList(AID_A6_TKBK1+i);
-			pLatchRTL[i]->SetTalkbackLocation(0, 0);
-			pLatchRTL[i]->SetDimensions(40, 22);
+		pLatchRTL[0]->DefineMeshGroups( STS()->mesh_vc, GRP_A6U_DS2_U_VC, GRP_A6U_DS2_L_VC );
+		pLatchRTL[1]->DefineMeshGroups( STS()->mesh_vc, GRP_A6U_DS3_U_VC, GRP_A6U_DS3_L_VC );
+		pLatchRTL[2]->DefineMeshGroups( STS()->mesh_vc, GRP_A6U_DS4_U_VC, GRP_A6U_DS4_L_VC );
+		pLatchRTL[3]->DefineMeshGroups( STS()->mesh_vc, GRP_A6U_DS12_U_VC, GRP_A6U_DS12_L_VC );
+		pLatchRTL[4]->DefineMeshGroups( STS()->mesh_vc, GRP_A6U_DS13_U_VC, GRP_A6U_DS13_L_VC );
 
-			pLatchState[i]->AddAIDToRedrawEventList(AID_A6_TKBK6+i);
-			pLatchState[i]->SetTalkbackLocation(0, 0);
-			pLatchState[i]->SetDimensions(40, 22);
-		}
+		pLatchState[0]->DefineMeshGroup( STS()->mesh_vc, GRP_A6U_DS1_VC );
+		pLatchState[1]->DefineMeshGroup( STS()->mesh_vc, GRP_A6U_DS8_VC );
+		pLatchState[2]->DefineMeshGroup( STS()->mesh_vc, GRP_A6U_DS9_VC );
+		pLatchState[3]->DefineMeshGroup( STS()->mesh_vc, GRP_A6U_DS10_VC );
+		pLatchState[4]->DefineMeshGroup( STS()->mesh_vc, GRP_A6U_DS11_VC );
 
 		pEventTimerMode->SetInitialAnimState( 0.5f );
 		pEventTimerMode->DefineSwitchGroup( GRP_A6U39_VC );
@@ -393,18 +395,6 @@ namespace vc
 		oapiVCRegisterArea(AID_A6_PBI23, _R(1023, 1496, 1060, 1507), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
 		//ROT YAW PULSE
 		oapiVCRegisterArea(AID_A6_PBI24, _R(1102, 1496, 1139, 1507), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
-		// RTL Talkbacks
-		oapiVCRegisterArea(AID_A6_TKBK1, _R(708, 1721, 748, 1743), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
-		oapiVCRegisterArea(AID_A6_TKBK2, _R(806, 1721, 846, 1743), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
-		oapiVCRegisterArea(AID_A6_TKBK3, _R(908, 1721, 948, 1743), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
-		oapiVCRegisterArea(AID_A6_TKBK4, _R(1008, 1721, 1048, 1743), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
-		oapiVCRegisterArea(AID_A6_TKBK5, _R(1108, 1721, 1148, 1743), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
-		// Latch Talkbacks
-		oapiVCRegisterArea(AID_A6_TKBK6, _R(710, 1809, 750, 1831), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
-		oapiVCRegisterArea(AID_A6_TKBK7, _R(807, 1809, 847, 1831), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
-		oapiVCRegisterArea(AID_A6_TKBK8, _R(910, 1809, 950, 1831), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
-		oapiVCRegisterArea(AID_A6_TKBK9, _R(1010, 1809, 1050, 1831), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
-		oapiVCRegisterArea(AID_A6_TKBK10, _R(1111, 1809, 1151, 1831), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panela6_tex);
 		// event timer wheel numbers
 		SURFHANDLE digittex = oapiGetTextureHandle( STS()->hOrbiterVCMesh, TEX_CLOCKNUMS_VC );
 		oapiVCRegisterArea( AID_A6_WND0, _R( 0, 64, 63, 127 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digittex );
@@ -496,9 +486,9 @@ namespace vc
 			Latch_ReleasedTkbk[i].Connect(pBundle, i+5);
 			Latch_RTLTkbk[i].Connect(pBundle, i+10);
 
-			pLatchState[i]->SetInput(0, pBundle, i, TB_LAT);
-			pLatchState[i]->SetInput(1, pBundle, i+5, TB_REL);
-			pLatchRTL[i]->SetInput(0, pBundle, i+10, TB_GRAY);
+			pLatchState[i]->SetInput( 0, pBundle, i, TB_LAT );
+			pLatchState[i]->SetInput( 1, pBundle, i + 5, TB_REL );
+			pLatchRTL[i]->SetInput( pBundle, i + 10, TB_GRAY );
 		}
 		pPayloadRetentionLogicPowerSys[1]->output.Connect( pBundle, 15 );// using available line
 		PLRetLogicPwrSysSwitch[1].Connect( pBundle, 15 );

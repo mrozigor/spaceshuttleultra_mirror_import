@@ -52,21 +52,21 @@ namespace vc
 		StandardSwitchCover* pPortMPMCover;
 		StandardSwitchCover* pStbdMPMCover;
 
-		StandardTalkback_2* pPortMRLTb;
-		StandardTalkback_2* pStbdMRLTb;
-		StandardTalkback_2* pPortMPMTb;
-		StandardTalkback_2* pStbdMPMTb;
+		StandardTalkback3* pPortMRLTb;
+		StandardTalkback3* pStbdMRLTb;
+		StandardTalkback3* pPortMPMTb;
+		StandardTalkback3* pStbdMPMTb;
 
-		StandardTalkback_2* pPortMRL_RTL[3];
-		StandardTalkback_2* pStbdMRL_RTL[3];
-		StandardTalkback_2* pEECapture;
-		StandardTalkback_2* pEEExtend;
-		StandardTalkback_2* pEEClose;
-		StandardTalkback_2* pEEOpen;
-		StandardTalkback_2* pEERigid;
-		StandardTalkback_2* pEEDerigid;
-		StandardTalkback_2* pShoulderBraceTb;
-		StandardTalkback_2* pSoftStopTB;
+		StandardTalkback2* pPortMRL_RTL[3];
+		StandardTalkback2* pStbdMRL_RTL[3];
+		StandardTalkback2* pEECapture;
+		StandardTalkback2* pEEExtend;
+		StandardTalkback2* pEEClose;
+		StandardTalkback2* pEEOpen;
+		StandardTalkback2* pEERigid;
+		StandardTalkback2* pEEDerigid;
+		StandardTalkback2* pShoulderBraceTb;
+		StandardTalkback2* pSoftStopTB;
 
 		RotaryDemuxSwitch* pLEDParameter;
 		RotaryDemuxSwitch* pLEDJoint;

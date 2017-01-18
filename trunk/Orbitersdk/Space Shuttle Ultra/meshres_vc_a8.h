@@ -1,13 +1,13 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Mon Jan 09 11:49:49 2017
+// Date of conversion : Mon Jan 16 01:10:44 2017
 
 // Input file: RMSVC.msh
 // ======================================================
 
 #pragma once
 
-const unsigned int NUMGRP_A8_VC = 101;
+const unsigned int NUMGRP_A8_VC = 115;
 
 const unsigned int GRP_A8RS2_A8_VC	=	0;	//A8RS2
 const unsigned int GRP_A8S2_A8_VC	=	1;	//A8S2
@@ -77,37 +77,51 @@ const unsigned int GRP_A8AUTO1_A8_VC	=	64;	//A8auto1
 const unsigned int GRP_A8READY_A8_VC	=	65;	//A8ready
 const unsigned int GRP_A8INPROG_A8_VC	=	66;	//A8inprog
 const unsigned int GRP_A8MASALARM_A8_VC	=	67;	//A8masalarm
-const unsigned int GRP_TB_RIGID_A8_VC	=	68;	//tb_rigid
-const unsigned int GRP_TB_CLOSE_A8_VC	=	69;	//tb_close
-const unsigned int GRP_TB_CAPTURE_A8_VC	=	70;	//tb_capture
-const unsigned int GRP_TB_DERIGID_A8_VC	=	71;	//tb_derigid
-const unsigned int GRP_TB_OPEN_A8_VC	=	72;	//tb_open
-const unsigned int GRP_TB_EXTEND_A8_VC	=	73;	//tb_extend
-const unsigned int GRP_TB_SHOULDERBRACE_A8_VC	=	74;	//tb_shoulderbrace
-const unsigned int GRP_TB_SWSTOP_A8_VC	=	75;	//tb_swstop
-const unsigned int GRP_TB_STBDRMS_A8_VC	=	76;	//tb_stbdrms
-const unsigned int GRP_TB_STBDLATCHES_A8_VC	=	77;	//tb_stbdlatches
-const unsigned int GRP_TB_STBDRTLAFT_A8_VC	=	78;	//tb_stbdrtlaft
-const unsigned int GRP_TB_STBDRTLMID_A8_VC	=	79;	//tb_stbdrtlmid
-const unsigned int GRP_TB_STBDRTLFWD_A8_VC	=	80;	//tb_stbdrtlfwd
-const unsigned int GRP_TB_PORTRMS_A8_VC	=	81;	//tb_portrms
-const unsigned int GRP_TB_PORTLATCHES_A8_VC	=	82;	//tb_portlatches
-const unsigned int GRP_TB_PORTRTLAFT_A8_VC	=	83;	//tb_portrtlaft
-const unsigned int GRP_TB_PORTRTLMID_A8_VC	=	84;	//tb_portrtlmid
-const unsigned int GRP_TB_PORTRTLFWD_A8_VC	=	85;	//tb_portrtlfwd
-const unsigned int GRP_M2_SIGN_A8_VC	=	86;	//M2_SIGN
-const unsigned int GRP_M2_4_A8_VC	=	87;	//M2_4
-const unsigned int GRP_M2_3_A8_VC	=	88;	//M2_3
-const unsigned int GRP_M2_2_A8_VC	=	89;	//M2_2
-const unsigned int GRP_M2_1_A8_VC	=	90;	//M2_1
-const unsigned int GRP_M3_SIGN_A8_VC	=	91;	//M3_SIGN
-const unsigned int GRP_M3_4_A8_VC	=	92;	//M3_4
-const unsigned int GRP_M3_3_A8_VC	=	93;	//M3_3
-const unsigned int GRP_M3_2_A8_VC	=	94;	//M3_2
-const unsigned int GRP_M3_1_A8_VC	=	95;	//M3_1
-const unsigned int GRP_M4_SIGN_A8_VC	=	96;	//M4_SIGN
-const unsigned int GRP_M4_4_A8_VC	=	97;	//M4_4
-const unsigned int GRP_M4_3_A8_VC	=	98;	//M4_3
-const unsigned int GRP_M4_2_A8_VC	=	99;	//M4_2
-const unsigned int GRP_M4_1_A8_VC	=	100;	//M4_1
+const unsigned int GRP_A8U_DS7_U_A8_VC	=	68;	//A8U_DS7_U
+const unsigned int GRP_A8U_DS7_L_A8_VC	=	69;	//A8U_DS7_L
+const unsigned int GRP_A8U_DS8_U_A8_VC	=	70;	//A8U_DS8_U
+const unsigned int GRP_A8U_DS8_L_A8_VC	=	71;	//A8U_DS8_L
+const unsigned int GRP_A8U_DS9_U_A8_VC	=	72;	//A8U_DS9_U
+const unsigned int GRP_A8U_DS9_L_A8_VC	=	73;	//A8U_DS9_L
+const unsigned int GRP_A8U_DS10_U_A8_VC	=	74;	//A8U_DS10_U
+const unsigned int GRP_A8U_DS10_L_A8_VC	=	75;	//A8U_DS10_L
+const unsigned int GRP_A8U_DS11_U_A8_VC	=	76;	//A8U_DS11_U
+const unsigned int GRP_A8U_DS11_L_A8_VC	=	77;	//A8U_DS11_L
+const unsigned int GRP_A8U_DS12_U_A8_VC	=	78;	//A8U_DS12_U
+const unsigned int GRP_A8U_DS12_L_A8_VC	=	79;	//A8U_DS12_L
+const unsigned int GRP_A8U_DS13_U_A8_VC	=	80;	//A8U_DS13_U
+const unsigned int GRP_A8U_DS13_L_A8_VC	=	81;	//A8U_DS13_L
+const unsigned int GRP_A8U_DS3_U_A8_VC	=	82;	//A8U_DS3_U
+const unsigned int GRP_A8U_DS3_L_A8_VC	=	83;	//A8U_DS3_L
+const unsigned int GRP_A8L_DS1_A8_VC	=	84;	//A8L_DS1
+const unsigned int GRP_A8L_DS2_A8_VC	=	85;	//A8L_DS2
+const unsigned int GRP_A8L_DS3_U_A8_VC	=	86;	//A8L_DS3_U
+const unsigned int GRP_A8L_DS3_L_A8_VC	=	87;	//A8L_DS3_L
+const unsigned int GRP_A8L_DS7_U_A8_VC	=	88;	//A8L_DS7_U
+const unsigned int GRP_A8L_DS7_L_A8_VC	=	89;	//A8L_DS7_L
+const unsigned int GRP_A8L_DS9_U_A8_VC	=	90;	//A8L_DS9_U
+const unsigned int GRP_A8L_DS9_L_A8_VC	=	91;	//A8L_DS9_L
+const unsigned int GRP_A8L_DS4_A8_VC	=	92;	//A8L_DS4
+const unsigned int GRP_A8L_DS5_A8_VC	=	93;	//A8L_DS5
+const unsigned int GRP_A8L_DS6_U_A8_VC	=	94;	//A8L_DS6_U
+const unsigned int GRP_A8L_DS6_L_A8_VC	=	95;	//A8L_DS6_L
+const unsigned int GRP_A8L_DS8_U_A8_VC	=	96;	//A8L_DS8_U
+const unsigned int GRP_A8L_DS8_L_A8_VC	=	97;	//A8L_DS8_L
+const unsigned int GRP_A8L_DS10_U_A8_VC	=	98;	//A8L_DS10_U
+const unsigned int GRP_A8L_DS10_L_A8_VC	=	99;	//A8L_DS10_L
+const unsigned int GRP_M2_SIGN_A8_VC	=	100;	//M2_SIGN
+const unsigned int GRP_M2_4_A8_VC	=	101;	//M2_4
+const unsigned int GRP_M2_3_A8_VC	=	102;	//M2_3
+const unsigned int GRP_M2_2_A8_VC	=	103;	//M2_2
+const unsigned int GRP_M2_1_A8_VC	=	104;	//M2_1
+const unsigned int GRP_M3_SIGN_A8_VC	=	105;	//M3_SIGN
+const unsigned int GRP_M3_4_A8_VC	=	106;	//M3_4
+const unsigned int GRP_M3_3_A8_VC	=	107;	//M3_3
+const unsigned int GRP_M3_2_A8_VC	=	108;	//M3_2
+const unsigned int GRP_M3_1_A8_VC	=	109;	//M3_1
+const unsigned int GRP_M4_SIGN_A8_VC	=	110;	//M4_SIGN
+const unsigned int GRP_M4_4_A8_VC	=	111;	//M4_4
+const unsigned int GRP_M4_3_A8_VC	=	112;	//M4_3
+const unsigned int GRP_M4_2_A8_VC	=	113;	//M4_2
+const unsigned int GRP_M4_1_A8_VC	=	114;	//M4_1
 

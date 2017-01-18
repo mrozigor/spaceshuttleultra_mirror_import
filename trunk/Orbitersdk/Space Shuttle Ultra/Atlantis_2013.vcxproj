@@ -613,7 +613,6 @@
     <Image Include="Bitmaps\A8lights.bmp" />
     <Image Include="Bitmaps\DEU_Raw_fault.bmp" />
     <Image Include="Bitmaps\SSME_lights.bmp" />
-    <Image Include="Bitmaps\tkbk_label.bmp" />
     <Image Include="Bitmaps\DEU_Raw_overbright.bmp" />
     <Image Include="Bitmaps\clocknums.bmp" />
     <Image Include="Bitmaps\DEU_Raw.bmp" />

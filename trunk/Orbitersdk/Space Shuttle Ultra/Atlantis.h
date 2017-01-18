@@ -126,7 +126,6 @@ const static char* TEXT_RMSCONTROL = "Controlling RMS";
 typedef struct {
 	HINSTANCE hDLL;
 	SURFHANDLE pbi_lights;
-	SURFHANDLE tkbk_label;
 	SURFHANDLE clock_digits;
 	SURFHANDLE odslights;
 	SURFHANDLE ssme_lights;

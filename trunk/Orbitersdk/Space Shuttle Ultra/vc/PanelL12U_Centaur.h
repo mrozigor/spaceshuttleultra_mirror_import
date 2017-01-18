@@ -39,27 +39,27 @@ namespace vc
 			MESHHANDLE hPanelMesh;
 			UINT mesh_index;
 
-			StdSwitch3* pSUPER_ZIP_PRI_FIRE;
+			StdSwitch2* pSUPER_ZIP_PRI_FIRE;
 			StdSwitch2* pSUPER_ZIP_PRI_ARM;
 			StdSwitch3* pDA_PRI_ROT;
 			StdSwitch2* pLOGIC_PRI_PWR;
 			StdSwitch2* pSSP_PRI_PWR;
 			StdSwitch3* pMECH_PRI_PWR;
 
-			StdSwitch3* pSUPER_ZIP_BKUP_FIRE;
+			StdSwitch2* pSUPER_ZIP_BKUP_FIRE;
 			StdSwitch2* pSUPER_ZIP_BKUP_ARM;
 			StdSwitch3* pDA_BKUP_ROT;
 			StdSwitch2* pLOGIC_BKUP_PWR;
 			StdSwitch2* pSSP_BKUP_PWR;
 			StdSwitch3* pMECH_BKUP_PWR;
 
-			StandardTalkback_2* pMECH_PRI_PWR_TB;
-			StandardTalkback_2* pPosition_PRI_TB;
-			StandardTalkback_2* pSUPER_ZIP_PRI_ARM_TB;
+			StandardTalkback2* pMECH_PRI_PWR_TB;
+			StandardTalkback2* pPosition_PRI_TB;
+			StandardTalkback2* pSUPER_ZIP_PRI_ARM_TB;
 
-			StandardTalkback_2* pMECH_BKUP_PWR_TB;
-			StandardTalkback_2* pPosition_BKUP_TB;
-			StandardTalkback_2* pSUPER_ZIP_BKUP_ARM_TB;
+			StandardTalkback2* pMECH_BKUP_PWR_TB;
+			StandardTalkback2* pPosition_BKUP_TB;
+			StandardTalkback2* pSUPER_ZIP_BKUP_ARM_TB;
 
 		public:
 			PanelL12U_Centaur( Atlantis* _sts );

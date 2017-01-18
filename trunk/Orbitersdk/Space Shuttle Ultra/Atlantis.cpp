@@ -6437,7 +6437,6 @@ DLLCLBK void InitModule(HINSTANCE hModule)
 	horizontalLookup.Init("Config/SSU_HorizontalAero.csv", true);
 	aileronHorizontalLookup.Init("Config/SSU_Aileron.csv", true);
 
-	g_Param.tkbk_label = oapiCreateSurface(LOADBMP(IDB_TKBKLABEL));
 	g_Param.pbi_lights = oapiCreateSurface(LOADBMP(IDB_PBILIGHTS));
 	if (g_Param.pbi_lights == NULL) {
 		oapiWriteLog("Loading bitmap \"PBI_LIGHTS\" failed.");
@@ -6496,10 +6495,6 @@ DLLCLBK void InitModule(HINSTANCE hModule)
 
 DLLCLBK void ExitModule(HINSTANCE hModule)
 {
-	if (g_Param.tkbk_label)
-	{
-		oapiDestroySurface(g_Param.tkbk_label);
-	}
 	if (g_Param.pbi_lights)
 	{
 		oapiDestroySurface(g_Param.pbi_lights);

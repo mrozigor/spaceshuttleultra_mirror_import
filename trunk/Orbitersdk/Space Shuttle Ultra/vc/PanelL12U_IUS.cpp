@@ -57,9 +57,9 @@ namespace vc
 		pACT_ORD_PREARM->SetLabel( 0, "OFF" );
 		pACT_ORD_PREARM->SetLabel( 1, "ARM" );
 
-		Add( pACT_ORD_ARM_TB = new StandardTalkback_2( _sts, "ACT ORD ARM TB", 1 ) );
-		Add( pIUS_RF_ANT_ENA_TB = new StandardTalkback_2( _sts, "IUS RF ANT ENA TB", 1 ) );
-		Add( pIUS_RF_ANT_DSBL_TB = new StandardTalkback_2( _sts, "IUS RF ANT DSBL TB", 1 ) );
+		Add( pACT_ORD_ARM_TB = new StandardTalkback2( _sts, "ACT ORD ARM TB" ) );
+		Add( pIUS_RF_ANT_ENA_TB = new StandardTalkback2( _sts, "IUS RF ANT ENA TB" ) );
+		Add( pIUS_RF_ANT_DSBL_TB = new StandardTalkback2( _sts, "IUS RF ANT DSBL TB" ) );
 		return;
 	}
 
@@ -111,9 +111,9 @@ namespace vc
 		pACT_ORD_PREARM->SetReference( _V( -1.3684, 2.3204, 12.2933 ), SWITCH_ROT );
 		pACT_ORD_PREARM->SetMouseRegion( 0.260196f, 0.815091f, 0.303861f, 0.904874f );
 
-		pACT_ORD_ARM_TB->DefineMeshGroup( mesh_index, GRP_TB_ACT_ORD_ARM_IUS_VC );
-		pIUS_RF_ANT_ENA_TB->DefineMeshGroup( mesh_index, GRP_TB_IUS_RF_ANT_ENA_IUS_VC );
-		pIUS_RF_ANT_DSBL_TB->DefineMeshGroup( mesh_index, GRP_TB_IUS_RF_ANT_DSBL_IUS_VC );
+		pACT_ORD_ARM_TB->DefineMeshGroups( mesh_index, GRP_TB_ACT_ORD_ARM_U_IUS_VC, GRP_TB_ACT_ORD_ARM_L_IUS_VC );
+		pIUS_RF_ANT_ENA_TB->DefineMeshGroups( mesh_index, GRP_TB_IUS_RF_ANT_ENA_U_IUS_VC, GRP_TB_IUS_RF_ANT_ENA_L_IUS_VC );
+		pIUS_RF_ANT_DSBL_TB->DefineMeshGroups( mesh_index, GRP_TB_IUS_RF_ANT_DSBL_U_IUS_VC, GRP_TB_IUS_RF_ANT_DSBL_L_IUS_VC );
 		return;
 	}
 
@@ -149,15 +149,15 @@ namespace vc
 
 	void PanelL12U_IUS::Realize()
 	{
-		/*DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "L12UtoASEIUS", 16 );
+		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "L12UtoASEIUS", 16 );
 		pACT_ORD_ARM->ConnectPort( 1, pBundle, 0 );
-		pACT_ORD_ARM_TB->SetInput( 0, pBundle, 1, TB_GRAY );
+		pACT_ORD_ARM_TB->SetInput( pBundle, 1, TB_GRAY );
 		pACT_1_DISENG->ConnectPort( 1, pBundle, 2 );
 		pIUS_RF_ANT_ED->ConnectPort( 1, pBundle, 3 );
-		pIUS_RF_ANT_ENA_TB->SetInput( 0, pBundle, 4, TB_GRAY );
-		pIUS_RF_ANT_DSBL_TB->SetInput( 0, pBundle, 5, TB_GRAY );
+		pIUS_RF_ANT_ENA_TB->SetInput( pBundle, 4, TB_GRAY );
+		pIUS_RF_ANT_DSBL_TB->SetInput( pBundle, 5, TB_GRAY );
 		pACT_2_DISENG->ConnectPort( 1, pBundle, 6 );
-		pACT_ORD_PREARM->ConnectPort( 1, pBundle, 7 );*/
+		pACT_ORD_PREARM->ConnectPort( 1, pBundle, 7 );
 		
 		AtlantisPanel::Realize();
 		return;

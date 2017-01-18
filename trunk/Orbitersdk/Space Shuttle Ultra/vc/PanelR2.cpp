@@ -1,6 +1,5 @@
 #include "PanelR2.h"
 #include "../Atlantis.h"
-#include "../meshres_vc_additions.h"
 #include <UltraMath.h>
 #include "../Atlantis_defs.h"
 
@@ -37,9 +36,9 @@ namespace vc
 		Add(pAPUFuelTkVlv[1] = new LockableLever2(psts, "APU2 Fuel Tank Valve"));
 		Add(pAPUFuelTkVlv[2] = new LockableLever2(psts, "APU3 Fuel Tank Valve"));
 
-		Add(pAPUReadyToStart[0] = new StandardTalkback(psts, "APU1 Ready to Start", 1));
-		Add(pAPUReadyToStart[1] = new StandardTalkback(psts, "APU2 Ready to Start", 1));
-		Add(pAPUReadyToStart[2] = new StandardTalkback(psts, "APU3 Ready to Start", 1));
+		Add( pAPUReadyToStart[0] = new StandardTalkback2( psts, "APU1 Ready to Start" ) );
+		Add( pAPUReadyToStart[1] = new StandardTalkback2( psts, "APU2 Ready to Start" ) );
+		Add( pAPUReadyToStart[2] = new StandardTalkback2( psts, "APU3 Ready to Start" ) );
 
 		Add(pCenterlineLatch = new StdSwitch2(psts, "ET Umb Centerline Latch"));
 		Add(pLeftUmbDoor = new StdSwitch3(psts, "ET Umb Left Door"));
@@ -47,11 +46,11 @@ namespace vc
 		Add(pRightUmbDoor = new StdSwitch3(psts, "ET Umb Right Door"));
 		Add(pRightUmbDoorLatch = new StdSwitch3(psts, "ET Umb Right Door Latch"));
 
-		Add(pETUmbLDoor = new StandardTalkback(psts, "ET Umb Left Door Tb", 2));
-		Add(pETUmbRDoor = new StandardTalkback(psts, "ET Umb Right Door Tb", 2));
-		Add(pETUmbDoorCLLatch = new StandardTalkback(psts, "ET Umb Door CL Latch Tb", 1));
-		Add(pETUmbLLatch = new StandardTalkback(psts, "ET Umb Left Door Latch Tb", 2));
-		Add(pETUmbRLatch = new StandardTalkback(psts, "ET Umb Right Door Latch Tb", 2));
+		Add( pETUmbLDoor = new StandardTalkback3( psts, "ET Umb Left Door Tb" ) );
+		Add( pETUmbRDoor = new StandardTalkback3( psts, "ET Umb Right Door Tb" ) );
+		Add( pETUmbDoorCLLatch = new StandardTalkback3( psts, "ET Umb Door CL Latch Tb" ) );
+		Add( pETUmbLLatch = new StandardTalkback3( psts, "ET Umb Left Door Latch Tb" ) );
+		Add( pETUmbRLatch = new StandardTalkback3( psts, "ET Umb Right Door Latch Tb" ) );
 
 		Add(pMPSPower[0][0] = new StdSwitch2(psts, "MPS Pwr Left AC2"));
 		Add(pMPSPower[0][1] = new StdSwitch2(psts, "MPS Pwr Ctr AC1"));
@@ -158,22 +157,12 @@ namespace vc
 		AtlantisPanel::RegisterVC();
 
 		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
-		SURFHANDLE panelr2_tex = oapiGetTextureHandle (STS()->hOrbiterVCMesh, TEX_PANELR2_VC);
 
 		oapiVCRegisterArea (AID_R2, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBPRESSED | PANEL_MOUSE_LBUP);
 		oapiVCSetAreaClickmode_Quadrilateral (AID_R2, _V(0.9524, 1.8417, 14.6602)+ofs, _V(1.4477, 1.9868, 14.6602)+ofs,
 			_V(.9524, 1.7286, 13.8048)+ofs, _V(1.4477, 1.8755, 13.8048)+ofs);
-
-		// register the talkbacks
-		/**** APU Ready to Start ****/
-		oapiVCRegisterArea (AID_R2_TKBK1, _R( 451, 706, 483, 724), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
-		oapiVCRegisterArea (AID_R2_TKBK2, _R( 525, 706, 557, 724), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
-		oapiVCRegisterArea (AID_R2_TKBK3, _R( 598, 706, 630, 724), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
-		oapiVCRegisterArea (AID_R2_TKBK4, _R( 253, 1723, 285, 1741), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
-		oapiVCRegisterArea (AID_R2_TKBK5, _R( 379, 1723, 411, 1741), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
-		oapiVCRegisterArea (AID_R2_TKBK6, _R( 480, 1723, 512, 1741), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
-		oapiVCRegisterArea (AID_R2_TKBK7, _R( 574, 1723, 606, 1741), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
-		oapiVCRegisterArea (AID_R2_TKBK8, _R( 672, 1726, 704, 1744), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelr2_tex);
+		
+		return;
 	}
 
 	void PanelR2::DefineVC()
@@ -258,11 +247,9 @@ namespace vc
 		pAPUFuelTkVlv[2]->DefineSwitchGroup(GRP_R2B39_VC);
 		pAPUFuelTkVlv[2]->SetInitialAnimState(0.5f);
 
-		for(int i=0;i<3;i++) {
-			pAPUReadyToStart[i]->AddAIDToRedrawEventList(AID_R2_TKBK1+i);
-			pAPUReadyToStart[i]->SetDimensions(32, 18);
-			pAPUReadyToStart[i]->SetTalkbackLocation(0, 0);
-		}
+		pAPUReadyToStart[0]->DefineMeshGroups( STS()->mesh_vc, GRP_R2_DS1_U_VC, GRP_R2_DS1_L_VC );
+		pAPUReadyToStart[1]->DefineMeshGroups( STS()->mesh_vc, GRP_R2_DS2_U_VC, GRP_R2_DS2_L_VC );
+		pAPUReadyToStart[2]->DefineMeshGroups( STS()->mesh_vc, GRP_R2_DS3_U_VC, GRP_R2_DS3_L_VC );
 
 		/**** ET Umbilical Doors ****/
 		pCenterlineLatch->SetMouseRegion(0.193928f, 0.884566f, 0.253453f, 0.916514f);
@@ -291,25 +278,15 @@ namespace vc
 		pRightUmbDoorLatch->DefineSwitchGroup(GRP_R2B53_VC);
 		pRightUmbDoorLatch->SetInitialAnimState(0.5f);
 
-		pETUmbDoorCLLatch->AddAIDToRedrawEventList(AID_R2_TKBK4);
-		pETUmbDoorCLLatch->SetDimensions(32, 18);
-		pETUmbDoorCLLatch->SetTalkbackLocation(0, 0);
+		pETUmbDoorCLLatch->DefineMeshGroup( STS()->mesh_vc, GRP_R2_DS4_VC );
 
-		pETUmbLDoor->AddAIDToRedrawEventList(AID_R2_TKBK5);
-		pETUmbLDoor->SetDimensions(32, 18);
-		pETUmbLDoor->SetTalkbackLocation(0, 0);
+		pETUmbLDoor->DefineMeshGroup( STS()->mesh_vc, GRP_R2_DS5_VC );
 
-		pETUmbLLatch->AddAIDToRedrawEventList(AID_R2_TKBK6);
-		pETUmbLLatch->SetDimensions(32, 18);
-		pETUmbLLatch->SetTalkbackLocation(0, 0);
+		pETUmbLLatch->DefineMeshGroup( STS()->mesh_vc, GRP_R2_DS6_VC );
 
-		pETUmbRDoor->AddAIDToRedrawEventList(AID_R2_TKBK7);
-		pETUmbRDoor->SetDimensions(32, 18);
-		pETUmbRDoor->SetTalkbackLocation(0, 0);
+		pETUmbRDoor->DefineMeshGroup( STS()->mesh_vc, GRP_R2_DS7_VC );
 
-		pETUmbRLatch->AddAIDToRedrawEventList(AID_R2_TKBK8);
-		pETUmbRLatch->SetDimensions(32, 18);
-		pETUmbRLatch->SetTalkbackLocation(0, 0);
+		pETUmbRLatch->DefineMeshGroup( STS()->mesh_vc, GRP_R2_DS8_VC );
 
 		/**** MPS He Isol A ****/
 		pMPSHeIsolA[0]->SetMouseRegion(0.081538f, 0.322382f, 0.157321f, 0.352672f);
@@ -484,7 +461,7 @@ namespace vc
 			pAPUFuelTkVlv[i]->ConnectPort(1, pBundle, 2);
 			pHydPumpPress[i]->ConnectPort(1, pBundle, 3);
 			APU_HydraulicPress[i].Connect(pBundle, 4);
-			pAPUReadyToStart[i]->SetInput(0, pBundle, 5, TB_GRAY);
+			pAPUReadyToStart[i]->SetInput( pBundle, 5, TB_GRAY );
 
 			sprintf_s(cbuf, 255, "WSB%d", i+1);
 			pBundle=STS()->BundleManager()->CreateBundle(cbuf, 16);

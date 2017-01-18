@@ -31,7 +31,7 @@ IDB_PBILIGHTS           BITMAP                  "Bitmaps\\OrbitDAP_PBI_lights.bm
 IDB_ODSBUTTONS          BITMAP                  "Bitmaps\\ODSbuttons.bmp"
 IDB_SSMELIGHTS          BITMAP                  "Bitmaps\\SSME_lights.bmp"
 IDB_A8LIGHTS            BITMAP                  "Bitmaps\\A8lights.bmp"
-IDB_DEUCHARACTERSFAULT             BITMAP                  "Bitmaps\\DEU_Raw_fault.bmp"
+IDB_DEUCHARACTERSFAULT  BITMAP                  "Bitmaps\\DEU_Raw_fault.bmp"
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -42,13 +42,6 @@ IDB_DEUCHARACTERSFAULT             BITMAP                  "Bitmaps\\DEU_Raw_fau
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 #pragma code_page(1252)
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
-
-IDB_TKBKLABEL           BITMAP                  "Bitmaps\\tkbk_label.bmp"
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////

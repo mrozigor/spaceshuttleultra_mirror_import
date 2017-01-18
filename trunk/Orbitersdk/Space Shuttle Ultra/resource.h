@@ -2,7 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by Atlantis.rc
 //
-#define IDB_TKBKLABEL                   113
 #define IDB_CLOCKDIGITS                 115
 #define IDB_7SEGDIGITS                  116
 #define IDB_DEUCHARACTERS               117
