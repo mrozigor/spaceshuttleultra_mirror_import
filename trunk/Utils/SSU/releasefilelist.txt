@@ -264,6 +264,7 @@ Scenarios\Space Shuttle Ultra\Testing scenarios\EDW 22 TAEM.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\EDW Entry.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\FCS Checkout.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\FMI33 TAEM.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\ISS Radar Test.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\KSC15 final approach.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\MLP roll-off.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\Payload Latch Test.scn
