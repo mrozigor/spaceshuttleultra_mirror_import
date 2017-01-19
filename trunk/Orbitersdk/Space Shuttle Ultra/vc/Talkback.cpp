@@ -1,6 +1,7 @@
 #include "Talkback.h"
 #include "../Atlantis.h"
 #include <cassert>
+#include <OrbiterSoundSDK40.h>
 
 
 namespace vc
@@ -19,6 +20,18 @@ namespace vc
 	void BasicTalkback::SetInactiveSegment( unsigned short _usFlag )
 	{
 		usInactiveFlag = _usFlag;
+	}
+
+	void BasicTalkback::SoundOff( void ) const
+	{
+		PlayVesselWave( STS()->GetSoundID(), TB_OFF_SOUND );
+		return;
+	}
+
+	void BasicTalkback::SoundOn( void ) const
+	{
+		PlayVesselWave( STS()->GetSoundID(), TB_ON_SOUND );
+		return;
 	}
 
 
@@ -56,6 +69,9 @@ namespace vc
 		
 		if ((tmp_U != tkbk_state_U) || (tmp_L != tkbk_state_L))
 		{
+			if (tmp_L == usInactiveFlag) SoundOff();
+			else SoundOn();
+
 			tkbk_next_state_U = tmp_U;
 			tkbk_next_state_L = tmp_L;
 			UpdateUV();
@@ -170,6 +186,9 @@ namespace vc
 
 		if (tmp != tkbk_state)
 		{
+			if (tmp == usInactiveFlag) SoundOff();
+			else SoundOn();
+
 			tkbk_next_state = tmp;
 			UpdateUV();
 		}
