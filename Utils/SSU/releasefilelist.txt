@@ -298,6 +298,8 @@ Sound\_CustomVesselsSounds\SpaceShuttleUltra\SSME_shutdown.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\SSME_sustain.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\switch_guard.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\switch_throw.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\talkback_off.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\talkback_on.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\VAB_ambient_noise.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\VAB_crane_noise.wav
 Textures\SSU\10K_marker.dds

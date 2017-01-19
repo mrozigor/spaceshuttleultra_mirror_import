@@ -43,6 +43,9 @@ namespace vc
 			unsigned short usInactiveFlag;
 			unsigned short tkbk_default_state;
 
+			void SoundOff( void ) const;
+			void SoundOn( void ) const;
+
 		public:
 			BasicTalkback(Atlantis* _sts, const std::string& _ident);
 			virtual ~BasicTalkback();

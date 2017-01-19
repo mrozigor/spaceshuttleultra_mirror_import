@@ -103,6 +103,10 @@ const int SWITCH_THROW_SOUND = 10;
 const static char* SWITCH_THROW_FILE = "switch_throw.wav";
 const int KEY_PRESS_SOUND = 11;
 const static char* KEY_PRESS_FILE = "key_press.wav";
+const int TB_OFF_SOUND = 12;
+const static char* TB_OFF_FILE = "talkback_off.wav";
+const int TB_ON_SOUND = 13;
+const static char* TB_ON_FILE = "talkback_on.wav";
 
 const static char* TEXT_RCSCONTROL = "Controlling RCS";
 const static char* TEXT_RMSCONTROL = "Controlling RMS";
