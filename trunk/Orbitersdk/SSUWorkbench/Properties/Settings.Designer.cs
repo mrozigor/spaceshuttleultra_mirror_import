@@ -22,5 +22,17 @@ namespace SSUWorkbench.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string orbiterexepath {
+            get {
+                return ((string)(this["orbiterexepath"]));
+            }
+            set {
+                this["orbiterexepath"] = value;
+            }
+        }
     }
 }
