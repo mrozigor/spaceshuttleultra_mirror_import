@@ -25,24 +25,34 @@ namespace SSUWorkbench
 	public partial class MainWindow : RibbonWindow
 	{
 		private string orbiterpath;
-		internal SSUW_File_IO fileio { get; private set; }
-		internal Mission mission { get; private set; }
+		internal model.Scenario scenario { get; private set; }
+		//internal Mission mission { get; private set; }
 
 		public MainWindow()
 		{
 			InitializeComponent();
 
-			fileio = new SSUW_File_IO();
-			mission = new Mission();
+			//mission = new Mission();
 
-			mission.LoadDefault();
-			DataContext = mission;
-
+			//mission.LoadDefault();
+			//DataContext = mission;
+			
 			if (GetOrbiterPath() == false) System.Environment.Exit( 0 );//System.Windows.Forms.Application.Exit();
 		}
 
 		private bool GetOrbiterPath()
 		{
+			// first check if anything has been saved,and if it still exists
+			string tmp = SSUWorkbench.Properties.Settings.Default.orbiterexepath;
+			if (tmp.Length  > 0)
+			{
+				if (System.IO.File.Exists( tmp + "orbiter.exe" ))
+				{
+					orbiterpath = tmp;
+					return true;
+				}
+			}
+
 			OpenFileDialog openfiledialog = new OpenFileDialog();
 
 			openfiledialog.Title = "Locate orbiter.exe...";
@@ -51,6 +61,9 @@ namespace SSUWorkbench
 			if (openfiledialog.ShowDialog() == true)
 			{
 				orbiterpath = openfiledialog.FileName.Substring( 0, openfiledialog.FileName.LastIndexOf( "\\" ) + 1 );
+				// save
+				SSUWorkbench.Properties.Settings.Default.orbiterexepath = orbiterpath;
+				SSUWorkbench.Properties.Settings.Default.Save();
 				return true;
 			}
 			return false;
@@ -99,9 +112,10 @@ namespace SSUWorkbench
 
 			if (openfiledialog.ShowDialog() == true)
 			{
-				MessageBox.Show( "opening '" + openfiledialog.FileName + "'" );
-				mission = fileio.Load( openfiledialog.FileName, orbiterpath );
-				DataContext = mission;// load to screen
+				//MessageBox.Show( "opening '" + openfiledialog.FileName + "'" );
+				scenario = new model.Scenario();
+				scenario.Load( openfiledialog.FileName, orbiterpath );
+				DataContext = scenario;// load to screen
 				MessageBox.Show( "done!" );
 			}
 			return;
@@ -117,8 +131,8 @@ namespace SSUWorkbench
 
 			if (savefiledialog.ShowDialog() == true)
 			{
-				MessageBox.Show( "opening '" + savefiledialog.FileName + "'" );
-				fileio.Save( savefiledialog.FileName, orbiterpath, mission );
+				//MessageBox.Show( "opening '" + savefiledialog.FileName + "'" );
+				scenario.Save( savefiledialog.FileName, orbiterpath );
 				MessageBox.Show( "done!" );
 			}
 			return;

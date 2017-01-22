@@ -85,13 +85,15 @@
     <Compile Include="OMSRCS.xaml.cs">
       <DependentUpon>OMSRCS.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OrbiterVessel.cs" />
+    <Compile Include="Scenario.cs" />
     <Compile Include="Scenario.xaml.cs">
       <DependentUpon>Scenario.xaml</DependentUpon>
     </Compile>
     <Compile Include="SSME.xaml.cs">
       <DependentUpon>SSME.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SSUW_File_IO.cs" />
+    <Compile Include="SSUVessel.cs" />
     <Compile Include="LaunchTargets.cs" />
     <Compile Include="MECOTool.xaml.cs">
       <DependentUpon>MECOTool.xaml</DependentUpon>

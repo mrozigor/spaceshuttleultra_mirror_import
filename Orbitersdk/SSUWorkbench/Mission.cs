@@ -37,19 +37,6 @@ namespace SSUWorkbench.model
 		private Orbiter orbitervehicle;
 
 		/// <summary>
-		/// Description to be used in the scenario file 
-		/// </summary>
-		private string description;
-		public string Description
-		{
-			get { return description; }
-			set
-			{
-				description = value;
-				OnPropertyChanged( "Description" );
-			}
-		}
-		/// <summary>
 		/// The name of the launch site
 		/// </summary>
 		public string LaunchSiteName
@@ -73,128 +60,7 @@ namespace SSUWorkbench.model
 			get { return orbitervehicle; }
 			set { orbitervehicle = value; }
 		}
-		/// <summary>
-		/// Scenario system
-		/// </summary>
-		private string scnsystem;
-		public string scnSystem
-		{
-			get { return scnsystem; }
-			set { scnsystem = value; }
-		}
-		/// <summary>
-		/// The date/time at the start of the simulation
-		/// </summary>
-		private DateTime scndatetime;
-		public DateTime scnDatetime
-		{
-			get { return scndatetime; }
-			set { scndatetime = value; }
-		}
-		/// <summary>
-		/// Scenario context
-		/// (null if none)
-		/// </summary>
-		private string scncontext;
-		public string scnContext
-		{
-			get { return scncontext; }
-			set { scncontext = value; }
-		}
-		/// <summary>
-		/// Ship controlled in the scenario
-		/// </summary>
-		private string scnship;
-		public string scnShip
-		{
-			get { return scnship; }
-			set { scnship = value; }
-		}
-		/// <summary>
-		/// Scenario camera target
-		/// </summary>
-		private string scncameratarget;
-		public string scnCameraTarget
-		{
-			get { return scncameratarget; }
-			set { scncameratarget = value; }
-		}
-		
-		/// <summary>
-		/// Scenario camera mode
-		/// 0 = Cockpit
-		/// 1 = Extern
-		/// </summary>
-		private int scncameramode;
-		public int scnCameraMode
-		{
-			get { return scncameramode; }
-			set { scncameramode = value; }
-		}
-		/// <summary>
-		/// Scenario camera field of view
-		/// </summary>
-		private double scncamerafov;
-		public double scnCameraFOV
-		{
-			get { return scncamerafov; }
-			set { scncamerafov = value; }
-		}
-		/// <summary>
-		/// Scenario camera position
-		/// </summary>
-		private double scncameraposx;
-		public double scnCameraPosX
-		{
-			get { return scncameraposx; }
-			set { scncameraposx = value; }
-		}
-		private double scncameraposy;
-		public double scnCameraPosY
-		{
-			get { return scncameraposy; }
-			set { scncameraposy = value; }
-		}
-		private double scncameraposz;
-		public double scnCameraPosZ
-		{
-			get { return scncameraposz; }
-			set { scncameraposz = value; }
-		}
-		/// <summary>
-		/// Scenario camera track mode
-		/// </summary>
-		private string scncameratrackmode;
-		public string scnCameraTrackMode
-		{
-			get { return scncameratrackmode; }
-			set { scncameratrackmode = value; }
-		}
-		/// <summary>
-		/// Scenario cockpit type
-		/// 0 = normal
-		/// 1 = 2D
-		/// 2 = 3D
-		/// </summary>
-		private int scncockpittype;
-		public int scnCockpitType
-		{
-			get { return scncockpittype; }
-			set { scncockpittype = value; }
-		}
-		/// <summary>
-		/// HUD type
-		/// 0 = (off)
-		/// 1 = Orbit
-		/// 2 = Surface
-		/// 3 = Docking
-		/// </summary>
-		private int scnhudtype;
-		public int scnHUDType
-		{
-			get { return scnhudtype; }
-			set { scnhudtype = value; }
-		}
+
 		/// <summary>
 		/// Name of OV used in this mission
 		/// </summary>
@@ -263,6 +129,97 @@ namespace SSUWorkbench.model
 				}
 			}
 		}
+
+		/// <summary>
+		/// The name of the OV texture
+		/// </summary>
+		private string ovtex;
+		public string OVtex
+		{
+			get { return ovtex; }
+			set { ovtex = value; }
+		}
+
+		/// <summary>
+		/// MECO target inclination
+		/// </summary>
+		private double meco_inc;
+		public double MECO_Inc
+		{
+			get { return meco_inc; }
+			set { meco_inc = value; }
+		}
+
+		/// <summary>
+		/// MECO target longitude of ascending node
+		/// </summary>
+		private double meco_lan;
+		public double MECO_LAN
+		{
+			get { return meco_lan; }
+			set { meco_lan = value; }
+		}
+
+		/// <summary>
+		/// MECO target altitude
+		/// </summary>
+		private double meco_alt;
+		public double MECO_Alt
+		{
+			get { return meco_alt; }
+			set { meco_alt = value; }
+		}
+
+		/// <summary>
+		/// MECO target velocity
+		/// </summary>
+		private double meco_vel;
+		public double MECO_Vel
+		{
+			get { return meco_vel; }
+			set { meco_vel = value; }
+		}
+
+		/// <summary>
+		/// MECO target flight path angle
+		/// </summary>
+		private double meco_fpa;
+		public double MECO_FPA
+		{
+			get { return meco_fpa; }
+			set { meco_fpa = value; }
+		}
+
+		/// <summary>
+		/// Perform roll-to-heads-up
+		/// </summary>
+		private bool rthu;
+		public bool RTHU
+		{
+			get { return rthu; }
+			set { rthu = value; }
+		}
+
+		/// <summary>
+		/// Perform OMS assist
+		/// </summary>
+		private bool omsassistena;
+		public bool OMSAssistEnable
+		{
+			get { return omsassistena; }
+			set { omsassistena = value; }
+		}
+
+		/// <summary>
+		/// OMS assist duration
+		/// </summary>
+		private double omsassistdur;
+		public double OMSAssistDuration
+		{
+			get { return omsassistdur; }
+			set { omsassistdur = value; }
+		}
+
 		/// <summary>
 		/// Is the RMS is installed
 		/// </summary>
@@ -383,7 +340,7 @@ namespace SSUWorkbench.model
 		{
 			ovname = "Atlantis";
 			missionName = "STS-101";
-			description = "The STS-101 launch scenario, as simulated by Space Shuttle Ultra.";
+			//description = "The STS-101 launch scenario, as simulated by Space Shuttle Ultra.";
 			rms = true;
 			kubandantenna = true;
 			ods = true;
