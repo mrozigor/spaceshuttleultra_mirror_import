@@ -87,7 +87,7 @@
                 <Label Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Width="48">Minute</Label>
                 <TextBox x:Name="tbMinute" Grid.Row="1" Grid.Column="3" Text="{Binding scnMinute}" Margin="2,3,0,0" MaxLength="2" MaxLines="1" />
                 <Label Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right" Width="49">Second</Label>
-                <TextBox x:Name="tbSecond" Grid.Row="2" Grid.Column="3" Text="{Binding scnSecond}" Margin="2,3,0,0" MaxLength="2" MaxLines="1" />
+                <TextBox x:Name="tbSecond" Grid.Row="2" Grid.Column="3" Text="{Binding scnSecond}" Margin="2,3,0,0" MaxLength="6" MaxLines="1" />
             </Grid>
         </GroupBox>
     </Grid>

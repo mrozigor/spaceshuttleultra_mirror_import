@@ -35,8 +35,8 @@
                         </StackPanel>
                     </RibbonApplicationMenu.AuxiliaryPaneContent>
                     <RibbonApplicationMenuItem x:Name="ribbonNew" Header="New"/>
-                    <RibbonApplicationMenuItem x:Name="ribbonOpen" Header="Open" Click="ribbonOpen_Click"/>
-                    <RibbonApplicationMenuItem x:Name="ribbonSave" Header="Save" ImageSource="{StaticResource SAVE_LARGE}" Click="ribbonSave_Click"/>
+                    <RibbonApplicationMenuItem x:Name="ribbonOpen" Header="Open (Ctrl + O)" Click="ribbonOpen_Click"/>
+                    <RibbonApplicationMenuItem x:Name="ribbonSave" Header="Save (Ctrl + S)" ImageSource="{StaticResource SAVE_LARGE}" Click="ribbonSave_Click"/>
                     <RibbonApplicationMenuItem x:Name="ribbonSaveAs" Header="Save as" ImageSource="{StaticResource SAVE_AS_LARGE}"/>
                     <RibbonApplicationMenuItem Header="Options"/>
                     <RibbonApplicationMenu.FooterPaneContent>
