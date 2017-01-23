@@ -74,7 +74,7 @@ namespace SSUWorkbench.model
 							scnDay = dt.Day;
 							scnHour = dt.Hour;
 							scnMinute = dt.Minute;
-							scnSecond = dt.Second;// + (int)((0.1 * dt.Millisecond) + 0.5);
+							scnSecond = dt.Second + (0.001 * dt.Millisecond);
 						}
 						else if (line.StartsWith( "Context " ))
 						{
@@ -159,6 +159,14 @@ namespace SSUWorkbench.model
 							if (tmp == "Orbit") scnHUDType = 1;
 							else if (tmp == "Surface") scnHUDType = 2;
 							else scnHUDType = 3;
+						}
+						else if (line.StartsWith( "REF " ))
+						{
+							scnHUDRef = line.Substring( 4, line.Length - 4 );
+						}
+						else if (line.StartsWith( "NAV " ))
+						{
+							scnHUDNAV = Convert.ToInt32( line.Substring( 4, line.Length - 4 ) );
 						}
 					}
 				}
@@ -348,8 +356,9 @@ namespace SSUWorkbench.model
 			////////////////// environment //////////////////
 			file.WriteLine( "BEGIN_ENVIRONMENT" );
 			file.WriteLine( "  System " + scnSystem );
-			DateTime dt = new DateTime( scnYear, scnMonth, scnDay, scnHour, scnMinute, scnSecond );
-			file.WriteLine( "  Date MJD " + string.Format( "{0:f6}", dt.ToOADate() + 15018.0 ) );
+			int ms = Convert.ToInt32( 1000 * (scnSecond - (int)scnSecond) );
+			DateTime dt = new DateTime( scnYear, scnMonth, scnDay, scnHour, scnMinute, (int)scnSecond, ms );
+			file.WriteLine( "  Date MJD " + string.Format( "{0:f10}", dt.ToOADate() + 15018.0 ) );
 			if (scnContext != null) file.WriteLine( "  Context " + scnContext );
 			file.WriteLine( "END_ENVIRONMENT" );
 			file.WriteLine( "" );
@@ -361,7 +370,7 @@ namespace SSUWorkbench.model
 
 			////////////////// camera //////////////////
 			file.WriteLine( "BEGIN_CAMERA" );
-			if (scnCameraMode == 1) file.WriteLine( "  TARGET " + scnCameraTarget );// might be used on both camera modes
+			/*if (scnCameraMode == 1)*/ file.WriteLine( "  TARGET " + scnCameraTarget );// seems to be used on both camera modes
 			if (scnCameraMode == 0) file.WriteLine( "  MODE Cockpit" );
 			else file.WriteLine( "  MODE Extern" );
 			if (scnCameraMode == 1) file.WriteLine( "  POS " + string.Format( "{0:f6} {1:f6} {2:f6}", scnCameraPosX, scnCameraPosY, scnCameraPosZ ) );
@@ -382,9 +391,17 @@ namespace SSUWorkbench.model
 			if (scnHUDType != 0)
 			{
 				file.WriteLine( "BEGIN_HUD" );
-				if (scnHUDType == 1) file.WriteLine( "  TYPE Orbit" );
+				if (scnHUDType == 1)
+				{
+					file.WriteLine( "  TYPE Orbit" );
+					if (!String.IsNullOrEmpty( scnHUDRef )) file.WriteLine( "  REF " + scnHUDRef );
+				}
 				else if (scnHUDType == 2) file.WriteLine( "  TYPE Surface" );
-				else file.WriteLine( "  TYPE Docking" );
+				else
+				{
+					file.WriteLine( "  TYPE Docking" );
+					if (scnHUDNAV != -1) file.WriteLine( "  NAV " + scnHUDNAV );
+				}
 				file.WriteLine( "END_HUD" );
 				file.WriteLine( "" );
 			}
@@ -513,8 +530,8 @@ namespace SSUWorkbench.model
 				OnPropertyChanged( "scnMinute" );
 			}
 		}
-		private int scnsecond;
-		public int scnSecond
+		private double scnsecond;
+		public double scnSecond
 		{
 			get { return scnsecond; }
 			set
@@ -662,6 +679,7 @@ namespace SSUWorkbench.model
 				OnPropertyChanged( "scnCockpitType" );
 			}
 		}
+		
 		/// <summary>
 		/// HUD type
 		/// 0 = (off)
@@ -677,6 +695,34 @@ namespace SSUWorkbench.model
 			{
 				scnhudtype = value;
 				OnPropertyChanged( "scnHUDType" );
+			}
+		}
+
+		/// <summary>
+		/// HUD reference (Orbit type only)
+		/// </summary>
+		private string scnhudref;
+		public string scnHUDRef
+		{
+			get { return scnhudref; }
+			set
+			{
+				scnhudref = value;
+				OnPropertyChanged( "scnHUDRef" );
+			}
+		}
+
+		/// <summary>
+		/// HUD nav (Docking type only)
+		/// </summary>
+		private int scnhudnav;
+		public int scnHUDNAV
+		{
+			get { return scnhudnav; }
+			set
+			{
+				scnhudnav = value;
+				OnPropertyChanged( "scnHUDNAV" );
 			}
 		}
 

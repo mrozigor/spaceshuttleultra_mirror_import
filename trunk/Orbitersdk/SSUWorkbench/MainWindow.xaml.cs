@@ -69,6 +69,41 @@ namespace SSUWorkbench
 			return false;
 		}
 
+		private void OpenScenario()
+		{
+			OpenFileDialog openfiledialog = new OpenFileDialog();
+
+			openfiledialog.Title = "Open Scenario File...";
+			openfiledialog.Filter = "Scenario files (*.scn)|*.scn|All files (*.*)|*.*";
+			openfiledialog.InitialDirectory = orbiterpath + "Scenarios\\Space Shuttle Ultra";
+
+			if (openfiledialog.ShowDialog() == true)
+			{
+				//MessageBox.Show( "opening '" + openfiledialog.FileName + "'" );
+				scenario = new model.Scenario();
+				scenario.Load( openfiledialog.FileName, orbiterpath );
+				DataContext = scenario;// load to screen
+				MessageBox.Show( "done!" );
+			}
+			return;
+		}
+
+		private void SaveScenario()
+		{
+			SaveFileDialog savefiledialog = new SaveFileDialog();
+
+			savefiledialog.Title = "Save Scenario File...";
+			savefiledialog.Filter = "Scenario files (*.scn)|*.scn";
+
+			if (savefiledialog.ShowDialog() == true)
+			{
+				//MessageBox.Show( "opening '" + savefiledialog.FileName + "'" );
+				scenario.Save( savefiledialog.FileName, orbiterpath );
+				MessageBox.Show( "done!" );
+			}
+			return;
+		}
+
 		private void LaunchSite_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			if (LaunchSite.SelectedIndex == 0)
@@ -103,44 +138,36 @@ namespace SSUWorkbench
 
 		private void ribbonOpen_Click(object sender, RoutedEventArgs e)
 		{
-			// open
-			OpenFileDialog openfiledialog = new OpenFileDialog();
-
-			openfiledialog.Title = "Open Scenario File...";
-			openfiledialog.Filter = "Scenario files (*.scn)|*.scn|All files (*.*)|*.*";
-			openfiledialog.InitialDirectory = orbiterpath + "Scenarios\\Space Shuttle Ultra";
-
-			if (openfiledialog.ShowDialog() == true)
-			{
-				//MessageBox.Show( "opening '" + openfiledialog.FileName + "'" );
-				scenario = new model.Scenario();
-				scenario.Load( openfiledialog.FileName, orbiterpath );
-				DataContext = scenario;// load to screen
-				MessageBox.Show( "done!" );
-			}
+			OpenScenario();
 			return;
 		}
 
 		private void ribbonSave_Click(object sender, RoutedEventArgs e)
 		{
-			// save
-			SaveFileDialog savefiledialog = new SaveFileDialog();
-
-			savefiledialog.Title = "Save Scenario File...";
-			savefiledialog.Filter = "Scenario files (*.scn)|*.scn";
-
-			if (savefiledialog.ShowDialog() == true)
-			{
-				//MessageBox.Show( "opening '" + savefiledialog.FileName + "'" );
-				scenario.Save( savefiledialog.FileName, orbiterpath );
-				MessageBox.Show( "done!" );
-			}
+			SaveScenario();
 			return;
 		}
 
 		private void RibbonButton_Click(object sender, RoutedEventArgs e)
 		{
 			System.Environment.Exit( 0 );//System.Windows.Forms.Application.Exit();
+			return;
+		}
+
+		protected override void OnPreviewKeyDown(System.Windows.Input.KeyEventArgs e)
+		{
+			if ((e.Key == Key.O) && (Keyboard.IsKeyDown( Key.LeftCtrl ) || Keyboard.IsKeyDown( Key.RightCtrl )))
+			{
+				OpenScenario();
+				e.Handled = true;
+			}
+			else if ((e.Key == Key.S) && (Keyboard.IsKeyDown( Key.LeftCtrl ) || Keyboard.IsKeyDown( Key.RightCtrl )))
+			{
+				SaveScenario();
+				e.Handled = true;
+			}
+			
+			base.OnPreviewKeyDown(e);
 			return;
 		}
 	}

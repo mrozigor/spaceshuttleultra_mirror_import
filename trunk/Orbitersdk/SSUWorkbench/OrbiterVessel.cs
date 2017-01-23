@@ -28,6 +28,7 @@ namespace SSUWorkbench.model
 			vrotz = -1.0;
 			fuel = -1.0;
 			alt = -9999.0;
+			rcsmode = -1;
 			afcmode = -1;
 			xpdr = -1;
 			prplevel = new List<Tuple<int,double>>();
@@ -189,6 +190,10 @@ namespace SSUWorkbench.model
 				{
 					alt = Convert.ToDouble( line.Substring( 4, line.Length - 4 ) );
 				}
+				else if (line.StartsWith( "RCSMODE " ))
+				{
+					rcsmode = Convert.ToInt32( line.Substring( 8, line.Length - 8 ) );
+				}
 				else if (line.StartsWith( "AFCMODE " ))
 				{
 					afcmode = Convert.ToInt32( line.Substring( 8, line.Length - 8 ) );
@@ -275,6 +280,8 @@ namespace SSUWorkbench.model
 			}
 			if (attached.Count > 0) scn.WriteLine( "  ATTACHED" + attch );
 
+			if (rcsmode != -1) scn.WriteLine( "  RCSMODE " + rcsmode );
+			
 			if (afcmode != -1) scn.WriteLine( "  AFCMODE " + afcmode );
 
 			if (fuel != -1.0) scn.WriteLine( "  FUEL " + fuel );
@@ -373,6 +380,8 @@ namespace SSUWorkbench.model
 		protected double poslon;
 
 		protected double alt;
+
+		protected int rcsmode;
 
 		protected int afcmode;
 
