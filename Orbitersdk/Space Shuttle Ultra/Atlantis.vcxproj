@@ -252,7 +252,7 @@
     <ClCompile Include="CRT.cpp" />
     <ClCompile Include="dps\AerojetDAP.cpp" />
     <ClCompile Include="dps\AODModule.cpp" />
-    <ClCompile Include="dps\AscentGuidance.cpp" />
+    <ClCompile Include="dps\AscentDAP.cpp" />
     <ClCompile Include="dps\ATVC_SOP.cpp" />
     <ClCompile Include="dps\ETSepSequence.cpp" />
     <ClCompile Include="dps\GeneralDisplays.cpp" />
@@ -260,6 +260,7 @@
     <ClCompile Include="dps\HALS_Types.cpp" />
     <ClCompile Include="dps\IOModule.cpp" />
     <ClCompile Include="dps\IO_Control.cpp" />
+    <ClCompile Include="dps\Landing_SOP.cpp" />
     <ClCompile Include="dps\MEC_SOP.cpp" />
     <ClCompile Include="dps\MM801.cpp" />
     <ClCompile Include="dps\MMU.cpp" />
@@ -268,7 +269,13 @@
     <ClCompile Include="dps\OMSBurnSoftware.cpp" />
     <ClCompile Include="dps\OrbitDAP.cpp" />
     <ClCompile Include="dps\OrbitTgtSoftware.cpp" />
+    <ClCompile Include="dps\RHC_RM.cpp" />
+    <ClCompile Include="dps\RHC_SOP.cpp" />
+    <ClCompile Include="dps\RPTA_RM.cpp" />
+    <ClCompile Include="dps\RPTA_SOP.cpp" />
     <ClCompile Include="dps\RSLS.cpp" />
+    <ClCompile Include="dps\SBTC_RM.cpp" />
+    <ClCompile Include="dps\SBTC_SOP.cpp" />
     <ClCompile Include="dps\SimpleGPC.cpp" />
     <ClCompile Include="dps\SimpleGPCSoftware.cpp" />
     <ClCompile Include="dps\SimpleGPCSystem.cpp" />
@@ -277,6 +284,8 @@
     <ClCompile Include="dps\SSME_SOP.cpp" />
     <ClCompile Include="dps\StateVectorSoftware.cpp" />
     <ClCompile Include="dps\Symbol.cpp" />
+    <ClCompile Include="dps\THC_RM.cpp" />
+    <ClCompile Include="dps\THC_SOP.cpp" />
     <ClCompile Include="dps\TransitionDAP.cpp" />
     <ClCompile Include="DragChute.cpp" />
     <ClCompile Include="eps\ACBus.cpp" />
@@ -312,6 +321,7 @@
     <ClCompile Include="vc\7SegDisp_MissionTime.cpp" />
     <ClCompile Include="vc\7SegDisp_RCSOMS_PRPLT_QTY.cpp" />
     <ClCompile Include="vc\7SegDisp_RE_RRA.cpp" />
+    <ClCompile Include="vc\7SegDisp_RMS.cpp" />
     <ClCompile Include="vc\AftMDU.cpp" />
     <ClCompile Include="AirDataProbeSystem.cpp" />
     <ClCompile Include="dps\AP101S.cpp" />

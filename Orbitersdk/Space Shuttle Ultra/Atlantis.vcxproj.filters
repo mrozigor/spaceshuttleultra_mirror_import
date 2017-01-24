@@ -317,9 +317,6 @@
     <ClCompile Include="dps\OrbitTgtSoftware.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="dps\AscentGuidance.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="mps\ComputerInterfaceElectronics.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -513,6 +510,39 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="DragChute.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\AscentDAP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RHC_RM.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RHC_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RPTA_RM.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\RPTA_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\SBTC_RM.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\SBTC_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\Landing_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\THC_RM.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dps\THC_SOP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\7SegDisp_RMS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
