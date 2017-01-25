@@ -23,7 +23,7 @@ namespace SSUWorkbench.model
 			for (int i = 0; i < 12; i++) mfds[i]._params = new List<string>();
 		}
 
-		public void Load( string scnfile, string orbiterpath )
+		public void Load( string scnfile, Mission mission, string orbiterpath )
 		{
 			// TODO missing scenario parameters:
 			// Date JD
@@ -220,7 +220,7 @@ namespace SSUWorkbench.model
 						else if (line.EndsWith( ":SpaceShuttleUltra" ))
 						{
 							// main vessel
-							SSUVessel ssuv = new SSUVessel( orbiterpath );
+							SSUVessel ssuv = new SSUVessel( mission, orbiterpath );
 							ssuv.Load( line, file );
 							scnvessels.Add( ssuv );
 						}

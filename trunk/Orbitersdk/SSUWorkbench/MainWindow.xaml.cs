@@ -26,23 +26,19 @@ namespace SSUWorkbench
 	{
 		private string orbiterpath;
 		internal model.Scenario scenario { get; private set; }
-		//internal Mission mission { get; private set; }
+		internal Mission mission { get; private set; }
+
 
 		public MainWindow()
 		{
 			InitializeComponent();
-
-			//mission = new Mission();
-
-			//mission.LoadDefault();
-			//DataContext = mission;
 			
 			if (GetOrbiterPath() == false) System.Environment.Exit( 0 );//System.Windows.Forms.Application.Exit();
 		}
 
 		private bool GetOrbiterPath()
 		{
-			// first check if anything has been saved,and if it still exists
+			// first check if anything has been saved, and if it still exists
 			string tmp = SSUWorkbench.Properties.Settings.Default.orbiterexepath;
 			if (tmp.Length  > 0)
 			{
@@ -79,10 +75,14 @@ namespace SSUWorkbench
 
 			if (openfiledialog.ShowDialog() == true)
 			{
-				//MessageBox.Show( "opening '" + openfiledialog.FileName + "'" );
 				scenario = new model.Scenario();
-				scenario.Load( openfiledialog.FileName, orbiterpath );
-				DataContext = scenario;// load to screen
+				mission = new Mission();
+				scenario.Load( openfiledialog.FileName, mission, orbiterpath );
+				DataContext = new// load to screen
+				{
+					scenario = this.scenario,
+					mission = this.mission,
+				};
 				MessageBox.Show( "done!" );
 			}
 			return;
@@ -97,7 +97,6 @@ namespace SSUWorkbench
 
 			if (savefiledialog.ShowDialog() == true)
 			{
-				//MessageBox.Show( "opening '" + savefiledialog.FileName + "'" );
 				scenario.Save( savefiledialog.FileName, orbiterpath );
 				MessageBox.Show( "done!" );
 			}

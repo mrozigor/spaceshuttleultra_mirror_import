@@ -66,5 +66,10 @@ namespace SSUWorkbench
 				ckbODS.IsChecked = false;
 			}
 		}
+
+		private void ckbSTBDMPMs_Click(object sender, RoutedEventArgs e)
+		{
+			// TODO OBSS
+		}
 	}
 }

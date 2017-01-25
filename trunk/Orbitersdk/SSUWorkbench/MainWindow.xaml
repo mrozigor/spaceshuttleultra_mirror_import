@@ -122,7 +122,7 @@
                         <Label Grid.Column="0" Grid.Row="0" Margin="0,1">Flight number:</Label>
                         <TextBox Name="FlightNumber" Grid.Column="1" Margin="0,2,0,3"/>
                         <Label Grid.Column="0" Grid.Row="1" Margin="0,1">Flight name:</Label>
-                        <TextBox Name="FlightName" Grid.Column="1" Grid.Row="1" Margin="0,2,0,3"/>
+                        <TextBox Name="FlightName" Grid.Column="1" Grid.Row="1" Margin="0,2,0,3" Text="{Binding mission.MissionName}"/>
                         <Label Grid.Column="0" Grid.Row="2" Margin="0,1">Fiscal year:</Label>
                         <TextBox Name="FiscalYear" Grid.Column="1" Grid.Row="2" Margin="0,2,0,3"/>
                         <Label Grid.Column="0" Grid.Row="3" Margin="0,1">Launch site:</Label>
@@ -154,15 +154,8 @@
             </TabItem>
             <TabItem Header="CREW"/>
             <TabItem Header="LAUNCH">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="200"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Name="LaunchSummary" Grid.Column="0" Margin="2,2,2,2"/>
-                    <local:MECOTool Grid.Column="1"/>
-                </Grid>
-            </TabItem>                
+                <local:Launch />
+            </TabItem>
             <TabItem Header="LANDING"/>
             <TabItem Header="SSME">
                 <local:SSME />

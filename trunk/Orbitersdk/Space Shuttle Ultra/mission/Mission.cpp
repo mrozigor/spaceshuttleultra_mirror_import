@@ -28,10 +28,11 @@ namespace mission {
 		//fLaunchTimeMJD = -1.0;
 		//fLandTimeMJD = -1.0;
 
-		fTargetInc = 28.5*RAD;
+		// STS-101 params
+		fTargetInc = 51.62 * RAD;
 		fMECOAlt = 105564;
-		fMECOVel = 7869.635088;
-		fMECOFPA = 0.747083*RAD;
+		fMECOVel = 7903.449390;
+		fMECOFPA = 0.708380 * RAD;
 
 		bUseOMSAssist = false;
 		OMSAssistDuration = 102;// standard 4000lbs OMS assist

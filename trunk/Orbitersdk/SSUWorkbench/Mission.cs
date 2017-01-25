@@ -23,14 +23,56 @@ namespace SSUWorkbench.model
 	/// <seealso cref="SSUWorkbench.model.STSProgram"/>
 	class Mission : INotifyPropertyChanged
 	{
+		public Mission()
+		{
+			LoadDefault();
+		}
+
+		public void LoadDefault()
+		{
+			//description = "The STS-101 launch scenario, as simulated by Space Shuttle Ultra.";
+			missionName = "STS-101";
+			ovname = "Atlantis";
+			ovtex = "Atlantis_5thmod";
+			meco_inc = 51.62;
+			meco_lan = 0;
+			meco_alt = 105564;
+			meco_vel = 7903.449390;
+			meco_fpa = 0.708380;
+			rthu = true;
+			omsassistena = true;
+			omsassistdur = 59.0;
+			maxthrust = 104.5;
+			qpoly3 = 792.0;
+			qpoly4 = 1304.0;
+			rms = true;
+			kubandantenna = true;
+			stbdmpms = false;
+			ods = true;
+			extal = true;
+			tta = false;
+			afttta = false;
+			fwdbulkdocklights = true;
+			dragchute = true;
+			silts = false;
+			logssmedata = false;
+			ciss = false;
+			cissgprime = true;
+			ase_ius = false;
+			ase_iusaft = false;
+			return;
+		}
+
 		/// <summary>
 		/// The program, to which the mission belongs.
 		/// </summary>
 		private STSProgram program;
+
 		/// <summary>
 		/// The name of the launch site
 		/// </summary>
 		private string launchSiteName;
+
 		/// <summary>
 		/// The orbiter vehicle used in this mission
 		/// </summary>
@@ -43,6 +85,7 @@ namespace SSUWorkbench.model
 		{
 			get { return launchSiteName; }
 		}
+
 		/// <summary>
 		/// The name of the mission
 		/// </summary>
@@ -50,8 +93,13 @@ namespace SSUWorkbench.model
 		public string MissionName
 		{
 			get { return missionName; }
-			set { missionName = value; }
+			set
+			{
+				missionName = value;
+				OnPropertyChanged( "MissionName" );
+			}
 		}
+
 		/// <summary>
 		/// The orbiter vehicle used in this mission
 		/// </summary>
@@ -197,7 +245,11 @@ namespace SSUWorkbench.model
 		public bool RTHU
 		{
 			get { return rthu; }
-			set { rthu = value; }
+			set
+			{
+				rthu = value;
+				OnPropertyChanged( "RTHU" );
+			}
 		}
 
 		/// <summary>
@@ -207,7 +259,11 @@ namespace SSUWorkbench.model
 		public bool OMSAssistEnable
 		{
 			get { return omsassistena; }
-			set { omsassistena = value; }
+			set
+			{
+				omsassistena = value;
+				OnPropertyChanged( "OMSAssistEnable" );
+			}
 		}
 
 		/// <summary>
@@ -217,7 +273,45 @@ namespace SSUWorkbench.model
 		public double OMSAssistDuration
 		{
 			get { return omsassistdur; }
-			set { omsassistdur = value; }
+			set
+			{
+				omsassistdur = value;
+				OnPropertyChanged( "OMSAssistDuration" );
+			}
+		}
+
+		/// <summary>
+		/// SSME max thrust
+		/// </summary>
+		private double maxthrust;
+		public double MaxThrust
+		{
+			get { return maxthrust; }
+			set
+			{
+				maxthrust = value;
+				OnPropertyChanged( "MaxThrust" );
+			}
+		}
+
+		/// <summary>
+		/// SSME 1º stage throttle down velocity (QPOLY3)
+		/// </summary>
+		private double qpoly3;
+		public double QPOLY3
+		{
+			get { return qpoly3; }
+			set { qpoly3 = value; }
+		}
+
+		/// <summary>
+		/// SSME 1º stage throttle up velocity (QPOLY4)
+		/// </summary>
+		private double qpoly4;
+		public double QPOLY4
+		{
+			get { return qpoly4; }
+			set { qpoly4 = value; }
 		}
 
 		/// <summary>
@@ -233,8 +327,9 @@ namespace SSUWorkbench.model
 				OnPropertyChanged( "RMS" );
 			}
 		}
+
 		/// <summary>
-		/// Is the KU-band Antenna is installed
+		/// Is the KU-band Antenna installed
 		/// </summary>
 		private bool kubandantenna;
 		public bool KUbandAntenna
@@ -246,8 +341,23 @@ namespace SSUWorkbench.model
 				OnPropertyChanged( "KUbandAntenna" );
 			}
 		}
+
 		/// <summary>
-		/// Is the ODS is installed
+		/// Are the starboard MPMs installed
+		/// </summary>
+		private bool stbdmpms;
+		public bool STBDMPMs
+		{
+			get { return stbdmpms; }
+			set
+			{
+				stbdmpms = value;
+				OnPropertyChanged( "STBDMPMs" );
+			}
+		}
+
+		/// <summary>
+		/// Is the ODS installed
 		/// </summary>
 		private bool ods;
 		public bool ODS
@@ -259,8 +369,9 @@ namespace SSUWorkbench.model
 				OnPropertyChanged( "ODS" );
 			}
 		}
+
 		/// <summary>
-		/// Is the External A/L is installed
+		/// Is the External A/L installed
 		/// </summary>
 		private bool extal;
 		public bool ExtAL
@@ -272,6 +383,27 @@ namespace SSUWorkbench.model
 				OnPropertyChanged( "ExtAL" );
 			}
 		}
+
+		/// <summary>
+		/// Is the TTA installed
+		/// </summary>
+		private bool tta;
+		public bool TTA
+		{
+			get { return tta; }
+			set { tta = value; }
+		}
+
+		/// <summary>
+		/// If installed, is the TTA in the aft position
+		/// </summary>
+		private bool afttta;
+		public bool AftTTA
+		{
+			get { return afttta; }
+			set { afttta = value; }
+		}
+
 		/// <summary>
 		/// Are the forward bulkhead and docking lights installed
 		/// </summary>
@@ -285,6 +417,7 @@ namespace SSUWorkbench.model
 				OnPropertyChanged( "FwdBulkDockLights" );
 			}
 		}
+
 		/// <summary>
 		/// Is the Drag Chute installed
 		/// </summary>
@@ -298,8 +431,9 @@ namespace SSUWorkbench.model
 				OnPropertyChanged( "DragChute" );
 			}
 		}
+
 		/// <summary>
-		/// Is the SILTS pod is installed
+		/// Is the SILTS pod installed
 		/// </summary>
 		private bool silts;
 		public bool SILTS
@@ -311,6 +445,7 @@ namespace SSUWorkbench.model
 				OnPropertyChanged( "SILTS" );
 			}
 		}
+
 		/// <summary>
 		/// Is SSME data logging enabled
 		/// </summary>
@@ -325,6 +460,46 @@ namespace SSUWorkbench.model
 			}
 		}
 
+		/// <summary>
+		/// Is the CISS installed
+		/// </summary>
+		private bool ciss;
+		public bool CISS
+		{
+			get { return ciss; }
+			set { ciss = value; }
+		}
+
+		/// <summary>
+		/// If installed, is the CISS of the G Prime type
+		/// </summary>
+		private bool cissgprime;
+		public bool CISSGPrime
+		{
+			get { return cissgprime; }
+			set { cissgprime = value; }
+		}
+
+		/// <summary>
+		/// Is the ASE for the IUS installed
+		/// </summary>
+		private bool ase_ius;
+		public bool ASE_IUS
+		{
+			get { return ase_ius; }
+			set { ase_ius = value; }
+		}
+
+		/// <summary>
+		/// If installed, is the ASE for the IUS in the aft position
+		/// </summary>
+		private bool ase_iusaft;
+		public bool ASE_IUSAft
+		{
+			get { return ase_iusaft; }
+			set { ase_iusaft = value; }
+		}
+
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -334,22 +509,6 @@ namespace SSUWorkbench.model
 			{
 				PropertyChanged( this, new PropertyChangedEventArgs( prop ) );
 			}
-		}
-
-		public void LoadDefault()
-		{
-			ovname = "Atlantis";
-			missionName = "STS-101";
-			//description = "The STS-101 launch scenario, as simulated by Space Shuttle Ultra.";
-			rms = true;
-			kubandantenna = true;
-			ods = true;
-			extal = true;
-			fwdbulkdocklights = true;
-			dragchute = true;
-			silts = false;
-			logssmedata = false;
-			return;
 		}
 	}
 }
