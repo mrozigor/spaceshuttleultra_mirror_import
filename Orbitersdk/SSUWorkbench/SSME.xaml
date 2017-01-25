@@ -7,6 +7,6 @@
     mc:Ignorable="d" 
     d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
-        <CheckBox x:Name="ckbLogData" Content="Log Controller Data" HorizontalAlignment="Left" Height="20" Margin="180,25,0,0" VerticalAlignment="Top" Width="210" ToolTip="Log SSME controller data at the Engine Interface Unit" IsChecked="{Binding LogSSMEData, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <CheckBox x:Name="ckbLogData" Content="Log Controller Data" HorizontalAlignment="Left" Height="20" Margin="180,25,0,0" VerticalAlignment="Top" Width="210" ToolTip="Log SSME controller data at the Engine Interface Unit" IsChecked="{Binding mission.LogSSMEData, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
     </Grid>
 </UserControl>
