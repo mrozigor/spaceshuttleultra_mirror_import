@@ -6,11 +6,28 @@
             mc:Ignorable="d" 
             d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
-        <CheckBox x:Name="ckbRTHU" Content="Roll To Heads-Up" HorizontalAlignment="Left" Height="20" Margin="70,25,0,0" VerticalAlignment="Top" Width="210" IsChecked="{Binding mission.RTHU, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-        <CheckBox x:Name="ckbOMSAssist" Content="OMS Assist Enabled" HorizontalAlignment="Left" Height="20" Margin="70,75,0,0" VerticalAlignment="Top" Width="210" IsChecked="{Binding mission.OMSAssistEnable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Click="ckbOMSAssist_Click"/>
-        <Label Content="Duration (sec)" HorizontalAlignment="Left" Height="26" Margin="70,100,0,0" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="tbOMSAssist" Text="{Binding mission.OMSAssistDuration}" Margin="200,100,0,0" MaxLength="5" MaxLines="1" HorizontalAlignment="Left" Width="50" Height="23" VerticalAlignment="Top" />
-        <Label Content="SSME Max Thrust" HorizontalAlignment="Left" Height="26" Margin="70,150,0,0" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="tbSSME" Text="{Binding mission.MaxThrust}" Margin="200,150,0,0" MaxLength="5" MaxLines="1" HorizontalAlignment="Left" Width="50" Height="23" VerticalAlignment="Top" />
+        <CheckBox x:Name="ckbRTHU" Content="Roll To Heads-Up" HorizontalAlignment="Left" Height="20" Margin="510,25,0,0" VerticalAlignment="Top" Width="210" IsChecked="{Binding mission.RTHU, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <CheckBox x:Name="ckbOMSAssist" Content="OMS Assist Enabled" HorizontalAlignment="Left" Height="20" Margin="510,75,0,0" VerticalAlignment="Top" Width="210" IsChecked="{Binding mission.OMSAssistEnable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Click="ckbOMSAssist_Click"/>
+        <Label Content="Duration (sec)" HorizontalAlignment="Left" Height="26" Margin="510,100,0,0" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="tbOMSAssist" Text="{Binding mission.OMSAssistDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="640,100,0,0" MaxLength="5" MaxLines="1" HorizontalAlignment="Left" Width="50" Height="23" VerticalAlignment="Top" />
+        <Label Content="SSME Max Thrust" HorizontalAlignment="Left" Height="26" Margin="510,150,0,0" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="tbSSME" Text="{Binding mission.MaxThrust, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="640,150,0,0" MaxLength="5" MaxLines="1" HorizontalAlignment="Left" Width="50" Height="23" VerticalAlignment="Top" />
+
+        <Label Margin="25,25,0,0" HorizontalAlignment="Left" Width="100" Height="25" VerticalAlignment="Top">Launch site:</Label>
+        <Label Margin="25,50,0,0" HorizontalAlignment="Left" Width="100" Height="25" VerticalAlignment="Top">Launch pad:</Label>
+        <ComboBox Name="LaunchPad" SelectedIndex="{Binding mission.LaunchPad, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="130,50,0,0" HorizontalAlignment="Left" Width="120" Height="24" VerticalAlignment="Top">
+            <ComboBoxItem>LC-39A</ComboBoxItem>
+            <ComboBoxItem>LC-39B</ComboBoxItem>
+        </ComboBox>
+        <Label Margin="25,75,0,0" HorizontalAlignment="Left" Width="120" Height="25" VerticalAlignment="Top">MLP:</Label>
+        <ComboBox Name="MLP" SelectedIndex="{Binding mission.MLP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="130,75,0,0" HorizontalAlignment="Left" Width="120" Height="24" VerticalAlignment="Top">
+            <ComboBoxItem>MLP-1</ComboBoxItem>
+            <ComboBoxItem>MLP-2</ComboBoxItem>
+            <ComboBoxItem>MLP-3</ComboBoxItem>
+        </ComboBox>
+        <ComboBox Name="LaunchSite" SelectedIndex="{Binding mission.LaunchSite, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="130,25,0,0" SelectionChanged="LaunchSite_SelectionChanged" HorizontalAlignment="Left" Width="120" Height="24" VerticalAlignment="Top">
+            <ComboBoxItem>KSC</ComboBoxItem>
+            <ComboBoxItem>VAFB</ComboBoxItem>
+        </ComboBox>
     </Grid>
 </UserControl>
