@@ -30,7 +30,7 @@ namespace SSUWorkbench
 			if (cbCameraMode.SelectedIndex == 0)// Cockpit
 			{
 				cbCameraTrackMode.IsEnabled = false;
-				tbCameraTrackModeTarget.IsEnabled = false;
+				tbCameraTrackModeRef.IsEnabled = false;
 				tbCameraPosX.IsEnabled = false;
 				tbCameraPosY.IsEnabled = false;
 				tbCameraPosZ.IsEnabled = false;
@@ -38,7 +38,7 @@ namespace SSUWorkbench
 			else// Extern
 			{
 				cbCameraTrackMode.IsEnabled = true;
-				tbCameraTrackModeTarget.IsEnabled = true;
+				tbCameraTrackModeRef.IsEnabled = true;
 				tbCameraPosX.IsEnabled = true;
 				tbCameraPosY.IsEnabled = true;
 				tbCameraPosZ.IsEnabled = true;
@@ -52,11 +52,11 @@ namespace SSUWorkbench
 				(cbCameraTrackMode.SelectedIndex == 1) || // AbsoluteDirection
 				(cbCameraTrackMode.SelectedIndex == 2))// GlobalFrame
 			{
-				tbCameraTrackModeTarget.IsEnabled = false;
+				tbCameraTrackModeRef.IsEnabled = false;
 			}
 			else// TargetTo, TargetFrom, Ground
 			{
-				tbCameraTrackModeTarget.IsEnabled = true;
+				tbCameraTrackModeRef.IsEnabled = true;
 			}
 		}
 	}

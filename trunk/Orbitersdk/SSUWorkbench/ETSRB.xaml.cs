@@ -24,5 +24,11 @@ namespace SSUWorkbench
 		{
 			InitializeComponent();
 		}
+
+		private void cbET_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			if (cbET.SelectedIndex == 0) ckbFRL.IsEnabled = true;
+			else ckbFRL.IsEnabled = false;
+		}
 	}
 }

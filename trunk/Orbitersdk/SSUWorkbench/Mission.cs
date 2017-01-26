@@ -25,6 +25,11 @@ namespace SSUWorkbench.model
 	{
 		public Mission()
 		{
+			Bridgerails = new bool[13];
+			for (int i = 0; i < 13; i++) Bridgerails[i] = false;
+			PayloadZPos = new double[15];
+			for (int i = 0; i < 15; i++) PayloadZPos[i] = -9999.0;
+
 			LoadDefault();
 		}
 
@@ -60,6 +65,236 @@ namespace SSUWorkbench.model
 			cissgprime = true;
 			ase_ius = false;
 			ase_iusaft = false;
+			launchsite = 0;
+			launchpad = 0;
+			mlp = 1;
+			ettype = 2;
+			etfrl = false;
+			srmtype = 3;
+			return;
+		}
+
+		public void Load( string missionfile )
+		{
+			string line;
+			string key;
+			string val;
+			int eq = -1;
+
+			System.IO.StreamReader file = new System.IO.StreamReader( missionfile );
+			while ((line = file.ReadLine()) != null)
+			{
+				eq = line.IndexOf( "=" );
+
+				if (eq != -1)
+				{
+					key = line.Substring( 0, eq );
+					val = line.Substring( eq + 1, line.Length - eq - 1 );
+					switch (key)
+					{
+						case "Name":
+							MissionName = val;
+							break;
+						case "Orbiter":
+							OVname = val;
+							break;
+						case "OrbiterTexture":
+							OVtex = val;
+							break;
+						case "ET":
+							if (val == "SWT") ETType = 0;
+							else if (val == "LWT") ETType = 1;
+							else ETType = 2;
+							break;
+						case "ETFRL":
+							ETFRL = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "SRM":
+							if (val == "SPM") SRMType = 0;
+							else if (val == "HPM") SRMType = 1;
+							else if (val == "FWC") SRMType = 2;
+							else SRMType = 3;
+							break;
+						case "LaunchSite":
+							if (val == "VAFB") LaunchSite = 1;
+							else LaunchSite = 0;
+							break;
+						case "LaunchPad":
+							if (val == "LC-39B") LaunchPad = 1;
+							else LaunchPad = 0;
+							LaunchSite = 0;// force KSC
+							break;
+						case "MLP":
+							MLP = Convert.ToInt32( val ) - 1;
+							LaunchSite = 0;// force KSC
+							break;
+						case "TargetInc":
+							MECO_Inc = Convert.ToDouble( val );
+							break;
+						case "TargetLAN":
+							MECO_LAN = Convert.ToDouble( val );
+							break;
+						case "MECOAlt":
+							MECO_Alt = Convert.ToDouble( val );
+							break;
+						case "MECOVel":
+							MECO_Vel = Convert.ToDouble( val );
+							break;
+						case "MECOFPA":
+							MECO_FPA = Convert.ToDouble( val );
+							break;
+						case "PerformRollToHeadsUp":
+							RTHU = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "OMSAssistEnable":
+							OMSAssistEnable = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "OMSAssistDuration":
+							OMSAssistDuration = Convert.ToDouble( val );
+							break;
+						case "MaxSSMEThrust":
+							MaxThrust = Convert.ToDouble( val );
+							break;
+						case "ThrottleDown":
+							QPOLY3 = Convert.ToDouble( val );
+							break;
+						case "ThrottleUp":
+							QPOLY4 = Convert.ToDouble( val );
+							break;
+						case "UseRMS":
+							RMS = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "UseKUBand":
+							KUbandAntenna = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "UseSTBDMPM":
+							STBDMPMs = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "UseODS":
+							ODS = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "UseExtAL":
+							ExtAL = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "UseTAA":
+							TTA = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "AftTAA":
+							AftTTA = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "HasBulkheadFloodlights":
+							FwdBulkDockLights = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "HasDragChute":
+							DragChute = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "Bridgerails":
+							{
+								int []num = Array.ConvertAll( val.Split( ',' ), Int32.Parse );
+								foreach (int i in num) Bridgerails[i] = true;
+							}
+							break;
+						/*case "PayloadZPos":
+							// in default block
+							break;*/
+						case "SILTS":
+							SILTS = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "LogSSMEData":
+							LogSSMEData = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "UseCISS":
+							CISS = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "CISS_GPrime":
+							CISSGPrime = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "UseASE_IUS":
+							ASE_IUS = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						case "ASE_IUS_AftLocation":
+							ASE_IUSAft = (val.ToUpperInvariant() == "TRUE" ? true : false);
+							break;
+						default:
+							if (key.StartsWith( "PayloadZPos" ))
+							{
+								key = key.Substring( 11 );
+								int id = Convert.ToInt32( key );
+								if ((id >= 5) && (id <= 19)) PayloadZPos[id - 5] = Convert.ToDouble( val );
+							}
+							break;
+
+					}
+				}
+			}
+			file.Close();
+			return;
+		}
+
+		public void Save( string missionfile )
+		{
+			System.IO.StreamWriter file = new System.IO.StreamWriter( missionfile );
+			
+			file.WriteLine( "Name=" + MissionName );
+			file.WriteLine( "Orbiter=" + OVname );
+			file.WriteLine( "OrbiterTexture=" + OVtex );
+			if (ETType == 0)
+			{
+				file.WriteLine( "ET=SWT" );
+				if (ETFRL) file.WriteLine( "ETFRL=TRUE" );
+			}
+			else if (ETType == 1) file.WriteLine( "ET=LWT" );
+			else file.WriteLine( "ET=SLWT" );
+			if (SRMType == 0) file.WriteLine( "SRM=SPM" );
+			else if (SRMType == 1) file.WriteLine( "SRM=HPM" );
+			else if (SRMType == 2) file.WriteLine( "SRM=FWC" );
+			else file.WriteLine( "SRM=RSRM" );
+			if (LaunchSite == 1) file.WriteLine( "LaunchSite=VAFB" );
+			else
+			{
+				file.WriteLine( "LaunchSite=KSC" );
+				if (LaunchPad == 1) file.WriteLine( "LaunchPad=LC-39B" );
+				else file.WriteLine( "LaunchPad=LC-39A" );
+				file.WriteLine( "MLP=" + (MLP + 1) );
+			}
+			file.WriteLine( "TargetInc=" + string.Format( "{0:f6}", MECO_Inc ) );
+			file.WriteLine( "TargetLAN=" + string.Format( "{0:f6}", MECO_LAN ) );
+			file.WriteLine( "MECOAlt=" + string.Format( "{0:f6}", MECO_Alt ) );
+			file.WriteLine( "MECOVel=" + string.Format( "{0:f6}", MECO_Vel ) );
+			file.WriteLine( "MECOFPA=" + string.Format( "{0:f6}", MECO_FPA ) );
+			file.WriteLine( "PerformRollToHeadsUp=" + (RTHU ? "TRUE" : "FALSE") );
+			file.WriteLine( "OMSAssistEnable=" + (OMSAssistEnable ? "TRUE" : "FALSE") );
+			file.WriteLine( "OMSAssistDuration=" + string.Format( "{0:f6}", OMSAssistDuration ) );
+			file.WriteLine( "MaxSSMEThrust=" + MaxThrust );
+			file.WriteLine( "ThrottleDown=" + string.Format( "{0:f3}", QPOLY3 ) );
+			file.WriteLine( "ThrottleUp=" + string.Format( "{0:f3}", QPOLY4 ) );
+			file.WriteLine( "UseRMS=" + (RMS ? "TRUE" : "FALSE") );
+			file.WriteLine( "UseKUBand=" + (KUbandAntenna ? "TRUE" : "FALSE") );
+			file.WriteLine( "UseSTBDMPM=" + (STBDMPMs ? "TRUE" : "FALSE") );
+			file.WriteLine( "UseODS=" + (ODS ? "TRUE" : "FALSE") );
+			file.WriteLine( "UseExtAL=" + (ExtAL ? "TRUE" : "FALSE") );
+			file.WriteLine( "UseTAA=" + (TTA ? "TRUE" : "FALSE") );
+			file.WriteLine( "AftTAA=" + (AftTTA ? "TRUE" : "FALSE") );
+			file.WriteLine( "HasBulkheadFloodlights=" + (FwdBulkDockLights ? "TRUE" : "FALSE") );
+			file.WriteLine( "HasDragChute=" + (DragChute ? "TRUE" : "FALSE") );
+			string str = "";
+			for (int i = 0; i < 13; i++)
+			{
+				if (Bridgerails[i]) str = str + i + ",";
+			}
+			if (str.Length > 0) file.WriteLine( "Bridgerails=" + str.Substring( 0, str.Length - 1 ) );
+			for (int i = 0; i < 15; i++)
+			{
+				if (PayloadZPos[i] != -9999.0) file.WriteLine( "PayloadZPos" + (i + 5) + "=" + PayloadZPos[i] );
+			}
+			file.WriteLine( "SILTS=" + (SILTS ? "TRUE" : "FALSE") );
+			file.WriteLine( "LogSSMEData=" + (LogSSMEData ? "TRUE" : "FALSE") );
+			file.WriteLine( "UseCISS=" + (CISS ? "TRUE" : "FALSE") );
+			file.WriteLine( "CISS_GPrime=" + (CISSGPrime ? "TRUE" : "FALSE") );
+			file.WriteLine( "UseASE_IUS=" + (ASE_IUS ? "TRUE" : "FALSE") );
+			file.WriteLine( "ASE_IUS_AftLocation=" + (ASE_IUSAft ? "TRUE" : "FALSE") );
+			
+			file.Close();
 			return;
 		}
 
@@ -433,6 +668,16 @@ namespace SSUWorkbench.model
 		}
 
 		/// <summary>
+		/// Is bridgerail installed
+		/// </summary>
+		private bool[] Bridgerails;
+
+		/// <summary>
+		/// Payload attachment offset
+		/// </summary>
+		private double[] PayloadZPos;
+
+		/// <summary>
 		/// Is the SILTS pod installed
 		/// </summary>
 		private bool silts;
@@ -498,6 +743,105 @@ namespace SSUWorkbench.model
 		{
 			get { return ase_iusaft; }
 			set { ase_iusaft = value; }
+		}
+
+		/// <summary>
+		/// Launch Site
+		/// 0 = KSC
+		/// 1 = VAFB
+		/// </summary>
+		private int launchsite;
+		public int LaunchSite
+		{
+			get { return launchsite; }
+			set
+			{
+				launchsite = value;
+				OnPropertyChanged( "LaunchSite" );
+			}
+		}
+
+		/// <summary>
+		/// Launch Pad
+		/// 0 = LC-39A (for KSC launch site only)
+		/// 1 = LC-39B (for KSC launch site only)
+		/// (0 = SLC-6 (for VAFB launch site only))
+		/// </summary>
+		private int launchpad;
+		public int LaunchPad
+		{
+			get { return launchpad; }
+			set
+			{
+				launchpad = value;
+				OnPropertyChanged( "LaunchPad" );
+			}
+		}
+
+		/// <summary>
+		/// MLP number (for KSC launch site only)
+		/// 0 = MLP-1
+		/// 1 = MLP-2
+		/// 2 = MLP-3
+		/// </summary>
+		private int mlp;
+		public int MLP
+		{
+			get { return mlp; }
+			set
+			{
+				mlp = value;
+				OnPropertyChanged( "MLP" );
+			}
+		}
+
+		/// <summary>
+		/// ET type
+		/// 0 = SWT
+		/// 1 = LWT
+		/// 2 = SLWT
+		/// </summary>
+		private int ettype;
+		public int ETType
+		{
+			get { return ettype; }
+			set
+			{
+				ettype = value;
+				OnPropertyChanged( "ETType" );
+			}
+		}
+
+		/// <summary>
+		/// Does the ET have FRL (for SWT ET only)
+		/// </summary>
+		private bool etfrl;
+		public bool ETFRL
+		{
+			get { return etfrl; }
+			set
+			{
+				etfrl = value;
+				OnPropertyChanged( "ETFRL" );
+			}
+		}
+
+		/// <summary>
+		/// SRM type
+		/// 0 = SRM (SPM)
+		/// 1 = SRM (HPM)
+		/// 2 = FWC
+		/// 3 = RSRM
+		/// </summary>
+		private int srmtype;
+		public int SRMType
+		{
+			get { return srmtype; }
+			set
+			{
+				srmtype = value;
+				OnPropertyChanged( "SRMType" );
+			}
 		}
 
 

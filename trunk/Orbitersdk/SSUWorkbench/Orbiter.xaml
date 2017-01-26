@@ -9,7 +9,7 @@
     d:DesignHeight="600" d:DesignWidth="800">
 
     <Grid>
-        <Label Content="Orbiter Vehicle:" HorizontalAlignment="Left" Height="26" Margin="51,25,0,0" VerticalAlignment="Top" Width="110"/>
+        <Label Content="Orbiter Vehicle:" HorizontalAlignment="Left" Height="26" Margin="25,25,0,0" VerticalAlignment="Top" Width="110"/>
         <CheckBox x:Name="ckbSILTS" Content="SILTS" HorizontalAlignment="Left" Height="20" Margin="532,25,0,0" Grid.Row="1" VerticalAlignment="Top" Width="210" ToolTip="&quot;Shuttle Infrared Leeside Temperature Sensing&quot; camera pod (OV-102 only)" IsChecked="{Binding mission.SILTS, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         <CheckBox x:Name="ckbFwdBulkDockLights" Content="Fwd Bulkhead and Docking Lights" HorizontalAlignment="Left" Height="20" Margin="532,50,0,0" Grid.Row="1" VerticalAlignment="Top" Width="210" ToolTip="Removable only on OV-103 and OV-105" IsChecked="{Binding mission.FwdBulkDockLights, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         <CheckBox x:Name="ckbDragChute" Content="Drag Chute" HorizontalAlignment="Left" Height="20" Margin="532,75,0,0" Grid.Row="1" VerticalAlignment="Top" Width="210" IsChecked="{Binding mission.DragChute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -18,7 +18,7 @@
         <CheckBox x:Name="ckbODS" Content="ODS" HorizontalAlignment="Left" Height="20" Margin="532,175,0,0" Grid.Row="1" VerticalAlignment="Top" Width="210" ToolTip="Orbiter Docking System" IsChecked="{Binding mission.ODS, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         <CheckBox x:Name="ckbExtAL" Content="External Airlock" HorizontalAlignment="Left" Height="20" Margin="532,150,0,0" Grid.Row="1" VerticalAlignment="Top" Width="210" IsChecked="{Binding mission.ExtAL, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Click="ckbExtAL_Click"/>
         <CheckBox x:Name="ckbSTBDMPMs" Content="Starboard MPMs" HorizontalAlignment="Left" Height="20" Margin="532,200,0,0" Grid.Row="1" VerticalAlignment="Top" Width="210" IsChecked="{Binding mission.STBDMPMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Click="ckbSTBDMPMs_Click"/>
-        <ComboBox x:Name="cbOV" HorizontalAlignment="Left" Height="24" Margin="175,25,0,0" VerticalAlignment="Top" Width="160" SelectedIndex="{Binding mission.OVnameCB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="cbOV_SelectionChanged">
+        <ComboBox x:Name="cbOV" HorizontalAlignment="Left" Height="24" Margin="140,25,0,0" VerticalAlignment="Top" Width="160" SelectedIndex="{Binding mission.OVnameCB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="cbOV_SelectionChanged">
             <ComboBoxItem Content="OV-102 (Columbia)"/>
             <ComboBoxItem Content="OV-099 (Challenger)"/>
             <ComboBoxItem Content="OV-103 (Discovery)"/>

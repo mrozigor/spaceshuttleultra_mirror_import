@@ -6,17 +6,17 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
-        <Label Content="ET" HorizontalAlignment="Left" Height="26" Margin="110,50,0,0" VerticalAlignment="Top" Width="160"/>
-        <ComboBox HorizontalAlignment="Left" Height="24" Margin="280,50,0,0" VerticalAlignment="Top" Width="160">
-            <ComboBoxItem Content="SWT (with FRL)" ToolTip="Standard Weight Tank painted with Fire Retardant Paint"/>
-            <ComboBoxItem Content="SWT (without FRL)" ToolTip="Standard Weight Tank"/>
+        <Label Content="ET" HorizontalAlignment="Left" Height="26" Margin="110,25,0,0" VerticalAlignment="Top" Width="100"/>
+        <ComboBox x:Name="cbET" HorizontalAlignment="Left" SelectedIndex="{Binding mission.ETType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="24" Margin="215,25,0,0" VerticalAlignment="Top" Width="140" SelectionChanged="cbET_SelectionChanged">
+            <ComboBoxItem Content="SWT" ToolTip="Standard Weight Tank"/>
             <ComboBoxItem Content="LWT" ToolTip="Light Weight Tank"/>
             <ComboBoxItem Content="SLWT" ToolTip="Super Light Weight Tank"/>
         </ComboBox>
-        <Label Content="SRM" HorizontalAlignment="Left" Height="26" Margin="110,100,0,0" VerticalAlignment="Top" Width="160"/>
-        <ComboBox HorizontalAlignment="Left" Height="24" Margin="280,100,0,0" VerticalAlignment="Top" Width="160">
-            <ComboBoxItem Content="SRM (SPM)" ToolTip="Solid Rocket Motor - Standard Performance Motor"/>
-            <ComboBoxItem Content="SRM (HPM)" ToolTip="Solid Rocket Motor - High Performance Motor"/>
+        <CheckBox x:Name="ckbFRL" Content="Fire Retardant Latex" HorizontalAlignment="Left" Height="20" Margin="110,50,0,0" VerticalAlignment="Top" Width="210" IsChecked="{Binding mission.ETFRL, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <Label Content="SRM" HorizontalAlignment="Left" Height="26" Margin="110,100,0,0" VerticalAlignment="Top" Width="100"/>
+        <ComboBox x:Name="cbSRM" HorizontalAlignment="Left" SelectedIndex="{Binding mission.SRMType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="24" Margin="215,100,0,0" VerticalAlignment="Top" Width="140">
+            <ComboBoxItem Content="SPM" ToolTip="Standard Performance Motor"/>
+            <ComboBoxItem Content="HPM" ToolTip="High Performance Motor"/>
             <ComboBoxItem Content="FWC" ToolTip="Filament Wound Case"/>
             <ComboBoxItem Content="RSRM" ToolTip="Redesigned Solid Rocket Motor"/>
         </ComboBox>

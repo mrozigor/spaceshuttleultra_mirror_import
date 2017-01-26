@@ -26,14 +26,9 @@ namespace SSUWorkbench.model
 		public void Load( string scnfile, Mission mission, string orbiterpath )
 		{
 			// TODO missing scenario parameters:
-			// Date JD
 			// Date JE
 			// Help
-			// Script
-			// GROUNDLOCATION
-			// GROUNDDIRECTION
 			// BEGIN_PRESET
-			// REF (HUD)
 
 			string line;
 
@@ -76,9 +71,24 @@ namespace SSUWorkbench.model
 							scnMinute = dt.Minute;
 							scnSecond = dt.Second + (0.001 * dt.Millisecond);
 						}
-						else if (line.StartsWith( "Context " ))
+						else if (line.StartsWith( "Date JD " ))
+						{
+							double num = Convert.ToDouble( line.Substring( 8, line.Length - 8 ) ) - 15018.0 - 2400000.5;
+							DateTime dt = DateTime.FromOADate( num );
+							scnYear = dt.Year;
+							scnMonth = dt.Month;
+							scnDay = dt.Day;
+							scnHour = dt.Hour;
+							scnMinute = dt.Minute;
+							scnSecond = dt.Second + (0.001 * dt.Millisecond);
+						}
+						else if ((line.StartsWith( "Context " )) || (line.StartsWith( "CONTEXT " )))
 						{
 							scnContext = line.Substring( 8, line.Length - 8 );
+						}
+						else if (line.StartsWith( "Script " ))
+						{
+							scnScript = line.Substring( 7, line.Length - 7 );
 						}
 					}
 				}
@@ -127,23 +137,44 @@ namespace SSUWorkbench.model
 							else if (tmp.StartsWith( "TargetTo" ))
 							{
 								scnCameraTrackMode = 3;
-								scnCameraTrackModeTarget = tmp.Substring( 9 );
+								scnCameraTrackModeRef = tmp.Substring( 9 );
 							}
 							else if (tmp.StartsWith( "TargetFrom" ))
 							{
 								scnCameraTrackMode = 4;
-								scnCameraTrackModeTarget = tmp.Substring( 11 );
+								scnCameraTrackModeRef = tmp.Substring( 11 );
 							}
 							else if (tmp.StartsWith( "Ground" ))
 							{
 								scnCameraTrackMode = 5;
-								scnCameraTrackModeTarget = tmp.Substring( 7 );
+								scnCameraTrackModeRef = tmp.Substring( 7 );
 							}
 							else /*if (tmp.StartsWith( "TargetRelative" ))*/ scnCameraTrackMode = 0;
 						}
 						else if (line.StartsWith( "FOV " ))
 						{
 							scnCameraFOV = Convert.ToDouble( line.Substring( 4, line.Length - 4 ) );
+						}
+						else if (line.StartsWith( "GROUNDLOCATION " ))
+						{
+							string tmp = line.Substring( 15, line.Length - 15 );
+							double []num = Array.ConvertAll( tmp.Split( ' ' ), Double.Parse );
+							if (num.Count() == 3)
+							{
+								scnCameraGrPosLon = num[0];
+								scnCameraGrPosLat = num[1];
+								scnCameraGrPosAlt = num[2];
+							}
+						}
+						else if (line.StartsWith( "GROUNDDIRECTION " ))
+						{
+							string tmp = line.Substring( 16, line.Length - 16 );
+							double []num = Array.ConvertAll( tmp.Split( ' ' ), Double.Parse );
+							if (num.Count() == 2)
+							{
+								scnCameraGrDirH = num[0];
+								scnCameraGrDirV = num[1];
+							}
 						}
 					}
 				}
@@ -217,114 +248,114 @@ namespace SSUWorkbench.model
 					{
 						line = line.TrimStart( ' ' );
 						if (line == "END_SHIPS") break;
-						else if (line.EndsWith( ":SpaceShuttleUltra" ))
+						else if (line.EndsWith( "SpaceShuttleUltra" ))
 						{
 							// main vessel
 							SSUVessel ssuv = new SSUVessel( mission, orbiterpath );
 							ssuv.Load( line, file );
 							scnvessels.Add( ssuv );
 						}
-						//else if (line.EndsWith( ":SSU_CentaurG" ))
+						//else if (line.EndsWith( "SSU_CentaurG" ))
 						//{
 						//	// TODO centaur G
 						//}
-						//else if (line.EndsWith( ":SSU_CentaurGPrime" ))
+						//else if (line.EndsWith( "SSU_CentaurGPrime" ))
 						//{
 						//	// TODO centaur G'
 						//}
-						//else if (line.EndsWith( ":SSU_Chute" ))
+						//else if (line.EndsWith( "SSU_Chute" ))
 						//{
 						//	// TODO chute
 						//}
-						//else if (line.EndsWith( ":SSU_CT" ))
+						//else if (line.EndsWith( "SSU_CT" ))
 						//{
 						//	// TODO ct
 						//}
-						//else if (line.EndsWith( ":SSU_CT_1980" ))
+						//else if (line.EndsWith( "SSU_CT_1980" ))
 						//{
 						//	// TODO ct 1980
 						//}
-						//else if (line.EndsWith( ":SSU_DemoSat" ))
+						//else if (line.EndsWith( "SSU_DemoSat" ))
 						//{
 						//	// TODO demosat
 						//}
-						//else if (line.EndsWith( ":SSU_DFI_pallet" ))
+						//else if (line.EndsWith( "SSU_DFI_pallet" ))
 						//{
 						//	// TODO dfi pallet
 						//}
-						//else if (line.EndsWith( ":SSU_IUS" ))
+						//else if (line.EndsWith( "SSU_IUS" ))
 						//{
 						//	// TODO ius
 						//}
-						//else if (line.EndsWith( ":SSU_IUS_STAGE1" ))
+						//else if (line.EndsWith( "SSU_IUS_STAGE1" ))
 						//{
 						//	// TODO ius 1st stg
 						//}
-						//else if (line.EndsWith( ":SSU_LCC" ))
+						//else if (line.EndsWith( "SSU_LCC" ))
 						//{
 						//	// TODO lcc
 						//}
-						//else if (line.EndsWith( ":SSU_LSRB" ))
+						//else if (line.EndsWith( "SSU_LSRB" ))
 						//{
 						//	// TODO l srb
 						//}
-						//else if (line.EndsWith( ":SSU_LSRB_FWC" ))
+						//else if (line.EndsWith( "SSU_LSRB_FWC" ))
 						//{
 						//	// TODO l srb fwc
 						//}
-						//else if (line.EndsWith( ":SSU_LSRB_RSRM" ))
+						//else if (line.EndsWith( "SSU_LSRB_RSRM" ))
 						//{
 						//	// TODO l srb rsrm
 						//}
-						//else if (line.EndsWith( ":SSU_LWT" ))
+						//else if (line.EndsWith( "SSU_LWT" ))
 						//{
 						//	// TODO et lwt
 						//}
-						//else if (line.EndsWith( ":SSU_MLP" ))
+						//else if (line.EndsWith( "SSU_MLP" ))
 						//{
 						//	// TODO mlp
 						//}
-						//else if (line.EndsWith( ":SSU_OBSS" ))
+						//else if (line.EndsWith( "SSU_OBSS" ))
 						//{
 						//	// TODO obss
 						//}
-						//else if (line.EndsWith( ":SSU_Pad" ))
+						//else if (line.EndsWith( "SSU_Pad" ))
 						//{
 						//	// TODO pad39
 						//}
-						//else if (line.EndsWith( ":SSU_Pad1985" ))
+						//else if (line.EndsWith( "SSU_Pad1985" ))
 						//{
 						//	// TODO pad39 1985
 						//}
-						//else if (line.EndsWith( ":SSU_RSRB" ))
+						//else if (line.EndsWith( "SSU_RSRB" ))
 						//{
 						//	// TODO r srb
 						//}
-						//else if (line.EndsWith( ":SSU_RSRB_FWC" ))
+						//else if (line.EndsWith( "SSU_RSRB_FWC" ))
 						//{
 						//	// TODO r srb fwc
 						//}
-						//else if (line.EndsWith( ":SSU_RSRB_RSRM" ))
+						//else if (line.EndsWith( "SSU_RSRB_RSRM" ))
 						//{
 						//	// TODO r srb rsrm
 						//}
-						//else if (line.EndsWith( ":SSU_SLC6" ))
+						//else if (line.EndsWith( "SSU_SLC6" ))
 						//{
 						//	// TODO slc6
 						//}
-						//else if (line.EndsWith( ":SSU_SLWT" ))
+						//else if (line.EndsWith( "SSU_SLWT" ))
 						//{
 						//	// TODO et slwt
 						//}
-						//else if (line.EndsWith( ":SSU_SWT" ))
+						//else if (line.EndsWith( "SSU_SWT" ))
 						//{
 						//	// TODO et swt
 						//}
-						//else if (line.EndsWith( ":SSU_VAB" ))
+						//else if (line.EndsWith( "SSU_VAB" ))
 						//{
 						//	// TODO vab
 						//}
-						//else if (line.EndsWith( ":SSU_Xenon_Lights" ))
+						//else if (line.EndsWith( "SSU_Xenon_Lights" ))
 						//{
 						//	// TODO lights
 						//}
@@ -346,7 +377,7 @@ namespace SSUWorkbench.model
 		public void Save( string scnfile, string orbiterpath )
 		{
 			System.IO.StreamWriter file = new System.IO.StreamWriter( scnfile );
-			// TODO write scn file
+			
 			////////////////// description //////////////////
 			file.WriteLine( "BEGIN_DESC" );
 			file.WriteLine( Description );
@@ -359,7 +390,8 @@ namespace SSUWorkbench.model
 			int ms = Convert.ToInt32( 1000 * (scnSecond - (int)scnSecond) );
 			DateTime dt = new DateTime( scnYear, scnMonth, scnDay, scnHour, scnMinute, (int)scnSecond, ms );
 			file.WriteLine( "  Date MJD " + string.Format( "{0:f10}", dt.ToOADate() + 15018.0 ) );
-			if (scnContext != null) file.WriteLine( "  Context " + scnContext );
+			if (!String.IsNullOrEmpty( scnContext )) file.WriteLine( "  Context " + scnContext );
+			if (!String.IsNullOrEmpty( scnScript )) file.WriteLine( "  Context " + scnScript );
 			file.WriteLine( "END_ENVIRONMENT" );
 			file.WriteLine( "" );
 
@@ -378,9 +410,14 @@ namespace SSUWorkbench.model
 			{
 				if (scnCameraTrackMode == 1) file.WriteLine( "  TRACKMODE AbsoluteDirection" );
 				else if (scnCameraTrackMode == 2) file.WriteLine( "  TRACKMODE GlobalFrame" );
-				else if (scnCameraTrackMode == 1) file.WriteLine( "  TRACKMODE TargetTo " + scnCameraTrackModeTarget );
-				else if (scnCameraTrackMode == 1) file.WriteLine( "  TRACKMODE TargetFrom " + scnCameraTrackModeTarget );
-				else if (scnCameraTrackMode == 1) file.WriteLine( "  TRACKMODE Ground " + scnCameraTrackModeTarget );
+				else if (scnCameraTrackMode == 3) file.WriteLine( "  TRACKMODE TargetTo " + scnCameraTrackModeRef );
+				else if (scnCameraTrackMode == 4) file.WriteLine( "  TRACKMODE TargetFrom " + scnCameraTrackModeRef );
+				else if (scnCameraTrackMode == 5)
+				{
+					file.WriteLine( "  TRACKMODE Ground " + scnCameraTrackModeRef );
+					file.WriteLine( "  GROUNDLOCATION " + string.Format( "{0:f5} {1:f5} {2:f2}", scnCameraGrPosLon, scnCameraGrPosLat, scnCameraGrPosAlt ) );
+					file.WriteLine( "  GROUNDDIRECTION " + string.Format( "{0:f2} {1:f2}", scnCameraGrDirH, scnCameraGrDirV ) );
+				}
 				else /*if (scnCameraTrackMode == 0)*/ file.WriteLine( "  TRACKMODE TargetRelative" );
 			}
 			file.WriteLine( "  FOV " + string.Format( "{0:f2}", scnCameraFOV ) );
@@ -552,6 +589,16 @@ namespace SSUWorkbench.model
 			set { scncontext = value; }
 		}
 		/// <summary>
+		/// Scenario script
+		/// (null if none)
+		/// </summary>
+		private string scnscript;
+		public string scnScript
+		{
+			get { return scnscript; }
+			set { scnscript = value; }
+		}
+		/// <summary>
 		/// Ship controlled in the scenario
 		/// </summary>
 		private string scnship;
@@ -651,18 +698,77 @@ namespace SSUWorkbench.model
 			}
 		}
 		/// <summary>
-		/// Scenario camera track mode target (for Target To, Target From and Ground modes only)
+		/// Scenario camera track mode reference (for Target To, Target From and Ground modes only)
 		/// </summary>
-		private string scncameratrackmodetarget;
-		public string scnCameraTrackModeTarget
+		private string scncameratrackmoderef;
+		public string scnCameraTrackModeRef
 		{
-			get { return scncameratrackmodetarget; }
+			get { return scncameratrackmoderef; }
 			set
 			{
-				scncameratrackmodetarget = value;
-				OnPropertyChanged( "scnCameraTrackModeTarget" );
+				scncameratrackmoderef = value;
+				OnPropertyChanged( "scnCameraTrackModeRef" );
 			}
 		}
+
+		/// <summary>
+		/// Scenario camera position for Ground mode
+		/// </summary>
+		private double scncameragrposlon;
+		public double scnCameraGrPosLon
+		{
+			get { return scncameragrposlon; }
+			set
+			{
+				scncameragrposlon = value;
+				OnPropertyChanged( "scnCameraGrPosLon" );
+			}
+		}
+		private double scncameragrposlat;
+		public double scnCameraGrPosLat
+		{
+			get { return scncameragrposlat; }
+			set
+			{
+				scncameragrposlat = value;
+				OnPropertyChanged( "scnCameraGrPosLat" );
+			}
+		}
+		private double scncameragrposalt;
+		public double scnCameraGrPosAlt
+		{
+			get { return scncameragrposalt; }
+			set
+			{
+				scncameragrposalt = value;
+				OnPropertyChanged( "scnCameraGrPosAlt" );
+			}
+		}
+
+		/// <summary>
+		/// Scenario camera position for Ground mode
+		/// </summary>
+		private double scncameragrdirh;
+		public double scnCameraGrDirH
+		{
+			get { return scncameragrdirh; }
+			set
+			{
+				scncameragrdirh = value;
+				OnPropertyChanged( "scnCameraGrDirH" );
+			}
+		}
+		private double scncameragrdirv;
+		public double scnCameraGrDirV
+		{
+			get { return scncameragrdirv; }
+			set
+			{
+				scncameragrdirv = value;
+				OnPropertyChanged( "scnCameraGrDirV" );
+			}
+		}
+
 		/// <summary>
 		/// Scenario cockpit type
 		/// 0 = normal

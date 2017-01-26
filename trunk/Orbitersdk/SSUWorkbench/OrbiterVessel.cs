@@ -43,9 +43,18 @@ namespace SSUWorkbench.model
 			string line;
 
 			int i = header.IndexOf( ':' );
-			if (i < 0) return;			
-			name = header.Substring( 0, i );
-			_class = header.Substring( i + 1 );
+			if (i >= 0)
+			{
+				// <Vessel name>:<Class name>
+				name = header.Substring( 0, i );
+				_class = header.Substring( i + 1 );
+			}
+			else
+			{
+				// <Vessel name>
+				name = header;
+				_class = header;
+			}
 
 			while ((line = scn.ReadLine()) != null)
 			{

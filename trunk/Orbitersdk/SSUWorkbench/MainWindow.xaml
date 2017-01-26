@@ -125,22 +125,7 @@
                         <TextBox Name="FlightName" Grid.Column="1" Grid.Row="1" Margin="0,2,0,3" Text="{Binding mission.MissionName}"/>
                         <Label Grid.Column="0" Grid.Row="2" Margin="0,1">Fiscal year:</Label>
                         <TextBox Name="FiscalYear" Grid.Column="1" Grid.Row="2" Margin="0,2,0,3"/>
-                        <Label Grid.Column="0" Grid.Row="3" Margin="0,1">Launch site:</Label>
-                        <Label Grid.Column="0" Grid.Row="4" Margin="0,1">Launch pad:</Label>
-                        <ComboBox Name="LaunchPad" Grid.Column="1" Grid.Row="4" SelectedIndex="0" Margin="0,2,0,3">
-                            <ComboBoxItem>LC-39A</ComboBoxItem>
-                            <ComboBoxItem>LC-39B</ComboBoxItem>
-                        </ComboBox>
-                        <Label Grid.Column="0" Grid.Row="5" Margin="0,1">MLP:</Label>
-                        <ComboBox Name="MLP" Grid.Column="1" Grid.Row="5" SelectedIndex="0" Margin="0,3,0,2">
-                            <ComboBoxItem>MLP-1</ComboBoxItem>
-                            <ComboBoxItem>MLP-2</ComboBoxItem>
-                            <ComboBoxItem>MLP-3</ComboBoxItem>
-                        </ComboBox>
-                        <ComboBox Name="LaunchSite" Grid.Column="1" Grid.Row="3" SelectedIndex="0" Margin="0,2,0,3" SelectionChanged="LaunchSite_SelectionChanged">
-                            <ComboBoxItem>KSC</ComboBoxItem>
-                            <ComboBoxItem>VAFB</ComboBoxItem>
-                        </ComboBox>
+                        
                         <Label Grid.Column="0" Grid.Row="6" Margin="0,1">Target:</Label>
                         <ComboBox Name="Target" Grid.Column="1" Grid.Row="6" Margin="0,2,0,3">
                             <ComboBoxItem>None</ComboBoxItem>
