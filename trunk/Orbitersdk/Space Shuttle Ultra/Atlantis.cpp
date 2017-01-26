@@ -1832,7 +1832,7 @@ void Atlantis::DefineAnimations(void)
 	static UINT LElevDoorGrp[2] = { GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL, GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL };
 	static UINT RElevDoorGrp[2] = { GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL, GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL };
 	static MGROUP_ROTATE LElevator_up(midx, LElevGrp, 2,
-		_V(-7.9247, -3.3091, -10.7498), _V(-0.995971, -0.0896784, 0), (float)(34.0*RAD));
+		_V(-7.9247, -3.3091, -10.7498), _V(-0.995971, 0.0896784, 0), (float)(34.0*RAD));
 	static MGROUP_ROTATE RElevator_up(midx, RElevGrp, 2,
 		_V(7.9247, -3.3091, -10.7498), _V(0.995971, 0.0896784, 0), (float)(-34.0*RAD));
 	static MGROUP_ROTATE LElevatorDoor_up(midx, LElevDoorGrp, 2,
