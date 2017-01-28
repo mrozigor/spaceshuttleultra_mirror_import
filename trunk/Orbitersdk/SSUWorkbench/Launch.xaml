@@ -14,6 +14,10 @@
         <TextBox x:Name="tbSSME" Text="{Binding mission.MaxThrust, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="640,150,0,0" MaxLength="5" MaxLines="1" HorizontalAlignment="Left" Width="50" Height="23" VerticalAlignment="Top" />
 
         <Label Margin="25,25,0,0" HorizontalAlignment="Left" Width="100" Height="25" VerticalAlignment="Top">Launch site:</Label>
+        <ComboBox Name="LaunchSite" SelectedIndex="{Binding mission.LaunchSite, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="130,25,0,0" SelectionChanged="LaunchSite_SelectionChanged" HorizontalAlignment="Left" Width="120" Height="24" VerticalAlignment="Top">
+            <ComboBoxItem>KSC</ComboBoxItem>
+            <ComboBoxItem>VAFB</ComboBoxItem>
+        </ComboBox>
         <Label Margin="25,50,0,0" HorizontalAlignment="Left" Width="100" Height="25" VerticalAlignment="Top">Launch pad:</Label>
         <ComboBox Name="LaunchPad" SelectedIndex="{Binding mission.LaunchPad, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="130,50,0,0" HorizontalAlignment="Left" Width="120" Height="24" VerticalAlignment="Top">
             <ComboBoxItem>LC-39A</ComboBoxItem>
@@ -25,9 +29,33 @@
             <ComboBoxItem>MLP-2</ComboBoxItem>
             <ComboBoxItem>MLP-3</ComboBoxItem>
         </ComboBox>
-        <ComboBox Name="LaunchSite" SelectedIndex="{Binding mission.LaunchSite, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="130,25,0,0" SelectionChanged="LaunchSite_SelectionChanged" HorizontalAlignment="Left" Width="120" Height="24" VerticalAlignment="Top">
-            <ComboBoxItem>KSC</ComboBoxItem>
-            <ComboBoxItem>VAFB</ComboBoxItem>
-        </ComboBox>
+        
+        <GroupBox Header="Launch Date/Time" Margin="25,125,0,0" Height="106" Width="285" VerticalAlignment="Top" HorizontalAlignment="Left">
+            <Grid Margin="2,0,4,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70" />
+                    <ColumnDefinition Width="61" />
+                    <ColumnDefinition Width="79" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="26" />
+                    <RowDefinition Height="26" />
+                    <RowDefinition Height="26" />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" Width="33" Content="Year"/>
+                <TextBox x:Name="tbYear" Grid.Row="0" Grid.Column="1" Text="{Binding mission.T0Year, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="2,3,0,0" MaxLength="4" MaxLines="1" />
+                <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" Width="45" Content="Month"/>
+                <TextBox x:Name="tbMonth" Grid.Row="1" Grid.Column="1" Text="{Binding mission.T0Month, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="2,3,0,0" MaxLength="2" MaxLines="1" />
+                <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Right" Width="30" Content="Day"/>
+                <TextBox x:Name="tbDay" Grid.Row="2" Grid.Column="1" Text="{Binding mission.T0Day, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="2,3,0,0" MaxLength="2" MaxLines="1" />
+                <Label Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Width="37" Content="Hour"/>
+                <TextBox x:Name="tbHour" Grid.Row="0" Grid.Column="3" Text="{Binding mission.T0Hour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="2,3,0,0" MaxLength="2" MaxLines="1" />
+                <Label Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Width="48" Content="Minute"/>
+                <TextBox x:Name="tbMinute" Grid.Row="1" Grid.Column="3" Text="{Binding mission.T0Minute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="2,3,0,0" MaxLength="2" MaxLines="1" />
+                <Label Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right" Width="49" Content="Second"/>
+                <TextBox x:Name="tbSecond" Grid.Row="2" Grid.Column="3" Text="{Binding mission.T0Second, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="2,3,0,0" MaxLength="6" MaxLines="1" />
+            </Grid>
+        </GroupBox>
     </Grid>
 </UserControl>

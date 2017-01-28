@@ -7,6 +7,17 @@ using System.Threading.Tasks;
 
 namespace SSUWorkbench.model
 {
+	public enum MissionPhase
+	{
+		LaunchT20m,
+		LaunchT9m,
+		LaunchT31s,
+		Orbit,
+		EI,
+		TAEM,
+		AL
+	}
+
 	class Scenario : INotifyPropertyChanged
 	{
 		public struct MFDtype
@@ -16,365 +27,86 @@ namespace SSUWorkbench.model
 			public List<string> _params;
 		}
 
-		public Scenario()
+		public Scenario( Mission mission )
 		{
+			this.mission = mission;
+
 			scnvessels = new List<OrbiterVessel>();
+			SSU_LCC ssulcc = new SSU_LCC( mission );
+			scnvessels.Add( ssulcc );
+			SSU_Pad ssupad = new SSU_Pad( mission );
+			scnvessels.Add( ssupad );
+			SSU_MLP ssumlp = new SSU_MLP( mission );
+			scnvessels.Add( ssumlp );
+			SSUVessel ssuv = new SSUVessel( mission );
+			scnvessels.Add( ssuv );
+			// TODO other vessels
+
+			missionphase = MissionPhase.LaunchT31s;// TODO
+
 			mfds = new MFDtype[12];
 			for (int i = 0; i < 12; i++) mfds[i]._params = new List<string>();
 		}
 
-		public void Load( string scnfile, Mission mission, string orbiterpath )
+		public void Create()
 		{
-			// TODO missing scenario parameters:
-			// Date JE
-			// Help
-			// BEGIN_PRESET
+			for (int i = 0; i < scnvessels.Count; i++) scnvessels[i].PreSave( missionphase );// TODO better name
 
-			string line;
+			scnSystem = "Sol";
 
-			System.IO.StreamReader file = new System.IO.StreamReader( scnfile );
-			while ((line = file.ReadLine()) != null)
+			switch (missionphase)
 			{
-				line = line.TrimStart( ' ' );
-				// TODO parse scenario file
-				if (line == "BEGIN_DESC")
-				{
-					while ((line = file.ReadLine()) != null)
+				case MissionPhase.LaunchT20m:
 					{
-						line = line.TrimStart( ' ' );
-						if (line == "END_DESC") break;
-						else
-						{
-							if (Description == null) Description = line;
-							else Description += "\r\n" + line;
-						}
+						int ms = Convert.ToInt32( 1000 * (mission.T0Second - (int)mission.T0Second) );
+						DateTime dt = new DateTime( mission.T0Year, mission.T0Month, mission.T0Day, mission.T0Hour, mission.T0Minute, (int)mission.T0Second, ms );
+						dt = dt.AddMinutes( -20.0 );// TODO should include holds
+						scnYear = dt.Year;
+						scnMonth = dt.Month;
+						scnDay = dt.Day;
+						scnHour = dt.Hour;
+						scnMinute = dt.Minute;
+						scnSecond = dt.Second + (0.001 * dt.Millisecond);
 					}
-				}
-				else if (line == "BEGIN_ENVIRONMENT" )
-				{
-					while ((line = file.ReadLine()) != null)
+					break;
+				case MissionPhase.LaunchT9m:
 					{
-						line = line.TrimStart( ' ' );
-						if (line == "END_ENVIRONMENT") break;
-						else if (line.StartsWith( "System " ))
-						{
-							scnSystem = line.Substring( 7, line.Length - 7 );
-						}
-						else if (line.StartsWith( "Date MJD " ))
-						{
-							double num = Convert.ToDouble( line.Substring( 9, line.Length - 9 ) ) - 15018.0;
-							DateTime dt = DateTime.FromOADate( num );
-							scnYear = dt.Year;
-							scnMonth = dt.Month;
-							scnDay = dt.Day;
-							scnHour = dt.Hour;
-							scnMinute = dt.Minute;
-							scnSecond = dt.Second + (0.001 * dt.Millisecond);
-						}
-						else if (line.StartsWith( "Date JD " ))
-						{
-							double num = Convert.ToDouble( line.Substring( 8, line.Length - 8 ) ) - 15018.0 - 2400000.5;
-							DateTime dt = DateTime.FromOADate( num );
-							scnYear = dt.Year;
-							scnMonth = dt.Month;
-							scnDay = dt.Day;
-							scnHour = dt.Hour;
-							scnMinute = dt.Minute;
-							scnSecond = dt.Second + (0.001 * dt.Millisecond);
-						}
-						else if ((line.StartsWith( "Context " )) || (line.StartsWith( "CONTEXT " )))
-						{
-							scnContext = line.Substring( 8, line.Length - 8 );
-						}
-						else if (line.StartsWith( "Script " ))
-						{
-							scnScript = line.Substring( 7, line.Length - 7 );
-						}
+						int ms = Convert.ToInt32( 1000 * (mission.T0Second - (int)mission.T0Second) );
+						DateTime dt = new DateTime( mission.T0Year, mission.T0Month, mission.T0Day, mission.T0Hour, mission.T0Minute, (int)mission.T0Second, ms );
+						dt = dt.AddMinutes( -9.0 );
+						scnYear = dt.Year;
+						scnMonth = dt.Month;
+						scnDay = dt.Day;
+						scnHour = dt.Hour;
+						scnMinute = dt.Minute;
+						scnSecond = dt.Second + (0.001 * dt.Millisecond);
 					}
-				}
-				else if (line == "BEGIN_FOCUS" )
-				{
-					while ((line = file.ReadLine()) != null)
+					break;
+				case MissionPhase.LaunchT31s:
 					{
-						line = line.TrimStart( ' ' );
-						if (line == "END_FOCUS") break;
-						else if (line.StartsWith( "Ship " ))
-						{
-							scnShip = line.Substring( 5, line.Length - 5 );
-						}
+						int ms = Convert.ToInt32( 1000 * (mission.T0Second - (int)mission.T0Second) );
+						DateTime dt = new DateTime( mission.T0Year, mission.T0Month, mission.T0Day, mission.T0Hour, mission.T0Minute, (int)mission.T0Second, ms );
+						dt = dt.AddSeconds( -31.0 );
+						scnYear = dt.Year;
+						scnMonth = dt.Month;
+						scnDay = dt.Day;
+						scnHour = dt.Hour;
+						scnMinute = dt.Minute;
+						scnSecond = dt.Second + (0.001 * dt.Millisecond);
 					}
-				}
-				else if (line == "BEGIN_CAMERA" )
-				{
-					while ((line = file.ReadLine()) != null)
-					{
-						line = line.TrimStart( ' ' );
-						if (line == "END_CAMERA") break;
-						else if (line.StartsWith( "TARGET " ))
-						{
-							scnCameraTarget = line.Substring( 7, line.Length - 7 );
-						}
-						else if (line.StartsWith( "MODE " ))
-						{
-							if (line.Substring( 5, line.Length - 5 ) == "Extern") scnCameraMode = 1;
-						}
-						else if (line.StartsWith( "POS " ))
-						{
-							string tmp = line.Substring( 4, line.Length - 4 );
-							double []num = Array.ConvertAll( tmp.Split( ' ' ), Double.Parse );
-							if (num.Count() == 3)
-							{
-								scnCameraPosX = num[0];
-								scnCameraPosY = num[1];
-								scnCameraPosZ = num[2];
-							}
-						}
-						else if (line.StartsWith( "TRACKMODE " ))
-						{
-							string tmp = line.Substring( 10, line.Length - 10 );
-							if (tmp.StartsWith( "AbsoluteDirection" )) scnCameraTrackMode = 1;
-							else if (tmp.StartsWith( "GlobalFrame" )) scnCameraTrackMode = 2;
-							else if (tmp.StartsWith( "TargetTo" ))
-							{
-								scnCameraTrackMode = 3;
-								scnCameraTrackModeRef = tmp.Substring( 9 );
-							}
-							else if (tmp.StartsWith( "TargetFrom" ))
-							{
-								scnCameraTrackMode = 4;
-								scnCameraTrackModeRef = tmp.Substring( 11 );
-							}
-							else if (tmp.StartsWith( "Ground" ))
-							{
-								scnCameraTrackMode = 5;
-								scnCameraTrackModeRef = tmp.Substring( 7 );
-							}
-							else /*if (tmp.StartsWith( "TargetRelative" ))*/ scnCameraTrackMode = 0;
-						}
-						else if (line.StartsWith( "FOV " ))
-						{
-							scnCameraFOV = Convert.ToDouble( line.Substring( 4, line.Length - 4 ) );
-						}
-						else if (line.StartsWith( "GROUNDLOCATION " ))
-						{
-							string tmp = line.Substring( 15, line.Length - 15 );
-							double []num = Array.ConvertAll( tmp.Split( ' ' ), Double.Parse );
-							if (num.Count() == 3)
-							{
-								scnCameraGrPosLon = num[0];
-								scnCameraGrPosLat = num[1];
-								scnCameraGrPosAlt = num[2];
-							}
-						}
-						else if (line.StartsWith( "GROUNDDIRECTION " ))
-						{
-							string tmp = line.Substring( 16, line.Length - 16 );
-							double []num = Array.ConvertAll( tmp.Split( ' ' ), Double.Parse );
-							if (num.Count() == 2)
-							{
-								scnCameraGrDirH = num[0];
-								scnCameraGrDirV = num[1];
-							}
-						}
-					}
-				}
-				else if (line == "BEGIN_HUD" )
-				{
-					while ((line = file.ReadLine()) != null)
-					{
-						line = line.TrimStart( ' ' );
-						if (line == "END_HUD") break;
-						else if (line.StartsWith( "TYPE " ))
-						{
-							string tmp = line.Substring( 5, line.Length - 5 );
-							if (tmp == "Orbit") scnHUDType = 1;
-							else if (tmp == "Surface") scnHUDType = 2;
-							else scnHUDType = 3;
-						}
-						else if (line.StartsWith( "REF " ))
-						{
-							scnHUDRef = line.Substring( 4, line.Length - 4 );
-						}
-						else if (line.StartsWith( "NAV " ))
-						{
-							scnHUDNAV = Convert.ToInt32( line.Substring( 4, line.Length - 4 ) );
-						}
-					}
-				}
-				else if (line.StartsWith( "BEGIN_MFD " ))
-				{
-					string strid = line.Substring( 10, line.Length - 10 );
-					int id = 0;
-					if (strid == "Left") id = 0;
-					else if (strid == "Right") id = 1;
-					else id = Convert.ToInt32( strid ) - 1;
-					mfds[id].on = true;
-
-					while ((line = file.ReadLine()) != null)
-					{
-						line = line.TrimStart( ' ' );
-						if (line == "END_MFD") break;
-						else if (line.StartsWith( "TYPE " ))
-						{
-							mfds[id].type = line.Substring( 5, line.Length - 5 );
-						}
-						else
-						{
-							mfds[id]._params.Add( line );
-						}
-					}
-				}
-				else if (line.StartsWith( "BEGIN_PANEL" ))
-				{
-					scnCockpitType = 1;
-					while ((line = file.ReadLine()) != null)
-					{
-						line = line.TrimStart( ' ' );
-						if (line == "END_PANEL") break;
-					}
-				}
-				else if (line.StartsWith( "BEGIN_VC" ))
-				{
-					scnCockpitType = 2;
-					while ((line = file.ReadLine()) != null)
-					{
-						line = line.TrimStart( ' ' );
-						if (line == "END_VC") break;
-					}
-				}
-				else if (line.StartsWith( "BEGIN_SHIPS" ))
-				{
-					while ((line = file.ReadLine()) != null)
-					{
-						line = line.TrimStart( ' ' );
-						if (line == "END_SHIPS") break;
-						else if (line.EndsWith( "SpaceShuttleUltra" ))
-						{
-							// main vessel
-							SSUVessel ssuv = new SSUVessel( mission, orbiterpath );
-							ssuv.Load( line, file );
-							scnvessels.Add( ssuv );
-						}
-						//else if (line.EndsWith( "SSU_CentaurG" ))
-						//{
-						//	// TODO centaur G
-						//}
-						//else if (line.EndsWith( "SSU_CentaurGPrime" ))
-						//{
-						//	// TODO centaur G'
-						//}
-						//else if (line.EndsWith( "SSU_Chute" ))
-						//{
-						//	// TODO chute
-						//}
-						//else if (line.EndsWith( "SSU_CT" ))
-						//{
-						//	// TODO ct
-						//}
-						//else if (line.EndsWith( "SSU_CT_1980" ))
-						//{
-						//	// TODO ct 1980
-						//}
-						//else if (line.EndsWith( "SSU_DemoSat" ))
-						//{
-						//	// TODO demosat
-						//}
-						//else if (line.EndsWith( "SSU_DFI_pallet" ))
-						//{
-						//	// TODO dfi pallet
-						//}
-						//else if (line.EndsWith( "SSU_IUS" ))
-						//{
-						//	// TODO ius
-						//}
-						//else if (line.EndsWith( "SSU_IUS_STAGE1" ))
-						//{
-						//	// TODO ius 1st stg
-						//}
-						//else if (line.EndsWith( "SSU_LCC" ))
-						//{
-						//	// TODO lcc
-						//}
-						//else if (line.EndsWith( "SSU_LSRB" ))
-						//{
-						//	// TODO l srb
-						//}
-						//else if (line.EndsWith( "SSU_LSRB_FWC" ))
-						//{
-						//	// TODO l srb fwc
-						//}
-						//else if (line.EndsWith( "SSU_LSRB_RSRM" ))
-						//{
-						//	// TODO l srb rsrm
-						//}
-						//else if (line.EndsWith( "SSU_LWT" ))
-						//{
-						//	// TODO et lwt
-						//}
-						//else if (line.EndsWith( "SSU_MLP" ))
-						//{
-						//	// TODO mlp
-						//}
-						//else if (line.EndsWith( "SSU_OBSS" ))
-						//{
-						//	// TODO obss
-						//}
-						//else if (line.EndsWith( "SSU_Pad" ))
-						//{
-						//	// TODO pad39
-						//}
-						//else if (line.EndsWith( "SSU_Pad1985" ))
-						//{
-						//	// TODO pad39 1985
-						//}
-						//else if (line.EndsWith( "SSU_RSRB" ))
-						//{
-						//	// TODO r srb
-						//}
-						//else if (line.EndsWith( "SSU_RSRB_FWC" ))
-						//{
-						//	// TODO r srb fwc
-						//}
-						//else if (line.EndsWith( "SSU_RSRB_RSRM" ))
-						//{
-						//	// TODO r srb rsrm
-						//}
-						//else if (line.EndsWith( "SSU_SLC6" ))
-						//{
-						//	// TODO slc6
-						//}
-						//else if (line.EndsWith( "SSU_SLWT" ))
-						//{
-						//	// TODO et slwt
-						//}
-						//else if (line.EndsWith( "SSU_SWT" ))
-						//{
-						//	// TODO et swt
-						//}
-						//else if (line.EndsWith( "SSU_VAB" ))
-						//{
-						//	// TODO vab
-						//}
-						//else if (line.EndsWith( "SSU_Xenon_Lights" ))
-						//{
-						//	// TODO lights
-						//}
-						else
-						{
-							// other non-SSU vessel
-							OrbiterVessel ship = new OrbiterVessel();
-							ship.Load( line, file );
-							scnvessels.Add( ship );
-						}
-					}
-				}
+					break;
 			}
-			file.Close();
 
+			scnContext = "SSU";
+			scnShip = mission.OVname;
+			scnCameraTarget = mission.OVname;
+			scnCameraFOV = 40.0;
+
+			scnCockpitType = 2;
 			return;
 		}
 
-		public void Save( string scnfile, string orbiterpath )
+		public void Save( string scnfile )
 		{
 			System.IO.StreamWriter file = new System.IO.StreamWriter( scnfile );
 			
@@ -485,6 +217,9 @@ namespace SSUWorkbench.model
 
 			return;
 		}
+
+		Mission mission;
+		MissionPhase missionphase;
 
 		/// <summary>
 		/// List of vessels used in this mission

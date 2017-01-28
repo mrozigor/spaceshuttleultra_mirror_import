@@ -34,13 +34,15 @@
                             </TextBlock>
                         </StackPanel>
                     </RibbonApplicationMenu.AuxiliaryPaneContent>
-                    <RibbonApplicationMenuItem x:Name="ribbonNew" Header="New"/>
-                    <RibbonApplicationMenuItem x:Name="ribbonOpen" Header="Open (Ctrl + O)" Click="ribbonOpen_Click"/>
-                    <RibbonApplicationMenuItem x:Name="ribbonSave" Header="Save (Ctrl + S)" ImageSource="{StaticResource SAVE_LARGE}" Click="ribbonSave_Click"/>
-                    <RibbonApplicationMenuItem x:Name="ribbonSaveAs" Header="Save as" ImageSource="{StaticResource SAVE_AS_LARGE}"/>
-                    <RibbonApplicationMenuItem Header="Options"/>
+                    <RibbonApplicationMenuItem x:Name="ribbonNew" Header="New Mssion (Ctrl + N)" Click="ribbonNew_Click"/>
+                    <RibbonApplicationMenuItem x:Name="ribbonOpen" Header="Open Mission (Ctrl + O)" Click="ribbonOpen_Click"/>
+                    <RibbonApplicationMenuItem x:Name="ribbonSave" Header="Save Mission (Ctrl + S)" ImageSource="{StaticResource SAVE_LARGE}" Click="ribbonSave_Click"/>
+                    <RibbonApplicationMenuItem x:Name="ribbonExport" Header="Export Scenario (Ctrl + E)" ImageSource="{StaticResource SAVE_LARGE}" Click="ribbonExport_Click"/>
+                    <RibbonSeparator/>
+                    <RibbonApplicationMenuItem x:Name="ribbonOptions" Header="Options" Click="ribbonOptions_Click"/>
+                    <RibbonApplicationMenuItem x:Name="ribbonAbout" Header="About" Click="ribbonAbout_Click"/>
                     <RibbonApplicationMenu.FooterPaneContent>
-                        <RibbonButton Label="Close" HorizontalAlignment="Right" Click="RibbonButton_Click"/>
+                        <RibbonButton x:Name="ribbonClose" Label="Close" HorizontalAlignment="Right" Click="ribbonClose_Click"/>
                     </RibbonApplicationMenu.FooterPaneContent>
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
@@ -54,7 +56,7 @@
                     <RibbonButton Label="Copy" LargeImageSource="{StaticResource COPY}"/>
                 </RibbonGroup>
                 <RibbonGroup Header="Scenario">
-                    <RibbonButton Label="Create"/>
+                    <RibbonButton x:Name="rbtnCreate" Label="Create" Click="rbtnCreate_Click"/>
                     <RibbonButton Label="Describe"/>
                     <RibbonButton Label="Stages"/>
                 </RibbonGroup>

@@ -65,19 +65,32 @@ namespace SSUWorkbench
 			return false;
 		}
 
-		private void OpenScenario()
+		private void NewMission()
+		{
+			// load STS-101 mission at launch phase
+			mission = new Mission();
+			scenario = new model.Scenario( mission );
+			DataContext = new// load to screen
+			{
+				scenario = this.scenario,
+				mission = this.mission,
+			};
+			return;
+		}
+
+		private void OpenMission()
 		{
 			OpenFileDialog openfiledialog = new OpenFileDialog();
 
-			openfiledialog.Title = "Open Scenario File...";
-			openfiledialog.Filter = "Scenario files (*.scn)|*.scn|All files (*.*)|*.*";
-			openfiledialog.InitialDirectory = orbiterpath + "Scenarios\\Space Shuttle Ultra";
+			openfiledialog.Title = "Open Missino File...";
+			openfiledialog.Filter = "Mission files (*.cfg)|*.cfg|All files (*.*)|*.*";
+			openfiledialog.InitialDirectory = orbiterpath + "Missions\\SSU";
 
 			if (openfiledialog.ShowDialog() == true)
 			{
-				scenario = new model.Scenario();
 				mission = new Mission();
-				scenario.Load( openfiledialog.FileName, mission, orbiterpath );
+				scenario = new model.Scenario( mission );
+				mission.Load( openfiledialog.FileName );
 				DataContext = new// load to screen
 				{
 					scenario = this.scenario,
@@ -88,53 +101,112 @@ namespace SSUWorkbench
 			return;
 		}
 
-		private void SaveScenario()
+		private void SaveMission()
 		{
 			SaveFileDialog savefiledialog = new SaveFileDialog();
 
-			savefiledialog.Title = "Save Scenario File...";
-			savefiledialog.Filter = "Scenario files (*.scn)|*.scn";
+			savefiledialog.Title = "Save Mission File...";
+			savefiledialog.Filter = "Mission files (*.cfg)|*.cfg";
+			savefiledialog.InitialDirectory = orbiterpath + "Missions\\SSU";
+			savefiledialog.FileName = mission.MissionName;
 
 			if (savefiledialog.ShowDialog() == true)
 			{
-				scenario.Save( savefiledialog.FileName, orbiterpath );
+				mission.Save( savefiledialog.FileName );
 				MessageBox.Show( "done!" );
 			}
 			return;
 		}
 
-		private void ribbonOpen_Click(object sender, RoutedEventArgs e)
+		private void ExportScenario()
 		{
-			OpenScenario();
-			return;
-		}
+			SaveFileDialog savefiledialog = new SaveFileDialog();
 
-		private void ribbonSave_Click(object sender, RoutedEventArgs e)
-		{
-			SaveScenario();
-			return;
-		}
+			savefiledialog.Title = "Export Scenario File...";
+			savefiledialog.Filter = "Scenario files (*.scn)|*.scn";
+			savefiledialog.InitialDirectory = orbiterpath + "Scenarios\\Space Shuttle Ultra";
 
-		private void RibbonButton_Click(object sender, RoutedEventArgs e)
-		{
-			System.Environment.Exit( 0 );//System.Windows.Forms.Application.Exit();
+			if (savefiledialog.ShowDialog() == true)
+			{
+				scenario.Save( savefiledialog.FileName );
+				MessageBox.Show( "done!" );
+			}
 			return;
 		}
 
 		protected override void OnPreviewKeyDown(System.Windows.Input.KeyEventArgs e)
 		{
-			if ((e.Key == Key.O) && (Keyboard.IsKeyDown( Key.LeftCtrl ) || Keyboard.IsKeyDown( Key.RightCtrl )))
+			if ((e.Key == Key.N) && (Keyboard.IsKeyDown( Key.LeftCtrl ) || Keyboard.IsKeyDown( Key.RightCtrl )))
 			{
-				OpenScenario();
+				NewMission();
+				e.Handled = true;
+			}
+			else if ((e.Key == Key.O) && (Keyboard.IsKeyDown( Key.LeftCtrl ) || Keyboard.IsKeyDown( Key.RightCtrl )))
+			{
+				OpenMission();
 				e.Handled = true;
 			}
 			else if ((e.Key == Key.S) && (Keyboard.IsKeyDown( Key.LeftCtrl ) || Keyboard.IsKeyDown( Key.RightCtrl )))
 			{
-				SaveScenario();
+				SaveMission();
+				e.Handled = true;
+			}
+			else if ((e.Key == Key.E) && (Keyboard.IsKeyDown( Key.LeftCtrl ) || Keyboard.IsKeyDown( Key.RightCtrl )))
+			{
+				ExportScenario();
 				e.Handled = true;
 			}
 			
 			base.OnPreviewKeyDown(e);
+			return;
+		}
+
+		private void ribbonNew_Click(object sender, RoutedEventArgs e)
+		{
+			NewMission();
+			return;
+		}
+
+		private void ribbonOpen_Click(object sender, RoutedEventArgs e)
+		{
+			OpenMission();
+			return;
+		}
+
+		private void ribbonSave_Click(object sender, RoutedEventArgs e)
+		{
+			SaveMission();
+			return;
+		}
+
+		private void ribbonExport_Click(object sender, RoutedEventArgs e)
+		{
+			ExportScenario();
+			return;
+		}
+
+		private void ribbonOptions_Click(object sender, RoutedEventArgs e)
+		{
+			// TODO options window to change orbiter.exe path
+			return;
+		}
+
+		private void ribbonAbout_Click(object sender, RoutedEventArgs e)
+		{
+			AboutBox box = new AboutBox();
+			box.ShowDialog();
+			return;
+		}
+
+		private void ribbonClose_Click(object sender, RoutedEventArgs e)
+		{
+			System.Environment.Exit( 0 );//System.Windows.Forms.Application.Exit();
+			return;
+		}
+
+		private void rbtnCreate_Click(object sender, RoutedEventArgs e)
+		{
+			scenario.Create();
 			return;
 		}
 	}

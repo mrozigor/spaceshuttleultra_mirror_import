@@ -33,7 +33,7 @@ namespace SSUWorkbench.model
 			LoadDefault();
 		}
 
-		public void LoadDefault()
+		private void LoadDefault()
 		{
 			//description = "The STS-101 launch scenario, as simulated by Space Shuttle Ultra.";
 			missionName = "STS-101";
@@ -68,6 +68,12 @@ namespace SSUWorkbench.model
 			launchsite = 0;
 			launchpad = 0;
 			mlp = 1;
+			t0year = 2000;
+			t0month = 5;
+			t0day = 19;
+			t0hour = 10;
+			t0minute = 11;
+			t0second = 10;
 			ettype = 2;
 			etfrl = false;
 			srmtype = 3;
@@ -127,6 +133,18 @@ namespace SSUWorkbench.model
 						case "MLP":
 							MLP = Convert.ToInt32( val ) - 1;
 							LaunchSite = 0;// force KSC
+							break;
+						case "T0":
+							{
+								double num = Convert.ToDouble( val ) - 15018.0;
+								DateTime dt = DateTime.FromOADate( num );
+								T0Year = dt.Year;
+								T0Month = dt.Month;
+								T0Day = dt.Day;
+								T0Hour = dt.Hour;
+								T0Minute = dt.Minute;
+								T0Second = dt.Second + (0.001 * dt.Millisecond);
+							}
 							break;
 						case "TargetInc":
 							MECO_Inc = Convert.ToDouble( val );
@@ -257,6 +275,9 @@ namespace SSUWorkbench.model
 				else file.WriteLine( "LaunchPad=LC-39A" );
 				file.WriteLine( "MLP=" + (MLP + 1) );
 			}
+			int ms = Convert.ToInt32( 1000 * (T0Second - (int)T0Second) );
+			DateTime dt = new DateTime( T0Year, T0Month, T0Day, T0Hour, T0Minute, (int)T0Second, ms );
+			file.WriteLine( "T0=" + string.Format( "{0:f10}", dt.ToOADate() + 15018.0 ) );
 			file.WriteLine( "TargetInc=" + string.Format( "{0:f6}", MECO_Inc ) );
 			file.WriteLine( "TargetLAN=" + string.Format( "{0:f6}", MECO_LAN ) );
 			file.WriteLine( "MECOAlt=" + string.Format( "{0:f6}", MECO_Alt ) );
@@ -792,6 +813,70 @@ namespace SSUWorkbench.model
 			{
 				mlp = value;
 				OnPropertyChanged( "MLP" );
+			}
+		}
+
+		/// <summary>
+		/// The date/time at the start of the simulation
+		/// </summary>
+		private int t0year;
+		public int T0Year
+		{
+			get { return t0year; }
+			set
+			{
+				t0year = value;
+				OnPropertyChanged( "T0Year" );
+			}
+		}
+		private int t0month;
+		public int T0Month
+		{
+			get { return t0month; }
+			set
+			{
+				t0month = value;
+				OnPropertyChanged( "T0Month" );
+			}
+		}
+		private int t0day;
+		public int T0Day
+		{
+			get { return t0day; }
+			set
+			{
+				t0day = value;
+				OnPropertyChanged( "T0Day" );
+			}
+		}
+		private int t0hour;
+		public int T0Hour
+		{
+			get { return t0hour; }
+			set
+			{
+				t0hour = value;
+				OnPropertyChanged( "T0Hour" );
+			}
+		}
+		private int t0minute;
+		public int T0Minute
+		{
+			get { return t0minute; }
+			set
+			{
+				t0minute = value;
+				OnPropertyChanged( "T0Minute" );
+			}
+		}
+		private double t0second;
+		public double T0Second
+		{
+			get { return t0second; }
+			set
+			{
+				t0second = value;
+				OnPropertyChanged( "T0Second" );
 			}
 		}
 
