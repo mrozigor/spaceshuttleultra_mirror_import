@@ -8,122 +8,78 @@ namespace SSUWorkbench.model
 {
 	class SSUVessel : OrbiterVessel
 	{
-		public SSUVessel( Mission mission, string orbiterpath )
+		public SSUVessel( Mission mission )
 		{
-			osfspath = orbiterpath;
-
-			plmass = -1.0;
-			majormode = 101;
-
 			this.mission = mission;
 		}
 
-		protected override void LoadSpecificParams( string line, System.IO.StreamReader scn )
+		public override void PreSave( MissionPhase missionphase )
 		{
-			do
-			{
-				line = line.TrimStart( ' ' );
-				if (line.IndexOf( ';' ) != -1) line = line.Substring( 0, line.IndexOf( ';' ) );
-				if (line == "END") break;
-				else if (line.StartsWith( "MISSION " ))
-				{
-					missionname = line.Substring( 8, line.Length - 8 );
-				}
-				else if (line.StartsWith( "CONFIGURATION " ))
-				{
-					config = Convert.ToInt32( line.Substring( 14, line.Length - 14 ) );
-				}
-				else if (line.StartsWith( "VC_POS " ))
-				{
-					vcpos = Convert.ToInt32( line.Substring( 7, line.Length - 7 ) );
-				}
-				else if (line.StartsWith( "SBTC " ))
-				{
-					string tmp = line.Substring( 5, line.Length - 5 );
-					double []num = Array.ConvertAll( tmp.Split( ' ' ), Double.Parse );
-					if (num.Count() == 2)
-					{
-						sbtc_l = num[0];
-						sbtc_r = num[1];
-					}
-				}
-				else if (line.StartsWith( "SPEEDBRAKE " ))
-				{
-					string tmp = line.Substring( 11, line.Length - 11 );
-					double []num = Array.ConvertAll( tmp.Split( ' ' ), Double.Parse );
-					if (num.Count() == 3)
-					{
-						sb_st = (int)num[0];
-						sb_cur = num[1];
-						sb_tgt = num[2];
-					}
-				}
-				else if (line.StartsWith( "GEAR " ))
-				{
-					string tmp = line.Substring( 5, line.Length - 5 );
-					double []num = Array.ConvertAll( tmp.Split( ' ' ), Double.Parse );
-					if (num.Count() == 2)
-					{
-						gear_st = (int)num[0];
-						gear_pos = num[1];
-					}
-				}
-				else if (line.StartsWith( "CARGO_STATIC_MESH " ))
-				{
-					staticcargo_mesh = line.Substring( 18, line.Length - 18 );
-				}
-				else if (line.StartsWith( "CARGO_STATIC_OFS " ))
-				{
-					string tmp = line.Substring( 17, line.Length - 17 );
-					double []num = Array.ConvertAll( tmp.Split( ' ' ), Double.Parse );
-					if (num.Count() == 3)
-					{
-						staticcargo_ofsx = num[0];
-						staticcargo_ofsy = num[1];
-						staticcargo_ofsz = num[2];
-					}
-				}
-				else if (line.StartsWith( "PAYLOAD_MASS " ))
-				{
-					plmass = Convert.ToDouble( line.Substring( 13, line.Length - 13 ) );
-				}
-				else if (line.StartsWith( "OPS " ))
-				{
-					majormode = Convert.ToInt32( line.Substring( 4, line.Length - 4 ) );
-				}
-				else if (line.StartsWith( "PLB_CAM " ))
-				{
-					string tmp = line.Substring( 8, line.Length - 8 );
-					double []num = Array.ConvertAll( tmp.Split( ' ' ), Double.Parse );
-					if (num.Count() == 8)
-					{
-						cameraA_p = num[0];
-						cameraA_y = num[1];
-						cameraB_p = num[2];
-						cameraB_y = num[3];
-						cameraC_p = num[4];
-						cameraC_y = num[5];
-						cameraD_p = num[6];
-						cameraD_y = num[7];
-					}
-				}
-				else if (line.StartsWith( "@SUBSYSTEM " ))
-				{
-					// TODO
-				}
-				else if (line.StartsWith( "  @PANEL " ))
-				{
-					// TODO
-				}
-			} while ((line = scn.ReadLine()) != null);
+			_class = "SpaceShuttleUltra";
+			name = mission.OVname;
 
-			mission.Load( osfspath + "Missions\\SSU\\" + missionname + ".cfg" );
+			// TODO build state from "mission" and "missionphase"
+			switch (missionphase)
+			{
+				case MissionPhase.LaunchT31s:
+					config = 0;
+					vcpos = 0;
+					sbtc_l = 0.0;
+					sbtc_r = 0.0;
+					sb_st = 0;
+					sb_cur = 0.0;
+					sb_tgt = 0.0;
+					gear_st = 0;
+					gear_pos = 0.0;
+					majormode = 101;
+					cameraA_p = 0.0;
+					cameraA_y = -90.0;
+					cameraB_p = 0.0;
+					cameraB_y = 90.0;
+					cameraC_p = 0.0;
+					cameraC_y = -90.0;
+					cameraD_p = 0.0;
+					cameraD_y = 90.0;
+					// TODO state vector, etc
+					statuslanded = true;
+					statusplanet = "Earth";
+					poslon = 0.0;
+					poslat = 0.0;
+					heading = 0.0;
+					alt = -1.345;
+					afcmode = 7;
+					if (mission.MLP == 0) attached.Add( Tuple.Create( 0, 0, "MLP1" ) );
+					else if (mission.MLP == 1) attached.Add( Tuple.Create( 0, 0, "MLP2" ) );
+					else attached.Add( Tuple.Create( 0, 0, "MLP3" ) );
+					break;
+				case MissionPhase.Orbit:
+					config = 2;
+					vcpos = 0;
+					sbtc_l = 0.0;
+					sbtc_r = 0.0;
+					sb_st = 0;
+					sb_cur = 0.0;
+					sb_tgt = 0.0;
+					gear_st = 0;
+					gear_pos = 0.0;
+					majormode = 201;
+					cameraA_p = 0.0;
+					cameraA_y = -90.0;
+					cameraB_p = 0.0;
+					cameraB_y = 90.0;
+					cameraC_p = 0.0;
+					cameraC_y = -90.0;
+					cameraD_p = 0.0;
+					cameraD_y = 90.0;
+					// TODO state vector, etc
+					break;
+			}
 			return;
 		}
 
 		protected override void SaveSpecificParams( System.IO.StreamWriter scn )
 		{
-			scn.WriteLine( "  MISSION " + missionname );
+			scn.WriteLine( "  MISSION " + mission.MissionName );
 
 			scn.WriteLine( "  CONFIGURATION " + config );
 
@@ -148,13 +104,11 @@ namespace SSUWorkbench.model
 
 			// TODO subsystems
 			// TODO panels
-
-			mission.Save( osfspath + "Missions\\SSU\\" + missionname + ".cfg" );
 			return;
 		}
 
 
-		protected string missionname;
+		Mission mission;
 
 		protected int config;
 
@@ -188,9 +142,5 @@ namespace SSUWorkbench.model
 		protected double cameraC_y;
 		protected double cameraD_p;
 		protected double cameraD_y;
-
-		protected string osfspath;
-		
-		protected Mission mission;
 	}
 }
