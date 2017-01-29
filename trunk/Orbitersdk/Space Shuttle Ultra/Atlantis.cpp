@@ -1874,7 +1874,7 @@ void Atlantis::DefineAnimations(void)
 
 	static UINT RudderGrp[2] = { GRP_RIGHT_RSB_PANEL, GRP_LEFT_RSB_PANEL };
 	static MGROUP_ROTATE Rudder(midx, RudderGrp, 2,
-		_V(0, 6.8866, -15.8689), _V(0, -0.825413, 0.56453), (float)(54.2*RAD));
+		_V(0, 7.5, -15.8689), _V(-0.0418225, -0.843401, 0.555654), (float)(54.2*RAD));
 	anim_rudder = CreateAnimation(0.5);
 	LogAnim("anim_rudder", anim_rudder);
 	AddAnimationComponent(anim_rudder, 0, 1, &Rudder);
@@ -1883,10 +1883,10 @@ void Atlantis::DefineAnimations(void)
 
 	static UINT SB1Grp[1] = { GRP_RIGHT_RSB_PANEL };
 	static MGROUP_ROTATE SB1(midx, SB1Grp, 1,
-		_V(0,  6.8866, -15.8689), _V(0, -0.825413, 0.56453), (float)(49.3*RAD));
+		_V(0,  7.5, -15.8689), _V(0.0418225, -0.843401, 0.555654), (float)(49.3*RAD));
 	static UINT SB2Grp[1] = { GRP_LEFT_RSB_PANEL };
 	static MGROUP_ROTATE SB2(midx, SB2Grp, 1,
-		_V(0,  6.8866, -15.8689), _V(0, -0.825413, 0.56453), (float)(-49.3*RAD));
+		_V(0,  7.5, -15.8689), _V(-0.0418225, -0.843401, 0.555654), (float)(-49.3*RAD));
 
 	anim_spdb = CreateAnimation(0);
 	LogAnim("anim_spdb", anim_spdb);
@@ -1899,7 +1899,6 @@ void Atlantis::DefineAnimations(void)
 
 
 	// ***** 9 Payload bay cameras animation *****
-	// DaveS edit: realigned with the scaled down orbiter mesh
 	// FRONT LEFT
 	static UINT camFLYawGrp[1] = { GRP_PANTILT_CAM_A };
 	MGROUP_ROTATE* CameraFLYaw = new MGROUP_ROTATE(midx, camFLYawGrp, 1,
