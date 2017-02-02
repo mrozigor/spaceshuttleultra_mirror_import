@@ -1433,14 +1433,14 @@ namespace vc
 				diamond[3].y = 163 - pos;
 				skp->SetBrush( skpMagentaBrush );
 				skp->SetPen( skpBlackPen );
-				//skp->Polygon( diamond, 4 );
+				skp->Polygon( diamond, 4 );
 
 				diamond[0].y += 6;
 				diamond[1].x = 105;
 				diamond[2].y -= 6;
 				diamond[3].x = 101;
 				skp->SetBrush( skpBlackBrush );
-				//skp->Polygon( diamond, 4 );
+				skp->Polygon( diamond, 4 );
 			}
 		}
 
@@ -1951,8 +1951,8 @@ namespace vc
 		LineTo( hDC, 291, 75 );
 
 		// cover center for ADI SRCPAINT
-		SelectObject( hDC, gdiBlackBrush );
-		SelectObject( hDC, gdiBlackPen );
+		SelectObject( hDC, GetStockObject( BLACK_BRUSH ) );
+		SelectObject( hDC, GetStockObject( BLACK_PEN ) );
 		::Ellipse( hDC, 144, 70, 334, 260 );
 
 		TextOut( hDC, 294, 70, "33", 2 );
@@ -2182,8 +2182,8 @@ namespace vc
 		skp->Line( 187, 255, 291, 75 );// 150º/330º
 
 		// cover center for ADI SRCPAINT
-		skp->SetBrush( skpBlackBrush );
-		skp->SetPen( skpBlackPen );
+		skp->SetBrush( _skpBlackBrush );
+		skp->SetPen( _skpBlackPen );
 		skp->Ellipse( 144, 70, 334, 260 );
 
 		skp->Text( 294, 70, "33", 2 );

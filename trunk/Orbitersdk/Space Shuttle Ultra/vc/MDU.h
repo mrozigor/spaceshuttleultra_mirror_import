@@ -33,7 +33,7 @@
 #include "Sketchpad2.h"
 
 
-#define CR_BLACK RGB( 0, 0, 0 )//10, 18, 61
+#define CR_BLACK RGB( 10, 18, 61 )
 #define CR_DARK_GRAY RGB( 60, 60, 80 )
 #define CR_LIGHT_GRAY RGB( 180, 180, 200 )
 #define CR_WHITE RGB( 255, 255, 255 )
@@ -160,6 +160,7 @@ namespace vc {
 		static oapi::Brush* skpMagentaBrush;
 		static oapi::Brush* skpLightGreenBrush;
 		static oapi::Brush* skpBlueBrush;
+		static oapi::Brush* _skpBlackBrush;// "true" black, just for bitblt operations
 		
 		static HPEN gdiBlackPen;
 		static HPEN gdiDarkGrayPen;
@@ -186,6 +187,7 @@ namespace vc {
 		static oapi::Pen* skpLightGreenPen;
 		static oapi::Pen* skpDarkGreenPen;
 		static oapi::Pen* skpLightGreenThickPen;
+		static oapi::Pen* _skpBlackPen;// "true" black, just for bitblt operations
 
 		// DPS pens
 		static HPEN gdiOverbrightPen;
