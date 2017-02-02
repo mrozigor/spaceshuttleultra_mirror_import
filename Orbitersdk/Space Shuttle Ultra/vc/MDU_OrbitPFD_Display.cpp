@@ -279,8 +279,8 @@ namespace vc
 		LineTo( hDC, 315, 121 );
 		
 		// cover center for ADI SRCPAINT
-		SelectObject( hDC, gdiBlackBrush );
-		SelectObject( hDC, gdiBlackPen );
+		SelectObject( hDC, GetStockObject( BLACK_BRUSH ) );
+		SelectObject( hDC, GetStockObject( BLACK_PEN ) );
 		::Ellipse( hDC, 146, 113, 366, 333 );
 
 		TextOut( hDC, 317, 115, "33", 2 );
@@ -513,8 +513,8 @@ namespace vc
 		skp->Line( 197, 325, 315, 121 );// 150º/330º
 
 		// cover center for ADI SRCPAINT
-		skp->SetBrush( skpBlackBrush );
-		skp->SetPen( skpBlackPen );
+		skp->SetBrush( _skpBlackBrush );
+		skp->SetPen( _skpBlackPen );
 		skp->Ellipse( 146, 113, 366, 333 );
 
 		skp->Text( 317, 115, "33", 2 );

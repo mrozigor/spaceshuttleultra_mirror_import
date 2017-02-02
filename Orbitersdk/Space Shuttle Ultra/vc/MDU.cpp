@@ -26,6 +26,7 @@ namespace vc
 	oapi::Brush* MDU::skpMagentaBrush;
 	oapi::Brush* MDU::skpLightGreenBrush;
 	oapi::Brush* MDU::skpBlueBrush;
+	oapi::Brush* MDU::_skpBlackBrush;
 	
 	HPEN MDU::gdiBlackPen;
 	HPEN MDU::gdiDarkGrayPen;
@@ -52,6 +53,7 @@ namespace vc
 	oapi::Pen* MDU::skpLightGreenPen;
 	oapi::Pen* MDU::skpDarkGreenPen;
 	oapi::Pen* MDU::skpLightGreenThickPen;
+	oapi::Pen* MDU::_skpBlackPen;
 
 	HPEN MDU::gdiOverbrightPen;
 	HPEN MDU::gdiNormalPen;
@@ -390,6 +392,10 @@ namespace vc
 			case 0:// "DPS display"
 				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2) && hADIball)
 				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
+					skp->SetBrush( NULL );// disable fill
 					DPS( (oapi::Sketchpad2*)skp );
 					PaintEdgeMenu( skp );
 				}
@@ -399,6 +405,10 @@ namespace vc
 					if (hDC)
 					{
 						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
+						SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );// disable fill
 						DPS( hDC );
 						PaintEdgeMenu( hDC );
 						RestoreDC( hDC, save );
@@ -408,6 +418,9 @@ namespace vc
 			case 1:// A/E PFD
 				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2) && hADIball)
 				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
 					AEPFD( (oapi::Sketchpad2*)skp );
 					PaintEdgeMenu( skp );
 				}
@@ -417,6 +430,9 @@ namespace vc
 					if (hDC)
 					{
 						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
 						AEPFD( hDC );
 						PaintEdgeMenu( hDC );
 						RestoreDC( hDC, save );
@@ -426,6 +442,9 @@ namespace vc
 			case 2:// ORBIT PFD
 				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2) && hADIball)
 				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
 					ORBITPFD( (oapi::Sketchpad2*)skp );
 					PaintEdgeMenu( skp );
 				}
@@ -435,6 +454,9 @@ namespace vc
 					if (hDC)
 					{
 						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
 						ORBITPFD( hDC );
 						PaintEdgeMenu( hDC );
 						RestoreDC( hDC, save );
@@ -444,6 +466,9 @@ namespace vc
 			case 3:// OMS/MPS
 				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2))
 				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
 					OMSMPS( (oapi::Sketchpad2*)skp );
 					PaintEdgeMenu( skp );
 				}
@@ -453,6 +478,9 @@ namespace vc
 					if (hDC)
 					{
 						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
 						OMSMPS( hDC );
 						PaintEdgeMenu( hDC );
 						RestoreDC( hDC, save );
@@ -462,6 +490,9 @@ namespace vc
 			case 4:// HYD/APU
 				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2))
 				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
 					APUHYD( (oapi::Sketchpad2*)skp );
 					PaintEdgeMenu( skp );
 				}
@@ -471,6 +502,9 @@ namespace vc
 					if (hDC)
 					{
 						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
 						APUHYD( hDC );
 						PaintEdgeMenu( hDC );
 						RestoreDC( hDC, save );
@@ -480,6 +514,9 @@ namespace vc
 			case 5:// SPI
 				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2))
 				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
 					SPI( (oapi::Sketchpad2*)skp );
 					PaintEdgeMenu( skp );
 				}
@@ -489,6 +526,9 @@ namespace vc
 					if (hDC)
 					{
 						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
 						SPI( hDC );
 						PaintEdgeMenu( hDC );
 						RestoreDC( hDC, save );
@@ -498,6 +538,9 @@ namespace vc
 			case 6:// CST Menu
 				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2))
 				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
 					SystemStatusDisplay_CSTMenu( (oapi::Sketchpad2*)skp );
 					PaintEdgeMenu( skp );
 				}
@@ -507,6 +550,9 @@ namespace vc
 					if (hDC)
 					{
 						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
 						SystemStatusDisplay_CSTMenu( hDC );
 						PaintEdgeMenu( hDC );
 						RestoreDC( hDC, save );
@@ -516,6 +562,9 @@ namespace vc
 			case 7:// IDP Interactive CST
 				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2))
 				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
 					SystemStatusDisplay_IDPInteractiveCST( (oapi::Sketchpad2*)skp );
 					PaintEdgeMenu( skp );
 				}
@@ -525,6 +574,9 @@ namespace vc
 					if (hDC)
 					{
 						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
 						SystemStatusDisplay_IDPInteractiveCST( hDC );
 						PaintEdgeMenu( hDC );
 						RestoreDC( hDC, save );
@@ -1454,6 +1506,7 @@ namespace vc
 		skpMagentaBrush = oapiCreateBrush( CR_MAGENTA );
 		skpLightGreenBrush = oapiCreateBrush( CR_LIGHT_GREEN );
 		skpBlueBrush = oapiCreateBrush( CR_BLUE );
+		_skpBlackBrush = oapiCreateBrush( RGB( 0, 0, 0 ) );
 
 		skpBlackPen = oapiCreatePen( 1, 2, CR_BLACK );
 		skpDarkGrayPen = oapiCreatePen( 1, 2, CR_DARK_GRAY );
@@ -1467,6 +1520,7 @@ namespace vc
 		skpLightGreenPen = oapiCreatePen( 1, 2, CR_LIGHT_GREEN );
 		skpDarkGreenPen = oapiCreatePen( 1, 2, CR_DARK_GREEN );
 		skpLightGreenThickPen = oapiCreatePen( 1, 4, CR_LIGHT_GREEN );
+		_skpBlackPen = oapiCreatePen( 1, 2, RGB( 0, 0, 0 ) );
 		
 		skpOverbrightPen = oapiCreatePen( 1, 2, CR_DPS_OVERBRIGHT );
 		skpNormalPen = oapiCreatePen( 1, 2, CR_DPS_NORMAL );
@@ -1495,6 +1549,7 @@ namespace vc
 		oapiReleaseBrush( skpMagentaBrush );
 		oapiReleaseBrush( skpLightGreenBrush );
 		oapiReleaseBrush( skpBlueBrush );
+		oapiReleaseBrush( _skpBlackBrush );
 
 		oapiReleasePen( skpBlackPen );
 		oapiReleasePen( skpDarkGrayPen );
@@ -1508,6 +1563,7 @@ namespace vc
 		oapiReleasePen( skpLightGreenPen );
 		oapiReleasePen( skpDarkGreenPen );
 		oapiReleasePen( skpLightGreenThickPen );
+		oapiReleasePen( _skpBlackPen );
 
 		oapiReleasePen( skpOverbrightPen );
 		oapiReleasePen( skpNormalPen );
