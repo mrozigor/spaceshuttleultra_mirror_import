@@ -102,6 +102,10 @@ namespace mission {
 		bool bUseCISS;
 		bool bCISS_GPrime;
 
+		bool bHasEDOKit;
+
+		bool bHasOMSKit;
+
 		/**
 		 * Initializes parameters to default values
 		 */
@@ -242,6 +246,11 @@ namespace mission {
 		 * Returns true if the CISS used is the G Prime version.
 		 */
 		virtual bool IsCISSGPrime() const;
+
+
+		virtual bool Mission::HasEDOKit() const;
+
+		virtual bool Mission::HasOMSKit() const;
 	};
 
 };

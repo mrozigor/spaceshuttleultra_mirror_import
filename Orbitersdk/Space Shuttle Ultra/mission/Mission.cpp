@@ -70,6 +70,10 @@ namespace mission {
 		for(int i=0;i<13;i++) bHasBridgerail[i] = false;
 
 		bLogSSMEData = false;
+
+		bHasEDOKit = false;
+
+		bHasOMSKit = false;
 	}
 
 	bool Mission::LoadMission(const std::string& strMission)
@@ -204,6 +208,10 @@ namespace mission {
 			oapiReadItem_bool( hFile, "UseCISS", bUseCISS );
 			oapiReadItem_bool( hFile, "CISS_GPrime", bCISS_GPrime );
 		}
+
+		if ((strOrbiter == "Columbia") || (strOrbiter == "Endeavour")) oapiReadItem_bool( hFile, "HasEDOKit", bHasEDOKit );
+
+		oapiReadItem_bool( hFile, "HasOMSKit", bHasOMSKit );
 
 		oapiCloseFile(hFile, FILE_IN);
 		return true;
@@ -426,5 +434,15 @@ namespace mission {
 	bool Mission::IsCISSGPrime() const
 	{
 		return bCISS_GPrime;
+	}
+
+	bool Mission::HasEDOKit() const
+	{
+		return bHasEDOKit;
+	}
+
+	bool Mission::HasOMSKit() const
+	{
+		return bHasOMSKit;
 	}
 };
