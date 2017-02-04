@@ -2317,6 +2317,22 @@ void Atlantis::AddOrbiterVisual()
 			oapiWriteLog("SILTS pod mesh added");
 		}
 
+		if (pMission->HasEDOKit() == true)
+		{
+			hEDOKitMesh = oapiLoadMeshGlobal( EDOKIT_MESHNAME );
+			mesh_EDOKit = AddMesh( hEDOKitMesh, &EDOKIT_OFFSET );
+			SetMeshVisibilityMode( mesh_EDOKit, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS );
+			oapiWriteLog( "EDO pallet mesh added" );
+		}
+
+		/*if (pMission->HasOMSKit() == true)
+		{
+			hOMSKitMesh = oapiLoadMeshGlobal( OMSKIT_MESHNAME );
+			mesh_OMSKit = AddMesh( hOMSKitMesh, &OMSKIT_OFFSET );
+			SetMeshVisibilityMode( mesh_OMSKit, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS );
+			oapiWriteLog( "OMS pallet mesh added" );
+		}*/
+
 		//ADD REENTRY MESH
 		oapiWriteLog("OFFSET REENTRY MESH SET");
 		mesh_heatshield = AddMesh(hHeatShieldMesh, &ENTRY_OFFSET);

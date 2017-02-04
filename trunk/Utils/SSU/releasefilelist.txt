@@ -101,6 +101,7 @@ Meshes\SSU\Crawler_VC_panels.msh
 Meshes\SSU\Crawler_VC_panels_reversed.msh
 Meshes\SSU\DemoSat.msh
 Meshes\SSU\DFI_pallet.msh
+Meshes\SSU\EDO_pallet.msh
 Meshes\SSU\EDW_Lakebed_Compass_Rose.msh
 Meshes\SSU\EDW_Lakebed_RWY22_line.msh
 Meshes\SSU\EDW_Lakebed_RWY23_line.msh
@@ -357,6 +358,7 @@ Textures\SSU\digits.dds
 Textures\SSU\Discovery_9thmod.dds
 Textures\SSU\Discovery_original.dds
 Textures\SSU\docking_ring.dds
+Textures\SSU\EDOcryokit_tex.dds
 Textures\SSU\Endeavour_3rdmod.dds
 Textures\SSU\Endeavour_original.dds
 Textures\SSU\ETburntex.dds
@@ -507,7 +509,6 @@ Textures\SSU\Centaur\RL10_maintex_spec.dds
 Textures\SSU\IUS\IUS_ASE_tex1.dds
 Textures\SSU\IUS\IUS_ASE_tex2.dds
 Textures\SSU\IUS\IUS_common_tex.dds
-Textures\STS-107payloads\EDOcryokit_tex.dds
 Textures\STS-107payloads\MPESS_FREESTAR_tex.dds
 Textures\STS-107payloads\SpaceHAB_RDM.dds
 Textures\VandenbergAFB\SLC-6_STS_general_tex.dds
