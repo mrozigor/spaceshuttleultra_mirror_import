@@ -1,13 +1,13 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Wed Jan 18 01:46:12 2017
+// Date of conversion : Tue Feb 07 23:34:41 2017
 
 // Input file: VC.msh
 // ======================================================
 
 #pragma once
 
-const unsigned int NUMGRP_VC = 1407;
+const unsigned int NUMGRP_VC = 1469;
 
 const unsigned int GRP_080_COCKPIT_VC	=	0;	//080 cockpit
 const unsigned int GRP_081_COCKPIT_VC	=	1;	//081 cockpit
@@ -950,10 +950,10 @@ const unsigned int GRP_R1S21_VC	=	937;	//R1S21
 const unsigned int GRP_R1S23_VC	=	938;	//R1S23
 const unsigned int GRP_R1S24_VC	=	939;	//R1S24
 const unsigned int GRP_R1S22_VC	=	940;	//R1S22
-const unsigned int GRP_R1CS1_VC	=	941;	//R1CS1
+const unsigned int GRP_R1CS2_VC	=	941;	//R1CS2
 const unsigned int GRP_R1CS8_VC	=	942;	//R1CS8
-const unsigned int GRP_R1CS5_VC	=	943;	//R1CS5
-const unsigned int GRP_R1CS2_VC	=	944;	//R1CS2
+const unsigned int GRP_R1CS4_VC	=	943;	//R1CS4
+const unsigned int GRP_R1CS1_VC	=	944;	//R1CS1
 const unsigned int GRP_R1CS3_VC	=	945;	//R1CS3
 const unsigned int GRP_R1CS6_VC	=	946;	//R1CS6
 const unsigned int GRP_R1CS9_VC	=	947;	//R1CS9
@@ -964,7 +964,7 @@ const unsigned int GRP_R1CS13_VC	=	951;	//R1CS13
 const unsigned int GRP_R1CS21_VC	=	952;	//R1CS21
 const unsigned int GRP_R1CS22_VC	=	953;	//R1CS22
 const unsigned int GRP_R1CS23_VC	=	954;	//R1CS23
-const unsigned int GRP_R1CS4_VC	=	955;	//R1CS4
+const unsigned int GRP_R1CS5_VC	=	955;	//R1CS5
 const unsigned int GRP_R1CS7_VC	=	956;	//R1CS7
 const unsigned int GRP_R1CS12_VC	=	957;	//R1CS12
 const unsigned int GRP_R1CS11_VC	=	958;	//R1CS11
@@ -1416,4 +1416,66 @@ const unsigned int GRP_R2_DS5_VC	=	1403;	//R2_DS5
 const unsigned int GRP_R2_DS6_VC	=	1404;	//R2_DS6
 const unsigned int GRP_R2_DS7_VC	=	1405;	//R2_DS7
 const unsigned int GRP_R2_DS8_VC	=	1406;	//R2_DS8
+const unsigned int GRP_R1_DS1_U_VC	=	1407;	//R1_DS1_U
+const unsigned int GRP_R1_DS1_L_VC	=	1408;	//R1_DS1_L
+const unsigned int GRP_R1_DS2_U_VC	=	1409;	//R1_DS2_U
+const unsigned int GRP_R1_DS2_L_VC	=	1410;	//R1_DS2_L
+const unsigned int GRP_R1_DS3_U_VC	=	1411;	//R1_DS3_U
+const unsigned int GRP_R1_DS3_L_VC	=	1412;	//R1_DS3_L
+const unsigned int GRP_R1_DS4_U_VC	=	1413;	//R1_DS4_U
+const unsigned int GRP_R1_DS4_L_VC	=	1414;	//R1_DS4_L
+const unsigned int GRP_R1_DS5_U_VC	=	1415;	//R1_DS5_U
+const unsigned int GRP_R1_DS5_L_VC	=	1416;	//R1_DS5_L
+const unsigned int GRP_R1_DS6_U_VC	=	1417;	//R1_DS6_U
+const unsigned int GRP_R1_DS6_L_VC	=	1418;	//R1_DS6_L
+const unsigned int GRP_R1_DS7_U_VC	=	1419;	//R1_DS7_U
+const unsigned int GRP_R1_DS7_L_VC	=	1420;	//R1_DS7_L
+const unsigned int GRP_R1_DS8_U_VC	=	1421;	//R1_DS8_U
+const unsigned int GRP_R1_DS8_L_VC	=	1422;	//R1_DS8_L
+const unsigned int GRP_R1_DS9_U_VC	=	1423;	//R1_DS9_U
+const unsigned int GRP_R1_DS9_L_VC	=	1424;	//R1_DS9_L
+const unsigned int GRP_R1_DS10_U_VC	=	1425;	//R1_DS10_U
+const unsigned int GRP_R1_DS10_L_VC	=	1426;	//R1_DS10_L
+const unsigned int GRP_R1_DS11_U_VC	=	1427;	//R1_DS11_U
+const unsigned int GRP_R1_DS11_L_VC	=	1428;	//R1_DS11_L
+const unsigned int GRP_R1_DS12_U_VC	=	1429;	//R1_DS12_U
+const unsigned int GRP_R1_DS12_L_VC	=	1430;	//R1_DS12_L
+const unsigned int GRP_R1_DS15_U_VC	=	1431;	//R1_DS15_U
+const unsigned int GRP_R1_DS15_L_VC	=	1432;	//R1_DS15_L
+const unsigned int GRP_R1_DS16_U_VC	=	1433;	//R1_DS16_U
+const unsigned int GRP_R1_DS16_L_VC	=	1434;	//R1_DS16_L
+const unsigned int GRP_R1_DS17_U_VC	=	1435;	//R1_DS17_U
+const unsigned int GRP_R1_DS17_L_VC	=	1436;	//R1_DS17_L
+const unsigned int GRP_R1C_DS1_U_VC	=	1437;	//R1C_DS1_U
+const unsigned int GRP_R1C_DS1_L_VC	=	1438;	//R1C_DS1_L
+const unsigned int GRP_R1C_DS2_U_VC	=	1439;	//R1C_DS2_U
+const unsigned int GRP_R1C_DS2_L_VC	=	1440;	//R1C_DS2_L
+const unsigned int GRP_R1C_DS3_U_VC	=	1441;	//R1C_DS3_U
+const unsigned int GRP_R1C_DS3_L_VC	=	1442;	//R1C_DS3_L
+const unsigned int GRP_R1C_DS4_U_VC	=	1443;	//R1C_DS4_U
+const unsigned int GRP_R1C_DS4_L_VC	=	1444;	//R1C_DS4_L
+const unsigned int GRP_R1C_DS5_U_VC	=	1445;	//R1C_DS5_U
+const unsigned int GRP_R1C_DS5_L_VC	=	1446;	//R1C_DS5_L
+const unsigned int GRP_R1C_DS6_U_VC	=	1447;	//R1C_DS6_U
+const unsigned int GRP_R1C_DS6_L_VC	=	1448;	//R1C_DS6_L
+const unsigned int GRP_R1C_DS7_U_VC	=	1449;	//R1C_DS7_U
+const unsigned int GRP_R1C_DS7_L_VC	=	1450;	//R1C_DS7_L
+const unsigned int GRP_R1C_DS8_U_VC	=	1451;	//R1C_DS8_U
+const unsigned int GRP_R1C_DS8_L_VC	=	1452;	//R1C_DS8_L
+const unsigned int GRP_R1C_DS9_U_VC	=	1453;	//R1C_DS9_U
+const unsigned int GRP_R1C_DS9_L_VC	=	1454;	//R1C_DS9_L
+const unsigned int GRP_R1C_DS10_U_VC	=	1455;	//R1C_DS10_U
+const unsigned int GRP_R1C_DS10_L_VC	=	1456;	//R1C_DS10_L
+const unsigned int GRP_R1C_DS11_U_VC	=	1457;	//R1C_DS11_U
+const unsigned int GRP_R1C_DS11_L_VC	=	1458;	//R1C_DS11_L
+const unsigned int GRP_R1C_DS12_U_VC	=	1459;	//R1C_DS12_U
+const unsigned int GRP_R1C_DS12_L_VC	=	1460;	//R1C_DS12_L
+const unsigned int GRP_R1C_DS13_U_VC	=	1461;	//R1C_DS13_U
+const unsigned int GRP_R1C_DS13_L_VC	=	1462;	//R1C_DS13_L
+const unsigned int GRP_R1C_DS14_U_VC	=	1463;	//R1C_DS14_U
+const unsigned int GRP_R1C_DS14_L_VC	=	1464;	//R1C_DS14_L
+const unsigned int GRP_R1C_DS15_U_VC	=	1465;	//R1C_DS15_U
+const unsigned int GRP_R1C_DS15_L_VC	=	1466;	//R1C_DS15_L
+const unsigned int GRP_R1C_DS16_U_VC	=	1467;	//R1C_DS16_U
+const unsigned int GRP_R1C_DS16_L_VC	=	1468;	//R1C_DS16_L
 

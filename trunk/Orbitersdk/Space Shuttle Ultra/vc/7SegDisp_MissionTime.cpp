@@ -22,7 +22,7 @@ namespace vc
 	void _7SegDisp_MissionTime::Realize( void )
 	{
 		DiscreteBundle* pBundle;
-		if (fwd) pBundle = STS()->BundleManager()->CreateBundle( "O3_Timer_OMSRCS", 10 );
+		if (fwd) pBundle = STS()->BundleManager()->CreateBundle( "O3_Timer_OMSRCS", 16 );
 		else pBundle = STS()->BundleManager()->CreateBundle( "A4_Timer", 2 );
 		pMissionTimerTEST.Connect( pBundle, 0 );
 		pMissionTimerGMT.Connect( pBundle, 1 );

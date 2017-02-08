@@ -31,6 +31,7 @@
 #include "StandardRotarySwitch.h"
 #include "7SegDisp_RCSOMS_PRPLT_QTY.h"
 #include "7SegDisp_MissionTime.h"
+#include "StandardCurvedMechMeter.h"
 
 
 namespace vc
@@ -42,13 +43,26 @@ namespace vc
 			RotaryDemuxSwitch* pRCSOMS_PRPLTQTY;
 
 			StdSwitch3* pMissionTimer;
-			
-			DiscInPort pRCSOMS_PRESS_RCSHeX10;
-			DiscInPort pRCSOMS_PRESS_RCSPRPLT;
-			DiscInPort pRCSOMS_PRESS_OMSPRPLT;
 
 			_7SegDisp_RCSOMS_PRPLT_QTY* pRCSOMS_PRPLT_QTY;
 			_7SegDisp_MissionTime* pMissionTime;
+
+			StandardCurvedMechMeter* pRCSOMSPressLeftOxidMeter;
+			StandardCurvedMechMeter* pRCSOMSPressLeftFuelMeter;
+			StandardCurvedMechMeter* pRCSOMSPressFwdKitOxidMeter;
+			StandardCurvedMechMeter* pRCSOMSPressFwdKitFuelMeter;
+			StandardCurvedMechMeter* pRCSOMSPressRightOxidMeter;
+			StandardCurvedMechMeter* pRCSOMSPressRightFuelMeter;
+
+			DiscInPort pRCSOMS_PRESS_RCSHeX10;
+			DiscInPort pRCSOMS_PRESS_RCSPRPLT;
+			DiscInPort pRCSOMS_PRESS_OMSPRPLT;
+			DiscOutPort pRCSOMSPressLeftOxidMeterInput;
+			DiscOutPort pRCSOMSPressLeftFuelMeterInput;
+			DiscOutPort pRCSOMSPressFwdKitOxidMeterInput;
+			DiscOutPort pRCSOMSPressFwdKitFuelMeterInput;
+			DiscOutPort pRCSOMSPressRightOxidMeterInput;
+			DiscOutPort pRCSOMSPressRightFuelMeterInput;
 
 		public:
 			PanelO3( Atlantis* _sts );
@@ -57,6 +71,7 @@ namespace vc
 			virtual void DefineVC();
 			virtual void RegisterVC();
 			virtual void Realize();
+			virtual void OnPreStep( double SimT, double DeltaT, double MJD );
 	};
 }
 

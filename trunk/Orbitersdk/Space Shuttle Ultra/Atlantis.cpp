@@ -56,6 +56,7 @@
 #include "vc/PanelF6.h"
 #include "vc/PanelF7.h"
 #include "vc/PanelF8.h"
+#include "vc/PanelO2.h"
 #include "vc/PanelO3.h"
 #include "vc/PanelO6.h"
 #include "vc/PanelO8.h"
@@ -66,6 +67,7 @@
 #include "vc/PanelA6.h"
 #include "vc/PanelA8.h"
 #include "vc/PanelA7U.h"
+#include "vc/PanelR1.h"
 #include "vc/PanelR2.h"
 #include "vc/PanelR11.h"
 #include "vc/PanelR13L.h"
@@ -390,7 +392,9 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pgCenter.AddPanel(new vc::PanelC3(this));
 
 	pgRight.AddPanel(new vc::PanelR2(this));
+	pgRight.AddPanel( new vc::PanelR1( this ) );// HACK should be placed in order, before R2, but click area on R2 is too big
 
+	pgOverhead.AddPanel( new vc::PanelO2( this ) );
 	pgOverhead.AddPanel(new vc::PanelO3(this));
 	pgOverhead.AddPanel(new vc::PanelO6(this));
 	pgOverhead.AddPanel( new vc::PanelO8( this ) );
