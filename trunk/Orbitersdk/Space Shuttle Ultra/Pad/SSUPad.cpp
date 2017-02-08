@@ -778,7 +778,7 @@ void SSUPad::clbkSetClassCaps(FILEHANDLE cfg) {
 	
 	SetOrbiterAccessArmRate(ORBITER_ACCESS_ARM_RATE_NORMAL, OAA_RATE_NORMAL);
 	SetOrbiterAccessArmRate(ORBITER_ACCESS_ARM_RATE_EMERGENCY, OAA_RATE_EMERGENCY);
-	SetGOXVentArmRate(GVA_RATE);
+	SetGOXVentArmRate(GVA_RETRACT_RATE);
 	SetGOXVentHoodRate(VENT_HOOD_RATE);
 	SetGH2VentlineRate(FSS_GH2_ARM_RATE);
 	SetIntertankAccessArmRate(FSS_IAA_RATE);
