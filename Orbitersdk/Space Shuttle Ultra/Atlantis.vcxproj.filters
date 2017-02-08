@@ -545,6 +545,21 @@
     <ClCompile Include="vc\7SegDisp_RMS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="vc\BasicMechMeter.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\StandardCurvedMechMeter.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\StandardLinearMechMeter.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelO2.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelR1.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">

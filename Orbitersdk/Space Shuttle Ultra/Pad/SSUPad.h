@@ -19,7 +19,8 @@ const double TANK_MAX_PROPELLANT_MASS = 719115.0;
 
 const double ORBITER_ACCESS_ARM_RATE_NORMAL = 0.007692;// 130sec
 const double ORBITER_ACCESS_ARM_RATE_EMERGENCY = 0.066666;// 15sec
-const double GVA_RATE = 0.03;
+const double GVA_RETRACT_RATE = 0.025; // Nominal retract time 40 seconds
+const double GVA_EXTEND_RATE = 0.0155; // Nominal extend time 65 seconds, currently not used but should be in the event of a GLS cut-off after T-2 min, 35 seconds
 const double VENT_HOOD_RATE = 0.04166667;
 const double RSS_OWP_RATE = 0.002381;
 const double FSS_OWP_RATE = 0.005;
