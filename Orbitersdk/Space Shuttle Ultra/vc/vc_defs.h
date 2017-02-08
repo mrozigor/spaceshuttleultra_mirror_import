@@ -112,18 +112,27 @@
 #define AID_C3_PBI23   323
 #define AID_C3_PBI24   324
 #define AID_C3_MAX     329
+
+#define AID_O2_MIN	   330
+#define AID_O2		   330
+#define AID_O2_MAX	   339
+
 // Panel O3
-#define AID_O3_MIN	   330
-#define AID_O3		   330
+#define AID_O3_MIN	   340
+#define AID_O3		   340
 #define AID_O3_MAX	   349
 
 #define AID_O6_MIN	   350
 #define AID_O6		   350
-#define AID_O6_MAX	   362
+#define AID_O6_MAX	   359
 
-#define AID_O8_MIN	   380
-#define AID_O8		   380
-#define AID_O8_MAX	   390
+#define AID_O8_MIN	   360
+#define AID_O8		   360
+#define AID_O8_MAX	   369
+
+#define AID_R1_MIN	   370
+#define AID_R1		   370
+#define AID_R1_MAX	   379
 // Panel R2
 #define AID_R2_MIN     400
 #define AID_R2         400

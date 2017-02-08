@@ -324,6 +324,7 @@
     <ClCompile Include="gnc\ATVC.cpp" />
     <ClCompile Include="eva_docking\BasicExtAirlock.cpp" />
     <ClCompile Include="vc\BasicLight.cpp" />
+    <ClCompile Include="vc\BasicMechMeter.cpp" />
     <ClCompile Include="vc\BasicRotarySwitch.cpp" />
     <ClCompile Include="vc\BasicSwitch.cpp" />
     <ClCompile Include="dps\BIU.cpp" />
@@ -385,9 +386,11 @@
     <ClCompile Include="vc\PanelL12U_Centaur.cpp" />
     <ClCompile Include="vc\PanelL12U_IUS.cpp" />
     <ClCompile Include="vc\PanelO17.cpp" />
+    <ClCompile Include="vc\PanelO2.cpp" />
     <ClCompile Include="vc\PanelO3.cpp" />
     <ClCompile Include="vc\PanelO6.cpp" />
     <ClCompile Include="vc\PanelO8.cpp" />
+    <ClCompile Include="vc\PanelR1.cpp" />
     <ClCompile Include="vc\PanelR11.cpp" />
     <ClCompile Include="vc\PanelR13L.cpp" />
     <ClCompile Include="vc\PanelR2.cpp" />
@@ -399,8 +402,10 @@
     <ClCompile Include="dps\RSLS_old.cpp" />
     <ClCompile Include="dps\ShuttleBus.cpp" />
     <ClCompile Include="mps\SSME.cpp" />
+    <ClCompile Include="vc\StandardCurvedMechMeter.cpp" />
     <ClCompile Include="vc\StandardLight.cpp" />
     <ClCompile Include="vc\StandardLight2.cpp" />
+    <ClCompile Include="vc\StandardLinearMechMeter.cpp" />
     <ClCompile Include="vc\StandardRotarySwitch.cpp" />
     <ClCompile Include="vc\StandardSwitch.cpp" />
     <ClCompile Include="vc\StandardSwitchCover.cpp" />
@@ -513,6 +518,7 @@
     <ClInclude Include="eva_docking\BasicExtAirlock.h" />
     <ClInclude Include="vc\BasicLight.h" />
     <ClInclude Include="vc\AtlantisPanel.h" />
+    <ClInclude Include="vc\BasicMechMeter.h" />
     <ClInclude Include="vc\BasicRotarySwitch.h" />
     <ClInclude Include="vc\BasicSwitch.h" />
     <ClInclude Include="vc\AtlantisVCComponent.h" />
@@ -565,9 +571,11 @@
     <ClInclude Include="vc\PanelL12U_Centaur.h" />
     <ClInclude Include="vc\PanelL12U_IUS.h" />
     <ClInclude Include="vc\PanelO17.h" />
+    <ClInclude Include="vc\PanelO2.h" />
     <ClInclude Include="vc\PanelO3.h" />
     <ClInclude Include="vc\PanelO6.h" />
     <ClInclude Include="vc\PanelO8.h" />
+    <ClInclude Include="vc\PanelR1.h" />
     <ClInclude Include="vc\PanelR11.h" />
     <ClInclude Include="vc\PanelR13L.h" />
     <ClInclude Include="vc\PanelR2.h" />
@@ -579,8 +587,10 @@
     <ClInclude Include="dps\RSLS_old.h" />
     <ClInclude Include="dps\ShuttleBus.h" />
     <ClInclude Include="mps\SSME.h" />
+    <ClInclude Include="vc\StandardCurvedMechMeter.h" />
     <ClInclude Include="vc\StandardLight.h" />
     <ClInclude Include="vc\StandardLight2.h" />
+    <ClInclude Include="vc\StandardLinearMechMeter.h" />
     <ClInclude Include="vc\StandardRotarySwitch.h" />
     <ClInclude Include="vc\StandardSwitch.h" />
     <ClInclude Include="vc\StandardSwitchCover.h" />

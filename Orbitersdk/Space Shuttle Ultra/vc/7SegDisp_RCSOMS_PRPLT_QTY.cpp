@@ -14,12 +14,12 @@ namespace vc
 
 	void _7SegDisp_RCSOMS_PRPLT_QTY::Realize( void )
 	{
-		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "O3_Timer_OMSRCS", 10 );
-		pRCSOMS_PRPLT_QTY_RCSOXID.Connect( pBundle, 5 );
-		pRCSOMS_PRPLT_QTY_RCSFUEL.Connect( pBundle, 6 );
-		pRCSOMS_PRPLT_QTY_LOWEST.Connect( pBundle, 7 );
-		pRCSOMS_PRPLT_QTY_OMSOXID.Connect( pBundle, 8 );
-		pRCSOMS_PRPLT_QTY_OMSFUEL.Connect( pBundle, 9 );
+		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "O3_Timer_OMSRCS", 16 );
+		pRCSOMS_PRPLT_QTY_OMSFUEL.Connect( pBundle, 2 );
+		pRCSOMS_PRPLT_QTY_OMSOXID.Connect( pBundle, 3 );
+		pRCSOMS_PRPLT_QTY_LOWEST.Connect( pBundle, 4 );
+		pRCSOMS_PRPLT_QTY_RCSFUEL.Connect( pBundle, 5 );
+		pRCSOMS_PRPLT_QTY_RCSOXID.Connect( pBundle, 6 );
 		return;
 	}
 
