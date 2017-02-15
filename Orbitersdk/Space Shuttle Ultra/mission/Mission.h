@@ -102,7 +102,9 @@ namespace mission {
 		bool bUseCISS;
 		bool bCISS_GPrime;
 
+		int fInternalPRSDTankSets;
 		bool bHasEDOKit;
+		int bEDOPallets;
 
 		bool bHasOMSKit;
 
@@ -247,10 +249,22 @@ namespace mission {
 		 */
 		virtual bool IsCISSGPrime() const;
 
+		/**
+		 * Returns number of internal PRSD tank sets.
+		 */
+		virtual int GetInternalPRSDTankSets() const;
 
-		virtual bool Mission::HasEDOKit() const;
+		/**
+		 * Returns true if PRSD EDO hardware is installed (OV-102 and OV-105 only).
+		 */
+		virtual bool HasEDOKit() const;
+		
+		/**
+		 * Returns number of EDO pallets installed (max 2 for OV-105, max 1 for OV-102, 0 for others).
+		 */
+		virtual int GetEDOPallets() const;
 
-		virtual bool Mission::HasOMSKit() const;
+		virtual bool HasOMSKit() const;
 	};
 
 };

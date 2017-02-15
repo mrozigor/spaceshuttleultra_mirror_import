@@ -26,12 +26,13 @@
 #define _g_SolenoidValve_H_
 
 
+#include "BasicValve.h"
 #include "PressureSource.h"
 #include "DiscInPort.h"
+#include "DiscOutPort.h"
 
 
-using discsignals::DiscInPort;
-using discsignals::DiscreteBundle;
+using namespace discsignals;
 
 
 /**
@@ -90,7 +91,94 @@ class SolenoidValve:public PressureSource
 		 */
 		void Connect( int input, DiscreteBundle* pBundle, int iLine );
 
-		double Use( double flow );
+		double Use( double flow, int source = 0 );
+};
+
+
+class SolenoidValve_2:public BasicValve, public PressureSource
+{
+	private:
+		DiscInPort dipInput[2];
+		DiscOutPort dopPos[2];
+		PressureSource* psource;
+		PressureSource* psourceinvent;
+
+		bool NormallyClosed;
+
+	public:
+		void OnPostStep( double fSimT, double fDeltaT, double fMJD );
+
+		/**
+		 * Creates a new valve.
+		 * @param[in]	initpos	initial valve position (range: 0 - closed, 1 - open)
+		 * @param[in]	imaxrate	maximum valve motion rate
+		 * @param[in]	NormallyClosed	indicates if valve is normally-closed
+		 * @param[in]	psource	pressure source to be controlled by the valve
+		 * @param[in]	psourceinvent	pressure source "in the vent", used to open the valve (nullptr is not applicable)
+		 */
+		SolenoidValve_2( const string& name, double initpos, double rate, bool NormallyClosed, PressureSource* psource, PressureSource* psourceinvent );
+		~SolenoidValve_2( void );
+
+		/**
+		 * Connects the valve to the specified discrete bundle at the specified line.
+		 * @param[in]	input	chooses which of the 2 valve inputs to connect
+		 * @param[in]	pBundle	handle to discrete bundle
+		 * @param[in]	iLine	line number in discrete bundle
+		 */
+		void ConnectInput( int input, DiscreteBundle* pBundle, int iLine );
+
+		/**
+		 * Connects on of the valve position sensors to the specified discrete bundle at the specified line.
+		 * @param[in]	output	chooses which of the 2 valve position sensors to connect
+		 * @param[in]	pBundle	handle to discrete bundle
+		 * @param[in]	iLine	line number in discrete bundle
+		 */
+		void ConnectPositionSensor( int output, DiscreteBundle* pBundle, int iLine );
+
+		double Use( double flow, int source = 0 );
+};
+
+
+class SolenoidLatchingValve:public BasicValve, public PressureSource
+{
+	private:
+		DiscInPort dipInputOP[2];
+		DiscInPort dipInputCL[2];
+		DiscOutPort dopPos[2];
+		PressureSource* psource;
+		PressureSource* psourceinvent;
+
+	public:
+		void OnPostStep( double fSimT, double fDeltaT, double fMJD );
+
+		/**
+		 * Creates a new valve.
+		 * @param[in]	initpos	initial valve position (range: 0 - closed, 1 - open)
+		 * @param[in]	imaxrate	maximum valve motion rate
+		 * @param[in]	psource	pressure source to be controlled by the valve
+		 * @param[in]	psourceinvent	pressure source "in the vent", used to open the valve (nullptr is not applicable)
+		 */
+		SolenoidLatchingValve( const string& name, double initpos, double rate, PressureSource* psource, PressureSource* psourceinvent );
+		~SolenoidLatchingValve( void );
+
+		/**
+		 * Connects the valve to the specified discrete bundle at the specified line.
+		 * @param[in]	input	chooses which of the 2 valve inputs to connect
+		 * @param[in]	open	chooses if the input to connect refers to open or close
+		 * @param[in]	pBundle	handle to discrete bundle
+		 * @param[in]	iLine	line number in discrete bundle
+		 */
+		void ConnectInput( int input, bool open, DiscreteBundle* pBundle, int iLine );
+
+		/**
+		 * Connects on of the valve position sensors to the specified discrete bundle at the specified line.
+		 * @param[in]	output	chooses which of the 2 valve position sensors to connect
+		 * @param[in]	pBundle	handle to discrete bundle
+		 * @param[in]	iLine	line number in discrete bundle
+		 */
+		void ConnectPositionSensor( int output, DiscreteBundle* pBundle, int iLine );
+
+		double Use( double flow, int source = 0 );
 };
 
 

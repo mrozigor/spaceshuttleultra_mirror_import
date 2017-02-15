@@ -32,7 +32,7 @@ class PressureSource
 		PressureSource( void ){};
 		virtual ~PressureSource( void ){};
 
-		virtual double Use( double flow ) = 0;
+		virtual double Use( double flow, int source = 0 ) = 0;
 };
 
 

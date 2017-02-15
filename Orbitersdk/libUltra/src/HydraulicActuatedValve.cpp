@@ -102,7 +102,7 @@ void HydraulicActuatedValve::_backdoor( double ipos )
 	return;
 }
 
-double HydraulicActuatedValve::Use( double flow )
+double HydraulicActuatedValve::Use( double flow, int source )
 {
 	if (pos < SequenceValveOpenPos)
 	{

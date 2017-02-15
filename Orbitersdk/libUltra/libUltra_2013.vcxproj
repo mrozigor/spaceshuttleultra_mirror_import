@@ -108,12 +108,13 @@
     <ClCompile Include="src\SolenoidValve.cpp" />
     <ClCompile Include="src\StateVectorPropagator.cpp" />
     <ClCompile Include="src\UltraMath.cpp" />
-    <ClCompile Include="src\ValveTypeBool.cpp" />
+    <ClCompile Include="src\ValveManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\AerodynamicLookupTables.h" />
     <ClInclude Include="include\Averager.h" />
     <ClInclude Include="include\BasicPanel.h" />
+    <ClInclude Include="include\BasicValve.h" />
     <ClInclude Include="include\BasicVCComponent.h" />
     <ClInclude Include="include\BIU.h" />
     <ClInclude Include="include\DiscInPort.h" />
@@ -143,7 +144,7 @@
     <ClInclude Include="include\Ultra.h" />
     <ClInclude Include="include\UltraMath.h" />
     <ClInclude Include="include\UltraUtils.h" />
-    <ClInclude Include="include\ValveTypeBool.h" />
+    <ClInclude Include="include\ValveManager.h" />
     <ClInclude Include="KOST\kost.h" />
   </ItemGroup>
   <ItemGroup>

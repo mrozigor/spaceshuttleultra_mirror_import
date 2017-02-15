@@ -101,7 +101,7 @@ class HydraulicActuatedValve:public PressureSource
 
 		void Connect( DiscreteBundle* pBundle, DiscreteBundle* pBundleHYD );
 
-		double Use( double flow );// HACK just for sequence valve
+		double Use( double flow, int source = 0 );// HACK just for sequence valve
 };
 
 

@@ -110,7 +110,7 @@ class PressureActuatedValve:public PressureSource
 		 */
 		void SetPressureSources( PressureSource* OP, PressureSource* CL, PressureSource* psource, PressureSource* psourceinvent );
 
-		double Use( double flow );
+		double Use( double flow, int source = 0 );
 };
 
 

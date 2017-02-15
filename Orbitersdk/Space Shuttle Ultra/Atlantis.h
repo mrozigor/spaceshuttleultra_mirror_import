@@ -376,7 +376,8 @@ public:
 	UINT mesh_middeck;                         // index for mid deck mesh
 	UINT mesh_kuband;						   // index for KU band antenna mesh
 	UINT mesh_SILTS;
-	UINT mesh_EDOKit;
+	UINT mesh_EDOPallet;
+	UINT mesh_EDOPallet2;
 	UINT mesh_OMSKit;
 	UINT mesh_cargo_static;					   // index for static cargo mesh
 	UINT mesh_heatshield;					   //index for heat shield mesh
@@ -612,7 +613,8 @@ public:
 		hMidDeckMesh; // mesh handles
 	MESHHANDLE hKUBandMesh;
 	MESHHANDLE hSILTSMesh;
-	MESHHANDLE hEDOKitMesh;
+	MESHHANDLE hEDOPalletMesh;
+	MESHHANDLE hEDOPallet2Mesh;
 	MESHHANDLE hOMSKitMesh;
 	MESHHANDLE hHeatShieldMesh;
 	DEVMESHHANDLE hDevHeatShieldMesh;

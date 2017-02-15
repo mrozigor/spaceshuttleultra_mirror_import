@@ -758,7 +758,86 @@ namespace vc
 
 	void PanelR1::Realize( void )
 	{
-		// TODO
+		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "PRSD_ValveComands", 16 );
+		pO2ManifoldVlvTank1->ConnectPort( 1, pBundle, 0 );
+		pO2ManifoldVlvTank1->ConnectPort( 2, pBundle, 1 );
+		pO2ManifoldVlvTank2->ConnectPort( 1, pBundle, 2 );
+		pO2ManifoldVlvTank2->ConnectPort( 2, pBundle, 3 );
+		pH2ManifoldVlvTank1->ConnectPort( 1, pBundle, 4 );
+		pH2ManifoldVlvTank1->ConnectPort( 2, pBundle, 5 );
+		pH2ManifoldVlvTank2->ConnectPort( 1, pBundle, 6 );
+		pH2ManifoldVlvTank2->ConnectPort( 2, pBundle, 7 );
+
+		pFuelCellReac1->ConnectPort( 1, pBundle, 8 );
+		pFuelCellReac1->ConnectPort( 2, pBundle, 9 );
+		pFuelCellReac2->ConnectPort( 1, pBundle, 10 );
+		pFuelCellReac2->ConnectPort( 2, pBundle, 11 );
+		pFuelCellReac3->ConnectPort( 1, pBundle, 12 );
+		pFuelCellReac3->ConnectPort( 2, pBundle, 13 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_ValvePositions", 16 );
+		pO2ManifoldVlvTank1TB->SetInput( pBundle, 0, TB_OP );
+		pO2ManifoldVlvTank2TB->SetInput( pBundle, 1, TB_OP );
+		pH2ManifoldVlvTank1TB->SetInput( pBundle, 2, TB_OP );
+		pH2ManifoldVlvTank2TB->SetInput( pBundle, 3, TB_OP );
+
+		pFuelCell1ReacO2->SetInput( pBundle, 4, TB_OP );
+		pFuelCell2ReacO2->SetInput( pBundle, 5, TB_OP );
+		pFuelCell3ReacO2->SetInput( pBundle, 6, TB_OP );
+		pFuelCell1ReacH2->SetInput( pBundle, 7, TB_OP );
+		pFuelCell2ReacH2->SetInput( pBundle, 8, TB_OP );
+		pFuelCell3ReacH2->SetInput( pBundle, 9, TB_OP );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_O2HeatersA_On", 16 );
+		pO2TK1HeatersA->ConnectPort( 1, pBundle, 0 );
+		pO2TK2HeatersA->ConnectPort( 1, pBundle, 1 );
+		pO2TK3HeatersA->ConnectPort( 1, pBundle, 2 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_O2HeatersA_Auto", 16 );
+		pO2TK1HeatersA->ConnectPort( 2, pBundle, 0 );
+		pO2TK2HeatersA->ConnectPort( 2, pBundle, 1 );
+		pO2TK3HeatersA->ConnectPort( 2, pBundle, 2 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_O2HeatersB_On", 16 );
+		pO2TK1HeatersA->ConnectPort( 1, pBundle, 0 );
+		pO2TK2HeatersA->ConnectPort( 1, pBundle, 1 );
+		pO2TK3HeatersA->ConnectPort( 1, pBundle, 2 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_O2HeatersB_Auto", 16 );
+		pO2TK1HeatersA->ConnectPort( 2, pBundle, 0 );
+		pO2TK2HeatersA->ConnectPort( 2, pBundle, 1 );
+		pO2TK3HeatersA->ConnectPort( 2, pBundle, 2 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_O2Heaters_Test", 16 );
+		pO2TK1Heaters->ConnectPort( 1, pBundle, 0 );
+		pO2TK2Heaters->ConnectPort( 1, pBundle, 1 );
+		pO2TK3Heaters->ConnectPort( 1, pBundle, 1 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_O2Heaters_Reset", 16 );
+		pO2TK1Heaters->ConnectPort( 2, pBundle, 0 );
+		pO2TK2Heaters->ConnectPort( 2, pBundle, 1 );
+		pO2TK3Heaters->ConnectPort( 2, pBundle, 2 );
+		
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_H2HeatersA_On", 16 );
+		pH2TK1HeatersA->ConnectPort( 1, pBundle, 0 );
+		pH2TK2HeatersA->ConnectPort( 1, pBundle, 1 );
+		pH2TK3HeatersA->ConnectPort( 1, pBundle, 2 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_H2HeatersA_Auto", 16 );
+		pH2TK1HeatersA->ConnectPort( 2, pBundle, 0 );
+		pH2TK2HeatersA->ConnectPort( 2, pBundle, 1 );
+		pH2TK3HeatersA->ConnectPort( 2, pBundle, 2 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_H2HeatersB_On", 16 );
+		pH2TK1HeatersB->ConnectPort( 1, pBundle, 0 );
+		pH2TK2HeatersB->ConnectPort( 1, pBundle, 1 );
+		pH2TK3HeatersB->ConnectPort( 1, pBundle, 2 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_H2HeatersB_Auto", 16 );
+		pH2TK1HeatersB->ConnectPort( 2, pBundle, 0 );
+		pH2TK2HeatersB->ConnectPort( 2, pBundle, 1 );
+		pH2TK3HeatersB->ConnectPort( 2, pBundle, 2 );
+
 		AtlantisPanel::Realize();
 		return;
 	}

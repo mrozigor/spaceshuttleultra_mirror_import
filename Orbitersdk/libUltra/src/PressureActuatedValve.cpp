@@ -165,7 +165,7 @@ void PressureActuatedValve::_backdoor( double ipos )
 	return;
 }
 
-double PressureActuatedValve::Use( double flow )
+double PressureActuatedValve::Use( double flow, int source )
 {
 	if (pos == 0)// TODO improve?
 	{

@@ -85,7 +85,7 @@ namespace mps
 			void OnSaveState( FILEHANDLE scn ) const;
 			bool OnParseLine( const char* line );
 
-			double Use( double flow );// flow g/s
+			double Use( double flow, int source = 0 );// flow g/s
 			double UseTank( double mass );
 			double FillTank( double mass );
 
@@ -133,7 +133,7 @@ namespace mps
 			void OnSaveState( FILEHANDLE scn ) const;
 			bool OnParseLine( const char* line );
 
-			double Use( double flow );// flow g/s
+			double Use( double flow, int source = 0 );// flow g/s
 			double UseTank( double mass );
 			double FillTank( double mass );
 
