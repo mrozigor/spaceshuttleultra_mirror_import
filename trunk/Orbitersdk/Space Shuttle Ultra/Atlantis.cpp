@@ -84,6 +84,7 @@
 #include "MasterEventsController.h"
 #include "gnc\RA.h"
 #include "DragChute.h"
+#include "eps\PRSD.h"
 #include <UltraMath.h>
 #include <cassert>
 #include "gcAPI.h"
@@ -2321,12 +2322,20 @@ void Atlantis::AddOrbiterVisual()
 			oapiWriteLog("SILTS pod mesh added");
 		}
 
-		if (pMission->HasEDOKit() == true)
+		if (pMission->GetEDOPallets() >= 1)
 		{
-			hEDOKitMesh = oapiLoadMeshGlobal( EDOKIT_MESHNAME );
-			mesh_EDOKit = AddMesh( hEDOKitMesh, &EDOKIT_OFFSET );
-			SetMeshVisibilityMode( mesh_EDOKit, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS );
+			hEDOPalletMesh = oapiLoadMeshGlobal( EDOPALLET_MESHNAME );
+			mesh_EDOPallet = AddMesh( hEDOPalletMesh, &EDOPALLET_OFFSET );
+			SetMeshVisibilityMode( mesh_EDOPallet, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS );
 			oapiWriteLog( "EDO pallet mesh added" );
+
+			if (pMission->GetEDOPallets() == 2)
+			{
+				hEDOPallet2Mesh = oapiLoadMeshGlobal( EDOPALLET2_MESHNAME );
+				mesh_EDOPallet2 = AddMesh( hEDOPallet2Mesh, &EDOPALLET2_OFFSET );
+				SetMeshVisibilityMode( mesh_EDOPallet2, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS );
+				oapiWriteLog( "2º EDO pallet mesh added" );
+			}
 		}
 
 		/*if (pMission->HasOMSKit() == true)
@@ -4173,6 +4182,8 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			oapiWriteLog(pszLogBuffer);
 
 			pMission = ssuGetMission(pszBuffer);
+
+			psubsystems->AddSubsystem( new eps::PRSD( pMission->GetInternalPRSDTankSets(), pMission->HasEDOKit(), pMission->GetEDOPallets(), psubsystems ) );
 
 			// add additional components defined in Mission file
 			RMS = pMission->HasRMS();

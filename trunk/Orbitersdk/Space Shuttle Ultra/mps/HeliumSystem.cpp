@@ -257,7 +257,7 @@ namespace mps
 		return;
 	}
 
-	double HeSysEng::Use( double flow )
+	double HeSysEng::Use( double flow, int source )
 	{
 		TotalFlow += flow;
 
@@ -481,7 +481,7 @@ namespace mps
 		return;
 	}
 
-	double HeSysPneu::Use( double flow )
+	double HeSysPneu::Use( double flow, int source )
 	{
 		TotalFlow += flow;
 

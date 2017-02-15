@@ -71,7 +71,9 @@ namespace mission {
 
 		bLogSSMEData = false;
 
+		fInternalPRSDTankSets = 5;
 		bHasEDOKit = false;
+		bEDOPallets = 0;
 
 		bHasOMSKit = false;
 	}
@@ -209,7 +211,23 @@ namespace mission {
 			oapiReadItem_bool( hFile, "CISS_GPrime", bCISS_GPrime );
 		}
 
+		oapiReadItem_int( hFile, "InternalPRSDTankSets", fInternalPRSDTankSets );
 		if ((strOrbiter == "Columbia") || (strOrbiter == "Endeavour")) oapiReadItem_bool( hFile, "HasEDOKit", bHasEDOKit );
+		int num = 0;
+		oapiReadItem_int( hFile, "EDOPallets", num );
+		if ((num == 2) && (strOrbiter == "Endeavour"))
+		{
+			bEDOPallets = 2;
+			fInternalPRSDTankSets = 5;// force 5 internal tank sets
+			bHasEDOKit = true;// force EDO hardware
+		}
+		else if ((num == 1) && ((strOrbiter == "Columbia") || (strOrbiter == "Endeavour")))
+		{
+			bEDOPallets = 1;
+			fInternalPRSDTankSets = 5;// force 5 internal tank sets
+			bHasEDOKit = true;// force EDO hardware
+		}
+		else bEDOPallets = 0;
 
 		oapiReadItem_bool( hFile, "HasOMSKit", bHasOMSKit );
 
@@ -436,9 +454,19 @@ namespace mission {
 		return bCISS_GPrime;
 	}
 
+	int Mission::GetInternalPRSDTankSets() const
+	{
+		return fInternalPRSDTankSets;
+	}
+
 	bool Mission::HasEDOKit() const
 	{
 		return bHasEDOKit;
+	}
+
+	int Mission::GetEDOPallets() const
+	{
+		return bEDOPallets;
 	}
 
 	bool Mission::HasOMSKit() const

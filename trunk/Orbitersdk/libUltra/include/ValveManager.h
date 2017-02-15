@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  Basic Mechanical Meter VC Component definition
+  Valve manager definition
 
 
 
@@ -22,39 +22,30 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#ifndef __VC_BASICMECHMETER_H
-#define __VC_BASICMECHMETER_H
+#ifndef _VALVEMANAGER_H_
+#define _VALVEMANAGER_H_
 
 
-#include "AtlantisVCComponent.h"
-#include "DiscInPort.h"
+#include <vector>
+#include <string>
+#include "BasicValve.h"
 
 
-namespace vc
+class ValveManager
 {
-	using ::discsignals::DiscreteBundle;
-	using ::discsignals::DiscInPort;
+		vector <BasicValve*> valves;
+	public:
+		ValveManager( void );
+		virtual ~ValveManager( void );
 
-	class BasicMechMeter:public AtlantisVCComponent  
-	{
-		protected:
-			UINT anim;
+		void AddValve( BasicValve *pValve );
 
-			UINT grpIndex;
+		bool OnParseLine( const char* line );
+		void OnSaveState( FILEHANDLE scn ) const;
+		
+		void OnPreStep( double fSimT, double fDeltaT, double fMJD );
+		void OnPostStep( double fSimT, double fDeltaT, double fMJD );
+};
 
-			double motionrange;// degrees or meters
 
-		public:
-			DiscInPort input;
-
-			BasicMechMeter( Atlantis* _sts, const string& _ident );
-			virtual ~BasicMechMeter();
-
-			void DefineNeedleGroup( UINT _grpIndex );
-			void SetMotionRange( double range );
-
-			void SetInput( DiscreteBundle* pBundle, unsigned short usLine );
-	};
-}
-
-#endif// __VC_BASICMECHMETER_H
+#endif// _VALVEMANAGER_H_

@@ -14,7 +14,7 @@ namespace vc
 		Add( pCryoH2QtyMeter = new StandardCurvedMechMeter( _sts, "Cryo H2 Qty Meter" ) );
 		Add( pFuelCellStackTempMeter = new StandardCurvedMechMeter( _sts, "Fuel Cell Stack Temp Meter" ) );
 
-		Add( pCryoO2HtrAssyTemp = new RotaryDemuxSwitch( _sts, "Cryo O2 Htr Assy Temp", 10 ) );
+		Add( pCryoO2HtrAssyTemp = new StandardRotarySwitch( _sts, "Cryo O2 Htr Assy Temp", 10, 1 ) );
 		pCryoO2HtrAssyTemp->SetLabel( 0, "TK 5 2" );
 		pCryoO2HtrAssyTemp->SetLabel( 1, "TK 5 1" );
 		pCryoO2HtrAssyTemp->SetLabel( 2, "TK 4 2" );
@@ -26,7 +26,7 @@ namespace vc
 		pCryoO2HtrAssyTemp->SetLabel( 8, "TK 1 2" );
 		pCryoO2HtrAssyTemp->SetLabel( 9, "TK 1 1" );
 
-		Add( pCryoPressQty = new RotaryDemuxSwitch( _sts, "Cryo Press Qty", 5 ) );
+		Add( pCryoPressQty = new StandardRotarySwitch( _sts, "Cryo Press Qty", 5, 4 ) );
 		pCryoPressQty->SetLabel( 0, "TK5" );
 		pCryoPressQty->SetLabel( 1, "TK4" );
 		pCryoPressQty->SetLabel( 2, "TK3" );
@@ -118,56 +118,70 @@ namespace vc
 
 	void PanelO2::Realize( void )
 	{
-		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "PanelO2_A", 16 );
-		pCryoO2HtrAssyTemp->ConnectOutputSignal( 9, pBundle, 0 );
-		pCryoO2HtrAssyTemp->ConnectOutputSignal( 8, pBundle, 1 );
-		pCryoO2HtrAssyTemp->ConnectOutputSignal( 7, pBundle, 2 );
-		pCryoO2HtrAssyTemp->ConnectOutputSignal( 6, pBundle, 3 );
-		pCryoO2HtrAssyTemp->ConnectOutputSignal( 5, pBundle, 4 );
-		pCryoO2HtrAssyTemp->ConnectOutputSignal( 4, pBundle, 5 );
-		pCryoO2HtrAssyTemp->ConnectOutputSignal( 3, pBundle, 6 );
-		pCryoO2HtrAssyTemp->ConnectOutputSignal( 2, pBundle, 7 );
-		pCryoO2HtrAssyTemp->ConnectOutputSignal( 1, pBundle, 8 );
-		pCryoO2HtrAssyTemp->ConnectOutputSignal( 0, pBundle, 9 );
-		pCryoO2HtrAssyTempTK1[0].Connect( pBundle, 0 );
-		pCryoO2HtrAssyTempTK1[1].Connect( pBundle, 1 );
-		pCryoO2HtrAssyTempTK2[0].Connect( pBundle, 2 );
-		pCryoO2HtrAssyTempTK2[1].Connect( pBundle, 3 );
-		pCryoO2HtrAssyTempTK3[0].Connect( pBundle, 4 );
-		pCryoO2HtrAssyTempTK3[1].Connect( pBundle, 5 );
-		pCryoO2HtrAssyTempTK4[0].Connect( pBundle, 6 );
-		pCryoO2HtrAssyTempTK4[1].Connect( pBundle, 7 );
-		pCryoO2HtrAssyTempTK5[0].Connect( pBundle, 8 );
-		pCryoO2HtrAssyTempTK5[1].Connect( pBundle, 9 );
+		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "PRSD_O2HtrAssyTemp2", 16 );
+		pCryoO2HtrAssyTemp->ConnectInputSignal( 0, 9, pBundle, 0 );
+		pCryoO2HtrAssyTemp->ConnectInputSignal( 0, 7, pBundle, 2 );
+		pCryoO2HtrAssyTemp->ConnectInputSignal( 0, 5, pBundle, 4 );
+		pCryoO2HtrAssyTemp->ConnectInputSignal( 0, 3, pBundle, 6 );
+		pCryoO2HtrAssyTemp->ConnectInputSignal( 0, 1, pBundle, 8 );
 
-		pCryoPressQty->ConnectOutputSignal( 4, pBundle, 10 );
-		pCryoPressQty->ConnectOutputSignal( 3, pBundle, 11 );
-		pCryoPressQty->ConnectOutputSignal( 2, pBundle, 12 );
-		pCryoPressQty->ConnectOutputSignal( 1, pBundle, 13 );
-		pCryoPressQty->ConnectOutputSignal( 0, pBundle, 14 );
-		pCryoPressQtyTK[0].Connect( pBundle, 10 );
-		pCryoPressQtyTK[1].Connect( pBundle, 11 );
-		pCryoPressQtyTK[2].Connect( pBundle, 12 );
-		pCryoPressQtyTK[3].Connect( pBundle, 13 );
-		pCryoPressQtyTK[4].Connect( pBundle, 14 );
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_O2HtrAssyTemp1", 16 );
+		pCryoO2HtrAssyTemp->ConnectInputSignal( 0, 8, pBundle, 0 );
+		pCryoO2HtrAssyTemp->ConnectInputSignal( 0, 6, pBundle, 3 );
+		pCryoO2HtrAssyTemp->ConnectInputSignal( 0, 4, pBundle, 5 );
+		pCryoO2HtrAssyTemp->ConnectInputSignal( 0, 2, pBundle, 7 );
+		pCryoO2HtrAssyTemp->ConnectInputSignal( 0, 0, pBundle, 9 );
+		
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_H2Qty", 16 );
+		pCryoPressQty->ConnectInputSignal( 0, 4, pBundle, 0 );
+		pCryoPressQty->ConnectInputSignal( 0, 3, pBundle, 1 );
+		pCryoPressQty->ConnectInputSignal( 0, 2, pBundle, 2 );
+		pCryoPressQty->ConnectInputSignal( 0, 1, pBundle, 3 );
+		pCryoPressQty->ConnectInputSignal( 0, 0, pBundle, 4 );
+		
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_H2Press", 16 );
+		pCryoPressQty->ConnectInputSignal( 1, 4, pBundle, 0 );
+		pCryoPressQty->ConnectInputSignal( 1, 3, pBundle, 1 );
+		pCryoPressQty->ConnectInputSignal( 1, 2, pBundle, 2 );
+		pCryoPressQty->ConnectInputSignal( 1, 1, pBundle, 3 );
+		pCryoPressQty->ConnectInputSignal( 1, 0, pBundle, 4 );
+		
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_O2Qty", 16 );
+		pCryoPressQty->ConnectInputSignal( 2, 4, pBundle, 0 );
+		pCryoPressQty->ConnectInputSignal( 2, 3, pBundle, 1 );
+		pCryoPressQty->ConnectInputSignal( 2, 2, pBundle, 2 );
+		pCryoPressQty->ConnectInputSignal( 2, 1, pBundle, 3 );
+		pCryoPressQty->ConnectInputSignal( 2, 0, pBundle, 4 );
+		
+		pBundle = STS()->BundleManager()->CreateBundle( "PRSD_O2Press", 16 );
+		pCryoPressQty->ConnectInputSignal( 3, 4, pBundle, 0 );
+		pCryoPressQty->ConnectInputSignal( 3, 3, pBundle, 1 );
+		pCryoPressQty->ConnectInputSignal( 3, 2, pBundle, 2 );
+		pCryoPressQty->ConnectInputSignal( 3, 1, pBundle, 3 );
+		pCryoPressQty->ConnectInputSignal( 3, 0, pBundle, 4 );
 
-		pBundle = STS()->BundleManager()->CreateBundle( "PanelO2_B", 16 );
+		pBundle = STS()->BundleManager()->CreateBundle( "PanelO2", 16 );
 		pFuelCellStackTemp->ConnectPort( 1, pBundle, 0 );
 		pFuelCellStackTemp->ConnectPort( 2, pBundle, 1 );
 		pFuelCellStackTemp3.Connect( pBundle, 0 );
 		pFuelCellStackTemp1.Connect( pBundle, 1 );
 
+		pCryoO2HtrAssyTemp->ConnectOutputSignal( 0, pBundle, 2 );
 		pCryoO2HtrAssyTempMeter->SetInput( pBundle, 2 );
+
+		pCryoPressQty->ConnectOutputSignal( 3, pBundle, 3 );
 		pCryoO2PressMeter->SetInput( pBundle, 3 );
+
+		pCryoPressQty->ConnectOutputSignal( 2, pBundle, 4 );
 		pCryoO2QtyMeter->SetInput( pBundle, 4 );
+
+		pCryoPressQty->ConnectOutputSignal( 1, pBundle, 5 );
 		pCryoH2PressMeter->SetInput( pBundle, 5 );
+
+		pCryoPressQty->ConnectOutputSignal( 0, pBundle, 6 );
 		pCryoH2QtyMeter->SetInput( pBundle, 6 );
+
 		pFuelCellStackTempMeter->SetInput( pBundle, 7 );
-		pCryoO2HtrAssyTempMeterInput.Connect( pBundle, 2 );
-		pCryoO2PressMeterInput.Connect( pBundle, 3 );
-		pCryoO2QtyMeterInput.Connect( pBundle, 4 );
-		pCryoH2PressMeterInput.Connect( pBundle, 5 );
-		pCryoH2QtyMeterInput.Connect( pBundle, 6 );
 		pFuelCellStackTempMeterInput.Connect( pBundle, 7 );
 
 		AtlantisPanel::Realize();
@@ -179,98 +193,6 @@ namespace vc
 		AtlantisPanel::OnPreStep( SimT, DeltaT, MJD );
 
 		// TODO sensor value conversion to meter range
-
-		if (pCryoO2HtrAssyTempTK1[0].IsSet())
-		{
-			// TK 1 1
-			pCryoO2HtrAssyTempMeterInput.SetLine( 0.45f );
-		}
-		else if (pCryoO2HtrAssyTempTK1[1].IsSet())
-		{
-			// TK 1 2
-			pCryoO2HtrAssyTempMeterInput.SetLine( 0.91f );
-		}
-		else if (pCryoO2HtrAssyTempTK2[0].IsSet())
-		{
-			// TK 2 1
-			pCryoO2HtrAssyTempMeterInput.SetLine( 1.36f );
-		}
-		else if (pCryoO2HtrAssyTempTK2[1].IsSet())
-		{
-			// TK 2 2
-			pCryoO2HtrAssyTempMeterInput.SetLine( 1.82f );
-		}
-		else if (pCryoO2HtrAssyTempTK3[0].IsSet())
-		{
-			// TK 3 1
-			pCryoO2HtrAssyTempMeterInput.SetLine( 2.27f );
-		}
-		else if (pCryoO2HtrAssyTempTK3[1].IsSet())
-		{
-			// TK 3 2
-			pCryoO2HtrAssyTempMeterInput.SetLine( 2.73f );
-		}
-		else if (pCryoO2HtrAssyTempTK4[0].IsSet())
-		{
-			// TK 4 1
-			pCryoO2HtrAssyTempMeterInput.SetLine( 3.18f );
-		}
-		else if (pCryoO2HtrAssyTempTK4[1].IsSet())
-		{
-			// TK 4 2
-			pCryoO2HtrAssyTempMeterInput.SetLine( 3.64f );
-		}
-		else if (pCryoO2HtrAssyTempTK5[0].IsSet())
-		{
-			// TK 5 1
-			pCryoO2HtrAssyTempMeterInput.SetLine( 4.09f );
-		}
-		else //if (pCryoO2HtrAssyTempTK5[1].IsSet())
-		{
-			// TK 5 2
-			pCryoO2HtrAssyTempMeterInput.SetLine( 4.55f );
-		}
-
-		if (pCryoPressQtyTK[0].IsSet())
-		{
-			// TK1
-			pCryoO2PressMeterInput.SetLine( 1.0f );
-			pCryoO2QtyMeterInput.SetLine( 2.0f );
-			pCryoH2PressMeterInput.SetLine( 3.0f );
-			pCryoH2QtyMeterInput.SetLine( 4.0f );
-		}
-		else if (pCryoPressQtyTK[1].IsSet())
-		{
-			// TK2
-			pCryoO2PressMeterInput.SetLine( 2.0f );
-			pCryoO2QtyMeterInput.SetLine( 3.0f );
-			pCryoH2PressMeterInput.SetLine( 4.0f );
-			pCryoH2QtyMeterInput.SetLine( 1.0f );
-		}
-		else if (pCryoPressQtyTK[2].IsSet())
-		{
-			// TK3
-			pCryoO2PressMeterInput.SetLine( 3.0f );
-			pCryoO2QtyMeterInput.SetLine( 4.0f );
-			pCryoH2PressMeterInput.SetLine( 1.0f );
-			pCryoH2QtyMeterInput.SetLine( 2.0f );
-		}
-		else if (pCryoPressQtyTK[3].IsSet())
-		{
-			// TK4
-			pCryoO2PressMeterInput.SetLine( 4.0f );
-			pCryoO2QtyMeterInput.SetLine( 1.0f );
-			pCryoH2PressMeterInput.SetLine( 2.0f );
-			pCryoH2QtyMeterInput.SetLine( 3.0f );
-		}
-		else //if (pCryoPressQtyTK[4].IsSet())
-		{
-			// TK5
-			pCryoO2PressMeterInput.SetLine( 1.0f );
-			pCryoO2QtyMeterInput.SetLine( 4.0f );
-			pCryoH2PressMeterInput.SetLine( 3.0f );
-			pCryoH2QtyMeterInput.SetLine( 2.0f );
-		}
 
 		if (pFuelCellStackTemp1.IsSet())
 		{

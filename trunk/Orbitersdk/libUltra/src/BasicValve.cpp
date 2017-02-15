@@ -1,65 +1,19 @@
 #include "BasicValve.h"
+#include "assert.h"
 
 
-BasicValve::BasicValve( double initpos, double imaxrate )
+BasicValve::BasicValve( const string& name, double initpos, double rate )
 {
-	pos = initpos;
-	maxrate = imaxrate / 100;
+	assert( (initpos >= 0.0) && (initpos <= 1.0) && "BasicValve::BasicValve.initpos" );
+	assert( (rate > 0.0) && "BasicValve::BasicValve.rate" );
 
-	mpos = pos;
-	mrate = maxrate;
+	this->name = name;
+	pos = initpos;
+	this->rate = rate / 100;
 }
 
 BasicValve::~BasicValve( void )
 {
-	// the end
-}
-
-bool BasicValve::Open( double rate )
-{
-	if ((rate > (maxrate * 100)) || (rate <= 0)) return false;
-	mpos = 1;
-	mrate = rate / 100;
-	return true;
-}
-
-bool BasicValve::Open( void )
-{
-	mpos = 1;
-	mrate = maxrate;
-	return true;
-}
-
-bool BasicValve::Close( double rate )
-{
-	if ((rate > (maxrate * 100)) || (rate <= 0)) return false;
-	mpos = 0;
-	mrate = rate / 100;
-	return true;
-}
-
-bool BasicValve::Close( void )
-{
-	mpos = 0;
-	mrate = maxrate;
-	return true;
-}
-
-bool BasicValve::Move( double tpos, double rate )
-{
-	if ((rate > (maxrate * 100)) || (rate <= 0)) return false;
-	if ((tpos < 0) || (tpos > 1)) return false;
-	mpos = tpos;
-	mrate = rate / 100;
-	return true;
-}
-
-bool BasicValve::Move( double tpos )
-{
-	if ((tpos < 0) || (tpos > 1)) return false;
-	mpos = tpos;
-	mrate = maxrate;
-	return true;
 }
 
 double BasicValve::GetPos( void ) const
@@ -67,28 +21,31 @@ double BasicValve::GetPos( void ) const
 	return pos;
 }
 
-void BasicValve::tmestp( double dtme )
+bool BasicValve::OnParseLine( const char* line )
 {
-	if (mpos != pos)
+	if (!_strnicmp( line, name.c_str(), name.length() ))
 	{
-		// MOVE IT!!!!!!!!!!!
-		if (mpos > pos)
-		{
-			pos = pos + (mrate * dtme);
-			if (pos > mpos) pos = mpos;
-		}
-		else
-		{
-			pos = pos - (mrate * dtme);
-			if (pos < mpos) pos = mpos;
-		}
+		double tmp = 0.0;
+		sscanf_s( line + name.length(), "%lf", &tmp );
+		assert( (tmp >= 0.0) && (tmp <= 1.0) && "BasicValve::OnParseLine.tmp" );
+		pos = tmp;
+		return true;
 	}
+	else return false;
+}
+
+void BasicValve::OnSaveState( FILEHANDLE scn ) const
+{
+	oapiWriteScenario_float( scn, (char*)name.c_str(), pos );
 	return;
 }
 
-void BasicValve::_backdoor( double ipos )
+void BasicValve::OnPreStep( double fSimT, double fDeltaT, double fMJD )
 {
-	mpos = ipos;
-	pos = ipos;
+	return;
+}
+
+void BasicValve::OnPostStep( double fSimT, double fDeltaT, double fMJD )
+{
 	return;
 }

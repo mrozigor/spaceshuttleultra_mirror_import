@@ -277,6 +277,7 @@
     <ClCompile Include="eps\ACBusSystem.cpp" />
     <ClCompile Include="eps\ACMotor.cpp" />
     <ClCompile Include="eps\ACMotorController.cpp" />
+    <ClCompile Include="eps\PRSD.cpp" />
     <ClCompile Include="eva_docking\TunnelAdapterAssembly.cpp" />
     <ClCompile Include="gnc\RA.cpp" />
     <ClCompile Include="MasterEventsController.cpp" />
@@ -466,6 +467,7 @@
     <ClInclude Include="dps\THC_SOP.h" />
     <ClInclude Include="dps\TransitionDAP.h" />
     <ClInclude Include="DragChute.h" />
+    <ClInclude Include="eps\PRSD.h" />
     <ClInclude Include="eva_docking\TunnelAdapterAssembly.h" />
     <ClInclude Include="gnc\AA.h" />
     <ClInclude Include="gnc\RA.h" />

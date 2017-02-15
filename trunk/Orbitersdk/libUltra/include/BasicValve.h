@@ -26,82 +26,47 @@
 #define _g_BasicValve_H_
 
 
+#include "orbitersdk.h"
+#include <string>
+
+
+using namespace std;
+
+
 /**
  * @brief	Implementation of the BasicValve class.
- * 
- * @deprecated	BasicValve has been replaced by SolenoidValve, 
- * PressureActuatedValve and HydraulicActuatedValve.
  */
 class BasicValve
 {
-private:
-	double pos;
-	double maxrate;
+	protected:
+		string name;
 
-	// motion
-	double mpos;
-	double mrate;
-public:
-	/**
-	 * Opens valve using specific rate
-  	 * @param rate rate
-	 */
-	bool Open( double rate );
+		double pos;
+		double rate;
 
-	/**
-	 * Opens valve using maximum rate
-	 */
-	bool Open( void );
+	public:
+		/**
+		 * Create a new valve
+		 * @param name		valve name
+		 * @param initpos	initial valve position
+		 * @param rate		valve motion rate
+		 */
+		BasicValve( const string& name, double initpos, double rate );
+		virtual ~BasicValve( void );
 
-	/**
-	 * Closes valve using specific rate
-  	 * @param rate rate
-	 */
-	bool Close( double rate );
+		/**
+		 * Returns valve position
+		 * @return valve position (range: 0 - closed, 1 - open)
+		 */
+		double GetPos( void ) const;
 
-	/**
-	 * Closes valve using maximum rate
-	 */
-	bool Close( void );
+		virtual bool OnParseLine( const char* line );
 
-	/**
-	 * Moves valve to target position using specific rate
- 	 * @param tpos target position
-  	 * @param rate rate
-	 */
-	bool Move( double tpos, double rate );
+		virtual void OnSaveState( FILEHANDLE scn ) const;
 
-	/**
-	 * Moves valve to target position using maximum rate
- 	 * @param tpos target position
-	 */
-	bool Move( double tpos );
+		virtual void OnPreStep( double fSimT, double fDeltaT, double fMJD );
 
-	/**
-	 * Returns valve position
-	 * @return valve position (range: 0 - closed, 1 - open)
-	 */
-	double GetPos( void ) const;
-
-	/**
-	 * Updates valve position (call from time step functions)
-	 * @param dtme sim dt
-	 */
-	void tmestp( double dtme );
-
-	/**
-	 * Use from .scn loading function to set valve position
-	 * @param ipos valve position
-	 */
-	void _backdoor( double ipos );
-
-	/**
-	 * Create a new valve
-	 * @param initpos initial valve position
-	 * @param imaxrate maximum valve motion rate
-	 */
-	BasicValve( double initpos, double imaxrate );
-	~BasicValve( void );
+		virtual void OnPostStep( double fSimT, double fDeltaT, double fMJD );
 };
 
 

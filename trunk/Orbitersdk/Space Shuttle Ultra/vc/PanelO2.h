@@ -44,23 +44,12 @@ namespace vc
 			StandardCurvedMechMeter* pCryoH2QtyMeter;
 			StandardCurvedMechMeter* pFuelCellStackTempMeter;
 
-			RotaryDemuxSwitch* pCryoO2HtrAssyTemp;
-			RotaryDemuxSwitch* pCryoPressQty;
+			StandardRotarySwitch* pCryoO2HtrAssyTemp;
+			StandardRotarySwitch* pCryoPressQty;
 			StdSwitch3* pFuelCellStackTemp;
 
-			DiscInPort pCryoO2HtrAssyTempTK1[2];
-			DiscInPort pCryoO2HtrAssyTempTK2[2];
-			DiscInPort pCryoO2HtrAssyTempTK3[2];
-			DiscInPort pCryoO2HtrAssyTempTK4[2];
-			DiscInPort pCryoO2HtrAssyTempTK5[2];
-			DiscInPort pCryoPressQtyTK[5];
 			DiscInPort pFuelCellStackTemp1;
 			DiscInPort pFuelCellStackTemp3;
-			DiscOutPort pCryoO2HtrAssyTempMeterInput;
-			DiscOutPort pCryoO2PressMeterInput;
-			DiscOutPort pCryoO2QtyMeterInput;
-			DiscOutPort pCryoH2PressMeterInput;
-			DiscOutPort pCryoH2QtyMeterInput;
 			DiscOutPort pFuelCellStackTempMeterInput;
 
 		public:

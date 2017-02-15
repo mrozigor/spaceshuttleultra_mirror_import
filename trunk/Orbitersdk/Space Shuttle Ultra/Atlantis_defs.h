@@ -17,7 +17,8 @@ const static char* DEFAULT_MESHNAME_PANELL12U_CENTAUR = "SSU\\L12U_SSP_Centaur";
 const static char* DEFAULT_MESHNAME_PANELL12U_IUS = "SSU\\L12U_SSP_IUS";
 const static char* DEFAULT_MESHNAME_CHUTE = "SSU/parachute";
 const static char* SILTS_MESHNAME = "SSU\\SILTSpod";
-const static char* EDOKIT_MESHNAME = "SSU\\EDO_pallet";
+const static char* EDOPALLET_MESHNAME = "SSU\\EDO_pallet";
+const static char* EDOPALLET2_MESHNAME = "SSU\\EDO_pallet";
 const static char* OMSKIT_MESHNAME = "SSU\\";
 
 
@@ -30,7 +31,8 @@ const VECTOR3 ET_OFFSET = _V(0.0, -9.0, 4.480); // offset between ET and shuttle
 const VECTOR3 LSRB_OFFSET = _V(-6.4, -8.9, 0.95); // offset between SRB and shuttle mesh
 const VECTOR3 RSRB_OFFSET = _V(6.4, -8.9, 0.95); // offset between SRB and shuttle mesh
 const VECTOR3 SILTS_OFFSET = _V( 0, 0, 0 );
-const VECTOR3 EDOKIT_OFFSET = _V( 0, 0, 0 );
+const VECTOR3 EDOPALLET_OFFSET = _V( 0, 0, 0 );
+const VECTOR3 EDOPALLET2_OFFSET = _V( 0, 0, 2.35 );
 const VECTOR3 OMSKIT_OFFSET = _V( 0, 0, 0 );
 const VECTOR3 KU_OFFSET = _V(0.0, 0, 0.0);
 const VECTOR3 ENTRY_OFFSET = _V(0.0, -0.02, 0.0);
