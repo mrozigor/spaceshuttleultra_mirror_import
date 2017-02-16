@@ -560,6 +560,9 @@
     <ClCompile Include="vc\PanelR1.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="eps\PRSD.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
