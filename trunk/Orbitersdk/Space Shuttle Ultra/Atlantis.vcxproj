@@ -292,6 +292,7 @@
     <ClCompile Include="eps\ACBusSystem.cpp" />
     <ClCompile Include="eps\ACMotor.cpp" />
     <ClCompile Include="eps\ACMotorController.cpp" />
+    <ClCompile Include="eps\PRSD.cpp" />
     <ClCompile Include="eva_docking\TunnelAdapterAssembly.cpp" />
     <ClCompile Include="gnc\RA.cpp" />
     <ClCompile Include="MasterEventsController.cpp" />
