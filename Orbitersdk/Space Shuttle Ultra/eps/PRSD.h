@@ -39,17 +39,17 @@
 namespace eps
 {
 	const double R = 8.314;
-	const double AR_O2 = 31.99880;
-	const double AR_H2 = 2.01588;
+	const double AR_O2 = 31.99880;// g/mol
+	const double AR_H2 = 2.01588;// g/mol
 
 	const double O2_TANK_DAY_MASS = 97.52236;// Kg
 	const double O2_TANK_MASS_CAP = 354255.6;// g
-	const double O2_TANK_VOL = 40.5058;// m^3
+	const double O2_TANK_VOL = 0.3171487;// m^3
 	const double O2_TANK_INITIAL_TEMP = 97.0;// K
 
 	const double H2_TANK_DAY_MASS = 102.9655;// Kg
 	const double H2_TANK_MASS_CAP = 41730.5;// g
-	const double H2_TANK_VOL = 40.5058;// m^3
+	const double H2_TANK_VOL = 0.6056973;// m^3
 	const double H2_TANK_INITIAL_TEMP = 22.0;// K
 
 	const double EDO_KIT_MASS = 123;// Kg (TODO)
