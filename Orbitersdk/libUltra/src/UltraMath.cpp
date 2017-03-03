@@ -369,7 +369,7 @@ MATRIX3 ConvertPYOMToLVLH(double radP, double radY, double radOM)
 	// Y axis only changes when OM is changed
 	VECTOR3 z_axis = _V(Temp.m11, Temp.m21, Temp.m31); // body vector; orbiter body axis vector pointed along +Z LVLH axis
 	VECTOR3 x_axis, y_axis;
-	if(!Eq(z_axis, _V(0, 1, 0), 0.01) && !Eq(z_axis, _V(0, -1, 0), 0.01)) {
+	if(!Eq(z_axis, _V(0, 1, 0), 0.0001) && !Eq(z_axis, _V(0, -1, 0), 0.0001)) {
 		if(radOM > 0.0) y_axis = RotateVector(z_axis, -radOM, _V(0, 1, 0)); // orbiter should rotate in +ve direction, which means that ref. vector rotates in -ve direction
 		//if(radOM > 0.0) y_axis = RotateVector(z_axis, radOM, _V(0, 1, 0));
 		else y_axis = _V(0, 1, 0);
@@ -391,11 +391,11 @@ MATRIX3 ConvertPYOMToLVLH(double radP, double radY, double radOM)
 		RotMatrix.m21, RotMatrix.m22, RotMatrix.m23,
 		RotMatrix.m31, RotMatrix.m32, RotMatrix.m33);
 	oapiWriteLog(oapiDebugString());*/
-	sprintf_s(oapiDebugString(), 255, "m11: %f m12: %f m13 %f m21: %f m22: %f m23 %f m31: %f m32: %f m33 %f",
+	/*sprintf_s(oapiDebugString(), 255, "m11: %f m12: %f m13 %f m21: %f m22: %f m23 %f m31: %f m32: %f m33 %f",
 		RotMatrix.m11, RotMatrix.m12, RotMatrix.m13,
 		RotMatrix.m21, RotMatrix.m22, RotMatrix.m23,
 		RotMatrix.m31, RotMatrix.m32, RotMatrix.m33);
-	oapiWriteLog(oapiDebugString());
+	oapiWriteLog(oapiDebugString());*/
 
 	//VECTOR3 angles = GetYZXAnglesFromMatrix(RotMatrix);
 	//return angles;

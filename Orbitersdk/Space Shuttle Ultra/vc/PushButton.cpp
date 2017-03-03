@@ -33,7 +33,7 @@ namespace vc {
 			anim_pb = STS()->CreateAnimation(InitialAnimState());
 
 			pPushDown = new MGROUP_TRANSLATE(vc_idx, &uiGroup, 1, 
-				GetDirection());
+				GetDirection() * 0.002 );
 			STS()->AddAnimationComponent(anim_pb, 0.0, 1.0, pPushDown);
 
 			VerifyAnimations();

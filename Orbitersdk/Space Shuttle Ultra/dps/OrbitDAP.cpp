@@ -53,6 +53,11 @@ pStateVector(NULL)
 	P=0;
 	Y=0;
 	OM=-1;
+	RA = 0.0;
+	DEC = 0.0;
+	LAT = 0.0;
+	LON = 0.0;
+	_ALT = 0.0;
 
 	ActiveManeuver.IsValid = false;
 	CurManeuver.IsValid = false;
@@ -93,6 +98,10 @@ pStateVector(NULL)
 	}
 
 	ERRTOT = true;
+
+	RA_DEC_flash = false;
+	LAT_LON_ALT_flash = false;
+	P_Y_flash = false;
 }
 
 OrbitDAP::~OrbitDAP()
@@ -683,7 +692,7 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data, bool &IllegalEntr
 			double dNew;
 			if (GetDoubleUnsigned( Data, dNew ))
 			{
-				if (dNew<360.0)
+				if (dNew<359.99)
 				{
 					if(item==5) MNVR_OPTION.data[ROLL]=dNew;
 					else MNVR_OPTION.data[PITCH]=dNew;
@@ -696,7 +705,7 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data, bool &IllegalEntr
 			double dNew;
 			if (GetDoubleUnsigned( Data, dNew ))
 			{
-				if ((dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) MNVR_OPTION.data[YAW]=dNew;
+				if ((dNew<=90.0) || (dNew>=270.0 && dNew<359.99)) MNVR_OPTION.data[YAW]=dNew;
 				else IllegalEntry = true;
 			}
 			else IllegalEntry = true;
@@ -705,7 +714,118 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data, bool &IllegalEntr
 			int nNew;
 			if (GetIntegerUnsigned( Data, nNew ))
 			{
-				if(nNew==2 || nNew==4) TGT_ID=nNew;
+				/*if (nNew == 1)// Orbiting vehicle
+				{
+					TGT_ID = nNew;
+					RA_DEC_flash = false;
+					LAT_LON_ALT_flash = false;
+				}
+				else*/ if (nNew == 2)// Center of Earth
+				{
+					TGT_ID = nNew;
+					RA_DEC_flash = false;
+					LAT_LON_ALT_flash = false;
+				}
+				/*else if (nNew == 3)// Earth relative target
+				{
+					TGT_ID = nNew;
+					RA_DEC_flash = false;
+					LAT_LON_ALT_flash = true;
+				}
+				else if (nNew == 4)// Center of Sun
+				{
+					TGT_ID = nNew;
+					RA_DEC_flash = false;
+					LAT_LON_ALT_flash = false;
+				}
+				else if (nNew == 5)// Celestial target
+				{
+					TGT_ID = nNew;
+					RA_DEC_flash = true;
+					LAT_LON_ALT_flash = false;
+				}
+				else if ((nNew >= 11) && (nNew <= 60))// Navigation stars, OPS 2, 3, and 8
+				{
+					TGT_ID = nNew;
+					RA_DEC_flash = false;
+					LAT_LON_ALT_flash = false;
+				}
+				else if ((nNew >= 61) && (nNew <= 110))// Navigation stars, OPS 2 and 8
+				{
+					TGT_ID = nNew;
+					RA_DEC_flash = false;
+					LAT_LON_ALT_flash = false;
+				}*/
+				else IllegalEntry = true;
+			}
+			else IllegalEntry = true;
+		}
+		else if (item == 9)
+		{
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if ((dNew <= 359.999) && (TGT_ID == 5))
+				{
+					RA = dNew;
+					RA_DEC_flash = false;
+				}
+				else IllegalEntry = true;
+			}
+			else IllegalEntry = true;
+		}
+		else if (item == 10)
+		{
+			double dNew;
+			if (GetDoubleSigned( Data, dNew ))
+			{
+				if ((dNew >= -90.0) && (dNew <= 90.0) && (TGT_ID == 5))
+				{
+					DEC = dNew;
+					RA_DEC_flash = false;
+				}
+				else IllegalEntry = true;
+			}
+			else IllegalEntry = true;
+		}
+		else if (item == 11)
+		{
+			double dNew;
+			if (GetDoubleSigned( Data, dNew ))
+			{
+				if ((dNew >= -90.0) && (dNew <= 90.0) && (TGT_ID == 3))
+				{
+					LAT = dNew;
+					LAT_LON_ALT_flash = false;
+				}
+				else IllegalEntry = true;
+			}
+			else IllegalEntry = true;
+		}
+		else if (item == 12)
+		{
+			double dNew;
+			if (GetDoubleSigned( Data, dNew ))
+			{
+				if ((dNew >= -180.0) && (dNew <= 180.0) && (TGT_ID == 3))
+				{
+					LON = dNew;
+					LAT_LON_ALT_flash = false;
+				}
+				else IllegalEntry = true;
+			}
+			else IllegalEntry = true;
+		}
+		else if (item == 13)
+		{
+			double dNew;
+			if (GetDoubleSigned( Data, dNew ))
+			{
+				if ((dNew >= -3444.0) && (dNew <= 20000.0) && (TGT_ID == 3))
+				{
+					_ALT = dNew;
+					LAT_LON_ALT_flash = false;
+				}
 				else IllegalEntry = true;
 			}
 			else IllegalEntry = true;
@@ -717,6 +837,7 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data, bool &IllegalEntr
 				if(nNew>=1 && nNew<=5)
 				{
 					BODY_VECT=nNew;
+					P_Y_flash = false;
 					if(BODY_VECT==1) {
 						P=0.0;
 						Y=0.0;
@@ -730,9 +851,10 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data, bool &IllegalEntr
 						Y=0.0;
 					}
 					else if(BODY_VECT==4) {
-						P=90.0;
-						Y=79.333;
+						P=0.0;
+						Y=280.57;
 					}
+					else P_Y_flash = true;
 				}
 				else IllegalEntry = true;
 			}
@@ -742,7 +864,11 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data, bool &IllegalEntr
 			double dNew;
 			if (GetDoubleUnsigned( Data, dNew ))
 			{
-				if ((dNew < 360.0) && (BODY_VECT == 5)) P=dNew;
+				if ((dNew < 359.99) && (BODY_VECT == 5))
+				{
+					P=dNew;
+					P_Y_flash = false;
+				}
 				else IllegalEntry = true;
 			}
 			else IllegalEntry = true;
@@ -751,7 +877,11 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data, bool &IllegalEntr
 			double dNew;
 			if (GetDoubleUnsigned( Data, dNew ))
 			{
-				if (((dNew <= 90.0) || ((dNew >= 270.0) && (dNew < 360.0))) && (BODY_VECT == 5)) Y=dNew;
+				if (((dNew <= 90.0) || ((dNew >= 270.0) && (dNew < 359.99))) && (BODY_VECT == 5))
+				{
+					Y=dNew;
+					P_Y_flash = false;
+				}
 				else IllegalEntry = true;
 			}
 			else IllegalEntry = true;
@@ -760,7 +890,7 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data, bool &IllegalEntr
 			double dNew;
 			if (GetDoubleUnsigned( Data, dNew ))
 			{
-				if(dNew<360.0) OM=dNew;
+				if(dNew<359.99) OM=dNew;
 				else IllegalEntry = true;
 			}
 			else IllegalEntry = true;
@@ -778,31 +908,47 @@ bool OrbitDAP::ItemInput(int spec, int item, const char* Data, bool &IllegalEntr
 					FutMnvrStartTime = startTime;
 					LoadFutINRTLManeuver(tgtAtt);
 				}
+
+				RA_DEC_flash = false;
+				LAT_LON_ALT_flash = false;
+				P_Y_flash = false;
 			}
 			else IllegalEntry = true;
 		}
 		else if(item==19) {
 			if (strlen( Data ) == 0)
 			{
-				//VECTOR3 radTargetAtt = ConvertPYOMToBodyAngles(P*RAD, Y*RAD, OM*RAD);
-				MATRIX3 tgtAtt = ConvertPYOMToLVLH(P*RAD, Y*RAD, OM*RAD);
-				double startTime = START_TIME[0]*86400.0 + START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
-				if(startTime <= STS()->GetMET()) {
-					if(TGT_ID == 2) {
-						LoadCurLVLHManeuver(tgtAtt);
-					}
-				}
-				else {
-					FutMnvrStartTime = startTime;
-					if(TGT_ID == 2) {
+				if (TGT_ID == 2)
+				{
+					MATRIX3 tgtAtt = ConvertPYOMToLVLH(P*RAD, Y*RAD, OM*RAD);
+					double startTime = START_TIME[0]*86400.0 + START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
+					if (startTime <= STS()->GetMET()) LoadCurLVLHManeuver(tgtAtt);
+					else
+					{
+						FutMnvrStartTime = startTime;
 						LoadFutLVLHManeuver(tgtAtt);
 					}
 				}
+				else if (TGT_ID == 3)
+				{
+					// TODO LAT, LON, ALT
+				}
+				else if (TGT_ID == 5)
+				{
+					// TODO RA, DEC
+				}
+
+				RA_DEC_flash = false;
+				LAT_LON_ALT_flash = false;
+				P_Y_flash = false;
 			}
 			else IllegalEntry = true;
 		}
 		/*else if(item==20) {
-		LoadRotationManeuver();
+			LoadRotationManeuver();
+			RA_DEC_flash = false;
+			LAT_LON_ALT_flash = false;
+			P_Y_flash = false;
 		}*/
 		else if(item==21) {
 			if (strlen( Data ) == 0)
@@ -1189,25 +1335,71 @@ void OrbitDAP::PaintUNIVPTGDisplay(vc::MDU* pMDU) const
 	pMDU->Underline( 12, 10 );
 
 	pMDU->mvprint(1, 12, "9  RA");
+	sprintf_s( cbuf, 255, "%07.3f", RA );
+	pMDU->mvprint( 9, 12, cbuf, RA_DEC_flash ? DEUATT_FLASHING : 0 );
+	pMDU->Underline( 9, 12 );
+	pMDU->Underline( 10, 12 );
+	pMDU->Underline( 11, 12 );
+	pMDU->Underline( 12, 12 );
+	pMDU->Underline( 13, 12 );
+	pMDU->Underline( 14, 12 );
+	pMDU->Underline( 15, 12 );
 	pMDU->mvprint(1, 13, "10 DEC");
+	pMDU->NumberSignBracket( 9, 13, DEC );// TODO should brackets flash with sign?
+	sprintf_s( cbuf, 255, "%06.3f", fabs( DEC ) );
+	pMDU->mvprint( 10, 13, cbuf, RA_DEC_flash ? DEUATT_FLASHING : 0 );
+	pMDU->Underline( 10, 13 );
+	pMDU->Underline( 11, 13 );
+	pMDU->Underline( 12, 13 );
+	pMDU->Underline( 13, 13 );
+	pMDU->Underline( 14, 13 );
+	pMDU->Underline( 15, 13 );
 	pMDU->mvprint(1, 14, "11 LAT");
+	pMDU->NumberSignBracket( 9, 14, LAT );// TODO should brackets flash with sign?
+	sprintf_s( cbuf, 255, "%06.3f", fabs( LAT ) );
+	pMDU->mvprint( 10, 14, cbuf, LAT_LON_ALT_flash ? DEUATT_FLASHING : 0 );
+	pMDU->Underline( 10, 14 );
+	pMDU->Underline( 11, 14 );
+	pMDU->Underline( 12, 14 );
+	pMDU->Underline( 13, 14 );
+	pMDU->Underline( 14, 14 );
+	pMDU->Underline( 15, 14 );
 	pMDU->mvprint(1, 15, "12 LON");
+	pMDU->NumberSignBracket( 8, 15, LON );// TODO should brackets flash with sign?
+	sprintf_s( cbuf, 255, "%07.3f", fabs( LON ) );
+	pMDU->mvprint( 9, 15, cbuf, LAT_LON_ALT_flash ? DEUATT_FLASHING : 0 );
+	pMDU->Underline( 9, 15 );
+	pMDU->Underline( 13, 15 );
+	pMDU->Underline( 14, 15 );
+	pMDU->Underline( 15, 15 );
 	pMDU->mvprint(1, 16, "13 ALT");
+	pMDU->NumberSignBracket( 8, 16, _ALT );// TODO should brackets flash with sign?
+	sprintf_s( cbuf, 255, "%07.1f", fabs( _ALT ) );
+	pMDU->mvprint( 9, 16, cbuf, LAT_LON_ALT_flash ? DEUATT_FLASHING : 0 );
+	pMDU->Underline( 9, 16 );
+	pMDU->Underline( 10, 16 );
+	pMDU->Underline( 11, 16 );
+	pMDU->Underline( 12, 16 );
+	pMDU->Underline( 13, 16 );
+	pMDU->Underline( 14, 16 );
+	pMDU->Underline( 15, 16 );
 
 	sprintf_s(cbuf, 255, "14 BODY VECT %d", BODY_VECT);
 	pMDU->mvprint(1, 18, cbuf);
-	sprintf_s(cbuf, 255, "15 P  %6.2f", P);
-	pMDU->mvprint(1, 20, cbuf);
+	pMDU->mvprint( 1, 20, "15 P" );
+	sprintf_s( cbuf, 255, "%06.2f", P );
+	pMDU->mvprint( 7, 20, cbuf, P_Y_flash ? DEUATT_FLASHING : 0 );
 	pMDU->Underline( 7, 20 );
 	pMDU->Underline( 8, 20 );
 	pMDU->Underline( 9, 20 );
 	pMDU->Underline( 10, 20 );
 	pMDU->Underline( 11, 20 );
 	pMDU->Underline( 12, 20 );
-	sprintf_s(cbuf, 255, "16 Y  %6.2f", Y);
-	pMDU->mvprint(1, 21, cbuf);
+	pMDU->mvprint( 1, 21, "16 Y" );
+	sprintf_s( cbuf, 255, "%06.2f", Y );
+	pMDU->mvprint( 7, 21, cbuf, P_Y_flash ? DEUATT_FLASHING : 0 );
 	if(OM>=0.0) {
-		sprintf_s(cbuf, 255, "17 OM %6.2f", OM);
+		sprintf_s(cbuf, 255, "17 OM %06.2f", OM);
 		pMDU->mvprint(1, 22, cbuf);
 	}
 	else pMDU->mvprint(1, 22, "17 OM");
@@ -1455,6 +1647,31 @@ bool OrbitDAP::OnParseLine(const char* keyword, const char* value)
 		sscanf_s(value, "%d", &TGT_ID);
 		return true;
 	}
+	/*else if (!_strnicmp( keyword, "RA_ANGLE", 8 ))
+	{
+		sscanf_s( value, "%lf", &RA );
+		return true;
+	}
+	else if (!_strnicmp( keyword, "DEC_ANGLE", 9 ))
+	{
+		sscanf_s( value, "%lf", &DEC );
+		return true;
+	}
+	else if (!_strnicmp( keyword, "LAT_ANGLE", 9 ))
+	{
+		sscanf_s( value, "%lf", &LAT );
+		return true;
+	}
+	else if (!_strnicmp( keyword, "LON_ANGLE", 9 ))
+	{
+		sscanf_s( value, "%lf", &LON );
+		return true;
+	}
+	else if (!_strnicmp( keyword, "ALT_ANGLE", 9 ))
+	{
+		sscanf_s( value, "%lf", &_ALT );
+		return true;
+	}*/
 	else if(!_strnicmp(keyword, "BODY_VECT", 9)) {
 		sscanf_s(value, "%d", &BODY_VECT);
 		return true;
@@ -1542,6 +1759,11 @@ void OrbitDAP::OnSaveState(FILEHANDLE scn) const
 	oapiWriteScenario_float (scn, "ROLL", MNVR_OPTION.data[ROLL]);
 	oapiWriteScenario_float (scn, "PITCH", MNVR_OPTION.data[PITCH]);
 	oapiWriteScenario_float (scn, "YAW", MNVR_OPTION.data[YAW]);
+	/*oapiWriteScenario_float( scn, "RA_ANGLE", RA );
+	oapiWriteScenario_float( scn, "DEC_ANGLE", DEC );
+	oapiWriteScenario_float( scn, "LAT_ANGLE", LAT );
+	oapiWriteScenario_float( scn, "LON_ANGLE", LON );
+	oapiWriteScenario_float( scn, "ALT_ANGLE", _ALT );*/
 	oapiWriteScenario_float (scn, "P_ANGLE", P);
 	oapiWriteScenario_float (scn, "Y_ANGLE", Y);
 	oapiWriteScenario_float (scn, "OM_ANGLE", OM);

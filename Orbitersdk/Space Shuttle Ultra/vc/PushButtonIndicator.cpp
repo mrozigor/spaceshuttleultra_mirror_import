@@ -17,7 +17,7 @@ namespace vc
 	{
 	}
 
-	/*void PushButtonIndicator::DefineGroup(UINT _grpIndex) {
+	void PushButtonIndicator::DefineGroup(UINT _grpIndex) {
 		uiGroup = _grpIndex;
 	}
 
@@ -25,19 +25,19 @@ namespace vc
 		char pszBuffer[256];
 		if(bHasDirection && !bHasAnimations) {
 
-			/*sprintf_s(pszBuffer, 255, "PUSH BUTTON[%s]:\tDefine VC Animations()", 
+			sprintf_s(pszBuffer, 255, "PUSH BUTTON INDICATOR[%s]:\tDefine VC Animations()", 
 				GetQualifiedIdentifier().c_str());
 			oapiWriteLog(pszBuffer);
 
 			anim_pb = STS()->CreateAnimation(InitialAnimState());
 
 			pPushDown = new MGROUP_TRANSLATE(vc_idx, &uiGroup, 1, 
-				GetDirection());
+				GetDirection() * 0.002 );
 			STS()->AddAnimationComponent(anim_pb, 0.0, 1.0, pPushDown);
 
 			VerifyAnimations();
 		}
-	}*/
+	}
 
 	void PushButtonIndicator::ConnectAll(DiscreteBundle *pBundle, int line)
 	{

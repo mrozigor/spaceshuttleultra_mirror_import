@@ -144,7 +144,8 @@ namespace vc
 	void PanelC3::DefineVC()
 	{
 		const VECTOR3 switch_rot = _V(1, 0, 0);
-		const VECTOR3 pull_dir = _V(0, 1, 0);
+		const VECTOR3 pull_dir = _V( 0, 0.994522, -0.104528 );
+		const VECTOR3 push_dir = -pull_dir;
 
 		oapiWriteLog("PanelC3: DefineVC called");
 
@@ -160,28 +161,100 @@ namespace vc
 		}
 		// PBI mouse regions
 		pPBIs[0]->SetMouseRegion(0.075540f, 0.421567f, 0.107636f, 0.455563f); //A
+		pPBIs[0]->SetDirection( push_dir );
+		pPBIs[0]->DefineGroup( GRP_DAP_A_PB_VC );
+
 		pPBIs[1]->SetMouseRegion(0.129797f, 0.423483f, 0.160799f, 0.456580f); //B
+		pPBIs[1]->SetDirection( push_dir );
+		pPBIs[1]->DefineGroup( GRP_DAP_B_PB_VC );
+
 		pPBIs[2]->SetMouseRegion(0.181586f, 0.424022f, 0.213814f, 0.455769f); //AUTO
+		pPBIs[2]->SetDirection( push_dir );
+		pPBIs[2]->DefineGroup( GRP_DAP_AUTO_PB_VC );
+
 		pPBIs[3]->SetMouseRegion(0.231808f, 0.423959f, 0.263971f, 0.456584f); //INRTL
+		pPBIs[3]->SetDirection( push_dir );
+		pPBIs[3]->DefineGroup( GRP_DAP_INRTL_PB_VC );
+
 		pPBIs[4]->SetMouseRegion(0.285346f, 0.423488f, 0.314472f, 0.455417f); //LVLH
+		pPBIs[4]->SetDirection( push_dir );
+		pPBIs[4]->DefineGroup( GRP_DAP_LVLH_PB_VC );
+
 		pPBIs[5]->SetMouseRegion(0.336988f, 0.423070f, 0.370935f, 0.457239f); //FREE
-		// NOTE: PCT pbi does not work on PanelC3 (SiameseCat)
-		//pPBIs[6]->SetMouseRegion(0.653568f, 0.271157f, 0.699381f, 0.331649f); //PCT
+		pPBIs[5]->SetDirection( push_dir );
+		pPBIs[5]->DefineGroup( GRP_DAP_FREE_PB_VC );
+		
+		pPBIs[6]->SetMouseRegion(0.076194f, 0.523149f, 0.113935f, 0.559026f); // TRANS X ()
+		pPBIs[6]->SetDirection( push_dir );
+		pPBIs[6]->DefineGroup( GRP_DAP_BLANK_VC );
+
+		pPBIs[7]->SetMouseRegion(0.127305f, 0.523122f, 0.166190f, 0.558918f); // TRANS Y (LOW Z)
+		pPBIs[7]->SetDirection( push_dir );
+		pPBIs[7]->DefineGroup( GRP_DAP_LOW_Z_PB_VC );
+
+		pPBIs[8]->SetMouseRegion(0.178196f, 0.523493f, 0.216654f, 0.558672f); // TRANS Z (HIGH Z)
+		pPBIs[8]->SetDirection( push_dir );
+		pPBIs[8]->DefineGroup( GRP_DAP_HIGH_Z_PB_VC );
+
 		pPBIs[9]->SetMouseRegion(0.235090f, 0.526461f, 0.268066f, 0.560655f); //PRI
+		pPBIs[9]->SetDirection( push_dir );
+		pPBIs[9]->DefineGroup( GRP_DAP_PRI_PB_VC );
+		
 		pPBIs[10]->SetMouseRegion(0.285877f, 0.527114f, 0.319531f, 0.560210f); //ALT
+		pPBIs[10]->SetDirection( push_dir );
+		pPBIs[10]->DefineGroup( GRP_DAP_ALT_PB_VC );
+		
 		pPBIs[11]->SetMouseRegion(0.337574f, 0.527336f, 0.372188f, 0.560061f); //VERN
+		pPBIs[11]->SetDirection( push_dir );
+		pPBIs[11]->DefineGroup( GRP_DAP_VERN_PB_VC );
+		
 		pPBIs[12]->SetMouseRegion(0.075623f, 0.576277f, 0.110736f, 0.611008f); //X NORM
+		pPBIs[12]->SetDirection( push_dir );
+		pPBIs[12]->DefineGroup( GRP_DAP_X_NORM_PB_VC );
+		
 		pPBIs[13]->SetMouseRegion(0.128061f, 0.576498f, 0.160462f, 0.609389f); //Y NORM
+		pPBIs[13]->SetDirection( push_dir );
+		pPBIs[13]->DefineGroup( GRP_DAP_Y_NORM_PB_VC );
+		
 		pPBIs[14]->SetMouseRegion(0.179329f, 0.576932f, 0.211752f, 0.609589f); //Z NORM
+		pPBIs[14]->SetDirection( push_dir );
+		pPBIs[14]->DefineGroup( GRP_DAP_Z_NORM_PB_VC );
+		
 		pPBIs[15]->SetMouseRegion(0.235932f, 0.575860f, 0.267935f, 0.609234f); //ROLL DISC RATE
+		pPBIs[15]->SetDirection( push_dir );
+		pPBIs[15]->DefineGroup( GRP_DAP_ROL_DISC_RATE_PB_VC );
+		
 		pPBIs[16]->SetMouseRegion(0.288161f, 0.576933f, 0.318657f, 0.608937f); //PITCH DISC RATE
+		pPBIs[16]->SetDirection( push_dir );
+		pPBIs[16]->DefineGroup( GRP_DAP_PITCH_DISC_RATE_PB_VC );
+		
 		pPBIs[17]->SetMouseRegion(0.341027f, 0.575933f, 0.372842f, 0.608609f); //YAW DISC RATE
+		pPBIs[17]->SetDirection( push_dir );
+		pPBIs[17]->DefineGroup( GRP_DAP_YAW_DISC_RATE_PB_VC );
+		
 		pPBIs[18]->SetMouseRegion(0.076191f, 0.627008f, 0.109321f, 0.661322f); //X PULSE
+		pPBIs[18]->SetDirection( push_dir );
+		pPBIs[18]->DefineGroup( GRP_DAP_X_PULSE_PB_VC );
+		
 		pPBIs[19]->SetMouseRegion(0.128366f, 0.626492f, 0.159067f, 0.660411f); //Y PULSE
+		pPBIs[19]->SetDirection( push_dir );
+		pPBIs[19]->DefineGroup( GRP_DAP_Y_PULSE_PB_VC );
+		
 		pPBIs[20]->SetMouseRegion(0.177013f, 0.626544f, 0.213859f, 0.661142f); //Z PULSE
+		pPBIs[20]->SetDirection( push_dir );
+		pPBIs[20]->DefineGroup( GRP_DAP_Z_PULSE_PB_VC );
+		
 		pPBIs[21]->SetMouseRegion(0.233781f, 0.625428f, 0.269470f, 0.661436f); //ROLL PULSE
+		pPBIs[21]->SetDirection( push_dir );
+		pPBIs[21]->DefineGroup( GRP_DAP_ROLL_PULSE_PB_VC );
+		
 		pPBIs[22]->SetMouseRegion(0.284747f, 0.627472f, 0.318325f, 0.661340f); //PITCH PULSE
+		pPBIs[22]->SetDirection( push_dir );
+		pPBIs[22]->DefineGroup( GRP_DAP_PITCH_PULSE_PB_VC );
+
 		pPBIs[23]->SetMouseRegion(0.336868f, 0.626517f, 0.373105f, 0.660984f); //YAW PULSE
+		pPBIs[23]->SetDirection( push_dir );
+		pPBIs[23]->DefineGroup( GRP_DAP_YAW_PULSE_PB_VC );
 
 		pOMSArm[LEFT]->SetMouseRegion(0.063487f, 0.070910f, 0.117992f, 0.173581f);
 		pOMSArm[LEFT]->SetReference(_V(-0.2114868, 1.7215, 14.2841), switch_rot);
@@ -252,15 +325,15 @@ namespace vc
 		pSSMESDPBCover[2]->DefineCoverGroup( GRP_C3COVER3_VC );
 
 		pSSMESDPB[0]->SetMouseRegion( 0.380817f, 0.295599f, 0.420386f, 0.331035f );
-		pSSMESDPB[0]->SetReference( _V( -0.0545, 1.7466, 14.1623 ), _V( 0, 0, 1 ) );
+		pSSMESDPB[0]->SetDirection( push_dir );
 		pSSMESDPB[0]->DefineGroup( GRP_LEFT_SSME_SHTDN_PB_VC );
 
 		pSSMESDPB[1]->SetMouseRegion( 0.448899f, 0.276360f, 0.488503f, 0.310700f );
-		pSSMESDPB[1]->SetReference( _V( -0.0174, 1.7466, 14.1736 ), _V( 0, 0, 1 ) );
+		pSSMESDPB[1]->SetDirection( push_dir );
 		pSSMESDPB[1]->DefineGroup( GRP_CTR_SSME_SHTDN_PB_VC );
 
 		pSSMESDPB[2]->SetMouseRegion( 0.515987f, 0.296511f, 0.556983f, 0.331199f );
-		pSSMESDPB[2]->SetReference( _V( 0.197, 1.7466, 14.16 ), _V( 0, 0, 1 ) );
+		pSSMESDPB[2]->SetDirection( push_dir );
 		pSSMESDPB[2]->DefineGroup( GRP_RIGHT_SSME_SHTDN_PB_VC );
 
 		pSRBSEPSW->SetMouseRegion( 0.462571f, 0.414336f, 0.509469f, 0.491312f );
@@ -274,7 +347,7 @@ namespace vc
 		pSRBSEPCover->DefineCoverGroup( GRP_C3COVER4_VC );
 		
 		pSRBSEPPB->SetMouseRegion( 0.537215f, 0.435073f, 0.574794f, 0.470203f );
-		pSRBSEPPB->SetReference( _V( -0.031, 1.734, 14.096 ), _V( 0, 0, 1 ) );
+		pSRBSEPPB->SetDirection( push_dir );
 		pSRBSEPPB->DefineGroup( GRP_SRB_SEP_PB_VC );
 
 		pETSEPSW->SetMouseRegion( 0.629313f, 0.420718f, 0.675625f, 0.520487f );
@@ -289,7 +362,7 @@ namespace vc
 		pETSEPCover->DefineCoverGroup( GRP_C3COVER5_VC );
 
 		pETSEPPB->SetMouseRegion( 0.698907f, 0.432862f, 0.731796f, 0.463562f );
-		pETSEPPB->SetReference( _V( -0.119, 1.734, 14.096 ), _V( 0, 0, 1 ) );
+		pETSEPPB->SetDirection( push_dir );
 		pETSEPPB->DefineGroup( GRP_ET_SEP_PB_VC );
 	}
 
@@ -297,6 +370,7 @@ namespace vc
 	{
 		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("DAP_PBIS1", 16);
 		for(int i=0;i<16;i++) {
+			if ((i == 6) || (i == 7) || (i == 8)) continue;// HACK don't connect "blank", low z and high z
 			pPBIs[i]->input.Connect(pBundle, i);
 			pPBIs[i]->output.Connect(pBundle, i);
 			pPBIs[i]->test.Connect(pBundle, i);
