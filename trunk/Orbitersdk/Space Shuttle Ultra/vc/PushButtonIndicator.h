@@ -49,8 +49,8 @@ namespace vc
 		PushButtonIndicator(Atlantis* _sts, const string& _ident, bool _saveState=false);
 		~PushButtonIndicator();
 
-		//void DefineGroup(UINT _grpIndex);
-		//virtual void DefineVCAnimations(UINT vc_idx);
+		void DefineGroup(UINT _grpIndex);
+		virtual void DefineVCAnimations(UINT vc_idx);
 		virtual bool OnMouseEvent(int _event, float x, float y);
 		virtual void OnPress();
 		virtual void OnRelease();

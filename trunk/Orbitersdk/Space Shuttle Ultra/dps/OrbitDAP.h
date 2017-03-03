@@ -128,6 +128,11 @@ private:
 	VECTOR3 MNVR_OPTION;
 	int TGT_ID, BODY_VECT;
 	double P, Y, OM;
+	double RA;
+	double DEC;
+	double LAT;
+	double LON;
+	double _ALT;
 
 	VECTOR3 CUR_ATT, REQD_ATT, ATT_ERR; // attitudes in degrees in M50 frame
 
@@ -152,6 +157,10 @@ private:
 	DiscInPort BodyFlapAuto; // used to trigger PCT
 	DiscOutPort port_PCTActive[2]; // PBIs indicating is PCT is in progress
 	//DiscOutPort port_PCTActive;
+
+	bool RA_DEC_flash;
+	bool LAT_LON_ALT_flash;
+	bool P_Y_flash;
 	
 	StateVectorSoftware* pStateVector;
 	RHC_SOP *pRHC_SOP;
