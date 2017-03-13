@@ -563,6 +563,12 @@
     <ClCompile Include="eps\PRSD.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="AnnunciatorControlAssembly.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelO1.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -1049,6 +1055,12 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="DragChute.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelO1.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="AnnunciatorControlAssembly.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
