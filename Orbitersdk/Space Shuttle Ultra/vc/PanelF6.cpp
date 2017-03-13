@@ -3,9 +3,7 @@
 #include "../meshres_vc.h"
 #include "MDU.h"
 #include "../Atlantis_defs.h"
-#include "../meshres_vc_additions.h"
 
-extern GDIParams g_Param;
 
 namespace vc {
 
@@ -38,8 +36,16 @@ namespace vc {
 		Add( pLandingGearArmDeployCover[0] = new StandardSwitchCover( _sts, "Landing Gear ARM Cover" ) );
 		Add( pLandingGearArmDeployCover[1] = new StandardSwitchCover( _sts, "Landing Gear DN Cover" ) );
 		
-		Add( pLandingGearArmDeploy[0] = new PushButtonIndicator( _sts, "Landing Gear ARM", true ) );
-		Add( pLandingGearArmDeploy[1] = new PushButtonIndicator( _sts, "Landing Gear DN", true ) );
+		Add( pLandingGearArmDeploy[0] = new PushButtonIndicatorSingleLight( _sts, "Landing Gear ARM" ) );
+		Add( pLandingGearArmDeploy[1] = new PushButtonIndicatorSingleLight( _sts, "Landing Gear DN" ) );
+
+		Add( pRCSCommand[0] = new StandardDoubleLight( _sts, "RCS COMMAND ROLL" ) );
+		Add( pRCSCommand[1] = new StandardDoubleLight( _sts, "RCS COMMAND PITCH" ) );
+		Add( pRCSCommand[2] = new StandardDoubleLight( _sts, "RCS COMMAND YAW" ) );
+		
+		Add( pRangeSafeArm = new StandardDoubleLight( _sts, "RANGE SAFE ARM" ) );// using double light because of 4 inputs
+
+		Add( pAbort = new PushButtonIndicatorSingleLight( _sts, "ABORT" ) );
 	}
 
 	PanelF6::~PanelF6()
@@ -49,6 +55,7 @@ namespace vc {
 	void PanelF6::DefineVC()
 	{
 		VECTOR3 switch_rot = _V(1, 0, 0);
+		VECTOR3 push_dir = _V( 0.0, -0.258681, 0.965963 );
 
 		AddAIDToMouseEventList(AID_F6);
 
@@ -94,21 +101,41 @@ namespace vc {
 		pLandingGearArmDeployCover[1]->SetReference( _V( -0.87370, 1.99996, 14.68735 ), _V( 0, 0.965408, 0.260745 ) );
 		pLandingGearArmDeployCover[1]->DefineCoverGroup( GRP_F6COVER2_VC );
 
-		pLandingGearArmDeploy[0]->AddAIDToRedrawEventList( AID_F6_PB1 );
-		pLandingGearArmDeploy[0]->SetSourceImage( g_Param.pbi_lights );
-		pLandingGearArmDeploy[0]->SetBase( 0, 0 );
-		pLandingGearArmDeploy[0]->SetSourceCoords( true, 0, 0 );
-		pLandingGearArmDeploy[0]->SetSourceCoords( false, 0, 14 );
-		pLandingGearArmDeploy[0]->SetDimensions( 42, 14 );
-		pLandingGearArmDeploy[0]->SetMouseRegion( 0.078388f, 0.840748f, 0.112708f, 0.888240f );
+		pLandingGearArmDeploy[0]->SetStateOffset( 1, 0.0f, 0.488281f );
+		pLandingGearArmDeploy[0]->SetDirection( push_dir );
+		pLandingGearArmDeploy[0]->SetMouseRegion( 0.077788f, 0.831051f, 0.119110f, 0.892631f );
+		pLandingGearArmDeploy[0]->DefineMeshGroup( STS()->mesh_vc, GRP_F6_A5_S1_VC );
 
-		pLandingGearArmDeploy[1]->AddAIDToRedrawEventList( AID_F6_PB2 );
-		pLandingGearArmDeploy[1]->SetSourceImage( g_Param.pbi_lights );
-		pLandingGearArmDeploy[1]->SetBase( 0, 0 );
-		pLandingGearArmDeploy[1]->SetSourceCoords( true, 42, 0 );
-		pLandingGearArmDeploy[1]->SetSourceCoords( false, 0, 14 );
-		pLandingGearArmDeploy[1]->SetDimensions( 42, 14 );
-		pLandingGearArmDeploy[1]->SetMouseRegion( 0.168069f, 0.840792f, 0.201960f, 0.887350f );
+		pLandingGearArmDeploy[1]->SetStateOffset( 1, 0.0f, 0.488281f );
+		pLandingGearArmDeploy[1]->SetDirection( push_dir );
+		pLandingGearArmDeploy[1]->SetMouseRegion( 0.163805f, 0.830309f, 0.205588f, 0.892445f );
+		pLandingGearArmDeploy[1]->DefineMeshGroup( STS()->mesh_vc, GRP_F6_A5_S2_VC );
+
+		pRCSCommand[0]->DefineMeshGroup( STS()->mesh_vc, GRP_F6_XDS1_R_VC );
+		pRCSCommand[0]->SetStateOffset( 1, 0.0f, 0.126953f );// L
+		pRCSCommand[0]->SetStateOffset( 2, 0.139648f, 0.126953f );// R
+		pRCSCommand[0]->SetStateOffset( 3, 0.139648f, 0.0f );// LR
+
+		pRCSCommand[1]->DefineMeshGroup( STS()->mesh_vc, GRP_F6_XDS1_P_VC );
+		pRCSCommand[1]->SetStateOffset( 1, 0.0f, 0.126953f );// U
+		pRCSCommand[1]->SetStateOffset( 2, 0.139648f, 0.126953f );// D
+		pRCSCommand[1]->SetStateOffset( 3, 0.139648f, 0.0f );// UD
+
+		pRCSCommand[2]->DefineMeshGroup( STS()->mesh_vc, GRP_F6_XDS1_Y_VC );
+		pRCSCommand[2]->SetStateOffset( 1, 0.0f, 0.126953f );// L
+		pRCSCommand[2]->SetStateOffset( 2, 0.139648f, 0.126953f );// R
+		pRCSCommand[2]->SetStateOffset( 3, 0.139648f, 0.0f );// LR
+
+		pRangeSafeArm->DefineMeshGroup( STS()->mesh_vc, GRP_F6_XDS3_VC );
+		pRangeSafeArm->SetStateOffset( 1, 0.139648f, 0.0f );
+		pRangeSafeArm->SetStateOffset( 2, 0.139648f, 0.0f );
+		pRangeSafeArm->SetStateOffset( 3, 0.139648f, 0.0f );
+
+		pAbort->SetStateOffset( 1, -0.139648f, 0.0f );
+		pAbort->SetDirection( push_dir );
+		pAbort->SetMouseRegion( 0.897943f, 0.704919f, 0.930596f, 0.752289f );
+		pAbort->DefineMeshGroup( STS()->mesh_vc, GRP_F6_A8_S2_VC );
+		return;
 	}
 
 	void PanelF6::RegisterVC()
@@ -121,9 +148,7 @@ namespace vc {
 			_V(-0.940, 2.312, 14.756)+ofs, _V(-0.413, 2.312, 14.755)+ofs,
 			_V(-0.947, 1.951, 14.674)+ofs, _V(-0.413, 1.949, 14.673)+ofs);
 		
-		SURFHANDLE panel_tex = oapiGetTextureHandle( STS()->hOrbiterVCMesh, TEX_PANELF6_VC );
-		oapiVCRegisterArea( AID_F6_PB1, _R( 185, 323, 227, 337 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_F6_PB2, _R( 357, 322, 399, 336 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
+		return;
 	}
 
 	void PanelF6::Realize()
@@ -146,12 +171,44 @@ namespace vc {
 		pLandingGearTB[1]->SetInput( 1, pBundle, 3, TB_DN );
 		pLandingGearTB[2]->SetInput( 0, pBundle, 4, TB_UP );
 		pLandingGearTB[2]->SetInput( 1, pBundle, 5, TB_DN );
+		pLandingGearArmDeploy[0]->ConnectPushButton( pBundle, 6 );// arm pb
+		pLandingGearArmDeploy[1]->ConnectPushButton( pBundle, 8 );// dn pb
 
-		pLandingGearArmDeploy[0]->input.Connect( pBundle, 6 );// arm light
-		pLandingGearArmDeploy[1]->input.Connect( pBundle, 7 );// dn light
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA1_4", 16 );
+		pAbort->ConnectLight( 0, pBundle, 13 );
 
-		pLandingGearArmDeploy[0]->output.Connect( pBundle, 8 );// arm pb (F6)
-		pLandingGearArmDeploy[1]->output.Connect( pBundle, 9 );// dn pb (F6)
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA1_5", 16 );
+		pRangeSafeArm->ConnectLight( 0, pBundle, 5 );
+		pRangeSafeArm->ConnectLight( 1, pBundle, 13 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA2_3", 16 );
+		pRCSCommand[0]->ConnectLight( 0, pBundle, 1 );
+		pRCSCommand[0]->ConnectLight( 2, pBundle, 5 );
+		pRCSCommand[1]->ConnectLight( 0, pBundle, 9 );
+		pRCSCommand[1]->ConnectLight( 2, pBundle, 13 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA2_4", 16 );
+		pRCSCommand[2]->ConnectLight( 0, pBundle, 1 );
+		pRCSCommand[2]->ConnectLight( 2, pBundle, 5 );
+		pAbort->ConnectLight( 1, pBundle, 13 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA2_5", 16 );
+		pRangeSafeArm->ConnectLight( 2, pBundle, 13 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_3", 16 );
+		pRCSCommand[0]->ConnectLight( 1, pBundle, 1 );
+		pRCSCommand[0]->ConnectLight( 3, pBundle, 5 );
+		pRCSCommand[1]->ConnectLight( 1, pBundle, 9 );
+		pRCSCommand[1]->ConnectLight( 3, pBundle, 13 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_4", 16 );
+		pRCSCommand[2]->ConnectLight( 1, pBundle, 1 );
+		pRCSCommand[2]->ConnectLight( 3, pBundle, 5 );
+		pLandingGearArmDeploy[0]->ConnectLight( 0, pBundle, 13 );// arm light
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_5", 16 );
+		pLandingGearArmDeploy[1]->ConnectLight( 0, pBundle, 1 );// dn light
+		pRangeSafeArm->ConnectLight( 1, pBundle, 13 );
 
 		AtlantisPanel::Realize();
 	}

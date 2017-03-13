@@ -37,7 +37,7 @@ ControlMode(RCS),
 DAPMode(PRI), DAPSelect(A), DAPControlMode(INRTL), editDAP(-1),
 ManeuverStatus(MNVR_OFF),
 bFirstStep(true), lastStepDeltaT(1.0),
-PCTActive(false),
+PCTArmed(false), PCTActive(false),
 pStateVector(NULL) 
 {
 	OMSTrim = _V(0.0, 0.0, 0.0);
@@ -254,9 +254,6 @@ void OrbitDAP::HandleTHCInput(double DeltaT)
 	for(int i=0;i<3;i++) {
 		if (THC[i] != 0)
 		{
-			//if PCT is in progress, disable it when THC is moved out of detent
-			if(PCTActive) StopPCT();
-
 			if(TransMode[i]==NORM) {
 				TransThrusterCommands[i].SetLine(static_cast<float>( sign( THC[i] ) ));
 			}
@@ -491,17 +488,99 @@ void OrbitDAP::GetAttitudeData()
 
 void OrbitDAP::Realize()
 {
+	// PBI push buttons
 	DiscreteBundle* pBundle = BundleManager()->CreateBundle("DAP_PBIS1", 16);
-	for(int i=0;i<16;i++) {
-		PBI_input[i].Connect(pBundle, i);
-		PBI_output[i].Connect(pBundle, i);
-	}
+	for(int i=0;i<16;i++) PBI_input[i].Connect(pBundle, i);
 
 	pBundle=BundleManager()->CreateBundle("DAP_PBIS2", 16);
-	for(int i=16;i<24;i++) {
-		PBI_input[i].Connect(pBundle, i-16);
-		PBI_output[i].Connect(pBundle, i-16);
-	}
+	for(int i=16;i<24;i++) PBI_input[i].Connect(pBundle, i-16);
+
+	// lights
+	pBundle = BundleManager()->CreateBundle( "ACA1_1", 16 );
+	PBI_output_C3[3].Connect( pBundle, 2 );
+	PBI_output_C3[4].Connect( pBundle, 6 );
+	PBI_output_C3[5].Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA1_2", 16 );
+	PBI_output_C3[9].Connect( pBundle, 2 );
+	CDR_BodyFlap_MAN_LT.Connect( pBundle, 4 );
+	PBI_output_C3[10].Connect( pBundle, 6 );
+	PBI_output_C3[11].Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA1_3", 16 );
+	PBI_output_C3[15].Connect( pBundle, 2 );
+	PBI_output_C3[16].Connect( pBundle, 6 );
+	PBI_output_C3[17].Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA1_4", 16 );
+	CDR_SPDBK_THROT_AUTO_LT.Connect( pBundle, 0 );
+	PBI_output_C3[21].Connect( pBundle, 2 );
+	PBI_output_C3[22].Connect( pBundle, 6 );
+	CDR_BodyFlap_AUTO_LT.Connect( pBundle, 8 );
+	PBI_output_C3[23].Connect( pBundle, 10 );
+
+	pBundle = STS()->BundleManager()->CreateBundle( "ACA2_4", 16 );
+	PLT_SPDBK_THROT_AUTO_LT.Connect( pBundle, 2 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA3_1", 16 );
+	PBI_output_C3[0].Connect( pBundle, 2 );
+	PBI_output_C3[1].Connect( pBundle, 6 );
+	PBI_output_C3[2].Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA3_2", 16 );
+	PBI_output_C3[6].Connect( pBundle, 2 );
+	PBI_output_C3[7].Connect( pBundle, 6 );
+	PBI_output_C3[8].Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA3_3", 16 );
+	PBI_output_C3[12].Connect( pBundle, 2 );
+	PBI_output_C3[13].Connect( pBundle, 6 );
+	PBI_output_C3[14].Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA3_4", 16 );
+	PBI_output_C3[18].Connect( pBundle, 2 );
+	PBI_output_C3[19].Connect( pBundle, 6 );
+	PBI_output_C3[20].Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA4_1", 16 );
+	PBI_output_A6[0].Connect( pBundle, 0 );
+	PBI_output_A6[1].Connect( pBundle, 4 );
+	PBI_output_A6[2].Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA4_2", 16 );
+	PBI_output_A6[6].Connect( pBundle, 0 );
+	PBI_output_A6[7].Connect( pBundle, 4 );
+	PBI_output_A6[8].Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA4_3", 16 );
+	PBI_output_A6[12].Connect( pBundle, 0 );
+	PBI_output_A6[13].Connect( pBundle, 4 );
+	PBI_output_A6[14].Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA4_4", 16 );
+	PBI_output_A6[18].Connect( pBundle, 0 );
+	PBI_output_A6[19].Connect( pBundle, 4 );
+	PBI_output_A6[20].Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA5_1", 16 );
+	PBI_output_A6[3].Connect( pBundle, 0 );
+	PBI_output_A6[4].Connect( pBundle, 4 );
+	PBI_output_A6[5].Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA5_2", 16 );
+	PBI_output_A6[9].Connect( pBundle, 0 );
+	PBI_output_A6[10].Connect( pBundle, 4 );
+	PBI_output_A6[11].Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA5_3", 16 );
+	PBI_output_A6[15].Connect( pBundle, 0 );
+	PBI_output_A6[16].Connect( pBundle, 4 );
+	PBI_output_A6[17].Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA5_4", 16 );
+	PBI_output_A6[21].Connect( pBundle, 0 );
+	PBI_output_A6[22].Connect( pBundle, 4 );
+	PBI_output_A6[23].Connect( pBundle, 8 );
 	
 	/*for(int i=0;i<24;i++) {
 		PBI_state[i] = GetPBIState(i);
@@ -522,14 +601,10 @@ void OrbitDAP::Realize()
 		TransThrusterCommands[i].Connect(pBundle, i+3);
 	}
 
-	pBundle=BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
-	CDR_SPDBK_THROT.Connect( pBundle, 0 );
-	PLT_SPDBK_THROT.Connect( pBundle, 3 );
-
-	pBundle=BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);
-	BodyFlapAuto.Connect(pBundle, 0);
-	port_PCTActive[0].Connect(pBundle, 0);
-	port_PCTActive[1].Connect(pBundle, 1);
+	pBundle = BundleManager()->CreateBundle( "DAP_CH_CONTROLS", 16 );
+	CDR_SPDBK_THROT.Connect( pBundle, 8 );
+	PLT_SPDBK_THROT.Connect( pBundle, 9 );
+	CDR_BodyFlap.Connect( pBundle, 10 );
 	
 	pStateVector = static_cast<StateVectorSoftware*>(FindSoftware("StateVectorSoftware"));
 	pRHC_SOP = static_cast<RHC_SOP*>(FindSoftware( "RHC_SOP" ));
@@ -540,7 +615,10 @@ void OrbitDAP::Realize()
 
 void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 {
-	if (CDR_SPDBK_THROT.IsSet() || PLT_SPDBK_THROT.IsSet()) PCTArmed = true;
+	cdrspdbkthrot.Set( CDR_SPDBK_THROT.IsSet() );
+	pltspdbkthrot.Set( PLT_SPDBK_THROT.IsSet() );
+	cdrbodyflap.Set( CDR_BodyFlap.IsSet() );
+	sparepbi.Set( PBI_input[6].IsSet() );
 
 	GetAttitudeData();
 
@@ -549,8 +627,16 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			ButtonPress(i);
 		}
 		PBI_state[i] = GetPBIState(i);
-		if(PBI_state[i]) PBI_output[i].SetLine();
-		else PBI_output[i].ResetLine();
+		if(PBI_state[i])
+		{
+			PBI_output_C3[i].SetLine();
+			PBI_output_A6[i].SetLine();
+		}
+		else
+		{
+			PBI_output_C3[i].ResetLine();
+			PBI_output_A6[i].ResetLine();
+		}
 	}
 
 	// in AUTO, INRTL or LVLH modes, start maneuver
@@ -576,12 +662,47 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 	}
 
+	// PCT
 	if ((GetMajorMode() / 100) == 2)
 	{
-		if(PCTArmed && BodyFlapAuto && !PCTActive) StartPCT();
-		else if(!BodyFlapAuto && PCTActive) StopPCT();
-		if(!PCTActive) HandleTHCInput(DeltaT);
-		else PCTControl(SimT);
+		if (PCTArmed)
+		{
+			if (PCTActive)
+			{
+				// active
+				if (cdrspdbkthrot.Get() || pltspdbkthrot.Get())
+				{
+					DisarmPCT();
+					StopPCT();
+				}
+				else
+				{
+					bool RHCdetent = pRHC_SOP->GetPitchDetent() &
+						pRHC_SOP->GetYawDetent() &
+						pRHC_SOP->GetRollDetent();
+
+					bool THCdetent = (pTHC_SOP->GetXCommand() == 0) &
+						(pTHC_SOP->GetYCommand() == 0) &
+						(pTHC_SOP->GetZCommand() == 0);
+
+					if (cdrbodyflap.Get() || sparepbi.Get() || PBI_input[5].IsSet() || !RHCdetent || !THCdetent) StopPCT();
+				}
+			}
+			else
+			{
+				// armed
+				if (cdrspdbkthrot.Get() || pltspdbkthrot.Get()) DisarmPCT();
+				else if (cdrbodyflap.Get() || sparepbi.Get()) StartPCT();
+			}
+		}
+		else
+		{
+			// disarmed
+			if (cdrspdbkthrot.Get() || pltspdbkthrot.Get()) ArmPCT();
+		}
+
+		if (PCTActive == true) PCTControl( SimT );
+		else HandleTHCInput( DeltaT );
 	}
 	else HandleTHCInput(DeltaT);
 
@@ -662,13 +783,31 @@ bool OrbitDAP::OnMajorModeChange(unsigned int newMajorMode)
 		// perform initialization
 
 		// turn FCS lights off
-		DiscreteBundle* pBundle = BundleManager()->CreateBundle( "CSS_CONTROLS", 16 );
 		DiscOutPort port;
-		for (int i = 1; i <= 15; i += 2)
-		{
-			port.Connect( pBundle, i );
-			port.ResetLine();
-		}
+		DiscreteBundle* pBundle = BundleManager()->CreateBundle( "ACA1_2", 16 );
+		port.Connect( pBundle, 8 );
+		port.ResetLine();
+		port.Connect( pBundle, 12 );
+		port.ResetLine();
+
+		pBundle = BundleManager()->CreateBundle( "ACA1_3", 16 );
+		port.Connect( pBundle, 4 );
+		port.ResetLine();
+		port.Connect( pBundle, 8 );
+		port.ResetLine();
+
+		pBundle = BundleManager()->CreateBundle( "ACA2_2", 16 );
+		port.Connect( pBundle, 10 );
+		port.ResetLine();
+		port.Connect( pBundle, 14 );
+		port.ResetLine();
+
+		pBundle = BundleManager()->CreateBundle( "ACA2_3", 16 );
+		port.Connect( pBundle, 6 );
+		port.ResetLine();
+		port.Connect( pBundle, 10 );
+		port.ResetLine();
+		
 		return true;
 	}
 	return false;
@@ -1799,8 +1938,6 @@ bool OrbitDAP::GetPBIState(int id) const
 		return DAPControlMode == FREE;
 	case 6: //PCT
 		return PCTActive;
-		//return (STS()->PostContactThrusting[1]);
-		break;
 	case 7: //LOW Z
 		break;
 	case 8: //HIGH Z
@@ -1868,17 +2005,8 @@ void OrbitDAP::ButtonPress(int id)
 			RotMode[i]=ROT_PULSE;
 			RotPulseInProg[i]=false;
 		}		
-		if(PCTActive) StopPCT();
-		//if(STS()->PostContactThrusting[1]) STS()->TogglePCT();
-		//InitializeControlMode();
 		break;
 	case 6: // PCT
-		if(PCTArmed && !PCTActive) {
-			StartPCT();
-		}
-		/*if(STS()->PostContactThrusting[0]) {
-			STS()->TogglePCT();
-		}*/
 		break;
 	case 9: // PRI
 		if(DAPMode != PRI) {
@@ -1979,18 +2107,37 @@ void OrbitDAP::ButtonPress(int id)
 	}
 }
 
+void OrbitDAP::ArmPCT( void )
+{
+	PCTArmed = true;
+	
+	// both SPD BK AUTO LTs on
+	CDR_SPDBK_THROT_AUTO_LT.SetLine();
+	PLT_SPDBK_THROT_AUTO_LT.SetLine();
+	return;
+}
+
+void OrbitDAP::DisarmPCT( void )
+{
+	PCTArmed = false;
+
+	// both SPD BK AUTO LTs off
+	CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+	PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+	return;
+}
+
 void OrbitDAP::StartPCT()
 {
 	PCTActive=true;
 	PCTStartTime=oapiGetSimTime();
-	DAPMode=PRI; //PRI
+	DAPMode=PRI;
 	DAPControlMode=FREE;
 
-	//set Body Flap PBIs
-	port_PCTActive[0].SetLine();
-	port_PCTActive[1].SetLine();
-	//BodyFlapAutoOut.SetLine();
-	//BodyFlapManOut.SetLine();
+	// CDR Body Flap and spare DAP LTs on
+	CDR_BodyFlap_AUTO_LT.SetLine();
+	CDR_BodyFlap_MAN_LT.SetLine();
+	// spare DAP done somewhere else
 }
 
 void OrbitDAP::StopPCT()
@@ -2003,11 +2150,10 @@ void OrbitDAP::StopPCT()
 	//stop firing RCS jets
 	//SetThrusterGroupLevel(thg_transup, 0.0);
 
-	//set Body Flap PBIs
-	port_PCTActive[0].ResetLine();
-	port_PCTActive[1].ResetLine();
-	//BodyFlapAutoOut.ResetLine();
-	//BodyFlapManOut.ResetLine();
+	// CDR Body Flap and spare DAP LTs off
+	CDR_BodyFlap_AUTO_LT.ResetLine();
+	CDR_BodyFlap_MAN_LT.ResetLine();
+	// spare DAP done somewhere else
 }
 
 void OrbitDAP::PCTControl(double SimT)

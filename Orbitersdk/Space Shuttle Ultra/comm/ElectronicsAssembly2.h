@@ -42,6 +42,7 @@ namespace comm
 
 	class ElectronicsAssembly2:public AtlantisSubsystem
 	{
+			double dt_OLD;
 			DeployedAssembly* pDeployedAssembly;
 
 			DiscInPort pPower_Off;

@@ -6,10 +6,7 @@
 #define IDB_7SEGDIGITS                  116
 #define IDB_DEUCHARACTERS               117
 #define IDB_PBILIGHTS                   118
-#define IDB_ODSBUTTONS                  120
-#define IDB_SSMELIGHTS                  121
 #define IDB_DEUCHARACTERSOVERBRIGHT     122
-#define IDB_A8LIGHTS                    123
 #define IDB_DEUCHARACTERSFAULT          126
 
 // Next default values for new objects

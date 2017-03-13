@@ -45,7 +45,7 @@ namespace vc
 		virtual void Realize();
 	private:
 		//DAP PBIs
-		PushButtonIndicator* pPBIs[24];
+		PushButtonIndicatorSingleLight* pPBIs[24];
 
 		LockableLever3* pOMSArm[2];
 

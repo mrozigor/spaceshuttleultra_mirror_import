@@ -1,27 +1,25 @@
 #include "PanelF4.h"
-#include "../meshres_vc_additions.h"
 #include "../Atlantis_defs.h"
 
-extern GDIParams g_Param;
 
 namespace vc
 {
 	PanelF4::PanelF4(Atlantis* _sts)
 		: AtlantisPanel(_sts, "F4")
 	{
-		Add( pSbdbkThrot = new PushButtonIndicator( _sts, "F4_SPDBKTHROT_AUTO" ) );
-		Add( pSbdbkThrotMan = new StandardLight( _sts, "F4_SPDBKTHROT_MAN" ) );
-		Add( pBodyFlap = new PushButtonIndicator( _sts, "F4_BODYFLAP_AUTO" ) );
-		Add( pBodyFlapMan = new StandardLight( _sts, "F4_BODYFLAP_MAN" ) );
+		Add( pMasterAlarm = new PushButtonIndicatorSingleLight( _sts, "Master Alarm" ) );
 
-		Add( pPitchAuto = new PushButtonIndicator( _sts, "F4_PITCH_AUTO" ) );
-		Add( pPitchCSS = new PushButtonIndicator( _sts, "F4_PITCH_CSS" ) );
-		Add( pRollYawAuto = new PushButtonIndicator( _sts, "F4_RY_AUTO" ) );
-		Add( pRollYawCSS = new PushButtonIndicator( _sts, "F4_RY_CSS" ) );
+		Add( pPitchAuto = new PushButtonIndicatorSingleLight( _sts, "F4_PITCH_AUTO" ) );
+		Add( pPitchCSS = new PushButtonIndicatorSingleLight( _sts, "F4_PITCH_CSS" ) );
+		Add( pRollYawAuto = new PushButtonIndicatorSingleLight( _sts, "F4_RY_AUTO" ) );
+		Add( pRollYawCSS = new PushButtonIndicatorSingleLight( _sts, "F4_RY_CSS" ) );
+
+		Add( pSbdbkThrot = new PushButtonIndicatorDoubleLight( _sts, "F4_SPDBKTHROT" ) );
+		Add( pBodyFlap = new PushButtonIndicatorDoubleLight( _sts, "F4_BODYFLAP" ) );
 
 		Add( pDragChuteJETTCover = new StandardSwitchCover( _sts, "Drag Chute JETT Cover" ) );
 
-		Add( pDragChuteJETT = new PushButtonIndicator( _sts, "Drag Chute JETT" ) );
+		Add( pDragChuteJETT = new PushButtonIndicatorDoubleLight( _sts, "Drag Chute JETT" ) );
 
 		Add( pHUDMode = new StdSwitch3( _sts, "HUD Mode" ) );// HACK these 3 should be located on panel F8, but is here due to panel click areas
 		Add( pHUDBrightness = new RotaryDemuxSwitch( _sts, "HUD Brightness", 5 ) );
@@ -35,6 +33,8 @@ namespace vc
 		pHUDBright->SetLabel( 0, "MAN NIGHT" );
 		pHUDBright->SetLabel( 1, "AUTO" );
 		pHUDBright->SetLabel( 2, "MAN DAY" );
+
+		Add( pBFC = new StandardSingleLight( _sts, "BFC" ) );
 	}
 
 	PanelF4::~PanelF4()
@@ -43,37 +43,52 @@ namespace vc
 
 	void PanelF4::Realize()
 	{
-		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
-		pSbdbkThrot->output.Connect( pBundle, 3 );// PLT PBI
-		pSbdbkThrot->input.Connect( pBundle, 4 );// PLT AUTO LT
-		pSbdbkThrotMan->input.Connect( pBundle, 5 );// PLT MAN LT
-
-		pBundle=STS()->BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);
-		pBodyFlap->ConnectAll(pBundle, 0); //AUTO light; common to F2 and F4 PBIs
-		pBodyFlapMan->input.Connect(pBundle, 1); //MAN light; common to F2 and F4 PBIs
-		pBodyFlapMan->test.Connect(pBundle, 1); //MAN light; common to F2 and F4 PBIs
-
-		pBundle=STS()->BundleManager()->CreateBundle( "CSS_CONTROLS", 16 );
-		pPitchAuto->output.Connect( pBundle, 8 );
-		pPitchAuto->input.Connect( pBundle, 9 );
-		pPitchCSS->output.Connect( pBundle, 10 );
-		pPitchCSS->input.Connect( pBundle, 11 );
-		pRollYawAuto->output.Connect( pBundle, 12 );
-		pRollYawAuto->input.Connect( pBundle, 13 );
-		pRollYawCSS->output.Connect( pBundle, 14 );
-		pRollYawCSS->input.Connect( pBundle, 15 );
+		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "DAP_CH_CONTROLS", 16 );
+		pPitchAuto->ConnectPushButton( pBundle, 1 );
+		pPitchCSS->ConnectPushButton( pBundle, 3 );
+		pRollYawAuto->ConnectPushButton( pBundle, 5 );
+		pRollYawCSS->ConnectPushButton( pBundle, 7 );
+		pSbdbkThrot->ConnectPushButton( pBundle, 9 );
+		pBodyFlap->ConnectPushButton( pBundle, 11 );
 
 		pBundle = STS()->BundleManager()->CreateBundle( "DRAG_CHUTE", 16 );
-		//pDragChuteARM->input.Connect( pBundle, 0 );// arm light
-		//pDragChuteDPY->input.Connect( pBundle, 1 );// dpy light
-		pDragChuteJETT->input.Connect( pBundle, 2 );// jett light
+		//pDragChuteARM->output.Connect( pBundle, 0 );// arm pb (F2)
+		//pDragChuteARM->output.Connect( pBundle, 1 );// arm pb (F3)
+		//pDragChuteDPY->output.Connect( pBundle, 2 );// dpy pb (F2)
+		//pDragChuteDPY->output.Connect( pBundle, 3 );// dpy pb (F3)
+		//pDragChuteJETT->output.Connect( pBundle, 4 );// jett pb (F3)
+		pDragChuteJETT->output.Connect( pBundle, 5 );// jett pb (F4)
 
-		//pDragChuteARM->output.Connect( pBundle, 3 );// arm pb (F2)
-		//pDragChuteARM->output.Connect( pBundle, 4 );// arm pb (F3)
-		//pDragChuteDPY->output.Connect( pBundle, 5 );// dpy pb (F2)
-		//pDragChuteDPY->output.Connect( pBundle, 6 );// dpy pb (F3)
-		//pDragChuteJETT->output.Connect( pBundle, 7 );// jett pb (F3)
-		pDragChuteJETT->output.Connect( pBundle, 8 );// jett pb (F4)
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA1_4", 16 );
+		pMasterAlarm->ConnectLight( 0, pBundle, 15 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA2_1", 16 );
+		pDragChuteJETT->ConnectLight( 2, pBundle, 15 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA2_2", 16 );
+		pPitchAuto->ConnectLight( 0, pBundle, 11 );
+		pPitchCSS->ConnectLight( 0, pBundle, 15 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA2_3", 16 );
+		pRollYawAuto->ConnectLight( 0, pBundle, 7 );
+		pRollYawCSS->ConnectLight( 0, pBundle, 11 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA2_4", 16 );
+		pSbdbkThrot->ConnectLight( 0, pBundle, 3 );
+		pSbdbkThrot->ConnectLight( 2, pBundle, 7 );
+		pBodyFlap->ConnectLight( 0, pBundle, 11 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA2_5", 16 );
+		pBodyFlap->ConnectLight( 2, pBundle, 3 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_3", 16 );
+		pBFC->ConnectLight( 0, pBundle, 15 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_4", 16 );
+		pMasterAlarm->ConnectLight( 1, pBundle, 15 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_5", 16 );
+		pDragChuteJETT->ConnectLight( 0, pBundle, 11 );
 
 		pBundle = STS()->BundleManager()->CreateBundle( "HUD_PLT", 16 );
 		pHUDMode->outputA.Connect( pBundle, 1 );// mode dclt plt
@@ -91,76 +106,55 @@ namespace vc
 
 	void PanelF4::DefineVC()
 	{
+		VECTOR3 push_dir = _V( 0.0, -0.269911, 0.962885 );
+
 		AddAIDToMouseEventList(AID_F4);
 
-		pSbdbkThrot->AddAIDToRedrawEventList(AID_F4_ST_AUTO);
-		pSbdbkThrot->SetSourceImage(g_Param.pbi_lights);
-		pSbdbkThrot->SetBase(0, 0);
-		pSbdbkThrot->SetSourceCoords(true, 0, 0);
-		pSbdbkThrot->SetSourceCoords(false, 0, 14);
-		pSbdbkThrot->SetDimensions(42, 14);
-		pSbdbkThrot->SetMouseRegion(0.772716f, 0.583791f, 0.826997f, 0.697191f);
-		pSbdbkThrot->SetMomentary( true );
+		pMasterAlarm->SetStateOffset( 1, 0.139648f, 0.0f );
+		pMasterAlarm->SetDirection( push_dir );
+		pMasterAlarm->SetMouseRegion( 0.404892f, 0.258904f, 0.454918f, 0.331408f );
+		pMasterAlarm->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S1_VC );
 
-		pSbdbkThrotMan->AddAIDToRedrawEventList(AID_F4_ST_MAN);
-		pSbdbkThrotMan->SetSourceImage(g_Param.pbi_lights);
-		pSbdbkThrotMan->SetBase(0, 0);
-		pSbdbkThrotMan->SetSourceCoords(true, 0, 0);
-		pSbdbkThrotMan->SetSourceCoords(false, 0, 14);
-		pSbdbkThrotMan->SetDimensions(42, 14);
+		pPitchAuto->SetStateOffset( 1, 0.0f, 0.488281f );
+		pPitchAuto->SetDirection( push_dir );
+		pPitchAuto->SetMouseRegion( 0.573131f, 0.348409f, 0.606497f, 0.413077f );
+		pPitchAuto->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S2_VC );
 
-		pBodyFlap->AddAIDToRedrawEventList(AID_F4_BF_AUTO);
-		pBodyFlap->SetSourceImage(g_Param.pbi_lights);
-		pBodyFlap->SetBase(0, 0);
-		pBodyFlap->SetSourceCoords(true, 0, 0);
-		pBodyFlap->SetSourceCoords(false, 0, 14);
-		pBodyFlap->SetDimensions(42, 14);
-		pBodyFlap->SetMouseRegion(0.838923f, 0.660717f, 0.891593f, 0.770096f);
-		pBodyFlap->AllowReset(true);
+		pPitchCSS->SetStateOffset( 1, 0.0f, 0.488281f );
+		pPitchCSS->SetDirection( push_dir );
+		pPitchCSS->SetMouseRegion( 0.621720f, 0.4071805f, 0.656692f, 0.474488f );
+		pPitchCSS->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S3_VC );
 
-		pBodyFlapMan->AddAIDToRedrawEventList(AID_F4_BF_MAN);
-		pBodyFlapMan->SetSourceImage(g_Param.pbi_lights);
-		pBodyFlapMan->SetBase(0, 0);
-		pBodyFlapMan->SetSourceCoords(true, 0, 0);
-		pBodyFlapMan->SetSourceCoords(false, 0, 14);
-		pBodyFlapMan->SetDimensions(42, 14);
+		pRollYawAuto->SetStateOffset( 1, 0.0f, 0.488281f );
+		pRollYawAuto->SetDirection( push_dir );
+		pRollYawAuto->SetMouseRegion( 0.548946f, 0.430385f, 0.581996f, 0.496719f );
+		pRollYawAuto->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S5_VC );
 
-		pPitchAuto->AddAIDToRedrawEventList(AID_F4_P_AUTO);
-		pPitchAuto->SetSourceImage(g_Param.pbi_lights);
-		pPitchAuto->SetBase(0, 0);
-		pPitchAuto->SetSourceCoords(true, 0, 0);
-		pPitchAuto->SetSourceCoords(false, 0, 14);
-		pPitchAuto->SetDimensions(42, 14);
-		pPitchAuto->SetMouseRegion(0.531938f, 0.286244f, 0.583997f, 0.395611f);
-		pPitchAuto->SetMomentary( true );
+		pRollYawCSS->SetStateOffset( 1, 0.0f, 0.488281f );
+		pRollYawCSS->SetDirection( push_dir );
+		pRollYawCSS->SetMouseRegion( 0.599243f, 0.489802f, 0.633905f, 0.558635f );
+		pRollYawCSS->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S6_VC );
 
-		pPitchCSS->AddAIDToRedrawEventList(AID_F4_P_CSS);
-		pPitchCSS->SetSourceImage(g_Param.pbi_lights);
-		pPitchCSS->SetBase(0, 0);
-		pPitchCSS->SetSourceCoords(true, 0, 0);
-		pPitchCSS->SetSourceCoords(false, 0, 14);
-		pPitchCSS->SetDimensions(42, 14);
-		pPitchCSS->SetMouseRegion(0.591548f, 0.358571f, 0.644673f, 0.468767f);
-		pPitchCSS->SetMomentary( true );
+		pSbdbkThrot->SetStateOffset( 1, 0.0f, 0.488281f );// AUTO
+		pSbdbkThrot->SetStateOffset( 2, 0.146484f, 0.488281f );// MAN
+		pSbdbkThrot->SetStateOffset( 3, 0.146484f, 0.0f );// AUTO/MAN
+		pSbdbkThrot->SetDirection( push_dir );
+		pSbdbkThrot->SetMouseRegion( 0.798881f, 0.620206f, 0.833964f, 0.684788f );
+		pSbdbkThrot->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S8_VC );
 
-		pRollYawAuto->AddAIDToRedrawEventList(AID_F4_RY_AUTO);
-		SetCommonPBIParameters(pRollYawAuto);
-		pRollYawAuto->SetMouseRegion(0.503044f, 0.389149f, 0.554739f, 0.494769f);
-		pRollYawAuto->SetMomentary( true );
+		pBodyFlap->SetStateOffset( 1, 0.0f, 0.488281f );// AUTO
+		pBodyFlap->SetStateOffset( 2, 0.146484f, 0.488281f );// MAN
+		pBodyFlap->SetStateOffset( 3, 0.146484f, 0.0f );// AUTO/MAN
+		pBodyFlap->SetDirection( push_dir );
+		pBodyFlap->SetMouseRegion( 0.849432f, 0.681700f, 0.885129f, 0.744627f );
+		pBodyFlap->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S9_VC );
 
-		pRollYawCSS->AddAIDToRedrawEventList(AID_F4_RY_CSS);
-		SetCommonPBIParameters(pRollYawCSS);
-		pRollYawCSS->SetMouseRegion(0.561273f, 0.459885f, 0.614834f, 0.573177f);
-		pRollYawCSS->SetMomentary( true );
-
-		pDragChuteJETT->AddAIDToRedrawEventList( AID_F4_DC_JETT );
-		pDragChuteJETT->SetSourceImage( g_Param.pbi_lights );
-		pDragChuteJETT->SetBase( 0, 0 );
-		pDragChuteJETT->SetSourceCoords( true, 0, 0 );
-		pDragChuteJETT->SetSourceCoords( false, 0, 14 );
-		pDragChuteJETT->SetDimensions( 42, 14 );
-		pDragChuteJETT->SetMouseRegion( 0.361020f, 0.060915f, 0.393703f, 0.122957f );
-		pDragChuteJETT->SetMomentary( true );
+		pDragChuteJETT->SetStateOffset( 1, 0.0f, 0.488281f );// 1
+		pDragChuteJETT->SetStateOffset( 2, 0.146484f, 0.488281f );// 2
+		pDragChuteJETT->SetStateOffset( 3, 0.146484f, 0.0f );// 12
+		pDragChuteJETT->SetDirection( push_dir );
+		pDragChuteJETT->SetMouseRegion( 0.358708f, 0.054155f, 0.396472f, 0.128148f );
+		pDragChuteJETT->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S10_VC );
 
 		pDragChuteJETTCover->SetMouseRegion( 0, 0.352893f, 0.043177f, 0.399339f, 0.154601f );
 		pDragChuteJETTCover->SetMouseRegion( 1, 0.356096f, 0.0f, 0.402268f, 0.031398f );
@@ -183,22 +177,14 @@ namespace vc
 		pHUDBright->SetInitialAnimState( 0.5 );
 		pHUDBright->SetReference( _V( -0.7070, 2.4680, 14.5712 ), _V( 1, 0, 0 ) );
 		pHUDBright->SetMouseRegion( 0.239172f, 0.220413f, 0.270920f, 0.289949f );
-	}
 
-	void PanelF4::SetCommonPBIParameters(PushButtonIndicator* pPBI)
-	{
-		pPBI->SetSourceImage(g_Param.pbi_lights);
-		pPBI->SetBase(0, 0);
-		pPBI->SetSourceCoords(true, 0, 0);
-		pPBI->SetSourceCoords(false, 0, 14);
-		pPBI->SetDimensions(42, 14);
+		pBFC->DefineMeshGroup( STS()->mesh_vc, GRP_F4_XDS3_VC );
+		pBFC->SetStateOffset( 1, 0.139648f, 0.0f );
 	}
 
 	void PanelF4::RegisterVC()
 	{
 		AtlantisPanel::RegisterVC();
-
-		SURFHANDLE tex=oapiGetTextureHandle(STS()->hOrbiterVCMesh, TEX_FPANELS_VC);
 
 		VECTOR3 ofs=STS()->GetOrbiterCoGOffset() + VC_OFFSET;
 
@@ -207,14 +193,6 @@ namespace vc
 			_V(0.5530, 2.535, 14.612)+ofs, _V(1.147, 2.535, 14.612)+ofs,
 			_V(0.5530, 2.25, 14.533)+ofs, _V(1.147, 2.25, 14.533)+ofs);
 
-		oapiVCRegisterArea(AID_F4_ST_AUTO, _R(1296, 548, 1338, 562), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
-		oapiVCRegisterArea(AID_F4_ST_MAN, _R(1296, 585, 1338, 599), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
-		oapiVCRegisterArea(AID_F4_BF_AUTO, _R(1436, 542, 1478, 556), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
-		oapiVCRegisterArea(AID_F4_BF_MAN, _R(1437, 583, 1479, 597), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
-		oapiVCRegisterArea(AID_F4_P_AUTO, _R(773, 562, 815, 576), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
-		oapiVCRegisterArea(AID_F4_P_CSS, _R(899, 565, 941, 579), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
-		oapiVCRegisterArea(AID_F4_RY_AUTO, _R(773, 678, 815, 692), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
-		oapiVCRegisterArea(AID_F4_RY_CSS, _R(901, 680, 943, 694), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex);
-		oapiVCRegisterArea( AID_F4_DC_JETT, _R( 150, 757, 192, 771 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex );
+		return;
 	}
 };

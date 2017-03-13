@@ -14,6 +14,8 @@ namespace vc
 		Add( pRadarAltimeter[1] = new StdSwitch2( psts, "Radar Altimeter 2" ) );
 		pRadarAltimeter[1]->SetLabel( 0, "OFF" );
 		pRadarAltimeter[1]->SetLabel( 1, "ON" );
+
+		Add( pAnnunciatorLampTest = new StdSwitch3( psts, "Annunciator Lamp Test" ) );
 	}
 
 	PanelO8::~PanelO8()
@@ -35,6 +37,13 @@ namespace vc
 		pRadarAltimeter[1]->DefineSwitchGroup( GRP_O8S5_VC );
 		pRadarAltimeter[1]->SetReference( _V( 0.2651, 3.1652, 13.6946 ), switch_rot );
 		pRadarAltimeter[1]->SetMouseRegion( 0.157729f, 0.106310f, 0.201778f, 0.140387f );
+
+		pAnnunciatorLampTest->SetInitialAnimState( 0.5f );
+		pAnnunciatorLampTest->DefineSwitchGroup( GRP_O8S18_VC );
+		pAnnunciatorLampTest->SetReference( _V( 0.6000, 3.0978, 13.9709 ), switch_rot );
+		pAnnunciatorLampTest->SetMouseRegion( 0.775565f, 0.498687f, 0.814904f, 0.530986f );
+		pAnnunciatorLampTest->SetSpringLoaded( true, 0 );
+		pAnnunciatorLampTest->SetSpringLoaded( true, 2 );
 	}
 
 	void PanelO8::Realize()
@@ -42,6 +51,10 @@ namespace vc
 		discsignals::DiscreteBundle* pBundle = pBundle = STS()->BundleManager()->CreateBundle( "RDR_ALT", 16 );
 		pRadarAltimeter[0]->output.Connect( pBundle, 0 );
 		pRadarAltimeter[1]->output.Connect( pBundle, 1 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA", 16 );
+		pAnnunciatorLampTest->ConnectPort( 2, pBundle, 8 );
+		pAnnunciatorLampTest->ConnectPort( 1, pBundle, 9 );
 
 		AtlantisPanel::Realize();
 	}

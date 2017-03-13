@@ -241,10 +241,11 @@ namespace eps
 
 	bool PRSD::OnParseLine( const char* line )
 	{
-		char cbuf[16];
+		return vman.OnParseLine( line );
+		/*char cbuf[16];
 
 		if (vman.OnParseLine( line )) return true;
-		/*else
+		else
 		{
 			for (int i = 0; i < sets; i++)
 			{

@@ -75,7 +75,8 @@ namespace dps
 			IO_Control* pIO_Control;
 			ATVC_SOP* pATVC_SOP;
 
-			DiscOutPort BodyFlapManLight;
+			DiscOutPort CDR_BodyFlapManLight;
+			DiscOutPort PLT_BodyFlapManLight;
 
 			double t_MECO;
 			double t_dump_start;

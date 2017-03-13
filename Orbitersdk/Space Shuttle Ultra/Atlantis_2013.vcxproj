@@ -228,6 +228,7 @@
     <None Include="..\..\Config\Vessels\SpaceShuttleUltra.cfg" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnnunciatorControlAssembly.cpp" />
     <ClCompile Include="ASE_IUS.cpp" />
     <ClCompile Include="CISS.cpp" />
     <ClCompile Include="comm\DeployedAssembly.cpp" />
@@ -386,6 +387,7 @@
     <ClCompile Include="vc\PanelL10.cpp" />
     <ClCompile Include="vc\PanelL12U_Centaur.cpp" />
     <ClCompile Include="vc\PanelL12U_IUS.cpp" />
+    <ClCompile Include="vc\PanelO1.cpp" />
     <ClCompile Include="vc\PanelO17.cpp" />
     <ClCompile Include="vc\PanelO2.cpp" />
     <ClCompile Include="vc\PanelO3.cpp" />
@@ -405,7 +407,6 @@
     <ClCompile Include="mps\SSME.cpp" />
     <ClCompile Include="vc\StandardCurvedMechMeter.cpp" />
     <ClCompile Include="vc\StandardLight.cpp" />
-    <ClCompile Include="vc\StandardLight2.cpp" />
     <ClCompile Include="vc\StandardLinearMechMeter.cpp" />
     <ClCompile Include="vc\StandardRotarySwitch.cpp" />
     <ClCompile Include="vc\StandardSwitch.cpp" />
@@ -418,6 +419,7 @@
   <ItemGroup>
     <ClInclude Include="..\libUltra\include\EngConst.h" />
     <ClInclude Include="AirDataProbeSystem.h" />
+    <ClInclude Include="AnnunciatorControlAssembly.h" />
     <ClInclude Include="ASE_IUS.h" />
     <ClInclude Include="Atlantis_defs.h" />
     <ClInclude Include="CISS.h" />
@@ -572,6 +574,7 @@
     <ClInclude Include="vc\PanelL10.h" />
     <ClInclude Include="vc\PanelL12U_Centaur.h" />
     <ClInclude Include="vc\PanelL12U_IUS.h" />
+    <ClInclude Include="vc\PanelO1.h" />
     <ClInclude Include="vc\PanelO17.h" />
     <ClInclude Include="vc\PanelO2.h" />
     <ClInclude Include="vc\PanelO3.h" />
@@ -591,7 +594,6 @@
     <ClInclude Include="mps\SSME.h" />
     <ClInclude Include="vc\StandardCurvedMechMeter.h" />
     <ClInclude Include="vc\StandardLight.h" />
-    <ClInclude Include="vc\StandardLight2.h" />
     <ClInclude Include="vc\StandardLinearMechMeter.h" />
     <ClInclude Include="vc\StandardRotarySwitch.h" />
     <ClInclude Include="vc\StandardSwitch.h" />
@@ -622,13 +624,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Bitmaps\A8lights.bmp" />
     <Image Include="Bitmaps\DEU_Raw_fault.bmp" />
-    <Image Include="Bitmaps\SSME_lights.bmp" />
     <Image Include="Bitmaps\DEU_Raw_overbright.bmp" />
     <Image Include="Bitmaps\clocknums.bmp" />
     <Image Include="Bitmaps\DEU_Raw.bmp" />
-    <Image Include="Bitmaps\ODSbuttons.bmp" />
     <Image Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

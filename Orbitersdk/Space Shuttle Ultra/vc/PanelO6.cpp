@@ -50,6 +50,17 @@ namespace vc {
 		pSTRKDoorControlSys2->SetReference(_V(-0.3818, 3.1533, 13.7537), SWITCH_VERTICAL);
 		pSTRKDoorControlSys2->SetInitialAnimState(0.5f);
 		
+		Add( pAnnunciatorLampTest = new StdSwitch3( _sts, "Annunciator Lamp Test" ) );
+
+		Add( pAnnunciatorBusSelectACA1 = new StdSwitch3( _sts, "Annunciator Bus Select ACA 1" ) );
+		pAnnunciatorBusSelectACA1->SetLabel( 0, "MN B" );
+		pAnnunciatorBusSelectACA1->SetLabel( 1, "OFF" );
+		pAnnunciatorBusSelectACA1->SetLabel( 2, "MN A" );
+
+		Add( pAnnunciatorBusSelectACA23 = new StdSwitch3( _sts, "Annunciator Bus Select ACA 2/3" ) );
+		pAnnunciatorBusSelectACA23->SetLabel( 0, "MN C" );
+		pAnnunciatorBusSelectACA23->SetLabel( 1, "OFF" );
+		pAnnunciatorBusSelectACA23->SetLabel( 2, "MN B" );
 		
 		/*		
 		StdSwitch2* pSTRKPowerNY;
@@ -58,10 +69,6 @@ namespace vc {
 		StdSwitch2* pUHFXmitFreq;
 		StdSwitch2* pUHFSPLXPowerAmp;
 		StdSwitch2* pUHFSquelch;
-		StdSwitch3* pAnnunciatorLampTest;
-		StdSwitch3* pBusSelectACA1;
-		StdSwitch3* pBusSelectACA23;
-		StdSwitch3* pBusSelectACA1;
 		StdSwitch3* pMTU;
 		StdSwitch2* pIDP1;
 		StdSwitch2* pIDP2;
@@ -351,7 +358,29 @@ namespace vc {
 	void PanelO6::DefineVC()
 	{
 		oapiWriteLog("(PanelO6::Define VC)");
+		
+		VECTOR3 switch_rot = _V( 1, 0, 0 );
+		
 		AddAIDToMouseEventList(AID_O6);
+
+		pAnnunciatorLampTest->SetInitialAnimState( 0.5f );
+		pAnnunciatorLampTest->DefineSwitchGroup( GRP_O6S14_VC );
+		pAnnunciatorLampTest->SetReference( _V( -0.6506, 3.0979, 13.9709 ), switch_rot );
+		pAnnunciatorLampTest->SetMouseRegion( 0.109378f, 0.497310f, 0.155600f, 0.532509f );
+		pAnnunciatorLampTest->SetSpringLoaded( true, 0 );
+		pAnnunciatorLampTest->SetSpringLoaded( true, 2 );
+
+		pAnnunciatorBusSelectACA1->SetInitialAnimState( 0.5f );
+		pAnnunciatorBusSelectACA1->DefineSwitchGroup( GRP_O6S12_VC );
+		pAnnunciatorBusSelectACA1->SetReference( _V( -0.6506, 3.0979, 13.9709 ), switch_rot );
+		pAnnunciatorBusSelectACA1->SetMouseRegion( 0.228373f, 0.496051f, 0.271396f, 0.531983f );
+		pAnnunciatorBusSelectACA1->SetInitialPosition( 2 );
+
+		pAnnunciatorBusSelectACA23->SetInitialAnimState( 0.5f );
+		pAnnunciatorBusSelectACA23->DefineSwitchGroup( GRP_O6S13_VC );
+		pAnnunciatorBusSelectACA23->SetReference( _V( -0.6506, 3.0979, 13.9709 ), switch_rot );
+		pAnnunciatorBusSelectACA23->SetMouseRegion( 0.292820f, 0.496975f, 0.334038f, 0.531239f );
+		pAnnunciatorBusSelectACA23->SetInitialPosition( 2 );
 
 		pSTYDoorPosition->DefineMeshGroup( STS()->mesh_vc, GRP_O6TALKBACK2_VC );
 		
@@ -380,8 +409,6 @@ namespace vc {
 
 	void PanelO6::Realize()
 	{
-	
-
 		//Warning: This is not correct, panel should talk to FMCA
 		discsignals::DiscreteBundle* pBundle = 
 			STS()->BundleManager()->CreateBundle("FMCA_STARTRACKER", 16);
@@ -396,6 +423,14 @@ namespace vc {
 		pSTYDoorPosition->SetInput( 1, pBundle, 7, TB_OP );
 		pSTZDoorPosition->SetInput( 0, pBundle, 8, TB_CL );
 		pSTZDoorPosition->SetInput( 1, pBundle, 9, TB_OP );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA", 16 );
+		pAnnunciatorBusSelectACA1->ConnectPort( 1, pBundle, 0 );
+		pAnnunciatorBusSelectACA1->ConnectPort( 2, pBundle, 1 );
+		pAnnunciatorBusSelectACA23->ConnectPort( 1, pBundle, 2 );
+		pAnnunciatorBusSelectACA23->ConnectPort( 2, pBundle, 3 );
+		pAnnunciatorLampTest->ConnectPort( 2, pBundle, 6 );
+		pAnnunciatorLampTest->ConnectPort( 1, pBundle, 7 );
 
 		pBundle = STS()->BundleManager()->CreateBundle("O6_GPC1", 16);
 		pGPC1Pwr->output.Connect(pBundle, 0);

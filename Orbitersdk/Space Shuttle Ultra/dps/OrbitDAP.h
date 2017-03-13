@@ -75,6 +75,18 @@ public:
 	typedef enum {DISC_RATE, ROT_PULSE} ROT_MODE;
 	typedef enum {NORM, TRANS_PULSE} TRANS_MODE;
 private:
+	class ContactSwitch
+	{
+			bool q;
+			bool s;
+		public:
+			ContactSwitch(){ q = false; s = false; }
+			~ContactSwitch(){};
+
+			void Set( bool i ){ s = i & !q; q = i; }
+			bool Get( void ){ return s; }
+	};
+
 	PIDControl OMSTVCControlP, OMSTVCControlY, OMSTVCControlR;
 	VECTOR3 OMSTrim;
 	CONTROL_MODE ControlMode;
@@ -137,26 +149,30 @@ private:
 	VECTOR3 CUR_ATT, REQD_ATT, ATT_ERR; // attitudes in degrees in M50 frame
 
 	//PCT
-	//bool PostContactThrusting[2]; //0=armed, 1=active
-	//bool PCTArmed, PCTActive;
+	bool PCTArmed;
 	bool PCTActive;
 	double PCTStartTime;
 
 	bool PBI_state[24];
 	DiscInPort PBI_input[24];
-	DiscOutPort PBI_output[24];
-	/*DiscInPort DAPSelect[2]; // A or B
-	DiscInPort DAPMode[3]; // PRI, ALT, VERN
-	DiscInPort DAPControlMode[4]; // AUTO, INRTL, LVLH, FREE*/
+	DiscOutPort PBI_output_C3[24];
+	DiscOutPort PBI_output_A6[24];
 	DiscOutPort RotThrusterCommands[3];
 	DiscOutPort TransThrusterCommands[3]; // 0=X, 1=Y, 2=Z
 	DiscOutPort POMSGimbalCommand[2], YOMSGimbalCommand[2];
 	DiscInPort CDR_SPDBK_THROT;
 	DiscInPort PLT_SPDBK_THROT;
-	bool PCTArmed;
-	DiscInPort BodyFlapAuto; // used to trigger PCT
-	DiscOutPort port_PCTActive[2]; // PBIs indicating is PCT is in progress
-	//DiscOutPort port_PCTActive;
+	DiscInPort CDR_BodyFlap;
+
+	DiscOutPort CDR_SPDBK_THROT_AUTO_LT;
+	DiscOutPort PLT_SPDBK_THROT_AUTO_LT;
+	DiscOutPort CDR_BodyFlap_AUTO_LT;
+	DiscOutPort CDR_BodyFlap_MAN_LT;
+
+	ContactSwitch cdrspdbkthrot;
+	ContactSwitch pltspdbkthrot;
+	ContactSwitch cdrbodyflap;
+	ContactSwitch sparepbi;
 
 	bool RA_DEC_flash;
 	bool LAT_LON_ALT_flash;
@@ -247,6 +263,8 @@ private:
 	 */
 	bool GimbalOMS(SIDE side, double pitch, double yaw);
 
+	void ArmPCT( void );
+	void DisarmPCT( void );
 	void StartPCT();
 	void StopPCT();
 	void PCTControl(double SimT);

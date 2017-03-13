@@ -28,6 +28,7 @@
 
 #include "AtlantisPanel.h"
 #include "PushButtonIndicator.h"
+#include "StandardLight.h"
 #include "StandardSwitchCover.h"
 #include "StandardRotarySwitch.h"
 
@@ -36,25 +37,27 @@ namespace vc
 {
 	class PanelF2: public AtlantisPanel
 	{
-		/*PushButtonIndicator *pBFAuto, *pBFMan;
-		PushButtonIndicator *pSbdThrotAuto, *pSbdThrotMan;*/
-		PushButtonIndicator *pBodyFlap, *pSbdbkThrot; //handle AUTO light
-		StandardLight *pBodyFlapMan, *pSbdbkThrotMan;
+		PushButtonIndicatorSingleLight* pMasterAlarm;
 
-		PushButtonIndicator *pPitchAuto;
-		PushButtonIndicator *pPitchCSS;
-		PushButtonIndicator *pRollYawAuto;
-		PushButtonIndicator *pRollYawCSS;
+		PushButtonIndicatorSingleLight* pPitchAuto;
+		PushButtonIndicatorSingleLight* pPitchCSS;
+		PushButtonIndicatorSingleLight* pRollYawAuto;
+		PushButtonIndicatorSingleLight* pRollYawCSS;
+		
+		PushButtonIndicatorDoubleLight* pSbdbkThrot;
+		PushButtonIndicatorDoubleLight* pBodyFlap;
 
 		StandardSwitchCover* pDragChuteARMCover;
 		StandardSwitchCover* pDragChuteDPYCover;
 
-		PushButtonIndicator* pDragChuteARM;
-		PushButtonIndicator* pDragChuteDPY;
+		PushButtonIndicatorDoubleLight* pDragChuteARM;
+		PushButtonIndicatorDoubleLight* pDragChuteDPY;
 
 		StdSwitch3* pHUDMode;
 		RotaryDemuxSwitch* pHUDBrightness;
 		StdSwitch3* pHUDBright;
+
+		StandardSingleLight* pBFC;
 
 	public:
 		PanelF2(Atlantis* _sts);
@@ -64,9 +67,6 @@ namespace vc
 
 		virtual void DefineVC();
 		virtual void RegisterVC();
-
-	private:
-		void SetCommonPBIParameters(PushButtonIndicator* pPBI);
 	};
 };
 

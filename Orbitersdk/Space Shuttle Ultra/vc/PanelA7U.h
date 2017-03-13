@@ -54,6 +54,8 @@ namespace vc
 		DiscInPort CamTiltUp_In, CamTiltDown_In, CamPanLeft_In, CamPanRight_In, LowSpeed_In;
 		DiscInPort CamA, CamB, CamC, CamD, CamRMS;
 
+		PushButtonIndicatorSingleLight* pMasterAlarm;
+
 	public:
 		PanelA7U(Atlantis* _sts);
 		virtual ~PanelA7U();

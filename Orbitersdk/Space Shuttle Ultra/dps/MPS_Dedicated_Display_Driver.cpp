@@ -72,13 +72,20 @@ namespace dps
 		pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
 		assert( (pSSME_SOP != NULL) && "MPS_Dedicated_Display_Driver::Realize.pSSME_SOP" );
 
-		DiscreteBundle *pBundle = STS()->BundleManager()->CreateBundle( "MPS_STATUS_LIGHTS", 6 );
+		DiscreteBundle *pBundle = STS()->BundleManager()->CreateBundle( "ACA1_1", 16 );
+		dpsRedStatusLight[1].Connect( pBundle, 14 );
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA1_2", 16 );
+		dspAmberStatusLight[1].Connect( pBundle, 14 );
 
-		for (int i = 0; i < 3; i++)
-		{
-			dspAmberStatusLight[i].Connect( pBundle, i + 3 );
-			dpsRedStatusLight[i].Connect( pBundle, i );
-		}
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA2_4", 16 );
+		dpsRedStatusLight[2].Connect( pBundle, 14 );
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA2_5", 16 );
+		dspAmberStatusLight[2].Connect( pBundle, 10 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_1", 16 );
+		dpsRedStatusLight[0].Connect( pBundle, 14 );
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_2", 16 );
+		dspAmberStatusLight[0].Connect( pBundle, 14 );
 		return;
 	}
 

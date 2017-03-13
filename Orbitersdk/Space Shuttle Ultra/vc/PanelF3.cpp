@@ -1,9 +1,5 @@
 #include "PanelF3.h"
-#include "../meshres_vc_additions.h"
 #include "../Atlantis_defs.h"
-
-
-extern GDIParams g_Param;
 
 
 namespace vc
@@ -14,9 +10,9 @@ namespace vc
 		Add( pDragChuteDPYCover = new StandardSwitchCover( _sts, "Drag Chute DPY Cover" ) );
 		Add( pDragChuteJETTCover = new StandardSwitchCover( _sts, "Drag Chute JETT Cover" ) );
 
-		Add( pDragChuteARM = new PushButtonIndicator( _sts, "Drag Chute ARM" ) );
-		Add( pDragChuteDPY = new PushButtonIndicator( _sts, "Drag Chute DPY" ) );
-		Add( pDragChuteJETT = new PushButtonIndicator( _sts, "Drag Chute JETT" ) );
+		Add( pDragChuteARM = new PushButtonIndicatorDoubleLight( _sts, "Drag Chute ARM" ) );
+		Add( pDragChuteDPY = new PushButtonIndicatorDoubleLight( _sts, "Drag Chute DPY" ) );
+		Add( pDragChuteJETT = new PushButtonIndicatorDoubleLight( _sts, "Drag Chute JETT" ) );
 
 		Add( pHUDPower[0] = new StdSwitch2( _sts, "HUD Power CDR" ) );
 		Add( pHUDPower[1] = new StdSwitch2( _sts, "HUD Power PLT" ) );
@@ -25,6 +21,9 @@ namespace vc
 		pHUDPower[0]->SetLabel( 1, "ON" );
 		pHUDPower[1]->SetLabel( 0, "OFF" );
 		pHUDPower[1]->SetLabel( 1, "ON" );
+
+		Add( pNWSFail = new StandardSingleLight( _sts, "NWS Fail" ) );
+		Add( pAntiSkidFail = new StandardSingleLight( _sts, "Anti Skid Fail" ) );
 	}
 
 	PanelF3::~PanelF3()
@@ -34,16 +33,28 @@ namespace vc
 	void PanelF3::Realize()
 	{
 		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "DRAG_CHUTE", 16 );
-		pDragChuteARM->input.Connect( pBundle, 0 );// arm light
-		pDragChuteDPY->input.Connect( pBundle, 1 );// dpy light
-		pDragChuteJETT->input.Connect( pBundle, 2 );// jett light
+		//pDragChuteARM->output.Connect( pBundle, 0 );// arm pb (F2)
+		pDragChuteARM->output.Connect( pBundle, 1 );// arm pb (F3)
+		//pDragChuteDPY->output.Connect( pBundle, 2 );// dpy pb (F2)
+		pDragChuteDPY->output.Connect( pBundle, 3 );// dpy pb (F3)
+		pDragChuteJETT->output.Connect( pBundle, 4 );// jett pb (F3)
+		//pDragChuteJETT->output.Connect( pBundle, 5 );// jett pb (F4)
 
-		//pDragChuteARM->output.Connect( pBundle, 3 );// arm pb (F2)
-		pDragChuteARM->output.Connect( pBundle, 4 );// arm pb (F3)
-		//pDragChuteDPY->output.Connect( pBundle, 5 );// dpy pb (F2)
-		pDragChuteDPY->output.Connect( pBundle, 6 );// dpy pb (F3)
-		pDragChuteJETT->output.Connect( pBundle, 7 );// jett pb (F3)
-		//pDragChuteJETT->output.Connect( pBundle, 8 );// jett pb (F4)
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA2_1", 16 );
+		pDragChuteDPY->ConnectLight( 2, pBundle, 7 );
+		pDragChuteARM->ConnectLight( 2, pBundle, 11 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA2_2", 16 );
+		pAntiSkidFail->ConnectLight( 0, pBundle, 7 );
+		pDragChuteJETT->ConnectLight( 2, pBundle, 13 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_1", 16 );
+		pDragChuteJETT->ConnectLight( 0, pBundle, 5 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_5", 16 );
+		pDragChuteARM->ConnectLight( 0, pBundle, 3 );
+		pNWSFail->ConnectLight( 0, pBundle, 5 );
+		pDragChuteDPY->ConnectLight( 0, pBundle, 15 );
 
 		pBundle = STS()->BundleManager()->CreateBundle( "HUD_CDR", 16 );
 		pHUDPower[0]->output.Connect( pBundle, 0 );// power cdr
@@ -57,35 +68,30 @@ namespace vc
 	void PanelF3::DefineVC()
 	{
 		VECTOR3 switch_rot = _V( 1, 0, 0 );
+		VECTOR3 push_dir = _V( 0.0, -0.269911, 0.962885 );
 
 		AddAIDToMouseEventList( AID_F3 );
 
-		pDragChuteARM->AddAIDToRedrawEventList( AID_F3_DC_ARM );
-		pDragChuteARM->SetSourceImage( g_Param.pbi_lights );
-		pDragChuteARM->SetBase( 0, 0 );
-		pDragChuteARM->SetSourceCoords( true, 46, 28 );
-		pDragChuteARM->SetSourceCoords( false, 0, 28 );
-		pDragChuteARM->SetDimensions( 46, 36 );
-		pDragChuteARM->SetMouseRegion( 0.944215f, 0.175093f, 0.959694f, 0.332207f );
-		pDragChuteARM->SetMomentary( true );
+		pDragChuteARM->SetStateOffset( 1, 0.0f, 0.488281f );// 1
+		pDragChuteARM->SetStateOffset( 2, 0.146484f, 0.488281f );// 2
+		pDragChuteARM->SetStateOffset( 3, 0.146484f, 0.0f );// 12
+		pDragChuteARM->SetDirection( push_dir );
+		pDragChuteARM->SetMouseRegion( 0.941485f, 0.155126f, 0.961229f, 0.349624f );
+		pDragChuteARM->DefineMeshGroup( STS()->mesh_vc, GRP_F3_S8_VC );
 
-		pDragChuteDPY->AddAIDToRedrawEventList( AID_F3_DC_DPY );
-		pDragChuteDPY->SetSourceImage( g_Param.pbi_lights );
-		pDragChuteDPY->SetBase( 0, 0 );
-		pDragChuteDPY->SetSourceCoords( true, 46, 64 );
-		pDragChuteDPY->SetSourceCoords( false, 0, 64 );
-		pDragChuteDPY->SetDimensions( 46, 36 );
-		pDragChuteDPY->SetMouseRegion( 0.972908f, 0.169789f, 0.988385f, 0.328097f );
-		pDragChuteDPY->SetMomentary( true );
+		pDragChuteDPY->SetStateOffset( 1, 0.0f, 0.488281f );// 1
+		pDragChuteDPY->SetStateOffset( 2, 0.146484f, 0.488281f );// 2
+		pDragChuteDPY->SetStateOffset( 3, 0.146484f, 0.0f );// 12
+		pDragChuteDPY->SetDirection( push_dir );
+		pDragChuteDPY->SetMouseRegion( 0.970976f, 0.154359f, 0.990583f, 0.348370f );
+		pDragChuteDPY->DefineMeshGroup( STS()->mesh_vc, GRP_F3_S9_VC );
 
-		pDragChuteJETT->AddAIDToRedrawEventList( AID_F3_DC_JETT );
-		pDragChuteJETT->SetSourceImage( g_Param.pbi_lights );
-		pDragChuteJETT->SetBase( 0, 0 );
-		pDragChuteJETT->SetSourceCoords( true, 0, 0 );
-		pDragChuteJETT->SetSourceCoords( false, 0, 14 );
-		pDragChuteJETT->SetDimensions( 42, 14 );
-		pDragChuteJETT->SetMouseRegion( 0.030069f, 0.170118f, 0.047526f, 0.337567f );
-		pDragChuteJETT->SetMomentary( true );
+		pDragChuteJETT->SetStateOffset( 1, 0.0f, 0.488281f );// 1
+		pDragChuteJETT->SetStateOffset( 2, 0.146484f, 0.488281f );// 2
+		pDragChuteJETT->SetStateOffset( 3, 0.146484f, 0.0f );// 12
+		pDragChuteJETT->SetDirection( push_dir );
+		pDragChuteJETT->SetMouseRegion( 0.028511f, 0.158667f, 0.048433f, 0.349924f );
+		pDragChuteJETT->DefineMeshGroup( STS()->mesh_vc, GRP_F3_S7_VC );
 
 		pDragChuteARMCover->SetMouseRegion( 0, 0.938748f, 0.117915f, 0.963932f, 0.419314f );
 		pDragChuteARMCover->SetMouseRegion( 1, 0.933402f, 0.0f, 0.952428f, 0.066717f );
@@ -100,7 +106,7 @@ namespace vc
 		pDragChuteJETTCover->SetMouseRegion( 0, 0.025776f, 0.120962f, 0.051179f, 0.428174f );
 		pDragChuteJETTCover->SetMouseRegion( 1, 0.025775f, 0.0f, 0.052357f, 0.073427f );
 		pDragChuteJETTCover->SetReference( _V( -0.5320, 2.5288, 14.6101 ), switch_rot );
-		pDragChuteJETTCover->DefineCoverGroup( GRP_F3COVERS10_VC );
+		pDragChuteJETTCover->DefineCoverGroup( GRP_F3COVERS7_VC );
 		
 		pHUDPower[0]->DefineSwitchGroup( GRP_F3S1_VC );
 		pHUDPower[0]->SetInitialAnimState( 0.5 );
@@ -111,6 +117,12 @@ namespace vc
 		pHUDPower[1]->SetInitialAnimState( 0.5 );
 		pHUDPower[1]->SetReference( _V( -0.5374, 2.4530, 14.5890 ), switch_rot );
 		pHUDPower[1]->SetMouseRegion( 0.976221f, 0.656113f, 0.997667f, 0.889501f );
+
+		pNWSFail->DefineMeshGroup( STS()->mesh_vc, GRP_F3_XDS3_VC );
+		pNWSFail->SetStateOffset( 1, 0.139648f, 0.0f );
+
+		pAntiSkidFail->DefineMeshGroup( STS()->mesh_vc, GRP_F3_XDS4_VC );
+		pAntiSkidFail->SetStateOffset( 1, 0.139648f, 0.0f );
 	}
 
 	void PanelF3::RegisterVC()
@@ -124,9 +136,6 @@ namespace vc
 			_V( -0.5758, 2.5361, 14.6138 ) + ofs, _V( 0.5480, 2.5361, 14.6138 ) + ofs, 
 			_V( -0.5758, 2.4282, 14.5819 ) + ofs, _V( 0.5480, 2.4282, 14.5819 ) + ofs );
 
-		SURFHANDLE tex = oapiGetTextureHandle( STS()->hOrbiterVCMesh, TEX_FPANELS_VC );
-		oapiVCRegisterArea( AID_F3_DC_ARM, _R( 1731, 168, 1777, 204 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex );		
-		oapiVCRegisterArea( AID_F3_DC_DPY, _R( 1861, 242, 1907, 278 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex );
-		oapiVCRegisterArea( AID_F3_DC_JETT, _R( 150, 757, 192, 771 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, tex );
+		return;
 	}
 };

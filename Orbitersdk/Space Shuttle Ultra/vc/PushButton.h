@@ -29,11 +29,14 @@
 
 namespace vc {
 
+	const double PUSH_LENGHT = 0.0015;
+
 	using discsignals::DiscOutPort;
 
 	class PushButton: public AtlantisVCComponent {
 		UINT anim_pb;
 		UINT uiGroup;
+		double motionlength;
 		MGROUP_TRANSLATE* pPushDown;
 	public:
 		PushButton(Atlantis* p, const string& name);
@@ -44,6 +47,8 @@ namespace vc {
 		virtual void Realize();
 		virtual void OnPress();
 		virtual void OnDepress();
+
+		void SetMotionLength( double _motionlength );
 
 		DiscOutPort output;
 	};

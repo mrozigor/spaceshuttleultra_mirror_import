@@ -27,9 +27,11 @@
 #pragma once
 
 #include "../Atlantis.h"
+#include "PushButton.h"
 #include "StandardLight.h"
 #include "DiscInPort.h"
 #include "DiscOutPort.h"
+
 
 namespace vc
 {
@@ -40,6 +42,7 @@ namespace vc
 	{
 		UINT anim_pb;
 		UINT uiGroup;
+		double motionlength;
 		MGROUP_TRANSLATE* pPushDown;
 		bool bAllowReset;
 		bool bSaveState;
@@ -72,6 +75,8 @@ namespace vc
 		 */
 		void SetMomentary( bool momentary );
 
+		void SetMotionLength( double _motionlength );
+
 		DiscOutPort output; //generally same as input port
 	};
 
@@ -101,6 +106,50 @@ namespace vc
 		void OnPreStep();
 	private:
 		void SetLine(unsigned short usIndex);
+	};
+
+	////////////////////////////////////////////
+
+	class PushButtonIndicatorSingleLight : public StandardSingleLight
+	{
+			UINT anim_pb;
+			double motionlength;
+			MGROUP_TRANSLATE* pPushDown;
+		public:
+			PushButtonIndicatorSingleLight( Atlantis* _sts, const string& _ident );
+			~PushButtonIndicatorSingleLight();
+
+			virtual void DefineVCAnimations( UINT vc_idx );
+			virtual bool OnMouseEvent( int _event, float x, float y );
+			virtual void OnPress();
+			virtual void OnRelease();
+			void ConnectPushButton( DiscreteBundle* pBundle, unsigned short usLine );
+
+			void SetMotionLength( double _motionlength );
+
+			DiscOutPort output;
+	};
+
+
+
+	class PushButtonIndicatorDoubleLight : public StandardDoubleLight
+	{
+			UINT anim_pb;
+			double motionlength;
+			MGROUP_TRANSLATE* pPushDown;
+		public:
+			PushButtonIndicatorDoubleLight( Atlantis* _sts, const string& _ident );
+			~PushButtonIndicatorDoubleLight();
+
+			virtual void DefineVCAnimations( UINT vc_idx );
+			virtual bool OnMouseEvent( int _event, float x, float y );
+			virtual void OnPress();
+			virtual void OnRelease();
+			void ConnectPushButton( DiscreteBundle* pBundle, unsigned short usLine );
+
+			void SetMotionLength( double _motionlength );
+
+			DiscOutPort output;
 	};
 };
 

@@ -84,26 +84,34 @@ void AscentDAP::Realize()
 	pBundle = BundleManager()->CreateBundle("ROMS", 5);
 	OMSCommand[RIGHT].Connect(pBundle, 2);
 
-	pBundle = STS()->BundleManager()->CreateBundle( "THRUSTER_CMD", 16 );
+	pBundle = BundleManager()->CreateBundle( "THRUSTER_CMD", 16 );
 	SERC.Connect( pBundle, 6 );
 
-	pBundle = BundleManager()->CreateBundle( "CSS_CONTROLS", 16 );
+	pBundle = BundleManager()->CreateBundle( "DAP_CH_CONTROLS", 16 );
 	CDRPitchAuto.Connect( pBundle, 0 );
-	CDRPitchAutoLT.Connect( pBundle, 1 );
+	PLTPitchAuto.Connect( pBundle, 1 );
 	CDRPitchCSS.Connect( pBundle, 2 );
-	CDRPitchCSSLT.Connect( pBundle, 3 );
+	PLTPitchCSS.Connect( pBundle, 3 );
 	CDRRollYawAuto.Connect( pBundle, 4 );
-	CDRRollYawAutoLT.Connect( pBundle, 5 );
+	PLTRollYawAuto.Connect( pBundle, 5 );
 	CDRRollYawCSS.Connect( pBundle, 6 );
-	CDRRollYawCSSLT.Connect( pBundle, 7 );
-	PLTPitchAuto.Connect( pBundle, 8 );
-	PLTPitchAutoLT.Connect( pBundle, 9 );
-	PLTPitchCSS.Connect( pBundle, 10 );
-	PLTPitchCSSLT.Connect( pBundle, 11 );
-	PLTRollYawAuto.Connect( pBundle, 12 );
-	PLTRollYawAutoLT.Connect( pBundle, 13 );
-	PLTRollYawCSS.Connect( pBundle, 14 );
-	PLTRollYawCSSLT.Connect( pBundle, 15 );
+	PLTRollYawCSS.Connect( pBundle, 7 );
+	
+	pBundle = BundleManager()->CreateBundle( "ACA1_2", 16 );
+	CDRPitchAutoLT.Connect( pBundle, 8 );
+	CDRPitchCSSLT.Connect( pBundle, 12 );
+	
+	pBundle = BundleManager()->CreateBundle( "ACA1_3", 16 );
+	CDRRollYawAutoLT.Connect( pBundle, 4 );
+	CDRRollYawCSSLT.Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA2_2", 16 );
+	PLTPitchAutoLT.Connect( pBundle, 10 );
+	PLTPitchCSSLT.Connect( pBundle, 14 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA2_3", 16 );
+	PLTRollYawAutoLT.Connect( pBundle, 6 );
+	PLTRollYawCSSLT.Connect( pBundle, 10 );
 
 	pSSME_SOP = static_cast<SSME_SOP*> (FindSoftware( "SSME_SOP" ));
 	pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));

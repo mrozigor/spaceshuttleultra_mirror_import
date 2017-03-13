@@ -48,9 +48,12 @@ class DragChute:public AtlantisSubsystem
 		double DragChuteDeployTime;
 		double DragChuteSize;// 0 (Stowed/Jettisoned) or 0.4 (Reefed) or 1.0 (Deployed)
 
-		DiscOutPort DragChuteARMLT;
-		DiscOutPort DragChuteDPYLT;
-		DiscOutPort DragChuteJETTLT;
+		DiscOutPort DragChuteARM1LT[2];
+		DiscOutPort DragChuteARM2LT[2];
+		DiscOutPort DragChuteDPY1LT[2];
+		DiscOutPort DragChuteDPY2LT[2];
+		DiscOutPort DragChuteJETT1LT[2];
+		DiscOutPort DragChuteJETT2LT[2];
 		DiscInPort DragChuteARM[2];
 		DiscInPort DragChuteDPY[2];
 		DiscInPort DragChuteJETT[2];

@@ -30,6 +30,8 @@
 #include "Talkback.h"
 #include "PushButtonIndicator.h"
 #include "StandardSwitchCover.h"
+#include "StandardLight.h"
+
 
 namespace vc {
 
@@ -50,7 +52,13 @@ namespace vc {
 		StandardTalkback3* pLandingGearTB[3];
 		
 		StandardSwitchCover* pLandingGearArmDeployCover[2];
-		PushButtonIndicator *pLandingGearArmDeploy[2];
+		PushButtonIndicatorSingleLight *pLandingGearArmDeploy[2];
+
+		StandardDoubleLight* pRCSCommand[3];
+		StandardDoubleLight* pRangeSafeArm;
+
+		PushButtonIndicatorSingleLight* pAbort;
+
 	public:
 		PanelF6(Atlantis* _sts);
 		virtual ~PanelF6();

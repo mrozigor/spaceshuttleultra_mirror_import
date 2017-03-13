@@ -28,13 +28,17 @@ namespace dps
 
 	void SBTC_SOP::Realize( void )
 	{
-		DiscreteBundle* pBundle = BundleManager()->CreateBundle( "SPDBKTHROT_CONTROLS", 16 );
-		CDR_SPDBK_THROT.Connect( pBundle, 0 );// HACK should first go to switch RM
-		CDR_SPDBK_THROT_AUTO_LT.Connect( pBundle, 1 );
-		CDR_SPDBK_THROT_MAN_LT.Connect( pBundle, 2 );
-		PLT_SPDBK_THROT.Connect( pBundle, 3 );// HACK should first go to switch RM
-		PLT_SPDBK_THROT_AUTO_LT.Connect( pBundle, 4 );
-		PLT_SPDBK_THROT_MAN_LT.Connect( pBundle, 5 );
+		DiscreteBundle* pBundle = BundleManager()->CreateBundle( "DAP_CH_CONTROLS", 16 );
+		CDR_SPDBK_THROT.Connect( pBundle, 8 );// HACK should first go to switch RM
+		PLT_SPDBK_THROT.Connect( pBundle, 9 );// HACK should first go to switch RM
+
+		pBundle = BundleManager()->CreateBundle( "ACA1_4", 16 );
+		CDR_SPDBK_THROT_AUTO_LT.Connect( pBundle, 0 );
+		CDR_SPDBK_THROT_MAN_LT.Connect( pBundle, 4 );
+
+		pBundle = BundleManager()->CreateBundle( "ACA2_4", 16 );
+		PLT_SPDBK_THROT_AUTO_LT.Connect( pBundle, 2 );
+		PLT_SPDBK_THROT_MAN_LT.Connect( pBundle, 6 );
 
 		pSBTC_RM = static_cast<SBTC_RM*>(FindSoftware( "SBTC_RM" ));
 		assert( (pSBTC_RM != NULL) && "SBTC_SOP::Realize.pSBTC_RM" );
