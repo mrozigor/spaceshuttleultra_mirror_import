@@ -243,6 +243,7 @@
     <None Include="Bitmaps\tkbk_label.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnnunciatorControlAssembly.cpp" />
     <ClCompile Include="ASE_IUS.cpp" />
     <ClCompile Include="CISS.cpp" />
     <ClCompile Include="comm\DeployedAssembly.cpp" />
@@ -400,6 +401,7 @@
     <ClCompile Include="vc\PanelL10.cpp" />
     <ClCompile Include="vc\PanelL12U_Centaur.cpp" />
     <ClCompile Include="vc\PanelL12U_IUS.cpp" />
+    <ClCompile Include="vc\PanelO1.cpp" />
     <ClCompile Include="vc\PanelO17.cpp" />
     <ClCompile Include="vc\PanelO2.cpp" />
     <ClCompile Include="vc\PanelO3.cpp" />
@@ -429,6 +431,7 @@
     <ClCompile Include="WSB.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnnunciatorControlAssembly.h" />
     <ClInclude Include="ASE_IUS.h" />
     <ClInclude Include="Atlantis_defs.h" />
     <ClInclude Include="CISS.h" />
@@ -564,6 +567,7 @@
     <ClInclude Include="vc\PanelL10.h" />
     <ClInclude Include="vc\PanelL12U_Centaur.h" />
     <ClInclude Include="vc\PanelL12U_IUS.h" />
+    <ClInclude Include="vc\PanelO1.h" />
     <ClInclude Include="vc\PanelO17.h" />
     <ClInclude Include="vc\PanelO3.h" />
     <ClInclude Include="vc\PanelO6.h" />
