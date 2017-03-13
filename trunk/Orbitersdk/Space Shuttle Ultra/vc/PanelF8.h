@@ -50,7 +50,7 @@ namespace vc {
 		StandardTalkback3* pLandingGearTB[3];
 
 		StandardSwitchCover* pLandingGearArmDeployCover[2];
-		PushButtonIndicator *pLandingGearArmDeploy[2];
+		PushButtonIndicatorSingleLight *pLandingGearArmDeploy[2];
 	public:
 		PanelF8(Atlantis* _sts);
 		virtual ~PanelF8();

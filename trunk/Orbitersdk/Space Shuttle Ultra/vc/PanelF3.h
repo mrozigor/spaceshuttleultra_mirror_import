@@ -28,6 +28,7 @@
 
 #include "AtlantisPanel.h"
 #include "PushButtonIndicator.h"
+#include "StandardLight.h"
 #include "StandardSwitchCover.h"
 
 
@@ -39,11 +40,14 @@ namespace vc
 		StandardSwitchCover* pDragChuteDPYCover;
 		StandardSwitchCover* pDragChuteJETTCover;
 
-		PushButtonIndicator* pDragChuteARM;
-		PushButtonIndicator* pDragChuteDPY;
-		PushButtonIndicator* pDragChuteJETT;
+		PushButtonIndicatorDoubleLight* pDragChuteARM;
+		PushButtonIndicatorDoubleLight* pDragChuteDPY;
+		PushButtonIndicatorDoubleLight* pDragChuteJETT;
 
 		StdSwitch2* pHUDPower[2];
+
+		StandardSingleLight* pNWSFail;
+		StandardSingleLight* pAntiSkidFail;
 
 	public:
 		PanelF3( Atlantis* _sts );

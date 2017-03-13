@@ -28,7 +28,6 @@
 #include "DiscInPort.h"
 
 
-
 namespace vc {
 
 	using discsignals::DiscInPort;
@@ -60,5 +59,59 @@ namespace vc {
 
 		DiscInPort input;
 		DiscInPort test;
+	};
+
+	/////////////////////////////////////////
+
+	class StandardSingleLight : public BasicLight_2
+	{
+		protected:
+			UINT panelmesh;
+			UINT grpIndex;
+
+			float offsetU[2];
+			float offsetV[2];
+
+		public:
+			StandardSingleLight( Atlantis* _sts, const string& _ident );
+			~StandardSingleLight();
+			
+			virtual void SetDefaultState( int _state );
+			virtual void SetStateOffset( int _state, float _U, float _V );
+			virtual bool ConnectLight( unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine );
+
+			virtual void OnPostStep( double fSimT, double fDeltaT, double fMJD );
+
+			void UpdateUV( void );
+			void DefineMeshGroup( UINT _panelmesh, UINT _grpIndex );
+			void UpdateUVState( void );
+
+			DiscInPort input[2];
+	};
+
+	class StandardDoubleLight : public BasicLight_2
+	{
+		protected:
+			UINT panelmesh;
+			UINT grpIndex;
+
+			float offsetU[4];
+			float offsetV[4];
+
+		public:
+			StandardDoubleLight( Atlantis* _sts, const string& _ident );
+			~StandardDoubleLight();
+			
+			virtual void SetDefaultState( int _state );
+			virtual void SetStateOffset( int _state, float _U, float _V );
+			virtual bool ConnectLight( unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine );
+
+			virtual void OnPostStep( double fSimT, double fDeltaT, double fMJD );
+
+			void UpdateUV( void );
+			void DefineMeshGroup( UINT _panelmesh, UINT _grpIndex );
+			void UpdateUVState( void );
+
+			DiscInPort input[4];
 	};
 }

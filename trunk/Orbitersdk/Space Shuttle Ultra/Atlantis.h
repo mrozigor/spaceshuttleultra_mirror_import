@@ -83,30 +83,31 @@ const static char* SOUND_DIRECTORY = "Sound\\_CustomVesselsSounds\\SpaceShuttleU
 const static char* AIR_CONDITIONING_SOUND_FILE = "Orbiter_AC.wav";
 const int RCS_SOUND = 1;
 const static char* RCS_SOUND_FILE = "RCS_Jet_Fire.wav";
-const int MASTER_ALARM = 2;
-const static char* MASTER_ALARM_FILE = "Master_Alarm.wav";
-const int APU_START = 3;
+const int APU_START = 2;
 const static char* APU_START_FILE = "APU_start_up.wav";
-const int APU_RUNNING = 4;
+const int APU_RUNNING = 3;
 const static char* APU_RUNNING_FILE = "APU_continues.wav";
-const int APU_SHUTDOWN = 5;
+const int APU_SHUTDOWN = 4;
 const static char* APU_SHUTDOWN_FILE = "APU_shut_down.wav";
-const int SSME_START = 6;
+const int SSME_START = 5;
 const static char* SSME_START_FILE = "SSME_ignition.wav";
-const int SSME_RUNNING = 7;
+const int SSME_RUNNING = 6;
 const static char* SSME_RUNNING_FILE = "SSME_sustain.wav";
-const int SSME_SHUTDOWN = 8;
+const int SSME_SHUTDOWN = 7;
 const static char* SSME_SHUTDOWN_FILE = "SSME_shutdown.wav";
-const int SWITCH_GUARD_SOUND = 9;
+const int SWITCH_GUARD_SOUND = 8;
 const static char* SWITCH_GUARD_FILE = "switch_guard.wav";
-const int SWITCH_THROW_SOUND = 10;
+const int SWITCH_THROW_SOUND = 9;
 const static char* SWITCH_THROW_FILE = "switch_throw.wav";
-const int KEY_PRESS_SOUND = 11;
+const int KEY_PRESS_SOUND = 10;
 const static char* KEY_PRESS_FILE = "key_press.wav";
-const int TB_OFF_SOUND = 12;
+const int TB_OFF_SOUND = 11;
 const static char* TB_OFF_FILE = "talkback_off.wav";
-const int TB_ON_SOUND = 13;
+const int TB_ON_SOUND = 12;
 const static char* TB_ON_FILE = "talkback_on.wav";
+const int CW_TONE_SOUND = 13;
+const int CW_TONE_RMS_SOUND = 14;// 2 IDs as there are 2 separate sources
+const static char* CW_TONE_FILE = "cw_tone.wav";
 
 const static char* TEXT_RCSCONTROL = "Controlling RCS";
 const static char* TEXT_RMSCONTROL = "Controlling RMS";
@@ -131,9 +132,6 @@ typedef struct {
 	HINSTANCE hDLL;
 	SURFHANDLE pbi_lights;
 	SURFHANDLE clock_digits;
-	SURFHANDLE odslights;
-	SURFHANDLE ssme_lights;
-	SURFHANDLE a8_lights;
 	HBITMAP deu_characters;
 	HBITMAP deu_characters_overbright;
 	HBITMAP deu_characters_fault;
@@ -1127,8 +1125,6 @@ private:
 	int lastRMSSJCommand; // -1, 0 or 1
 
 	//DiscPorts
-	DiscInPort BodyFlapAutoIn;
-	DiscOutPort BodyFlapAutoOut, BodyFlapManOut;
 	DiscInPort AftFltCntlrPwr, CdrFltCntlrPwr, PltFltCntlrPwr;
 
 	DiscOutPort LeftRHC[9];
@@ -1161,8 +1157,10 @@ private:
 	DiscInPort OMSArm[2], OMSArmPress[2], OMSFire[2], OMSPitch[2], OMSYaw[2];
 
 	DiscOutPort LandingGearPosition[6];
-	DiscOutPort LandingGearArmDeployLT[2];
-	DiscInPort LandingGearArmDeployPB[4];
+	DiscOutPort LandingGearArmLT[2];
+	DiscOutPort LandingGearDeployLT[2];
+	DiscInPort LandingGearArmPB[2];
+	DiscInPort LandingGearDeployPB[2];
 
 	DiscOutPort SSMEPBAnalog[3]; // to allow MECO to be commanded from keyboard
 

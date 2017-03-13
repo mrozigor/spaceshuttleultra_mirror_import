@@ -83,6 +83,9 @@ namespace dps
 						{
 							dump_started = true;
 							t_dump_start = SimT;
+							// turn on BODY FLAP lights on panels F2 and F4
+							CDR_BodyFlapManLight.SetLine();
+							PLT_BodyFlapManLight.SetLine();
 							char buffer[128];
 							sprintf_s( buffer, 128, "MPS Dump Sequence start @ MET %.2f", STS()->GetMET() );
 							oapiWriteLog( buffer );
@@ -190,7 +193,8 @@ namespace dps
 						pATVC_SOP->SetSSMEActPos( 2, ENTRYSTOWCONFIG_2P, ENTRYSTOWCONFIG_2Y );
 						pATVC_SOP->SetSSMEActPos( 3, ENTRYSTOWCONFIG_3P, ENTRYSTOWCONFIG_3Y );
 						// turn off BODY FLAP lights on panels F2 and F4
-						BodyFlapManLight.ResetLine();
+						CDR_BodyFlapManLight.ResetLine();
+						PLT_BodyFlapManLight.ResetLine();
 						char buffer[128];
 						sprintf_s( buffer, 128, "MPS Dump Sequence complete @ MET %.2f", STS()->GetMET() );
 						oapiWriteLog( buffer );
@@ -281,8 +285,11 @@ namespace dps
 		pATVC_SOP = static_cast<ATVC_SOP*> (FindSoftware( "ATVC_SOP" ));
 		assert( (pATVC_SOP != NULL) && "MPS_Dump::Realize.pATVC_SOP" );
 
-		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle( "BODYFLAP_CONTROLS", 16 );
-		BodyFlapManLight.Connect( pBundle, 0 );
+		DiscreteBundle* pBundle = BundleManager()->CreateBundle( "ACA1_2", 16 );
+		CDR_BodyFlapManLight.Connect( pBundle, 4 );
+
+		pBundle = BundleManager()->CreateBundle( "ACA2_5", 16 );
+		PLT_BodyFlapManLight.Connect( pBundle, 2 );
 		return;
 	}
 

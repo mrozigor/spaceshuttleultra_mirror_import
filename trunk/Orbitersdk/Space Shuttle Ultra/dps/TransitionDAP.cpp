@@ -110,13 +110,13 @@ namespace dps
 		RotThrusterCommands[2].Connect( pBundle, 2 );
 		ZTransCommand.Connect( pBundle, 5 );
 
-		pBundle = BundleManager()->CreateBundle( "DAP_PBIS1", 16 );
+		pBundle = BundleManager()->CreateBundle( "ACA1_3", 16 );
 		PBI[0].Connect( pBundle, 2 );
-		PBI[1].Connect( pBundle, 15 );
+		PBI[1].Connect( pBundle, 6 );
+		PBI[2].Connect( pBundle, 10 );
 
-		pBundle = BundleManager()->CreateBundle( "DAP_PBIS2", 16 );
-		PBI[2].Connect( pBundle, 0 );
-		PBI[3].Connect( pBundle, 1 );
+		pBundle = BundleManager()->CreateBundle( "ACA3_1", 16 );
+		PBI[3].Connect( pBundle, 10 );
 
 		pSSME_Operations = static_cast<SSME_Operations*> (FindSoftware( "SSME_Operations" ));
 		return;

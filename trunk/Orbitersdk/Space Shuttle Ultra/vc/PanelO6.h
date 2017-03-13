@@ -47,9 +47,11 @@ namespace vc {
 		StdSwitch2* pUHFXmitFreq;
 		StdSwitch2* pUHFSPLXPowerAmp;
 		StdSwitch2* pUHFSquelch;
+
 		StdSwitch3* pAnnunciatorLampTest;
-		StdSwitch3* pBusSelectACA1;
-		StdSwitch3* pBusSelectACA23;
+		StdSwitch3* pAnnunciatorBusSelectACA1;
+		StdSwitch3* pAnnunciatorBusSelectACA23;
+
 		StdSwitch2* pAnnunciatorIntensitySel;
 		StdSwitch3* pMTU;
 		StdSwitch2* pIDP1;

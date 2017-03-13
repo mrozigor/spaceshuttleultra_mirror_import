@@ -52,8 +52,6 @@ namespace vc
 		virtual bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);
 		virtual void DefineVCAnimations( UINT vcidx );
 	private:
-		//bool DrawPBILight(SURFHANDLE surf, int id, bool bOn);
-		//void UpdatePBIs();
 		typedef enum { PL1=0, PL2=1, PL3=2, MON=3 } PAYLOAD; // both monitor positions are the same, so we only need 1 MON enum
 
 		PanelA6::PAYLOAD GetSelectedPayload() const;
@@ -68,7 +66,7 @@ namespace vc
 		RotaryDemuxSwitch* pPayloadSelect;
 
 		//DAP PBIs
-		PushButtonIndicator* pPBIs[24];
+		PushButtonIndicatorSingleLight* pPBIs[24];
 
 		DiscInPort LatchSwitch_Latch[5], LatchSwitch_Release[5];
 		DiscOutPort Latch_Latch[3][5], Latch_Release[3][5];
@@ -84,6 +82,9 @@ namespace vc
 		StdSwitch3* pADIAttitude;
 		StdSwitch3* pADIError;
 		StdSwitch3* pADIRate;
+		
+		StdSwitch3* pAnnunciatorBusSelect;
+		StdSwitch3* pAnnunciatorLampTest;
 
 		StdSwitch3* pEventTimerMode;
 		StdSwitch3* pEventTimerControl;
@@ -102,8 +103,5 @@ namespace vc
 		short wheelnumber[4];
 		short oldwheelnumber[4];
 		double wheelState[4];
-
-		//PBI lights
-		//bool PBI_Lights[24]; //true if light on
 	};
 };

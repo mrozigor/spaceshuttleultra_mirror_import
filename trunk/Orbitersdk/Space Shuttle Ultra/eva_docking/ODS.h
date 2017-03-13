@@ -131,6 +131,9 @@ namespace eva_docking {
 		DiscInPort dscu_OpenLatches;
 		DiscInPort dscu_Undocking;
 
+		DiscInPort dscu_ControlPanelPowerA;
+		DiscInPort dscu_ControlPanelPowerB;
+		DiscInPort dscu_ControlPanelPowerC;
 		DiscInPort dscu_HeatersDCUPowerH1;
 		DiscInPort dscu_HeatersDCUPowerH2DCU;
 		DiscInPort dscu_HeatersDCUPowerH3DCU;
@@ -159,9 +162,13 @@ namespace eva_docking {
 		DiscOutPort dscu_Hooks2ClosedLight;
 		DiscOutPort dscu_LatchesOpenLight;
 		DiscOutPort dscu_RingFinalLight;
+		DiscOutPort dscu_PyroProtectCircuitOff;
 		DiscOutPort dscu_ADSLight;
 		DiscOutPort dscu_BDSLight;
 		DiscOutPort dscu_CDSLight;
+		DiscOutPort dscu_APLight;
+		DiscOutPort dscu_BPLight;
+		DiscOutPort dscu_CPLight;
 
 		bool HasDSCUPower() const;
 		void CalculateRodAnimation();

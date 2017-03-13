@@ -56,6 +56,7 @@
 #include "vc/PanelF6.h"
 #include "vc/PanelF7.h"
 #include "vc/PanelF8.h"
+#include "vc/PanelO1.h"
 #include "vc/PanelO2.h"
 #include "vc/PanelO3.h"
 #include "vc/PanelO6.h"
@@ -85,6 +86,7 @@
 #include "gnc\RA.h"
 #include "DragChute.h"
 #include "eps\PRSD.h"
+#include "AnnunciatorControlAssembly.h"
 #include <UltraMath.h>
 #include <cassert>
 #include "gcAPI.h"
@@ -395,6 +397,7 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pgRight.AddPanel(new vc::PanelR2(this));
 	pgRight.AddPanel( new vc::PanelR1( this ) );// HACK should be placed in order, before R2, but click area on R2 is too big
 
+	pgOverhead.AddPanel( new vc::PanelO1( this ) );
 	pgOverhead.AddPanel( new vc::PanelO2( this ) );
 	pgOverhead.AddPanel(new vc::PanelO3(this));
 	pgOverhead.AddPanel(new vc::PanelO6(this));
@@ -2688,7 +2691,8 @@ void Atlantis::DeployLandingGear()
 {
 	if (status == STATE_ORBITER && GearArmed() && gear_status.action != AnimState::OPEN) {
 		gear_status.action = AnimState::OPENING;
-		LandingGearArmDeployLT[1].SetLine();
+		LandingGearDeployLT[0].SetLine();
+		LandingGearDeployLT[1].SetLine();
 		RecordEvent("GEAR", "DOWN");
 	}
 }
@@ -2704,7 +2708,8 @@ void Atlantis::RetractLandingGear()
 void Atlantis::ArmGear()
 {
 	gear_armed = true;
-	LandingGearArmDeployLT[0].SetLine();
+	LandingGearArmLT[0].SetLine();
+	LandingGearArmLT[1].SetLine();
 }
 
 bool Atlantis::GearArmed() const
@@ -4185,6 +4190,12 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 
 			psubsystems->AddSubsystem( new eps::PRSD( pMission->GetInternalPRSDTankSets(), pMission->HasEDOKit(), pMission->GetEDOPallets(), psubsystems ) );
 
+			psubsystems->AddSubsystem( new AnnunciatorControlAssembly( psubsystems, "ACA1", 1 ) );
+			psubsystems->AddSubsystem( new AnnunciatorControlAssembly( psubsystems, "ACA2", 2 ) );
+			psubsystems->AddSubsystem( new AnnunciatorControlAssembly( psubsystems, "ACA3", 3 ) );
+			psubsystems->AddSubsystem( new AnnunciatorControlAssembly( psubsystems, "ACA4", 4 ) );
+			psubsystems->AddSubsystem( new AnnunciatorControlAssembly( psubsystems, "ACA5", 5 ) );
+
 			// add additional components defined in Mission file
 			RMS = pMission->HasRMS();
 			STBDMPM = pMission->HasSTBDMPMs();
@@ -4491,6 +4502,9 @@ void Atlantis::clbkPostCreation()
 
 			RequestLoadVesselWave( SoundID, TB_OFF_SOUND, const_cast<char*>(TB_OFF_FILE), INTERNAL_ONLY );
 			RequestLoadVesselWave( SoundID, TB_ON_SOUND, const_cast<char*>(TB_ON_FILE), INTERNAL_ONLY );
+			
+			RequestLoadVesselWave( SoundID, CW_TONE_SOUND, const_cast<char*>(CW_TONE_FILE), BOTHVIEW_FADED_MEDIUM );// play outside as it is "critical"
+			RequestLoadVesselWave( SoundID, CW_TONE_RMS_SOUND, const_cast<char*>(CW_TONE_FILE), BOTHVIEW_FADED_MEDIUM );
 		}
 
 
@@ -4506,12 +4520,7 @@ void Atlantis::clbkPostCreation()
 		pgAft.Realize();
 		pgAftStbd.Realize();
 
-		DiscreteBundle* pBundle = BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);
-		BodyFlapAutoIn.Connect(pBundle, 0);
-		BodyFlapAutoOut.Connect(pBundle, 0);
-		BodyFlapManOut.Connect(pBundle, 1);
-
-		pBundle = BundleManager()->CreateBundle("Controllers", 16);
+		DiscreteBundle* pBundle = BundleManager()->CreateBundle("Controllers", 16);
 		CdrFltCntlrPwr.Connect(pBundle, 1);
 		PltFltCntlrPwr.Connect(pBundle, 2);
 		AftFltCntlrPwr.Connect(pBundle, 3);
@@ -4638,13 +4647,28 @@ void Atlantis::clbkPostCreation()
 		LandingGearPosition[3].Connect(pBundle, 3);
 		LandingGearPosition[4].Connect(pBundle, 4);
 		LandingGearPosition[5].Connect(pBundle, 5);
-		LandingGearArmDeployLT[0].Connect(pBundle, 6);
-		LandingGearArmDeployLT[1].Connect(pBundle, 7);
-		if (!gear_status.Closed()) LandingGearArmDeployLT[1].SetLine();
-		LandingGearArmDeployPB[0].Connect(pBundle, 8);
-		LandingGearArmDeployPB[1].Connect(pBundle, 9);
-		LandingGearArmDeployPB[2].Connect(pBundle, 10);
-		LandingGearArmDeployPB[3].Connect(pBundle, 11);
+		LandingGearArmPB[0].Connect(pBundle, 6);
+		LandingGearArmPB[1].Connect(pBundle, 7);
+		LandingGearDeployPB[0].Connect(pBundle, 8);
+		LandingGearDeployPB[1].Connect(pBundle, 9);
+
+		pBundle = bundleManager->CreateBundle( "ACA2_5", 16 );
+		LandingGearArmLT[1].Connect( pBundle, 6 );
+		LandingGearDeployLT[1].Connect( pBundle, 14 );
+
+		pBundle = bundleManager->CreateBundle( "ACA3_4", 16 );
+		LandingGearArmLT[0].Connect( pBundle, 12 );
+
+		pBundle = bundleManager->CreateBundle( "ACA3_5", 16 );
+		LandingGearDeployLT[0].Connect( pBundle, 0 );
+		
+		if (!gear_status.Closed())
+		{
+			LandingGearArmLT[0].SetLine();
+			LandingGearArmLT[1].SetLine();
+			LandingGearDeployLT[0].SetLine();
+			LandingGearDeployLT[1].SetLine();
+		}
 
 		pgCenter.LogPanels("Center");
 		pgForward.LogPanels("Forward");
@@ -4739,8 +4763,8 @@ void Atlantis::clbkPreStep(double simT, double simDT, double mjd)
 		}
 
 		// landing gear PB
-		if ((LandingGearArmDeployPB[0].IsSet() == true) || (LandingGearArmDeployPB[2].IsSet() == true)) ArmGear();
-		if ((GearArmed() == true) && ((LandingGearArmDeployPB[1].IsSet() == true) || (LandingGearArmDeployPB[3].IsSet() == true))) DeployLandingGear();
+		if ((LandingGearArmPB[0].IsSet() == true) || (LandingGearArmPB[1].IsSet() == true)) ArmGear();
+		if ((GearArmed() == true) && ((LandingGearDeployPB[0].IsSet() == true) || (LandingGearDeployPB[1].IsSet() == true))) DeployLandingGear();
 
 		// landing gear position switches
 		if (gear_status.action == AnimState::CLOSED)
@@ -5286,19 +5310,6 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 				DeployLandingGear();
 			}
 			else if (GetAltitude( ALTMODE_GROUND ) < 609.6) ArmGear();
-
-			//handle body flap and speedbrake PBIs
-			if ((int)(pSimpleGPC->GetMajorMode() / 100) == 3) //Entry
-			{
-				//if flap is in AUTO mode, reset MAN line; otherwise set MAN line
-				if (BodyFlapAutoIn) BodyFlapManOut.ResetLine();
-				else BodyFlapManOut.SetLine();
-			}
-			//else if(pSimpleGPC->GetMajorMode() < 200) //LAUNCH
-			//{
-			//	BodyFlapAutoOut.ResetLine();
-			//	BodyFlapManOut.ResetLine();
-			//}
 
 			break;
 		}
@@ -6479,22 +6490,6 @@ DLLCLBK void InitModule(HINSTANCE hModule)
 		oapiWriteLog("Loading bitmap \"CLOCK_DIGITS\" failed.");
 	}
 
-	g_Param.odslights = oapiCreateSurface(LOADBMP(IDB_ODSBUTTONS));
-	if (g_Param.odslights == NULL) {
-		oapiWriteLog("Loading bitmap \"ODSBUTTONS\" failed.");
-	}
-
-	g_Param.ssme_lights = oapiCreateSurface(LOADBMP(IDB_SSMELIGHTS));
-	if (g_Param.ssme_lights == NULL) {
-		oapiWriteLog("Loading bitmap \"SSME_LIGHTS\" failed.");
-	}
-
-	g_Param.a8_lights = oapiCreateSurface(LOADBMP(IDB_A8LIGHTS));
-	if (g_Param.a8_lights == NULL)
-	{
-		oapiWriteLog("Loading bitmap \"A8_LIGHTS\" failed.");
-	}
-
 	g_Param.deu_characters = LOADBMP(IDB_DEUCHARACTERS);
 	HDC Temp1DC = CreateDC( "DISPLAY", NULL, NULL, NULL );
 	g_Param.DeuCharBitmapDC = CreateCompatibleDC( Temp1DC );
@@ -6535,20 +6530,6 @@ DLLCLBK void ExitModule(HINSTANCE hModule)
 	if (g_Param.clock_digits)
 	{
 		oapiDestroySurface(g_Param.clock_digits);
-	}
-	if (g_Param.odslights)
-	{
-		oapiDestroySurface(g_Param.odslights);
-	}
-
-	if (g_Param.ssme_lights)
-	{
-		oapiDestroySurface(g_Param.ssme_lights);
-	}
-
-	if (g_Param.a8_lights)
-	{
-		oapiDestroySurface(g_Param.a8_lights);
 	}
 
 	DeleteDC( g_Param.DeuCharBitmapDC );

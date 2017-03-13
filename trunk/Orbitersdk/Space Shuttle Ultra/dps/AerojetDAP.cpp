@@ -749,45 +749,55 @@ AerojetDAP::~AerojetDAP()
 
 void AerojetDAP::Realize()
 {
-	DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("AEROSURFACE_CMD", 16);
+	DiscreteBundle* pBundle=BundleManager()->CreateBundle("AEROSURFACE_CMD", 16);
 	//LeftElevonCommand.Connect(pBundle, 0);
 	//RightElevonCommand.Connect(pBundle, 1);
 	ElevonCommand.Connect(pBundle, 0);
 	AileronCommand.Connect(pBundle, 1);
 	RudderCommand.Connect(pBundle, 2);
 
-	pBundle=STS()->BundleManager()->CreateBundle("THRUSTER_CMD", 16);
+	pBundle=BundleManager()->CreateBundle("THRUSTER_CMD", 16);
 	for(unsigned int i=0;i<3;i++) {
 		ThrusterCommands[i].Connect(pBundle, i);
 	}
 
-	pBundle = BundleManager()->CreateBundle( "CSS_CONTROLS", 16 );
+	pBundle = BundleManager()->CreateBundle( "DAP_CH_CONTROLS", 16 );
 	CDRPitchAuto.Connect( pBundle, 0 );
-	CDRPitchAutoLT.Connect( pBundle, 1 );
+	PLTPitchAuto.Connect( pBundle, 1 );
 	CDRPitchCSS.Connect( pBundle, 2 );
-	CDRPitchCSSLT.Connect( pBundle, 3 );
+	PLTPitchCSS.Connect( pBundle, 3 );
 	CDRRollYawAuto.Connect( pBundle, 4 );
-	CDRRollYawAutoLT.Connect( pBundle, 5 );
+	PLTRollYawAuto.Connect( pBundle, 5 );
 	CDRRollYawCSS.Connect( pBundle, 6 );
-	CDRRollYawCSSLT.Connect( pBundle, 7 );
-	PLTPitchAuto.Connect( pBundle, 8 );
-	PLTPitchAutoLT.Connect( pBundle, 9 );
-	PLTPitchCSS.Connect( pBundle, 10 );
-	PLTPitchCSSLT.Connect( pBundle, 11 );
-	PLTRollYawAuto.Connect( pBundle, 12 );
-	PLTRollYawAutoLT.Connect( pBundle, 13 );
-	PLTRollYawCSS.Connect( pBundle, 14 );
-	PLTRollYawCSSLT.Connect( pBundle, 15 );
+	PLTRollYawCSS.Connect( pBundle, 7 );
+	CDR_SPDBK_THROT.Connect( pBundle, 8 );// HACK should first go to switch RM
+	PLT_SPDBK_THROT.Connect( pBundle, 9 );// HACK should first go to switch RM
 
-	pBundle=STS()->BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
-	CDR_SPDBK_THROT.Connect( pBundle, 0 );// HACK should first go to switch RM
-	CDR_SPDBK_THROT_AUTO_LT.Connect( pBundle, 1 );
-	CDR_SPDBK_THROT_MAN_LT.Connect( pBundle, 2 );
-	PLT_SPDBK_THROT.Connect( pBundle, 3 );// HACK should first go to switch RM
-	PLT_SPDBK_THROT_AUTO_LT.Connect( pBundle, 4 );
-	PLT_SPDBK_THROT_MAN_LT.Connect( pBundle, 5 );
+	pBundle = BundleManager()->CreateBundle( "ACA1_2", 16 );
+	CDRPitchAutoLT.Connect( pBundle, 8 );
+	CDRPitchCSSLT.Connect( pBundle, 12 );
+	
+	pBundle = BundleManager()->CreateBundle( "ACA1_3", 16 );
+	CDRRollYawAutoLT.Connect( pBundle, 4 );
+	CDRRollYawCSSLT.Connect( pBundle, 8 );
 
-	pBundle = STS()->BundleManager()->CreateBundle( "HUD_CDR", 16 );
+	pBundle = BundleManager()->CreateBundle( "ACA1_4", 16 );
+	CDR_SPDBK_THROT_AUTO_LT.Connect( pBundle, 0 );
+	CDR_SPDBK_THROT_MAN_LT.Connect( pBundle, 4 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA2_2", 16 );
+	PLTPitchAutoLT.Connect( pBundle, 10 );
+	PLTPitchCSSLT.Connect( pBundle, 14 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA2_3", 16 );
+	PLTRollYawAutoLT.Connect( pBundle, 6 );
+	PLTRollYawCSSLT.Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA2_4", 16 );
+	PLT_SPDBK_THROT_AUTO_LT.Connect( pBundle, 2 );
+	PLT_SPDBK_THROT_MAN_LT.Connect( pBundle, 6 );
+
+	pBundle = BundleManager()->CreateBundle( "HUD_CDR", 16 );
 	HUDPower[0].Connect( pBundle, 0 );
 	HUDDCLT[0].Connect( pBundle, 1 );
 	HUDBrightCDR[0].Connect( pBundle, 3 );
@@ -798,7 +808,7 @@ void AerojetDAP::Realize()
 	HUDBrightNightCDR.Connect( pBundle, 8 );
 	HUDBrightDayCDR.Connect( pBundle, 9 );
 
-	pBundle = STS()->BundleManager()->CreateBundle( "HUD_PLT", 16 );
+	pBundle = BundleManager()->CreateBundle( "HUD_PLT", 16 );
 	HUDPower[1].Connect( pBundle, 0 );
 	HUDDCLT[1].Connect( pBundle, 1 );
 	HUDBrightPLT[0].Connect( pBundle, 3 );

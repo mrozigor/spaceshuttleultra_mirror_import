@@ -22,14 +22,16 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-
 #pragma once
+
+
 #include "AtlantisVCComponent.h"
 #include "DiscreteBundle.h"
 
-namespace vc {
 
-	using discsignals::DiscreteBundle;
+namespace vc
+{
+	using namespace discsignals;
 
 
 	class BasicLight:public AtlantisVCComponent {
@@ -45,5 +47,22 @@ namespace vc {
 		virtual bool OnVCRedrawEvent(int id, int _event, SURFHANDLE surf);
 	};
 
+	/////////////////////////////////////////////////////////
 
-};
+	class BasicLight_2:public AtlantisVCComponent
+	{
+		protected:
+			int state;
+			int next_state;
+			int default_state;
+
+		public:
+			BasicLight_2( Atlantis* _sts, const string& _ident );
+			virtual ~BasicLight_2();
+
+			virtual void SetDefaultState( int _state );
+			virtual void SetStateOffset( int _state, float _U, float _V );
+
+			virtual bool ConnectLight( unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine );
+	};
+}

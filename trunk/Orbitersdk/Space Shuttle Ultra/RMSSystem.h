@@ -249,6 +249,11 @@ private:
 	DiscOutPort EECapture, EEExtended, EEClosed, EEOpened, EERigidized, EEDerigidized;
 	bool bAutoGrapple, bAutoRelease;
 
+	DiscInPort MasterAlarmPBI;
+
+	bool MasterAlarmOn;
+	bool ReachLimit;
+
 	bool arm_moved;
 	bool update_vectors, update_angles;
 

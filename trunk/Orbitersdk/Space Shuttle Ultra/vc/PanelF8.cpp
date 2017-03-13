@@ -3,9 +3,7 @@
 #include "../meshres_vc.h"
 #include "MDU.h"
 #include "../Atlantis_defs.h"
-#include "../meshres_vc_additions.h"
 
-extern GDIParams g_Param;
 
 namespace vc {
 
@@ -38,8 +36,8 @@ namespace vc {
 		Add( pLandingGearArmDeployCover[0] = new StandardSwitchCover( _sts, "Landing Gear ARM Cover" ) );
 		Add( pLandingGearArmDeployCover[1] = new StandardSwitchCover( _sts, "Landing Gear DN Cover" ) );
 
-		Add( pLandingGearArmDeploy[0] = new PushButtonIndicator( _sts, "Landing Gear ARM", true ) );
-		Add( pLandingGearArmDeploy[1] = new PushButtonIndicator( _sts, "Landing Gear DN", true ) );
+		Add( pLandingGearArmDeploy[0] = new PushButtonIndicatorSingleLight( _sts, "Landing Gear ARM" ) );
+		Add( pLandingGearArmDeploy[1] = new PushButtonIndicatorSingleLight( _sts, "Landing Gear DN" ) );
 	}
 
 	PanelF8::~PanelF8()
@@ -49,6 +47,7 @@ namespace vc {
 	void PanelF8::DefineVC()
 	{
 		VECTOR3 switch_rot = _V(1, 0, 0);
+		VECTOR3 push_dir = _V( 0.0, -0.258681, 0.965963 );
 
 		AddAIDToMouseEventList(AID_F8);
 
@@ -96,21 +95,15 @@ namespace vc {
 		pLandingGearArmDeployCover[1]->SetReference( _V( 0.4913, 1.99996, 14.68735 ), _V( 0, 0.965408, 0.260745 ) );
 		pLandingGearArmDeployCover[1]->DefineCoverGroup( GRP_F8COVER2_VC );
 
-		pLandingGearArmDeploy[0]->AddAIDToRedrawEventList( AID_F8_PB1 );
-		pLandingGearArmDeploy[0]->SetSourceImage( g_Param.pbi_lights );
-		pLandingGearArmDeploy[0]->SetBase( 0, 0 );
-		pLandingGearArmDeploy[0]->SetSourceCoords( true, 0, 0 );
-		pLandingGearArmDeploy[0]->SetSourceCoords( false, 0, 14 );
-		pLandingGearArmDeploy[0]->SetDimensions( 42, 14 );
-		pLandingGearArmDeploy[0]->SetMouseRegion( 0.079704f, 0.835708f, 0.113657f, 0.881215f );
+		pLandingGearArmDeploy[0]->SetStateOffset( 1, 0.0f, 0.488281f );
+		pLandingGearArmDeploy[0]->SetDirection( push_dir );
+		pLandingGearArmDeploy[0]->SetMouseRegion( 0.078671f, 0.825713f, 0.119706f, 0.887857f );
+		pLandingGearArmDeploy[0]->DefineMeshGroup( STS()->mesh_vc, GRP_F8_S1_VC );
 
-		pLandingGearArmDeploy[1]->AddAIDToRedrawEventList( AID_F8_PB2 );
-		pLandingGearArmDeploy[1]->SetSourceImage( g_Param.pbi_lights );
-		pLandingGearArmDeploy[1]->SetBase( 0, 0 );
-		pLandingGearArmDeploy[1]->SetSourceCoords( true, 42, 0 );
-		pLandingGearArmDeploy[1]->SetSourceCoords( false, 0, 14 );
-		pLandingGearArmDeploy[1]->SetDimensions( 42, 14 );
-		pLandingGearArmDeploy[1]->SetMouseRegion( 0.169614f, 0.835418f, 0.203512f, 0.881207f );
+		pLandingGearArmDeploy[1]->SetStateOffset( 1, 0.0f, 0.488281f );
+		pLandingGearArmDeploy[1]->SetDirection( push_dir );
+		pLandingGearArmDeploy[1]->SetMouseRegion( 0.165754f, 0.825414f, 0.206648f, 0.886536f );
+		pLandingGearArmDeploy[1]->DefineMeshGroup( STS()->mesh_vc, GRP_F8_S2_VC );
 	}
 
 	void PanelF8::RegisterVC()
@@ -122,9 +115,7 @@ namespace vc {
 			_V(0.416, 2.312, 14.755)+ofs, _V(0.942, 2.312, 14.755)+ofs,
 			_V(0.416, 1.949, 14.673)+ofs, _V(0.942, 1.949, 14.673) + ofs);
 
-		SURFHANDLE panel_tex = oapiGetTextureHandle( STS()->hOrbiterVCMesh, TEX_PANELF8_VC );
-		oapiVCRegisterArea( AID_F8_PB1, _R( 185, 323, 227, 337 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
-		oapiVCRegisterArea( AID_F8_PB2, _R( 357, 322, 399, 336 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panel_tex );
+		return;
 	}
 
 	void PanelF8::Realize()
@@ -147,12 +138,12 @@ namespace vc {
 		pLandingGearTB[1]->SetInput( 1, pBundle, 3, TB_DN );
 		pLandingGearTB[2]->SetInput( 0, pBundle, 4, TB_UP );
 		pLandingGearTB[2]->SetInput( 1, pBundle, 5, TB_DN );
+		pLandingGearArmDeploy[0]->output.Connect( pBundle, 7 );// arm pb
+		pLandingGearArmDeploy[1]->output.Connect( pBundle, 9 );// dn pb
 
-		pLandingGearArmDeploy[0]->input.Connect( pBundle, 6 );// arm light
-		pLandingGearArmDeploy[1]->input.Connect( pBundle, 7 );// dn light
-
-		pLandingGearArmDeploy[0]->output.Connect( pBundle, 10 );// arm pb (F8)
-		pLandingGearArmDeploy[1]->output.Connect( pBundle, 11 );// dn pb (F8)
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA2_5", 16 );
+		pLandingGearArmDeploy[0]->ConnectLight( 0, pBundle, 7 );// arm light
+		pLandingGearArmDeploy[1]->ConnectLight( 0, pBundle, 15 );// dn light
 		
 		AtlantisPanel::Realize();
 	}

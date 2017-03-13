@@ -10,6 +10,8 @@ namespace comm
 
 		target = NULL;
 		rOLD = 0;
+
+		dt_OLD = 0.1;
 	}
 
 	ElectronicsAssembly2::~ElectronicsAssembly2()
@@ -56,7 +58,7 @@ namespace comm
 
 		if (target)
 		{
-			if (!GetTargetInfo( target, r, rr, az, el, fDeltaT ))
+			if (!GetTargetInfo( target, r, rr, az, el, dt_OLD ))
 			{
 				target = NULL;
 				Detect.ResetLine();
@@ -81,6 +83,8 @@ namespace comm
 				Detect.SetLine();
 			}
 		}
+
+		dt_OLD = fDeltaT;
 		return;
 	}
 

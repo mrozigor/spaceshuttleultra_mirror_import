@@ -4,7 +4,7 @@
 #include "CommonDefs.h"
 
 
-DragChute::DragChute( AtlantisSubsystemDirector* _director ):AtlantisSubsystem( _director, "Drag Chute" )
+DragChute::DragChute( AtlantisSubsystemDirector* _director ):AtlantisSubsystem( _director, "DragChute" )
 {
 	mesh_index = MESH_UNDEFINED;
 	hMesh = oapiLoadMeshGlobal( DEFAULT_MESHNAME_CHUTE );
@@ -23,15 +23,32 @@ DragChute::~DragChute()
 void DragChute::Realize()
 {
 	DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "DRAG_CHUTE", 16 );
-	DragChuteARMLT.Connect( pBundle, 0 );
-	DragChuteDPYLT.Connect( pBundle, 1 );
-	DragChuteJETTLT.Connect( pBundle, 2 );
-	DragChuteARM[0].Connect( pBundle, 3 );
-	DragChuteARM[1].Connect( pBundle, 4 );
-	DragChuteDPY[0].Connect( pBundle, 5 );
-	DragChuteDPY[1].Connect( pBundle, 6 );
-	DragChuteJETT[0].Connect( pBundle, 7 );
-	DragChuteJETT[1].Connect( pBundle, 8 );
+	DragChuteARM[0].Connect( pBundle, 0 );
+	DragChuteARM[1].Connect( pBundle, 1 );
+	DragChuteDPY[0].Connect( pBundle, 2 );
+	DragChuteDPY[1].Connect( pBundle, 3 );
+	DragChuteJETT[0].Connect( pBundle, 4 );
+	DragChuteJETT[1].Connect( pBundle, 5 );
+
+	pBundle = STS()->BundleManager()->CreateBundle( "ACA2_1", 16 );
+	DragChuteDPY2LT[1].Connect( pBundle, 6 );
+	DragChuteARM2LT[1].Connect( pBundle, 10 );
+	DragChuteJETT2LT[1].Connect( pBundle, 14 );
+	
+	pBundle = STS()->BundleManager()->CreateBundle( "ACA2_2", 16 );
+	DragChuteARM2LT[0].Connect( pBundle, 4 );
+	DragChuteDPY2LT[0].Connect( pBundle, 8 );
+	DragChuteJETT2LT[0].Connect( pBundle, 12 );
+
+	pBundle = STS()->BundleManager()->CreateBundle( "ACA3_1", 16 );
+	DragChuteJETT1LT[0].Connect( pBundle, 4 );
+	DragChuteDPY1LT[0].Connect( pBundle, 8 );
+	DragChuteARM1LT[0].Connect( pBundle, 12 );
+
+	pBundle = STS()->BundleManager()->CreateBundle( "ACA3_5", 16 );
+	DragChuteARM1LT[1].Connect( pBundle, 2 );
+	DragChuteJETT1LT[1].Connect( pBundle, 10 );
+	DragChuteDPY1LT[1].Connect( pBundle, 14 );
 
 	DefineAnimations();
 	return;
@@ -54,8 +71,14 @@ void DragChute::OnPreStep( double SimT, double DeltaT, double MJD )
 				DragChuteSize = 0.0;
 				DragChuteDeployTime = SimT;
 
-				DragChuteARMLT.SetLine();
-				DragChuteDPYLT.SetLine();
+				DragChuteARM1LT[0].SetLine();
+				DragChuteARM1LT[1].SetLine();
+				DragChuteARM2LT[0].SetLine();
+				DragChuteARM2LT[1].SetLine();
+				DragChuteDPY1LT[0].SetLine();
+				DragChuteDPY1LT[1].SetLine();
+				DragChuteDPY2LT[0].SetLine();
+				DragChuteDPY2LT[1].SetLine();
 
 				DragChuteState = DEPLOYING;
 			}
@@ -96,7 +119,11 @@ void DragChute::OnPreStep( double SimT, double DeltaT, double MJD )
 				strcat_s( name, "-Chute" );
 				oapiCreateVesselEx( name, "SSU_Chute", &vs );
 
-				DragChuteJETTLT.SetLine();// HACK the light doesn't turn on when drag chute fails, but only when the JETT PBI is used
+				// HACK the light shouldn't turn on when drag chute fails, but only when the JETT PBI is used
+				DragChuteJETT1LT[0].SetLine();
+				DragChuteJETT1LT[1].SetLine();
+				DragChuteJETT2LT[0].SetLine();
+				DragChuteJETT2LT[1].SetLine();
 			}
 			else
 			{
@@ -120,9 +147,18 @@ bool DragChute::OnParseLine( const char* line )
 	{
 		DragChuteState = JETTISONED;
 		DragChuteSize = 0.0;
-		DragChuteARMLT.SetLine();
-		DragChuteDPYLT.SetLine();
-		DragChuteJETTLT.SetLine();
+		DragChuteARM1LT[0].SetLine();
+		DragChuteARM1LT[1].SetLine();
+		DragChuteARM2LT[0].SetLine();
+		DragChuteARM2LT[1].SetLine();
+		DragChuteDPY1LT[0].SetLine();
+		DragChuteDPY1LT[1].SetLine();
+		DragChuteDPY2LT[0].SetLine();
+		DragChuteDPY2LT[1].SetLine();
+		DragChuteJETT1LT[0].SetLine();
+		DragChuteJETT1LT[1].SetLine();
+		DragChuteJETT2LT[0].SetLine();
+		DragChuteJETT2LT[1].SetLine();
 		return true;
 	}
 	else return false;

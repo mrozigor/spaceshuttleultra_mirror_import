@@ -31,5 +31,31 @@ namespace vc {
 		redrawBase.y = usY;
 	}
 
+	/////////////////////////////////////////////////////////
 
-};
+	BasicLight_2::BasicLight_2( Atlantis* _sts, const string& _ident ):AtlantisVCComponent( _sts, _ident )
+	{
+		state = 0;
+		next_state = 0;
+		default_state = 0;
+	}
+
+	BasicLight_2::~BasicLight_2()
+	{
+	}
+
+	void BasicLight_2::SetDefaultState( int _state )
+	{
+		return;
+	}
+
+	void BasicLight_2::SetStateOffset( int _state, float _U, float _V )
+	{
+		return;
+	}
+
+	bool BasicLight_2::ConnectLight( unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine )
+	{
+		return false;
+	}
+}

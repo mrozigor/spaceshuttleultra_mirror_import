@@ -288,16 +288,17 @@ namespace eva_docking {
 		//	//simulate oscillations of structure
 		//}
 
+		bool CNTL_PNL = (dscu_ControlPanelPowerA.IsSet() && dscu_ControlPanelPowerB.IsSet()) || (dscu_ControlPanelPowerB.IsSet() && dscu_ControlPanelPowerC.IsSet()) || (dscu_ControlPanelPowerC.IsSet() && dscu_ControlPanelPowerA.IsSet());
 
-		if (dscu_APDSPowerA.IsSet() || dscu_APDSPowerB.IsSet() || dscu_APDSPowerC.IsSet())// TODO check if 2-of-3
+		if ((dscu_APDSPowerA.IsSet() && dscu_APDSPowerB.IsSet()) || (dscu_APDSPowerB.IsSet() && dscu_APDSPowerC.IsSet()) || (dscu_APDSPowerC.IsSet() && dscu_APDSPowerA.IsSet()))
 		{
-			if (dscu_PowerOn.IsSet())
+			if (dscu_PowerOn.IsSet() && CNTL_PNL)
 			{
 				bPowerRelay = true;
 				bAPDSCircuitProtectionOff = false;
 			} 
 
-			if (dscu_PowerOff.IsSet()) bPowerRelay = false;
+			if (dscu_PowerOff.IsSet() && CNTL_PNL) bPowerRelay = false;
 		}
 		else
 		{
@@ -307,30 +308,30 @@ namespace eva_docking {
 
 		if (HasDSCUPower())
 		{
-			dscu_PowerOnLight.SetLine();
-			dscu_RingAlignedLight.SetLine();
+			dscu_PowerOnLight.SetLine( (int)CNTL_PNL * 5.0f );
+			dscu_RingAlignedLight.SetLine( (int)CNTL_PNL * 5.0f );
 
-			if(dscu_APDSCircProtectionOff.IsSet()) {
+			if(dscu_APDSCircProtectionOff.IsSet() && CNTL_PNL) {
 				bAPDSCircuitProtectionOff = true;
 			}
 
-			if(dscu_FixerOff) {
+			if(dscu_FixerOff && CNTL_PNL) {
 				bFixersOn = false;
 			}
 
 			if(bAPDSCircuitProtectionOff) {
-				dscu_APDSCircProtectLight.SetLine();
+				dscu_APDSCircProtectLight.SetLine( (int)CNTL_PNL * 5.0f );
 			} else {
 				dscu_APDSCircProtectLight.ResetLine();
 			}
 
 			if(!bFixersOn) {
-				dscu_FixersOffLight.SetLine();
+				dscu_FixersOffLight.SetLine( (int)CNTL_PNL * 5.0f );
 			} else {
 				dscu_FixersOffLight.ResetLine();
 			}
 
-			if(dscu_RingOut.IsSet() && bAPDSCircuitProtectionOff) {
+			if(dscu_RingOut.IsSet() && CNTL_PNL && bAPDSCircuitProtectionOff) {
 				RingState.action = AnimState::OPENING;
 				extend_goal = EXTEND_TO_INITIAL;
 				if(RingState.pos >= 0.7229167) {
@@ -340,7 +341,7 @@ namespace eva_docking {
 			}
 
 
-			if(dscu_RingIn.IsSet() && bAPDSCircuitProtectionOff) {
+			if(dscu_RingIn.IsSet() && CNTL_PNL && bAPDSCircuitProtectionOff) {
 				RingState.action = AnimState::CLOSING;
 				extend_goal = RETRACT_TO_FINAL;
 				bFixersOn = true;
@@ -367,60 +368,60 @@ namespace eva_docking {
 			}
 
 			if(RingState.pos < 0.0631944) {
-				dscu_RingFinalLight.SetLine();
+				dscu_RingFinalLight.SetLine( (int)CNTL_PNL * 5.0f );
 			} else {
 				dscu_RingFinalLight.ResetLine();
 			}
 
 			if((RingState.pos >= 0.7229167&& RingState.pos < 0.7493056)) {
-				dscu_RingInitialLight.SetLine();
+				dscu_RingInitialLight.SetLine( (int)CNTL_PNL * 5.0f );
 			} else {
 				dscu_RingInitialLight.ResetLine();
 			}
 
 			if(RingState.pos >= 0.9868056 ) {
-				dscu_RingForwardLight.SetLine();
+				dscu_RingForwardLight.SetLine( (int)CNTL_PNL * 5.0f );
 			} else {
 				dscu_RingForwardLight.ResetLine();
 			}
 
 			if(bLatchesClosed) {
-				dscu_LatchesClosedLight.SetLine();
+				dscu_LatchesClosedLight.SetLine( (int)CNTL_PNL * 5.0f );
 			} else {
 				dscu_LatchesClosedLight.ResetLine();
 			}
 
 			if(bLatchesOpen) {
-				dscu_LatchesOpenLight.SetLine();
+				dscu_LatchesOpenLight.SetLine( (int)CNTL_PNL * 5.0f );
 			} else {
 				dscu_LatchesOpenLight.ResetLine();
 			}
 
 			if(bHooks1Open) {
-				dscu_Hooks1OpenLight.SetLine();
+				dscu_Hooks1OpenLight.SetLine( (int)CNTL_PNL * 5.0f );
 			} else {
 				dscu_Hooks1OpenLight.ResetLine();
 			}
 
 			if(bHooks2Open) {
-				dscu_Hooks2OpenLight.SetLine();
+				dscu_Hooks2OpenLight.SetLine( (int)CNTL_PNL * 5.0f );
 			} else {
 				dscu_Hooks2OpenLight.ResetLine();
 			}
 
 			if(bHooks1Closed) {
-				dscu_Hooks1ClosedLight.SetLine();
+				dscu_Hooks1ClosedLight.SetLine( (int)CNTL_PNL * 5.0f );
 			} else {
 				dscu_Hooks1ClosedLight.ResetLine();
 			}
 
 			if(bHooks2Closed) {
-				dscu_Hooks2ClosedLight.SetLine();
+				dscu_Hooks2ClosedLight.SetLine( (int)CNTL_PNL * 5.0f );
 			} else {
 				dscu_Hooks2ClosedLight.ResetLine();
 			}
 
-			if(bTargetCaptured) dscu_CaptureLight.SetLine();
+			if(bTargetCaptured) dscu_CaptureLight.SetLine( (int)CNTL_PNL * 5.0f );
 			else dscu_CaptureLight.ResetLine();
 
 		} else {
@@ -448,6 +449,9 @@ namespace eva_docking {
 		dscu_ADSLight.SetLine( (int)dscu_APDSPowerA.IsSet() * 5.0f );
 		dscu_BDSLight.SetLine( (int)dscu_APDSPowerB.IsSet() * 5.0f );
 		dscu_CDSLight.SetLine( (int)dscu_APDSPowerC.IsSet() * 5.0f );
+		dscu_APLight.SetLine( (int)dscu_PyrosAp.IsSet() * 5.0f );
+		dscu_BPLight.SetLine( (int)dscu_PyrosBp.IsSet() * 5.0f );
+		dscu_CPLight.SetLine( (int)dscu_PyrosCp.IsSet() * 5.0f );
 		return;
 	}
 
@@ -476,15 +480,18 @@ namespace eva_docking {
 		dscu_Undocking.Connect( pBundle, 14 );
 
 		pBundle = STS()->BundleManager()->CreateBundle( "PANELA8A3_TO_DSCU_B", 16 );
-		dscu_HeatersDCUPowerH1.Connect( pBundle, 0 );
-		dscu_HeatersDCUPowerH2DCU.Connect( pBundle, 1 );
-		dscu_HeatersDCUPowerH3DCU.Connect( pBundle, 2 );
-		dscu_APDSPowerA.Connect( pBundle, 3 );
-		dscu_APDSPowerB.Connect( pBundle, 4 );
-		dscu_APDSPowerC.Connect( pBundle, 5 );
-		dscu_PyrosAp.Connect( pBundle, 6 );
-		dscu_PyrosBp.Connect( pBundle, 7 );
-		dscu_PyrosCp.Connect( pBundle, 8 );
+		dscu_ControlPanelPowerA.Connect( pBundle, 0 );
+		dscu_ControlPanelPowerB.Connect( pBundle, 1 );
+		dscu_ControlPanelPowerC.Connect( pBundle, 2 );
+		dscu_HeatersDCUPowerH1.Connect( pBundle, 3 );
+		dscu_HeatersDCUPowerH2DCU.Connect( pBundle, 4 );
+		dscu_HeatersDCUPowerH3DCU.Connect( pBundle, 5 );
+		dscu_APDSPowerA.Connect( pBundle, 6 );
+		dscu_APDSPowerB.Connect( pBundle, 7 );
+		dscu_APDSPowerC.Connect( pBundle, 8 );
+		dscu_PyrosAp.Connect( pBundle, 9 );
+		dscu_PyrosBp.Connect( pBundle, 10 );
+		dscu_PyrosCp.Connect( pBundle, 11 );
 
 		DiscreteBundle* pBundleA = 
 			STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_A", 16);
@@ -509,13 +516,13 @@ namespace eva_docking {
 			STS()->BundleManager()->CreateBundle("DSCU_TO_PANELA8A3_B", 16);
 		dscu_LatchesOpenLight.Connect( pBundleB, 0 );
 		dscu_RingFinalLight.Connect( pBundleB, 1 );
-		dscu_ADSLight.Connect( pBundleB, 2 );
-		dscu_BDSLight.Connect( pBundleB, 3 );
-		dscu_CDSLight.Connect( pBundleB, 4 );
-		// AP
-		// BP
-		// CP
-		// pyro circuit protect off
+		dscu_PyroProtectCircuitOff.Connect( pBundleB, 2 );
+		dscu_ADSLight.Connect( pBundleB, 3 );
+		dscu_BDSLight.Connect( pBundleB, 4 );
+		dscu_CDSLight.Connect( pBundleB, 5 );
+		dscu_APLight.Connect( pBundleB, 6 );
+		dscu_BPLight.Connect( pBundleB, 7 );
+		dscu_CPLight.Connect( pBundleB, 8 );
 
 		STS()->SetAnimation(anim_ring, RingState.pos);
 		

@@ -2,6 +2,8 @@
 #include "ParameterValues.h"
 #include "meshres_RMS.h"
 #include <UltraMath.h>
+#include <OrbiterSoundSDK40.h>
+
 
 RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	: MPMSystem(_director, "RMS", RMS_MESHNAME, RMS_MESH_OFFSET, "G"), RMSCameraMode(NONE), bFirstStep(true)
@@ -61,6 +63,9 @@ RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	bEEClosed = false;
 	bEERigidized = false;
 	bEEDerigidized = false;
+
+	MasterAlarmOn = false;
+	ReachLimit = false;
 }
 
 RMSSystem::~RMSSystem()
@@ -89,6 +94,7 @@ void RMSSystem::Realize()
 	ShoulderBrace.Connect(pBundle, 4);
 	ShoulderBraceReleased.Connect(pBundle, 5);
 	RMSSelect.Connect(pBundle, 6);
+	MasterAlarmPBI.Connect( pBundle, 7 );
 
 	pBundle=BundleManager()->CreateBundle(GetIdentifier()+"_DATA", 16);
 	for(int i=0;i<6;i++) JointAngles[i].Connect(pBundle, i);
@@ -491,6 +497,12 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 		camera_moved=true;
 	}
 
+	if (MasterAlarmPBI.IsSet())
+	{
+		MasterAlarmOn = false;
+		StopVesselWave( STS()->GetSoundID(), CW_TONE_RMS_SOUND );
+	}
+
 	if (bFirstStep)
 	{
 		// set lines
@@ -602,20 +614,31 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 	}
 
 	// handle light and talkback outputs
+	// HACK most things here should be powered by the RMS Power and not the RMS Select switch
 	if (RMSSelect)
 	{
 		if(Eq(shoulder_brace, 0.0, 0.01)) ShoulderBraceReleased.SetLine();
 
 		// check reach limits
-		CWLights[10].ResetLine();
+		bool tmp = false;
 		for (int i = SHOULDER_YAW; i <= WRIST_ROLL; i++)
 		{
 			if ((joint_angle[i] < RMS_JOINT_REACHLIMITS[0][i]) || (joint_angle[i] > RMS_JOINT_REACHLIMITS[1][i]))
 			{
-				CWLights[10].SetLine();// reach lim light on
+				tmp = true;
 				break;
 			}
 		}
+
+		if ((tmp == true) && (ReachLimit == false))
+		{
+			PlayVesselWave( STS()->GetSoundID(), CW_TONE_RMS_SOUND, LOOP );
+			MasterAlarmOn = true;
+		}
+		ReachLimit = tmp;
+
+		CWLights[9].SetLine( (int)ReachLimit * 5.0f );// reach lim light
+		CWLights[11].SetLine( (int)MasterAlarmOn * 5.0f );// master alarm light
 
 		for (int i = 0; i < 12; i++) ModeLights[i].SetLine( (int)RMSMode[i] * 5.0f );
 
@@ -646,6 +669,8 @@ void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 		EEOpened.ResetLine();
 		EERigidized.ResetLine();
 		EEDerigidized.ResetLine();
+
+		StopVesselWave( STS()->GetSoundID(), CW_TONE_RMS_SOUND );
 	}
 }
 

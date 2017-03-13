@@ -27,28 +27,42 @@ namespace dps
 
 	void MM801::Realize()
 	{
-		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle("AEROSURFACE_CMD",16);
+		DiscreteBundle* pBundle = BundleManager()->CreateBundle("AEROSURFACE_CMD",16);
 		ElevonCommand.Connect(pBundle,0);
 		AileronCommand.Connect(pBundle,1);
 		RudderCommand.Connect(pBundle,2);
 		ElevonCommandRead.Connect(pBundle,0);
 		//AileronCommandRead.Connect(pBundle,1);
 
-		pBundle = BundleManager()->CreateBundle( "CSS_CONTROLS", 16 );
-		CDRPitchAutoLT.Connect( pBundle, 1 );
-		CDRPitchCSSLT.Connect( pBundle, 3 );
-		CDRRollYawAutoLT.Connect( pBundle, 5 );
-		CDRRollYawCSSLT.Connect( pBundle, 7 );
-		PLTPitchAutoLT.Connect( pBundle, 9 );
-		PLTPitchCSSLT.Connect( pBundle, 11 );
-		PLTRollYawAutoLT.Connect( pBundle, 13 );
-		PLTRollYawCSSLT.Connect( pBundle, 15 );
+		pBundle = BundleManager()->CreateBundle( "ACA1_2", 16 );
+		CDRBodyFlapManLT.Connect( pBundle, 4 );
+		CDRPitchAutoLT.Connect( pBundle, 8 );
+		CDRPitchCSSLT.Connect( pBundle, 12 );
 
-		pBundle = BundleManager()->CreateBundle( "SPDBKTHROT_CONTROLS", 16 );
-		CDRSbdbkThrotAutoLT.Connect( pBundle, 1 );// CDR AUTO LT
-		CDRSbdbkThrotManLT.Connect( pBundle, 2 );// CDR MAN LT
-		PLTSbdbkThrotAutoLT.Connect( pBundle, 4 );// PLT AUTO LT
-		PLTSbdbkThrotManLT.Connect( pBundle, 5 );// PLT MAN LT
+		pBundle = BundleManager()->CreateBundle( "ACA1_3", 16 );
+		CDRRollYawAutoLT.Connect( pBundle, 4 );
+		CDRRollYawCSSLT.Connect( pBundle, 8 );
+
+		pBundle = BundleManager()->CreateBundle( "ACA1_4", 16 );
+		CDRSbdbkThrotAutoLT.Connect( pBundle, 0 );
+		CDRSbdbkThrotManLT.Connect( pBundle, 4 );
+		CDRBodyFlapAutoLT.Connect( pBundle, 8 );
+
+		pBundle = BundleManager()->CreateBundle( "ACA2_2", 16 );
+		PLTPitchAutoLT.Connect( pBundle, 10 );
+		PLTPitchCSSLT.Connect( pBundle, 14 );
+
+		pBundle = BundleManager()->CreateBundle( "ACA2_3", 16 );
+		PLTRollYawAutoLT.Connect( pBundle, 6 );
+		PLTRollYawCSSLT.Connect( pBundle, 10 );
+
+		pBundle = BundleManager()->CreateBundle( "ACA2_4", 16 );
+		PLTSbdbkThrotAutoLT.Connect( pBundle, 2 );
+		PLTSbdbkThrotManLT.Connect( pBundle, 6 );
+		PLTBodyFlapAutoLT.Connect( pBundle, 10 );
+
+		pBundle = BundleManager()->CreateBundle( "ACA2_5", 16 );
+		PLTBodyFlapManLT.Connect( pBundle, 2 );
 	}
 
 	bool MM801::OnMajorModeChange(unsigned int newMajorMode)
@@ -347,6 +361,10 @@ namespace dps
 		CDRSbdbkThrotManLT.SetLine();
 		PLTSbdbkThrotAutoLT.SetLine();
 		PLTSbdbkThrotManLT.SetLine();
+		CDRBodyFlapAutoLT.SetLine();
+		CDRBodyFlapManLT.SetLine();
+		PLTBodyFlapAutoLT.SetLine();
+		PLTBodyFlapManLT.SetLine();
 		return;
 	}
 
@@ -364,6 +382,10 @@ namespace dps
 		CDRSbdbkThrotManLT.ResetLine();
 		PLTSbdbkThrotAutoLT.ResetLine();
 		PLTSbdbkThrotManLT.ResetLine();
+		CDRBodyFlapAutoLT.ResetLine();
+		CDRBodyFlapManLT.ResetLine();
+		PLTBodyFlapAutoLT.ResetLine();
+		PLTBodyFlapManLT.ResetLine();
 		return;
 	}
 };

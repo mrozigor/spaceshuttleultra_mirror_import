@@ -10,6 +10,7 @@ namespace vc {
 		anim_pb = NULL;
 		pPushDown = NULL;
 		uiGroup = 0xFFFF;
+		motionlength = PUSH_LENGHT;
 	}
 
 
@@ -33,7 +34,7 @@ namespace vc {
 			anim_pb = STS()->CreateAnimation(InitialAnimState());
 
 			pPushDown = new MGROUP_TRANSLATE(vc_idx, &uiGroup, 1, 
-				GetDirection() * 0.002 );
+				Normalize( GetDirection() ) * motionlength );
 			STS()->AddAnimationComponent(anim_pb, 0.0, 1.0, pPushDown);
 
 			VerifyAnimations();
@@ -73,4 +74,9 @@ namespace vc {
 		output.ResetLine();
 	}
 
+	void PushButton::SetMotionLength( double _motionlength )
+	{
+		motionlength = _motionlength;
+		return;
+	}
 };

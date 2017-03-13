@@ -46,6 +46,8 @@ namespace vc
 		pDockingLight->SetLabel(1, "DIM");
 		pDockingLight->SetLabel(2, "BRIGHT");
 		pDockingLight->SetInitialPosition(0);
+
+		Add( pMasterAlarm = new PushButtonIndicatorSingleLight( _sts, "Master Alarm" ) );
 	}
 
 	PanelA7U::~PanelA7U()
@@ -106,7 +108,8 @@ namespace vc
 	{
 		const VECTOR3 switch_rot_vert =  _V(-1, 0, 0);
 		const VECTOR3 switch_rot_horz = _V(0.0, -0.9499, 0.3126);
-		//VECTOR3 switch_pull = _V(0, 0.3126, 0.9499);
+		VECTOR3 switch_pull = _V( 0.0, 0.3126, 0.9499 );
+		VECTOR3 push_dir = -switch_pull;
 
 		AddAIDToMouseEventList(AID_A7U);
 
@@ -215,6 +218,11 @@ namespace vc
 		pDockingLight->DefineSwitchGroup(GRP_A7U7_VC);
 		pDockingLight->SetMouseRegion(0.870177f, 0.691057f, 0.931207f, 0.773388f);
 		pDockingLight->SetReference(_V(0.207, 2.6155, 12.363), switch_rot_vert);
+
+		pMasterAlarm->SetStateOffset( 1, 0.139648f, 0.0f );
+		pMasterAlarm->SetDirection( push_dir );
+		pMasterAlarm->SetMouseRegion( 0.860198f, 0.080638f, 0.916229f, 0.133652f );
+		pMasterAlarm->DefineMeshGroup( STS()->mesh_vc, GRP_A7_A1_S51_VC );
 	}
 
 	void PanelA7U::RegisterVC()
@@ -291,6 +299,12 @@ namespace vc
 		pDockingLight->ConnectSwitchPosition(1, 1);
 		pDockingLight->ConnectSwitchPosition(2, 2);
 		pRMSLight->ConnectPort(1, pBundle, 9);
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA4_4", 16 );
+		pMasterAlarm->ConnectLight( 0, pBundle, 15 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA5_4", 16 );
+		pMasterAlarm->ConnectLight( 1, pBundle, 15 );
 
 		AtlantisPanel::Realize();
 	}

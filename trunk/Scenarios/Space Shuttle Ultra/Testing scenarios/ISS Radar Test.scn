@@ -371,7 +371,6 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
 @SUBSYSTEM ElectronicsAssembly2
 @ENDSUBSYSTEM		;ElectronicsAssembly2
   @PANEL F2
-  "F2_BODYFLAP_AUTO" 0
   "Drag Chute ARM Cover" [0]
   "Drag Chute DPY Cover" [0]
   "HUD Mode" NORM
@@ -386,7 +385,6 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "HUD Power PLT" OFF
   @ENDPANEL 
   @PANEL F4
-  "F4_BODYFLAP_AUTO" 0
   "Drag Chute JETT Cover" [0]
   "HUD Mode" NORM
   "HUD Brightness" [2]

@@ -32,6 +32,7 @@
 #include "StandardRotarySwitch.h"
 #include "Talkback.h"
 #include "StandardLight.h"
+#include "PushButtonIndicator.h"
 #include "7SegDisp_RMS.h"
 
 
@@ -72,11 +73,17 @@ namespace vc
 		RotaryDemuxSwitch* pLEDJoint;
 		RotaryDemuxSwitch* pRMSMode;
 
-		StandardLight* pModeLights[12];
-		StandardLight* pCWLights[12];
-		StandardLight* pSequenceLights[2];
+		StandardSingleLight* pModeLights[12];
+		StandardSingleLight* pCWLights[11];
+		StandardSingleLight* pSequenceLights[2];
+
+		PushButtonIndicatorSingleLight* pMasterAlarm;
 
 		_7SegDisp_RMS* pRMS;
+
+		DiscInPort lighttest;
+		DiscInPort lightcmd[26];
+		DiscOutPort lightoutput[26];
 
 	public:
 		PanelA8(Atlantis* _sts);
@@ -86,6 +93,7 @@ namespace vc
 		virtual void DefineVC();
 		virtual void DefineVCAnimations(UINT vcidx);
 		virtual void Realize();
+		virtual void OnPostStep( double SimT, double DeltaT, double MJD );
 
 		virtual void AddMeshes(const VECTOR3& ofs);
 		virtual void SetMeshVisibility(bool visible);

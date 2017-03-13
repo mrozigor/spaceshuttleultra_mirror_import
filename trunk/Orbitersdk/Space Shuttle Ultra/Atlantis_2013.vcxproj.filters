@@ -394,9 +394,6 @@
     <ClCompile Include="dps\GeneralDisplays.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="vc\StandardLight2.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="vc\PanelC2.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -551,6 +548,12 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="eps\PRSD.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="AnnunciatorControlAssembly.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vc\PanelO1.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -918,9 +921,6 @@
     <ClInclude Include="dps\GeneralDisplays.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="vc\StandardLight2.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="mps\MPSdefs.h">
       <Filter>Includes</Filter>
     </ClInclude>
@@ -1116,18 +1116,21 @@
     <ClInclude Include="eps\PRSD.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="AnnunciatorControlAssembly.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelO1.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Atlantis.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Bitmaps\DEU_Raw_fault.bmp" />
-    <Image Include="Bitmaps\SSME_lights.bmp" />
-    <Image Include="Bitmaps\A8lights.bmp" />
     <Image Include="Bitmaps\DEU_Raw_overbright.bmp" />
     <Image Include="Bitmaps\clocknums.bmp" />
     <Image Include="Bitmaps\DEU_Raw.bmp" />
-    <Image Include="Bitmaps\ODSbuttons.bmp" />
     <Image Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
   </ItemGroup>
 </Project>

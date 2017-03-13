@@ -36,6 +36,7 @@ namespace vc
 	{
 		private:
 			StdSwitch2* pRadarAltimeter[2];
+			StdSwitch3* pAnnunciatorLampTest;
 
 		public:
 			PanelO8( Atlantis* psts );
