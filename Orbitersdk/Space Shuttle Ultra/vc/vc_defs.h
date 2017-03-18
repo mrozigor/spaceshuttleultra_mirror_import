@@ -144,13 +144,6 @@
 
 #define AID_A7U_MIN		640
 #define AID_A7U			640
-#define AID_A7U_PBI1	641
-#define AID_A7U_PBI2	642
-#define AID_A7U_PBI3	643
-#define AID_A7U_PBI4	644
-#define AID_A7U_PBI5	645
-#define AID_A7U_PBI6	646
-#define AID_A7U_PBI7	647
 #define AID_A7U_MAX		660
 
 #define AID_O17 		661

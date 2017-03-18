@@ -33,23 +33,7 @@ namespace vc
 {
 	using namespace discsignals;
 
-
-	class BasicLight:public AtlantisVCComponent {
-	protected:
-
-		POINT redrawBase;
-	public:
-		BasicLight(Atlantis* _sts, const string& _ident);
-		virtual ~BasicLight();
-		void SetBase(unsigned short usX, unsigned short usY);
-		virtual bool Connect(unsigned short usPort, discsignals::DiscreteBundle* pBundle, unsigned short usLine);
-		virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
-		virtual bool OnVCRedrawEvent(int id, int _event, SURFHANDLE surf);
-	};
-
-	/////////////////////////////////////////////////////////
-
-	class BasicLight_2:public AtlantisVCComponent
+	class BasicLight:public AtlantisVCComponent
 	{
 		protected:
 			int state;
@@ -57,8 +41,8 @@ namespace vc
 			int default_state;
 
 		public:
-			BasicLight_2( Atlantis* _sts, const string& _ident );
-			virtual ~BasicLight_2();
+			BasicLight( Atlantis* _sts, const string& _ident );
+			virtual ~BasicLight();
 
 			virtual void SetDefaultState( int _state );
 			virtual void SetStateOffset( int _state, float _U, float _V );
