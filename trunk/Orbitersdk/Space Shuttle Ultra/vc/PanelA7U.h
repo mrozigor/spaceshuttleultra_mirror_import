@@ -29,32 +29,64 @@
 #include "AtlantisPanel.h"
 #include "StandardSwitch.h"
 #include "PushButtonIndicator.h"
+#include "Talkback.h"
+
 
 namespace vc
 {
 	class PanelA7U : public AtlantisPanel
 	{
+		StandardTalkback2* pCameraPowerA_TB;
+		StandardTalkback2* pCameraPowerB_TB;
+		StandardTalkback2* pCameraPowerC_TB;
+		StandardTalkback2* pCameraPowerD_TB;
+		StandardTalkback2* pCameraPowerRMS_TB;
+
+		PushButtonIndicatorSingleLight* pMasterAlarm;
+
+		PushButtonIndicatorSingleLight* pVideoInputA;
+		PushButtonIndicatorSingleLight* pVideoInputB;
+		PushButtonIndicatorSingleLight* pVideoInputC;
+		PushButtonIndicatorSingleLight* pVideoInputD;
+		PushButtonIndicatorSingleLight* pVideoInputRMS;
+		PushButtonIndicatorSingleLight* pVideoInputFltDeck;
+		PushButtonIndicatorSingleLight* pVideoInputMidDeck;
+		PushButtonIndicatorSingleLight* pVideoInputPL1;
+		PushButtonIndicatorSingleLight* pVideoInputPL2;
+		PushButtonIndicatorSingleLight* pVideoInputPL3;
+		PushButtonIndicatorSingleLight* pVideoInputMUX1;
+		PushButtonIndicatorSingleLight* pVideoInputMUX2;
+		PushButtonIndicatorSingleLight* pVideoInputTest;
+
+		PushButtonIndicatorSingleLight* pVideoOutputMon1;
+		PushButtonIndicatorSingleLight* pVideoOutputMon2;
+		PushButtonIndicatorSingleLight* pVideoOutputDownLink;
+		PushButtonIndicatorSingleLight* pVideoOutputDTV;
+		PushButtonIndicatorSingleLight* pVideoOutputMUX1L;
+		PushButtonIndicatorSingleLight* pVideoOutputMUX1R;
+		PushButtonIndicatorSingleLight* pVideoOutputMUX2L;
+		PushButtonIndicatorSingleLight* pVideoOutputMUX2R;
+		
+		PushButtonIndicatorSingleLight* pMenuALC;
+		PushButtonIndicatorSingleLight* pMenuManGain;
+		PushButtonIndicatorSingleLight* pMenuColorBalLTLevel;
+		PushButtonIndicatorSingleLight* pMode1;
+		PushButtonIndicatorSingleLight* pMode2;
+		PushButtonIndicatorSingleLight* pMode3;
+
+		StdSwitch3* pCameraPowerA;
+		StdSwitch3* pCameraPowerB;
+		StdSwitch3* pCameraPowerC;
+		StdSwitch3* pCameraPowerD;
+		StdSwitch3* pCameraPowerRMS;
+		
 		StdSwitch3* pCameraPan;
 		StdSwitch3* pCameraTilt;
 		StdSwitch3* pPanTiltRate;
 
-		PushButtonIndicator* pCamApbi;
-		PushButtonIndicator* pCamBpbi;
-		PushButtonIndicator* pCamCpbi;
-		PushButtonIndicator* pCamDpbi;
-		PushButtonIndicator* pCamRMSpbi;
-
 		StdSwitch2* pPLBDLights[7];
 		StdSwitch3* pDockingLight;
 		StdSwitch2* pRMSLight;
-
-		PBIDiscPortGroup VideoInputGroup;
-
-		DiscOutPort CamTiltUp_Out[5], CamTiltDown_Out[5], CamPanLeft_Out[5], CamPanRight_Out[5], LowSpeed_Out[5];
-		DiscInPort CamTiltUp_In, CamTiltDown_In, CamPanLeft_In, CamPanRight_In, LowSpeed_In;
-		DiscInPort CamA, CamB, CamC, CamD, CamRMS;
-
-		PushButtonIndicatorSingleLight* pMasterAlarm;
 
 	public:
 		PanelA7U(Atlantis* _sts);
@@ -63,8 +95,6 @@ namespace vc
 		virtual void DefineVC();
 		virtual void RegisterVC();
 		virtual void Realize();
-
-		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 	};
 };
 

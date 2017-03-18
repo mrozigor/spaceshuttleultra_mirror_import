@@ -414,6 +414,7 @@
     <ClCompile Include="StbdMPMSystem.cpp" />
     <ClCompile Include="util\Stopwatch.cpp" />
     <ClCompile Include="vc\Talkback.cpp" />
+    <ClCompile Include="VideoControlUnit.cpp" />
     <ClCompile Include="WSB.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -604,6 +605,7 @@
     <ClInclude Include="vc\Talkback.h" />
     <ClInclude Include="vc\vc_defs.h" />
     <ClInclude Include="..\include\VesselAPI.h" />
+    <ClInclude Include="VideoControlUnit.h" />
     <ClInclude Include="WSB.h" />
   </ItemGroup>
   <ItemGroup>
@@ -628,7 +630,6 @@
     <Image Include="Bitmaps\DEU_Raw_overbright.bmp" />
     <Image Include="Bitmaps\clocknums.bmp" />
     <Image Include="Bitmaps\DEU_Raw.bmp" />
-    <Image Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

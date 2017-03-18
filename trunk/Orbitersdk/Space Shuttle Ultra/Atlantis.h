@@ -130,7 +130,6 @@ const static char* TEXT_RMSCONTROL = "Controlling RMS";
 
 typedef struct {
 	HINSTANCE hDLL;
-	SURFHANDLE pbi_lights;
 	SURFHANDLE clock_digits;
 	HBITMAP deu_characters;
 	HBITMAP deu_characters_overbright;
@@ -874,7 +873,7 @@ private:
 	
 	typedef enum {CAM_A=0, CAM_B=1, CAM_C=2, CAM_D=3} PLB_CAM;
 	double camYaw[4], camPitch[4];
-	VECTOR3 plbdCamPos[4];
+	VECTOR3 plbCamPos[4];
 	
 	// Selected camera must be moved at low rate (if false at high rate)
 	bool cameraLowRate;
@@ -1118,7 +1117,7 @@ private:
 
 	bool bLastCamInternal;
 
-	bool bPLBDCamPanLeft[5], bPLBDCamPanRight[5], bPLBDCamTiltUp[5], bPLBDCamTiltDown[5];
+	bool bPLBCamPanLeft_Man, bPLBCamPanRight_Man, bPLBCamTiltUp_Man, bPLBCamTiltDown_Man;
 
 	// used to trigger RCS sounds
 	int lastRotCommand[3], lastTransCommand[3]; // -1, 0 or 1
@@ -1140,14 +1139,14 @@ private:
 	//DiscInPort LeftElevonCommand, RightElevonCommand;
 	DiscInPort ElevonCommand, AileronCommand, RudderCommand;
 
-	// Pan/Tilt PLBD cameras and RMS elbow cam
-	// 0=A, 1=B, 2=C, 3=D, 4=RMS Elbow
-	DiscInPort PLBDCamPanLeft[5], PLBDCamPanRight[5], PLBDCamTiltUp[5], PLBDCamTiltDown[5];
-	DiscInPort PTULowSpeed[5];
-	DiscOutPort PLBDCamPanLeft_Out[5], PLBDCamPanRight_Out[5];
-	DiscOutPort PLBDCamTiltUp_Out[5], PLBDCamTiltDown_Out[5];
-
-	DiscInPort PLBDLightPower[6];
+	// Pan/Tilt PLB cameras (RMS elbow cam in RMSSystem class)
+	// 0=A, 1=B, 2=C, 3=D
+	DiscInPort PLBCamPanLeft[4], PLBCamPanRight[4], PLBCamTiltUp[4], PLBCamTiltDown[4];
+	DiscInPort PTUHighRate;
+	// "manual" tilt/pan commands from camera vc
+	DiscOutPort PLBCamPanLeft_Man, PLBCamPanRight_Man, PLBCamTiltUp_Man, PLBCamTiltDown_Man;
+	
+	DiscInPort PLBLightPower[6];
 	DiscInPort FwdBulkheadLightPower, DockingLightBright, DockingLightDim;
 
 	DiscOutPort RMSGrapple, RMSRelease; // used by RMS dialog

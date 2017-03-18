@@ -24,7 +24,7 @@
 #define TEX_DIGITS_VC		24
 #define TEX_PANELF8_VC		25
 #define TEX_PANELF6_VC		26
-#define TEX_PANELA6A7_VC	27// D
+#define TEX_PANELA6A7_VC	27
 #define TEX_AFTTIMER_VC		28
 #define TEX_PANELA2_VC		29
 #define TEX_PANELO8_VC		30
@@ -43,4 +43,5 @@
 #define TEX_CCTVMON_VC		43
 #define TEX_MON1VIEW_VC		44
 #define TEX_MON2VIEW_VC		45
-#define TEX_PBI_VC		46
+#define TEX_PBI_FWD_VC		46
+#define TEX_PBI_AFT_VC		47

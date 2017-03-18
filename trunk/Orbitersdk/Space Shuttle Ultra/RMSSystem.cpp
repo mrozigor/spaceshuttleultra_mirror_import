@@ -128,14 +128,16 @@ void RMSSystem::Realize()
 	pBundle = STS()->BundleManager()->CreateBundle( "RMS_MODELIGHTS", 16 );
 	for (int i = 0; i < 12; i++) ModeLights[i].Connect( pBundle, i );
 
-	pBundle = STS()->BundleManager()->CreateBundle("RMS_ELBOW_CAM", 16);
-	ElbowCamPanLeft.Connect(pBundle, 0);
-	ElbowCamPanRight.Connect(pBundle, 1);
-	ElbowCamTiltUp.Connect(pBundle, 2);
-	ElbowCamTiltDown.Connect(pBundle, 3);
-	CamLowSpeed.Connect(pBundle, 4);
+	pBundle = STS()->BundleManager()->CreateBundle( "VCU_output_1", 16 );
+	PTUHighRate.Connect( pBundle, 5 );
+
+	pBundle = STS()->BundleManager()->CreateBundle( "VCU_output_2", 16 );
+	ElbowCamPanLeft.Connect( pBundle, 6 );
+	ElbowCamPanRight.Connect( pBundle, 7 );
+	ElbowCamTiltUp.Connect( pBundle, 8 );
+	ElbowCamTiltDown.Connect( pBundle, 9 );
 	
-	pBundle = STS()->BundleManager()->CreateBundle("PLBD_LIGHTS", 16);
+	pBundle = STS()->BundleManager()->CreateBundle("PLB_LIGHTS", 16);
 	EELightPower.Connect(pBundle, 9);
 
 	CreateArm();
@@ -475,25 +477,23 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 			shoulder_brace=max(shoulder_brace-DeltaT*SHOULDER_BRACE_SPEED, 0.0);
 		}
 	}
+	double camrate = PTU_LOWRATE_SPEED;
+	if (PTUHighRate.IsSet()) camrate = PTU_HIGHRATE_SPEED;
 
 	if(ElbowCamPanLeft) {
-		if(CamLowSpeed) camRMSElbow[PAN] = max(camRMSElbow[PAN]-PTU_LOWRATE_SPEED*DeltaT, -MAX_PLB_CAM_PAN);
-		else camRMSElbow[PAN] = max(camRMSElbow[PAN]-PTU_HIGHRATE_SPEED*DeltaT, -MAX_PLB_CAM_PAN);
+		camRMSElbow[PAN] = max(camRMSElbow[PAN]-camrate*DeltaT, -MAX_PLB_CAM_PAN);
 		camera_moved=true;
 	}
 	else if(ElbowCamPanRight) {
-		if(CamLowSpeed) camRMSElbow[PAN] = min(camRMSElbow[PAN]+PTU_LOWRATE_SPEED*DeltaT, MAX_PLB_CAM_PAN);
-		else camRMSElbow[PAN] = min(camRMSElbow[PAN]+PTU_HIGHRATE_SPEED*DeltaT, MAX_PLB_CAM_PAN);
+		camRMSElbow[PAN] = min(camRMSElbow[PAN]+camrate*DeltaT, MAX_PLB_CAM_PAN);
 		camera_moved=true;
 	}
 	if(ElbowCamTiltDown) {
-		if(CamLowSpeed) camRMSElbow[TILT] = max(camRMSElbow[TILT]-PTU_LOWRATE_SPEED*DeltaT, -MAX_PLB_CAM_TILT);
-		else camRMSElbow[TILT] = max(camRMSElbow[TILT]-PTU_HIGHRATE_SPEED*DeltaT, -MAX_PLB_CAM_TILT);
+		camRMSElbow[TILT] = max(camRMSElbow[TILT]-camrate*DeltaT, -MAX_PLB_CAM_TILT);
 		camera_moved=true;
 	}
 	else if(ElbowCamTiltUp) {
-		if(CamLowSpeed) camRMSElbow[TILT] = min(camRMSElbow[TILT]+PTU_LOWRATE_SPEED*DeltaT, MAX_PLB_CAM_TILT);
-		else camRMSElbow[TILT] = min(camRMSElbow[TILT]+PTU_HIGHRATE_SPEED*DeltaT, MAX_PLB_CAM_TILT);
+		camRMSElbow[TILT] = min(camRMSElbow[TILT]+camrate*DeltaT, MAX_PLB_CAM_TILT);
 		camera_moved=true;
 	}
 

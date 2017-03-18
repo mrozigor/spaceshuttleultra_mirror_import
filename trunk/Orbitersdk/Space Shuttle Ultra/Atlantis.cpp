@@ -87,6 +87,7 @@
 #include "DragChute.h"
 #include "eps\PRSD.h"
 #include "AnnunciatorControlAssembly.h"
+#include "VideoControlUnit.h"
 #include <UltraMath.h>
 #include <cassert>
 #include "gcAPI.h"
@@ -824,12 +825,10 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	psubsystems->AddSubsystem(pActiveLatches[1] = new ActiveLatchGroup(psubsystems, "LATCH1", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
 	psubsystems->AddSubsystem(pActiveLatches[2] = new ActiveLatchGroup(psubsystems, "LATCH2", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
 
-	for (unsigned short i = 0; i < 5; i++) {
-		bPLBDCamPanLeft[i] = false;
-		bPLBDCamPanRight[i] = false;
-		bPLBDCamTiltUp[i] = false;
-		bPLBDCamTiltDown[i] = false;
-	}
+	bPLBCamPanLeft_Man = false;
+	bPLBCamPanRight_Man = false;
+	bPLBCamTiltUp_Man = false;
+	bPLBCamTiltDown_Man = false;
 
 	curOMSPitch[0] = curOMSPitch[RIGHT] = 0.0;
 	curOMSYaw[0] = curOMSYaw[RIGHT] = 0.0;
@@ -844,10 +843,10 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	for (int i = 0; i < 2; i++) SRBNullDirection[i] = _V(0.0, 0.0, 1.0);
 
 
-	plbdCamPos[0] = CAM_A_POS;
-	plbdCamPos[1] = CAM_B_POS;
-	plbdCamPos[2] = CAM_C_POS;
-	plbdCamPos[3] = CAM_D_POS;
+	plbCamPos[0] = CAM_A_POS;
+	plbCamPos[1] = CAM_B_POS;
+	plbCamPos[2] = CAM_C_POS;
+	plbCamPos[3] = CAM_D_POS;
 
 	//PLB LIGHTS
 	PLBLightPosition[0] = _V(1.6380, -2.1207, 5.5686); //forward stbd
@@ -1923,7 +1922,7 @@ void Atlantis::DefineAnimations(void)
 	LogAnim("anim_camFLpitch", anim_camFLpitch);
 	parent = AddManagedAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPitch, parent);
 
-	MGROUP_TRANSFORM* CameraFLPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbdCamPos[0]), 1);
+	MGROUP_TRANSFORM* CameraFLPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbCamPos[0]), 1);
 	AddManagedAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPos, parent);
 
 	// FRONT RIGHT
@@ -1941,7 +1940,7 @@ void Atlantis::DefineAnimations(void)
 	LogAnim("anim_camFRpitch", anim_camFRpitch);
 	parent = AddManagedAnimationComponent(anim_camFRpitch, 0, 1, CameraFRPitch, parent);
 
-	MGROUP_TRANSFORM* CameraFRPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbdCamPos[3]), 1);
+	MGROUP_TRANSFORM* CameraFRPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbCamPos[3]), 1);
 	AddManagedAnimationComponent(anim_camFRpitch, 0, 1, CameraFRPos, parent);
 
 	// BACK LEFT
@@ -1959,7 +1958,7 @@ void Atlantis::DefineAnimations(void)
 	LogAnim("anim_camBLpitch", anim_camBLpitch);
 	parent = AddManagedAnimationComponent(anim_camBLpitch, 0, 1, CameraBLPitch, parent);
 
-	MGROUP_TRANSFORM* CameraBLPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbdCamPos[1]), 1);
+	MGROUP_TRANSFORM* CameraBLPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbCamPos[1]), 1);
 	AddManagedAnimationComponent(anim_camBLpitch, 0, 1, CameraBLPos, parent);
 
 	// BACK RIGHT
@@ -1977,7 +1976,7 @@ void Atlantis::DefineAnimations(void)
 	LogAnim("anim_camBRpitch", anim_camBRpitch);
 	parent = AddManagedAnimationComponent(anim_camBRpitch, 0, 1, CameraBRPitch, parent);
 
-	MGROUP_TRANSFORM* CameraBRPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbdCamPos[2]), 1);
+	MGROUP_TRANSFORM* CameraBRPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbCamPos[2]), 1);
 	AddManagedAnimationComponent(anim_camBRpitch, 0, 1, CameraBRPos, parent);
 
 	// ***** 11 ET Umb Door animation *****
@@ -3112,7 +3111,7 @@ void Atlantis::SetAnimationCameras() {
 			b = ((camPitch[CAM_C] - 90)*RAD);
 			break;
 		}
-		SetCameraOffset(orbiter_ofs + plbdCamPos[VCMode - VC_PLBCAMFL]);
+		SetCameraOffset(orbiter_ofs + plbCamPos[VCMode - VC_PLBCAMFL]);
 		SetCameraDefaultDirection(_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
 		oapiCameraSetCockpitDir(0.0, 0.0);
 	}
@@ -4190,6 +4189,8 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 
 			psubsystems->AddSubsystem( new eps::PRSD( pMission->GetInternalPRSDTankSets(), pMission->HasEDOKit(), pMission->GetEDOPallets(), psubsystems ) );
 
+			psubsystems->AddSubsystem( new VideoControlUnit( psubsystems, "VideoControlUnit" ) );
+
 			psubsystems->AddSubsystem( new AnnunciatorControlAssembly( psubsystems, "ACA1", 1 ) );
 			psubsystems->AddSubsystem( new AnnunciatorControlAssembly( psubsystems, "ACA2", 2 ) );
 			psubsystems->AddSubsystem( new AnnunciatorControlAssembly( psubsystems, "ACA3", 3 ) );
@@ -4612,28 +4613,37 @@ void Atlantis::clbkPostCreation()
 		LO2LowLevelSensor[3].Connect(pBundle, 3);
 
 		// ports for pan/tilt and cam settings
-		DiscreteBundle* pCamBundles[5];
-		pCamBundles[0] = bundleManager->CreateBundle("PLB_CAM_A", 16);
-		pCamBundles[1] = bundleManager->CreateBundle("PLB_CAM_B", 16);
-		pCamBundles[2] = bundleManager->CreateBundle("PLB_CAM_C", 16);
-		pCamBundles[3] = bundleManager->CreateBundle("PLB_CAM_D", 16);
-		pCamBundles[4] = bundleManager->CreateBundle("RMS_ELBOW_CAM", 16);
-		for (unsigned short i = 0; i < 5; i++) {
-			PLBDCamPanLeft[i].Connect(pCamBundles[i], 0);
-			PLBDCamPanLeft_Out[i].Connect(pCamBundles[i], 0);
-			PLBDCamPanRight[i].Connect(pCamBundles[i], 1);
-			PLBDCamPanRight_Out[i].Connect(pCamBundles[i], 1);
+		pBundle = bundleManager->CreateBundle( "VCU_output_1", 16 );
+		PTUHighRate.Connect( pBundle, 5 );
+		PLBCamPanLeft[0].Connect( pBundle, 6 );
+		PLBCamPanRight[0].Connect( pBundle, 7 );
+		PLBCamTiltUp[0].Connect( pBundle, 8 );
+		PLBCamTiltDown[0].Connect( pBundle, 9 );
 
-			PLBDCamTiltUp[i].Connect(pCamBundles[i], 2);
-			PLBDCamTiltUp_Out[i].Connect(pCamBundles[i], 2);
-			PLBDCamTiltDown[i].Connect(pCamBundles[i], 3);
-			PLBDCamTiltDown_Out[i].Connect(pCamBundles[i], 3);
+		PLBCamPanLeft[1].Connect( pBundle, 10 );
+		PLBCamPanRight[1].Connect( pBundle, 11 );
+		PLBCamTiltUp[1].Connect( pBundle, 12 );
+		PLBCamTiltDown[1].Connect( pBundle, 13 );
 
-			PTULowSpeed[i].Connect(pCamBundles[i], 4);
-		}
+		PLBCamPanLeft[2].Connect( pBundle, 14 );
+		PLBCamPanRight[2].Connect( pBundle, 15 );
+		
+		pBundle = bundleManager->CreateBundle( "VCU_output_2", 16 );
+		PLBCamTiltUp[2].Connect( pBundle, 0 );
+		PLBCamTiltDown[2].Connect( pBundle, 1 );
+		PLBCamPanLeft[3].Connect( pBundle, 2 );
+		PLBCamPanRight[3].Connect( pBundle, 3 );
+		PLBCamTiltUp[3].Connect( pBundle, 4 );
+		PLBCamTiltDown[3].Connect( pBundle, 5 );
 
-		pBundle = bundleManager->CreateBundle("PLBD_LIGHTS", 16);
-		for (int i = 0; i < 6; i++) PLBDLightPower[i].Connect(pBundle, i);
+		pBundle = bundleManager->CreateBundle( "CameraManControl", 16 );
+		PLBCamPanLeft_Man.Connect( pBundle, 0 );
+		PLBCamPanRight_Man.Connect( pBundle, 1 );
+		PLBCamTiltUp_Man.Connect( pBundle, 2 );
+		PLBCamTiltDown_Man.Connect( pBundle, 3 );
+
+		pBundle = bundleManager->CreateBundle("PLB_LIGHTS", 16);
+		for (int i = 0; i < 6; i++) PLBLightPower[i].Connect(pBundle, i);
 		if (pMission->HasBulkheadFloodlights()) {
 			FwdBulkheadLightPower.Connect(pBundle, 6);
 			DockingLightDim.Connect(pBundle, 7);
@@ -5124,7 +5134,7 @@ void Atlantis::clbkPreStep(double simT, double simDT, double mjd)
 			}
 		}
 		for (int i = 0; i < 6; i++) {
-			bool state = PLBDLightPower[i].IsSet();
+			bool state = PLBLightPower[i].IsSet();
 			PLBLight[i]->Activate(state);
 			PLB_bspec[i].active = state;
 		}
@@ -5355,52 +5365,50 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 		// Animate payload bay cameras.
 		// ----------------------------------------------------------
 		if (VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) {
-			if (bPLBDCamPanLeft[VCMode - VC_PLBCAMFL]) {
-				PLBDCamPanLeft_Out[VCMode - VC_PLBCAMFL].SetLine();
-				PLBDCamPanRight_Out[VCMode - VC_PLBCAMFL].ResetLine();
+			if (bPLBCamPanLeft_Man) {
+				PLBCamPanLeft_Man.SetLine();
+				PLBCamPanRight_Man.ResetLine();
 			}
-			else if (bPLBDCamPanRight[VCMode - VC_PLBCAMFL]) {
-				PLBDCamPanLeft_Out[VCMode - VC_PLBCAMFL].ResetLine();
-				PLBDCamPanRight_Out[VCMode - VC_PLBCAMFL].SetLine();
+			else if (bPLBCamPanRight_Man) {
+				PLBCamPanLeft_Man.ResetLine();
+				PLBCamPanRight_Man.SetLine();
 			}
 			else {
-				PLBDCamPanLeft_Out[VCMode - VC_PLBCAMFL].ResetLine();
-				PLBDCamPanRight_Out[VCMode - VC_PLBCAMFL].ResetLine();
+				PLBCamPanLeft_Man.ResetLine();
+				PLBCamPanRight_Man.ResetLine();
 			}
 
-			if (bPLBDCamTiltUp[VCMode - VC_PLBCAMFL]) {
-				PLBDCamTiltUp_Out[VCMode - VC_PLBCAMFL].SetLine();
-				PLBDCamTiltDown_Out[VCMode - VC_PLBCAMFL].ResetLine();
+			if (bPLBCamTiltUp_Man) {
+				PLBCamTiltUp_Man.SetLine();
+				PLBCamTiltDown_Man.ResetLine();
 			}
-			else if (bPLBDCamTiltDown[VCMode - VC_PLBCAMFL]) {
-				PLBDCamTiltUp_Out[VCMode - VC_PLBCAMFL].ResetLine();
-				PLBDCamTiltDown_Out[VCMode - VC_PLBCAMFL].SetLine();
+			else if (bPLBCamTiltDown_Man) {
+				PLBCamTiltUp_Man.ResetLine();
+				PLBCamTiltDown_Man.SetLine();
 			}
 			else {
-				PLBDCamTiltUp_Out[VCMode - VC_PLBCAMFL].ResetLine();
-				PLBDCamTiltDown_Out[VCMode - VC_PLBCAMFL].ResetLine();
+				PLBCamTiltUp_Man.ResetLine();
+				PLBCamTiltDown_Man.ResetLine();
 			}
 		}
 
-		double camRate;
+		double camRate = PTU_LOWRATE_SPEED;
+		if (PTUHighRate) camRate = PTU_HIGHRATE_SPEED;
 		for (int i = 0; i < 4; i++) {
-			if (PTULowSpeed[i]) camRate = PTU_LOWRATE_SPEED;
-			else camRate = PTU_HIGHRATE_SPEED;
-
-			if (PLBDCamPanLeft[i])  {
-				camYaw[i] = max(-MAX_PLB_CAM_TILT, camYaw[i] - camRate*simdt);
+			if (PLBCamPanLeft[i])  {
+				camYaw[i] = max(-MAX_PLB_CAM_PAN, camYaw[i] - camRate*simdt);
 				cameraMoved = true;
 			}
-			else if (PLBDCamPanRight[i]) {
-				camYaw[i] = min(MAX_PLB_CAM_TILT, camYaw[i] + camRate*simdt);
+			else if (PLBCamPanRight[i]) {
+				camYaw[i] = min(MAX_PLB_CAM_PAN, camYaw[i] + camRate*simdt);
 				cameraMoved = true;
 			}
 
-			if (PLBDCamTiltDown[i]) {
+			if (PLBCamTiltDown[i]) {
 				camPitch[i] = max(-MAX_PLB_CAM_TILT, camPitch[i] - camRate*simdt);
 				cameraMoved = true;
 			}
-			else if (PLBDCamTiltUp[i]) {
+			else if (PLBCamTiltUp[i]) {
 				camPitch[i] = min(MAX_PLB_CAM_TILT, camPitch[i] + camRate*simdt);
 				cameraMoved = true;
 			}
@@ -6069,20 +6077,16 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 			if (VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) {
 				switch (key) {
 				case OAPI_KEY_LEFT:
-					//PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].ResetLine();
-					bPLBDCamPanLeft[VCMode - VC_PLBCAMFL] = false;
+					bPLBCamPanLeft_Man = false;
 					return 1;
 				case OAPI_KEY_RIGHT:
-					//PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].ResetLine();
-					bPLBDCamPanRight[VCMode - VC_PLBCAMFL] = false;
+					bPLBCamPanRight_Man = false;
 					return 1;
 				case OAPI_KEY_UP:
-					//PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].ResetLine();
-					bPLBDCamTiltUp[VCMode - VC_PLBCAMFL] = false;
+					bPLBCamTiltUp_Man = false;
 					return 1;
 				case OAPI_KEY_DOWN:
-					//PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].ResetLine();
-					bPLBDCamTiltDown[VCMode - VC_PLBCAMFL] = false;
+					bPLBCamTiltDown_Man = false;
 					return 1;
 				default:
 					return 0;
@@ -6178,20 +6182,16 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 		if (VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) {
 			switch (key) {
 			case OAPI_KEY_LEFT:
-				//PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].SetLine();
-				bPLBDCamPanLeft[VCMode - VC_PLBCAMFL] = true;
+				bPLBCamPanLeft_Man = true;
 				return 1;
 			case OAPI_KEY_RIGHT:
-				//PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].SetLine();
-				bPLBDCamPanRight[VCMode - VC_PLBCAMFL] = true;
+				bPLBCamPanRight_Man = true;
 				return 1;
 			case OAPI_KEY_UP:
-				//PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].SetLine();
-				bPLBDCamTiltUp[VCMode - VC_PLBCAMFL] = true;
+				bPLBCamTiltUp_Man = true;
 				return 1;
 			case OAPI_KEY_DOWN:
-				//PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].SetLine();
-				bPLBDCamTiltDown[VCMode - VC_PLBCAMFL] = true;
+				bPLBCamTiltDown_Man = true;
 				return 1;
 			default:
 				return 0;
@@ -6481,10 +6481,6 @@ DLLCLBK void InitModule(HINSTANCE hModule)
 	horizontalLookup.Init("Config/SSU_HorizontalAero.csv", true);
 	aileronHorizontalLookup.Init("Config/SSU_Aileron.csv", true);
 
-	g_Param.pbi_lights = oapiCreateSurface(LOADBMP(IDB_PBILIGHTS));
-	if (g_Param.pbi_lights == NULL) {
-		oapiWriteLog("Loading bitmap \"PBI_LIGHTS\" failed.");
-	}
 	g_Param.clock_digits = oapiCreateSurface(LOADBMP(IDB_CLOCKDIGITS));
 	if (g_Param.clock_digits == NULL) {
 		oapiWriteLog("Loading bitmap \"CLOCK_DIGITS\" failed.");
@@ -6523,10 +6519,6 @@ DLLCLBK void InitModule(HINSTANCE hModule)
 
 DLLCLBK void ExitModule(HINSTANCE hModule)
 {
-	if (g_Param.pbi_lights)
-	{
-		oapiDestroySurface(g_Param.pbi_lights);
-	}
 	if (g_Param.clock_digits)
 	{
 		oapiDestroySurface(g_Param.clock_digits);

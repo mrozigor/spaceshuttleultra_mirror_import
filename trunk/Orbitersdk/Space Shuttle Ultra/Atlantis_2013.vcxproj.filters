@@ -556,6 +556,9 @@
     <ClCompile Include="vc\PanelO1.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="VideoControlUnit.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -1122,6 +1125,9 @@
     <ClInclude Include="vc\PanelO1.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="VideoControlUnit.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Atlantis.rc" />
@@ -1131,6 +1137,5 @@
     <Image Include="Bitmaps\DEU_Raw_overbright.bmp" />
     <Image Include="Bitmaps\clocknums.bmp" />
     <Image Include="Bitmaps\DEU_Raw.bmp" />
-    <Image Include="Bitmaps\OrbitDAP_PBI_lights.bmp" />
   </ItemGroup>
 </Project>

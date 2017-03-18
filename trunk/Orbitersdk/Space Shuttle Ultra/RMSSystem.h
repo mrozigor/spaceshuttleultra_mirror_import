@@ -207,7 +207,7 @@ private:
 
 	bool bLastCamInternal;
 
-	DiscInPort CamLowSpeed;
+	DiscInPort PTUHighRate;
 	DiscInPort ElbowCamTiltUp, ElbowCamTiltDown, ElbowCamPanLeft, ElbowCamPanRight;
 	
 	VECTOR3 EELightPos;

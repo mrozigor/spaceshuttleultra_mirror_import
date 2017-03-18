@@ -5,7 +5,6 @@
 #define IDB_CLOCKDIGITS                 115
 #define IDB_7SEGDIGITS                  116
 #define IDB_DEUCHARACTERS               117
-#define IDB_PBILIGHTS                   118
 #define IDB_DEUCHARACTERSOVERBRIGHT     122
 #define IDB_DEUCHARACTERSFAULT          126
 
