@@ -1,6 +1,6 @@
 // ======================================================
 // Created by ssumeshc 0.2
-// Date of conversion : Mon Mar 20 15:20:26 2017
+// Date of conversion : Mon Mar 20 20:06:20 2017
 
 // Input file: VC.msh
 // ======================================================
@@ -288,12 +288,12 @@ const unsigned int GRP_O6GUARDB_VC	=	275;	//O6Guard
 const unsigned int GRP_A2PANEL_VC	=	276;	//A2panel
 const unsigned int GRP_A2U1_VC	=	277;	//A2U1
 const unsigned int GRP_A2U2_VC	=	278;	//A2U2
-const unsigned int GRP_A6UGUARDB_VC	=	279;	//A6UGuardb
+const unsigned int GRP_A2GUARD_VC	=	279;	//A2Guard
 const unsigned int GRP_A2AZH_VC	=	280;	//A2AZH
 const unsigned int GRP_A2ELH_VC	=	281;	//A2ELH
 const unsigned int GRP_A2ELV_VC	=	282;	//A2ELV
 const unsigned int GRP_A2AZV_VC	=	283;	//A2AZV
-const unsigned int GRP_GUARDB_VC	=	284;	//Guardb
+const unsigned int GRP_A4GUARDS_VC	=	284;	//A4Guards
 const unsigned int GRP_A4MISSIONSWITCH_VC	=	285;	//A4MissionSwitch
 const unsigned int GRP_A4_EVENT_S_VC	=	286;	//A4_Event_S
 const unsigned int GRP_A4_EVENT_S10_VC	=	287;	//A4_Event_S10
@@ -375,7 +375,7 @@ const unsigned int GRP_A7U43_VC	=	362;	//A7U43
 const unsigned int GRP_A7U44_VC	=	363;	//A7U44
 const unsigned int GRP_A7U11_VC	=	364;	//A7U11
 const unsigned int GRP_A7U_PANEL_VC	=	365;	//A7U_panel
-const unsigned int GRP_A6UGUARDBA_VC	=	366;	//A6UGuardb
+const unsigned int GRP_A7UGUARDS_VC	=	366;	//A7UGuards
 const unsigned int GRP_F6PANEL_VC	=	367;	//F6panel
 const unsigned int GRP_F6PANEL1_VC	=	368;	//F6panel1
 const unsigned int GRP_F6GUARD_VC	=	369;	//F6Guard
@@ -560,10 +560,10 @@ const unsigned int GRP_L2B20_VC	=	547;	//L2b20
 const unsigned int GRP_L2B22_VC	=	548;	//L2b22
 const unsigned int GRP_L2B19_VC	=	549;	//L2b19
 const unsigned int GRP_L2B25_VC	=	550;	//L2b25
-const unsigned int GRP_GUARDS_VC	=	551;	//guards
+const unsigned int GRP_L2GUARDS_VC	=	551;	//L2guards
 const unsigned int GRP_MEASURE_STRIPS_VC	=	552;	//measure_strips
 const unsigned int GRP_STRIPBASES_VC	=	553;	//stripbases
-const unsigned int GRP_O3_GUARDS_VC	=	554;	//O3_guards
+const unsigned int GRP_O1O2O3_GUARDS_VC	=	554;	//O1O2O3_guards
 const unsigned int GRP_CABLE_VC	=	555;	//cable
 const unsigned int GRP_O1S1_VC	=	556;	//O1S1
 const unsigned int GRP_O3_PRPLT_LEFT1_VC	=	557;	//O3_PRPLT_LEFT1
@@ -1014,7 +1014,7 @@ const unsigned int GRP_O14CB15_VC	=	1001;	//O14CB15
 const unsigned int GRP_O14CB6_VC	=	1002;	//O14CB6
 const unsigned int GRP_O14CB40_VC	=	1003;	//O14CB40
 const unsigned int GRP_O14_16PANEL_VC	=	1004;	//O14_16panel
-const unsigned int GRP_O14GUARD_VC	=	1005;	//O14Guard
+const unsigned int GRP_O14O15O16GUARD_VC	=	1005;	//O14O15O16Guard
 const unsigned int GRP_R1CB2_VC	=	1006;	//R1CB2
 const unsigned int GRP_R1CB3_VC	=	1007;	//R1CB3
 const unsigned int GRP_R1CB4_VC	=	1008;	//R1CB4
@@ -1328,7 +1328,7 @@ const unsigned int GRP_A1US4_VC	=	1315;	//A1US4
 const unsigned int GRP_A1US1_VC	=	1316;	//A1US1
 const unsigned int GRP_A1U_PANEL_VC	=	1317;	//A1U panel
 const unsigned int GRP_A1UM1_VC	=	1318;	//A1UM1
-const unsigned int GRP_A6GUARD_VC	=	1319;	//A6Guard
+const unsigned int GRP_A6UGUARD_VC	=	1319;	//A6UGuard
 const unsigned int GRP_A6US37_VC	=	1320;	//A6US37
 const unsigned int GRP_A6US4_VC	=	1321;	//A6US4
 const unsigned int GRP_A6URS5_VC	=	1322;	//A6URS5
