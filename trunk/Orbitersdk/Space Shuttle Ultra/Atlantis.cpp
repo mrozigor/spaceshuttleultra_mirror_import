@@ -75,6 +75,7 @@
 #include "vc/AftMDU.h"
 #include "vc/PanelC2.h"
 #include "vc/PanelC3.h"
+#include "vc/PanelL1.h"
 #include "vc/PanelL10.h"
 #include "vc/PanelL12U_IUS.h"
 #include "vc/PanelL12U_Centaur.h"
@@ -4187,6 +4188,10 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 
 			pMission = ssuGetMission(pszBuffer);
 
+			/////// panels ///////
+			pgLeft.AddPanel( new vc::PanelL1( this ) );
+
+			/////// subsystems ///////
 			psubsystems->AddSubsystem( new eps::PRSD( pMission->GetInternalPRSDTankSets(), pMission->HasEDOKit(), pMission->GetEDOPallets(), psubsystems ) );
 
 			psubsystems->AddSubsystem( new VideoControlUnit( psubsystems, "VideoControlUnit" ) );

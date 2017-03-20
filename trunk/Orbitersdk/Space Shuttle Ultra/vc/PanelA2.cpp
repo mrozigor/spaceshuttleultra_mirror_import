@@ -18,6 +18,8 @@ namespace vc
 		pXPNTR_SCALE->SetLabel( 1, "X1" );
 
 		Add( pRE_RRA = new _7SegDisp_RE_RRA( _sts, "Range/Elevation / Range Rate/Azimuth" ) );
+
+		Add( pKey = new StandardSingleLight( _sts, "KEY" ) );
 	}
 
 	PanelA2::~PanelA2()
@@ -52,6 +54,9 @@ namespace vc
 		pRE_RRA->DefineComponent( GRP_A2_RANGERATE_AZIMUTH_3_VC, true, true, false, _7SD_STATE_NUM0_DOTOFF );
 		pRE_RRA->DefineComponent( GRP_A2_RANGERATE_AZIMUTH_4_VC, true, true, false, _7SD_STATE_NUM0_DOTOFF );
 		pRE_RRA->DefineComponent( GRP_A2_RANGERATE_AZIMUTH_SIGN_VC, false, false, true, _7SD_STATE_SIGN2OFF );
+
+		pKey->DefineMeshGroup( STS()->mesh_vc, GRP_A2_KEY_VC );
+		pKey->SetStateOffset( 1, 0.0f, 0.044434f );
 		return;
 	}
 
@@ -123,6 +128,9 @@ namespace vc
 
 		pBundle = STS()->BundleManager()->CreateBundle( "A1U_SWITCHES_B", 16 );
 		pPower_On.Connect( pBundle, 6 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA5_5", 16 );
+		pKey->ConnectLight( 0, pBundle, 9 );
 
 		AtlantisPanel::Realize();
 	}

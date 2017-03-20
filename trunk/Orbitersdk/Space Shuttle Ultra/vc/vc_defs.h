@@ -81,6 +81,10 @@
 #define AID_C3         300
 #define AID_C3_MAX     309
 
+#define AID_L1_MIN	   310
+#define AID_L1		   310
+#define AID_L1_MAX	   319
+
 #define AID_O1_MIN	   320
 #define AID_O1		   320
 #define AID_O1_MAX	   329

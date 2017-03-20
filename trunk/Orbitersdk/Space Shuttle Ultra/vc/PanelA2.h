@@ -29,6 +29,7 @@
 #include "AtlantisPanel.h"
 #include "StandardSwitch.h"
 #include "7SegDisp_RE_RRA.h"
+#include "StandardLight.h"
 
 
 namespace vc
@@ -46,6 +47,8 @@ namespace vc
 			_7SegDisp_RE_RRA* pRE_RRA;
 
 			DiscInPort pXPNTR_SCALE_X1;
+
+			StandardSingleLight* pKey;
 
 			DiscInPort pELrate0_20;
 			DiscInPort pELrate0_2;
