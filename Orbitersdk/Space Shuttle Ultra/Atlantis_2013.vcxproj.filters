@@ -559,6 +559,9 @@
     <ClCompile Include="VideoControlUnit.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="vc\PanelL1.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -1126,6 +1129,9 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="VideoControlUnit.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelL1.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
