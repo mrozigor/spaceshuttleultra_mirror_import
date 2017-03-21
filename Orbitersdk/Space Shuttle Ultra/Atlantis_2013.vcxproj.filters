@@ -1134,6 +1134,9 @@
     <ClInclude Include="vc\PanelL1.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="meshres_vc_r13l.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Atlantis.rc" />

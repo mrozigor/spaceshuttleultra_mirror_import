@@ -485,6 +485,7 @@
     <ClInclude Include="meshres_vc_l10.h" />
     <ClInclude Include="meshres_vc_l12u_centaur.h" />
     <ClInclude Include="meshres_vc_l12u_ius.h" />
+    <ClInclude Include="meshres_vc_r13l.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics_BLOCK_II.h" />
     <ClInclude Include="mps\DigitalComputerUnit.h" />

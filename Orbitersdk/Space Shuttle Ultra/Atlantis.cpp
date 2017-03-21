@@ -415,13 +415,13 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pgAft.AddPanel(new vc::AftMDU(this));
 	
 	pgAftStbd.AddPanel(new vc::PanelR11(this));
-	pgAftStbd.AddPanel(new vc::PanelR13L(this));
 	
 	pPanelA8 = NULL;
 	pA7A8Panel = NULL;
 	pPanelL10 = NULL;
 	pPanelL12U_IUS = NULL;
 	pPanelL12U_Centaur = NULL;
+	pPanelR13L = NULL;
 	pExtAirlock = NULL;
 
 	psubsystems = new AtlantisSubsystemDirector(this);
@@ -2387,6 +2387,7 @@ void Atlantis::AddOrbiterVisual()
 		if (pPanelL10) pPanelL10->AddMeshes( VC_OFFSET );
 		if (pPanelL12U_IUS) pPanelL12U_IUS->AddMeshes( VC_OFFSET );
 		if (pPanelL12U_Centaur) pPanelL12U_Centaur->AddMeshes( VC_OFFSET );
+		if (pPanelR13L) pPanelR13L->AddMeshes( VC_OFFSET );
 
 		pgForward.DefineVC();
 		pgForward.DefineVCAnimations(mesh_vc);
@@ -4190,6 +4191,8 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 
 			/////// panels ///////
 			pgLeft.AddPanel( new vc::PanelL1( this ) );
+
+			pgAftStbd.AddPanel( pPanelR13L = new vc::PanelR13L( this ) );
 
 			/////// subsystems ///////
 			psubsystems->AddSubsystem( new eps::PRSD( pMission->GetInternalPRSDTankSets(), pMission->HasEDOKit(), pMission->GetEDOPallets(), psubsystems ) );
