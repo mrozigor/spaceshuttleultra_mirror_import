@@ -3,10 +3,11 @@
 updated SSU to run in Orbiter 2016
 integrated CRTMFD into the SpaceShuttleUltra vessel
 moved HUD outputs in IUS and Centaur into own MFDs
-extensive overhaul of the CRTMFD displays: corrected MDU screen aspect ratio, all displays reworked and converted to 512x512 resolution, separate code for MOGE and D3D9, added fonts, improved resource allocation
+extensive overhaul of the CRTMFD displays: corrected MDU screen aspect ratio, all displays reworked and converted to 512x512 resolution, separate code for MOGE and D3D9, added fonts, improved resource allocation, blue hue in the background
 improved CRT keyboard data entry
 improved memory cleanup on exit
-updated 7-segment displays to the "UV system"
+updated all 7-segment displays to the "UV system"
+updated all talkbacks to the "UV system"
 improved VC mesh performance
 corrected position of White Sands surface base
 added manual control capability during ascent
@@ -15,3 +16,13 @@ improved RHC, THC and SBTC simulation and added RPTA
 fixed pad lights glare
 changed IUS and Centaur engine gimbal to be rate command
 fixed several RMS issues
+improved HUD symbols
+corrected PLBD animation
+fixed left elevon and rudder/speedbrake animations
+finished ADI ball mesh/texture for D3D9
+added initial PDRS implementation (allows configuration of number of tank sets, but tank mass remains constant during the mission)
+added capability to display EDO pallet in payload bay
+added RMS master alarm, triggered when reach limits are exceeded
+corrected GVA retaction time
+improved ODS panel power logic
+updated existing, and added all remaining, PBIs and lights to the "UV system"
