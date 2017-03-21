@@ -45,7 +45,7 @@ bool PayloadBay::OnParseLine( const char* line )
 	} else if (!_strnicmp (line, "RADLATCH_PORT", 13)) {
 		sscan_state ((char*)(line+13), RadLatchStatus[0]);
 		return true;
-	} else if (!_strnicmp (line, "RADLATCH_PSTBD", 13)) {
+	} else if (!_strnicmp (line, "RADLATCH_STBD", 13)) {
 		sscan_state ((char*)(line+13), RadLatchStatus[1]);
 		return true;
 	} else if (!_strnicmp (line, "DOORLATCH", 9)) {
