@@ -35,6 +35,9 @@ namespace vc
 {
 	class PanelR13L:public AtlantisPanel
 	{
+			MESHHANDLE hPanelMesh;
+			UINT mesh_index;
+
 			StdSwitch2* pPLBayDoor[2];
 			StdSwitch2* pPLBayMechPWR[2];
 
@@ -55,8 +58,12 @@ namespace vc
 			PanelR13L( Atlantis* psts );
 			virtual ~PanelR13L();
 
+			virtual void AddMeshes( const VECTOR3& ofs );
+			virtual void SetMeshVisibility( bool visible );
+			virtual UINT GetVCMeshIndex( void ) const;
 			virtual void DefineVC();
 			virtual void RegisterVC();
+			virtual void DefineVCAnimations( UINT vcidx );
 			virtual void Realize();
 	};
 };

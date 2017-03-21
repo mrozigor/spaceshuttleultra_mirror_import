@@ -1,6 +1,8 @@
 #include "PanelR13L.h"
 #include "../Atlantis.h"
 #include "../Atlantis_defs.h"
+#include "../CommonDefs.h"
+#include "../meshres_vc_r13l.h"
 
 
 namespace vc
@@ -8,6 +10,9 @@ namespace vc
 	PanelR13L::PanelR13L( Atlantis* psts ):AtlantisPanel( psts, "R13L" )
 	{
 		oapiWriteLog( "(PanelR13L::PanelR13L) Enter constructor." );
+
+		hPanelMesh = oapiLoadMeshGlobal( DEFAULT_MESHNAME_PANELR13L );
+		mesh_index = MESH_UNDEFINED;
 
 		Add( pPLBayDoor[0] = new StdSwitch2( psts, "PL Bay Door SYS 1" ) );
 		pPLBayDoor[0]->SetLabel( 0, "DISABLE" );
@@ -84,101 +89,125 @@ namespace vc
 	{
 	}
 
+	void PanelR13L::AddMeshes( const VECTOR3 &ofs )
+	{
+		SetHasOwnVCMesh();
+
+		if (mesh_index == MESH_UNDEFINED)
+		{
+			mesh_index = STS()->AddMesh( hPanelMesh, &ofs );
+			STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_VC );
+		}
+		return;
+	}
+
+	void PanelR13L::SetMeshVisibility( bool visible )
+	{
+		if (visible) STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_VC );
+		else STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_NEVER );
+		return;
+	}
+
+	UINT PanelR13L::GetVCMeshIndex( void ) const
+	{
+		return mesh_index;
+	}
+
 	void PanelR13L::DefineVC()
 	{
 		const VECTOR3 SWITCH_ROT = _V( 0, 0, -1 );
-		const VECTOR3 SWITCH_PULL = _V( -0.5, 0.866, 0 );
+		const VECTOR3 SWITCH_PULL = _V( -0.548687, 0.836028, 0 );
 		AddAIDToMouseEventList( AID_R13L );
 
 		pPLBayDoor[0]->SetInitialAnimState( 0.5f );
-		pPLBayDoor[0]->DefineSwitchGroup( GRP_SWITCHR13L_1_VC );
-		pPLBayDoor[0]->SetReference( _V( 1.271, 2.259, 12.501 ), SWITCH_ROT );
-		pPLBayDoor[0]->SetMouseRegion( 0.163153f, 0.143026f, 0.243193f, 0.224609f );
+		pPLBayDoor[0]->DefineSwitchGroup( GRP_S15_R13L_VC );
+		pPLBayDoor[0]->SetReference( _V( 1.2589, 2.2510, 12.4970 ), SWITCH_ROT );
+		pPLBayDoor[0]->SetMouseRegion( 0.168642f, 0.143249f, 0.235304f, 0.210372f );
 
 		pPLBayDoor[1]->SetInitialAnimState( 0.5f );
-		pPLBayDoor[1]->DefineSwitchGroup( GRP_SWITCHR13L_2_VC );
-		pPLBayDoor[1]->SetReference( _V( 1.271, 2.259, 12.501 ), SWITCH_ROT );
-		pPLBayDoor[1]->SetMouseRegion( 0.310684f, 0.137739f, 0.400270f, 0.226850f );
+		pPLBayDoor[1]->DefineSwitchGroup( GRP_S14_R13L_VC );
+		pPLBayDoor[1]->SetReference( _V( 1.2589, 2.2510, 12.4970 ), SWITCH_ROT );
+		pPLBayDoor[1]->SetMouseRegion( 0.328042f, 0.143249f, 0.389222f, 0.210372f );
 
 		pPLBayMechPWR[0]->SetInitialAnimState( 0.5f );
-		pPLBayMechPWR[0]->DefineSwitchGroup( GRP_SWITCHR13L_3_VC );
-		pPLBayMechPWR[0]->SetReference( _V( 1.271, 2.259, 12.501 ), SWITCH_ROT );
-		pPLBayMechPWR[0]->SetMouseRegion( 0.464691f, 0.139690f, 0.548855f, 0.223995f );
+		pPLBayMechPWR[0]->DefineSwitchGroup( GRP_S1_R13L_VC );
+		pPLBayMechPWR[0]->SetReference( _V( 1.2589, 2.2510, 12.4970 ), SWITCH_ROT );
+		pPLBayMechPWR[0]->SetMouseRegion( 0.477183f, 0.143249f, 0.540203f, 0.210372f );
 
 		pPLBayMechPWR[1]->SetInitialAnimState( 0.5f );
-		pPLBayMechPWR[1]->DefineSwitchGroup( GRP_SWITCHR13L_4_VC );
-		pPLBayMechPWR[1]->SetReference( _V( 1.271, 2.259, 12.501 ), SWITCH_ROT );
-		pPLBayMechPWR[1]->SetMouseRegion( 0.617969f, 0.144364f, 0.706554f, 0.219415f );
+		pPLBayMechPWR[1]->DefineSwitchGroup( GRP_S2_R13L_VC );
+		pPLBayMechPWR[1]->SetReference( _V( 1.2589, 2.2510, 12.4970 ), SWITCH_ROT );
+		pPLBayMechPWR[1]->SetMouseRegion( 0.631861f, 0.143249f, 0.695974f, 0.210372f );
 
 
 		pLatchControl[0]->SetInitialAnimState( 0.5f );
-		pLatchControl[0]->DefineSwitchGroup( GRP_SWITCHR13L_6_VC );
-		pLatchControl[0]->SetReference( _V( 1.18, 2.199, 12.504 ), SWITCH_ROT );
-		pLatchControl[0]->SetMouseRegion( 0.303606f, 0.495669f, 0.389273f, 0.577190f );
+		pLatchControl[0]->DefineSwitchGroup( GRP_S4_R13L_VC );
+		pLatchControl[0]->SetReference( _V( 1.1680, 2.1914, 12.4524 ), SWITCH_ROT );
+		pLatchControl[0]->SetMouseRegion( 0.317112f, 0.494518f, 0.382363f, 0.560706f );
 
 		pLatchControl[1]->SetInitialAnimState( 0.5f );
-		pLatchControl[1]->DefineSwitchGroup( GRP_SWITCHR13L_7_VC );
-		pLatchControl[1]->SetReference( _V( 1.18, 2.199, 12.504 ), SWITCH_ROT );
-		pLatchControl[1]->SetMouseRegion( 0.462003f, 0.502695f, 0.547449f, 0.579582f );
+		pLatchControl[1]->DefineSwitchGroup( GRP_S6_R13L_VC );
+		pLatchControl[1]->SetReference( _V( 1.1680, 2.1914, 12.4524 ), SWITCH_ROT );
+		pLatchControl[1]->SetMouseRegion( 0.475552f, 0.496065f, 0.536584f, 0.560706f );
 
 		pRadiatorControl[0]->SetInitialAnimState( 0.5f );
-		pRadiatorControl[0]->DefineSwitchGroup( GRP_SWITCHR13L_8_VC );
-		pRadiatorControl[0]->SetReference( _V( 1.18, 2.199, 12.504 ), SWITCH_ROT );
-		pRadiatorControl[0]->SetMouseRegion( 0.621844f, 0.499144f, 0.709090f, 0.575397f );
+		pRadiatorControl[0]->DefineSwitchGroup( GRP_S5_R13L_VC );
+		pRadiatorControl[0]->SetReference( _V( 1.1680, 2.1914, 12.4524 ), SWITCH_ROT );
+		pRadiatorControl[0]->SetMouseRegion( 0.635115f, 0.496065f, 0.700500f, 0.560706f );
 
 		pRadiatorControl[1]->SetInitialAnimState( 0.5f );
-		pRadiatorControl[1]->DefineSwitchGroup( GRP_SWITCHR13L_9_VC );
-		pRadiatorControl[1]->SetReference( _V( 1.18, 2.199, 12.504 ), SWITCH_ROT );
-		pRadiatorControl[1]->SetMouseRegion( 0.778255f, 0.494450f, 0.865381f, 0.574690f );
+		pRadiatorControl[1]->DefineSwitchGroup( GRP_S7_R13L_VC );
+		pRadiatorControl[1]->SetReference( _V( 1.1680, 2.1914, 12.4524 ), SWITCH_ROT );
+		pRadiatorControl[1]->SetMouseRegion( 0.793256f, 0.496065f, 0.856982f, 0.560706f );
 		
 		pKUAntenna->SetInitialAnimState( 0.5f );
-		pKUAntenna->DefineSwitchGroup( GRP_SWITCHR13L_11_VC );
-		pKUAntenna->SetReference( _V( 1.093, 2.142, 12.503 ), SWITCH_ROT );
-		pKUAntenna->SetMouseRegion( 0.307785f, 0.828553f, 0.388628f, 0.909387f );
+		pKUAntenna->DefineSwitchGroup( GRP_S8_R13L_VC );
+		pKUAntenna->SetReference( _V( 1.0815, 2.1346, 12.3583 ), SWITCH_ROT );
+		pKUAntenna->SetMouseRegion( 0.318068f, 0.829212f, 0.381281f, 0.895379f );
 
 		pMMUGN2SPLYISOLVLV[0]->SetInitialAnimState( 0.5f );
-		pMMUGN2SPLYISOLVLV[0]->DefineSwitchGroup( GRP_SWITCHR13L_12_VC );
-		pMMUGN2SPLYISOLVLV[0]->SetReference( _V( 1.093, 2.142, 12.503 ), SWITCH_ROT );
-		pMMUGN2SPLYISOLVLV[0]->SetMouseRegion( 0.618380f, 0.832279f, 0.705493f, 0.909792f );
+		pMMUGN2SPLYISOLVLV[0]->DefineSwitchGroup( GRP_S11_R13L_VC );
+		pMMUGN2SPLYISOLVLV[0]->SetReference( _V( 1.0815, 2.1346, 12.3583 ), SWITCH_ROT );
+		pMMUGN2SPLYISOLVLV[0]->SetMouseRegion( 0.632811f, 0.829212f, 0.699357f, 0.895379f );
 		pMMUGN2SPLYISOLVLV[0]->SetSpringLoaded( true, 0 );
 		pMMUGN2SPLYISOLVLV[0]->SetSpringLoaded( true, 2 );
 
 		pMMUGN2SPLYISOLVLV[1]->SetInitialAnimState( 0.5f );
-		pMMUGN2SPLYISOLVLV[1]->DefineSwitchGroup( GRP_SWITCHR13L_13_VC );
-		pMMUGN2SPLYISOLVLV[1]->SetReference( _V( 1.093, 2.142, 12.503 ), SWITCH_ROT );
-		pMMUGN2SPLYISOLVLV[1]->SetMouseRegion( 0.779999f, 0.833202f, 0.866269f, 0.908316f );
+		pMMUGN2SPLYISOLVLV[1]->DefineSwitchGroup( GRP_S10_R13L_VC );
+		pMMUGN2SPLYISOLVLV[1]->SetReference( _V( 1.0815, 2.1346, 12.3583 ), SWITCH_ROT );
+		pMMUGN2SPLYISOLVLV[1]->SetMouseRegion( 0.792294f, 0.829212f, 0.857664f, 0.895379f );
 		pMMUGN2SPLYISOLVLV[1]->SetSpringLoaded( true, 0 );
 		pMMUGN2SPLYISOLVLV[1]->SetSpringLoaded( true, 2 );
 
 
 		pPLBayDoorLL->SetInitialAnimState( 0.5f );
-		pPLBayDoorLL->DefineSwitchGroup( GRP_SWITCHR13L_5_VC );
-		pPLBayDoorLL->SetReference( _V( 1.18, 2.199, 12.504 ), SWITCH_ROT );
-		pPLBayDoorLL->SetMouseRegion( 0.150730f, 0.496063f, 0.234853f, 0.570609f );
+		pPLBayDoorLL->DefineSwitchGroup( GRP_S3_R13L_VC );
+		pPLBayDoorLL->SetReference( _V( 1.1680, 2.1914, 12.4524 ), SWITCH_ROT );
+		pPLBayDoorLL->SetMouseRegion( 0.158612f, 0.496065f, 0.225865f, 0.560706f );
 		pPLBayDoorLL->SetPullDirection( SWITCH_PULL );
 
 		pKUAntennaDirectStow->SetInitialAnimState( 0.5f );
-		pKUAntennaDirectStow->DefineSwitchGroup( GRP_SWITCHR13L_10_VC );
-		pKUAntennaDirectStow->SetReference( _V( 1.093, 2.142, 12.503 ), SWITCH_ROT );
-		pKUAntennaDirectStow->SetMouseRegion( 0.152062f, 0.833136f, 0.237823f, 0.908989f );
+		pKUAntennaDirectStow->DefineSwitchGroup( GRP_S12_R13L_VC );
+		pKUAntennaDirectStow->SetReference( _V( 1.0815, 2.1346, 12.3583 ), SWITCH_ROT );
+		pKUAntennaDirectStow->SetMouseRegion( 0.164952f, 0.829212f, 0.230913f, 0.895379f );
 		pKUAntennaDirectStow->SetPullDirection( SWITCH_PULL );
 
 
-		pPLBayDoorTB->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK1_VC );
+		pPLBayDoorTB->DefineMeshGroup( mesh_index, GRP_DS1_R13L_VC );
 
-		pLatch[0]->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK2_VC );
+		pLatch[0]->DefineMeshGroup( mesh_index, GRP_DS2_R13L_VC );
 
-		pLatch[1]->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK3_VC );
+		pLatch[1]->DefineMeshGroup( mesh_index, GRP_DS4_R13L_VC );
 
-		pRadiator[0]->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK4_VC );
+		pRadiator[0]->DefineMeshGroup( mesh_index, GRP_DS3_R13L_VC );
 
-		pRadiator[1]->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK5_VC );
+		pRadiator[1]->DefineMeshGroup( mesh_index, GRP_DS5_R13L_VC );
 
-		pKUAntennaTB->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK6_VC );
+		pKUAntennaTB->DefineMeshGroup( mesh_index, GRP_DS6_R13L_VC );
 
-		pMMUGN2SPLYISOLVLVTB[0]->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK7_VC );
+		pMMUGN2SPLYISOLVLVTB[0]->DefineMeshGroup( mesh_index, GRP_DS9_R13L_VC );
 
-		pMMUGN2SPLYISOLVLVTB[1]->DefineMeshGroup( STS()->mesh_vc, GRP_R13TALK8_VC );
+		pMMUGN2SPLYISOLVLVTB[1]->DefineMeshGroup( mesh_index, GRP_DS8_R13L_VC );
 		return;
 	}
 
@@ -189,8 +218,14 @@ namespace vc
 
 		oapiVCRegisterArea( AID_R13L, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBPRESSED | PANEL_MOUSE_LBUP );
 		oapiVCSetAreaClickmode_Quadrilateral( AID_R13L, 
-			_V( 1.32, 2.29, 12.56 ) + ofs, _V( 1.32, 2.29, 12.26 ) + ofs, 
-			_V( 1.06, 2.12, 12.56 ) + ofs, _V( 1.06, 2.12, 12.26 ) + ofs );
+			_V( 1.30517, 2.28139, 12.5617 ) + ofs, _V( 1.30517, 2.28139, 12.2607 ) + ofs, 
+			_V( 1.04497, 2.11062, 12.5617 ) + ofs, _V( 1.04497, 2.11062, 12.2607 ) + ofs );
+		return;
+	}
+
+	void PanelR13L::DefineVCAnimations( UINT vcidx )
+	{
+		AtlantisPanel::DefineVCAnimations( mesh_index );
 		return;
 	}
 
