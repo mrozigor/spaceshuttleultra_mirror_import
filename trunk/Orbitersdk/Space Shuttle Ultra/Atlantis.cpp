@@ -406,12 +406,12 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pgOverhead.AddPanel( new vc::PanelO8( this ) );
 
 	pgOverheadAft.AddPanel(new vc::PanelO17(this));
-
-	pgAft.AddPanel(new vc::PanelA6(this));
-	pgAft.AddPanel(new vc::PanelA7U(this));
-	pgAft.AddPanel(new vc::PanelA4(this));
+	
 	pgAft.AddPanel( new vc::PanelA1U( this ) );
 	pgAft.AddPanel( new vc::PanelA2( this ) );
+	pgAft.AddPanel(new vc::PanelA4(this));
+	pgAft.AddPanel(new vc::PanelA6(this));
+	pgAft.AddPanel(new vc::PanelA7U(this));
 	pgAft.AddPanel(new vc::AftMDU(this));
 	
 	pgAftStbd.AddPanel(new vc::PanelR11(this));
@@ -2398,23 +2398,23 @@ void Atlantis::AddOrbiterVisual()
 		pgCenter.DefineVC();
 		pgCenter.DefineVCAnimations(mesh_vc);
 
+		pgRight.DefineVC();
+		pgRight.DefineVCAnimations(mesh_vc);
+
 		pgOverhead.DefineVC();
 		pgOverhead.DefineVCAnimations(mesh_vc);
 
 		pgOverheadAft.DefineVC();
 		pgOverheadAft.DefineVCAnimations(mesh_vc);
 
-		pgRight.DefineVC();
-		pgRight.DefineVCAnimations(mesh_vc);
+		pgAftPort.DefineVC();
+		pgAftPort.DefineVCAnimations(mesh_vc);
 
 		pgAft.DefineVC();
 		pgAft.DefineVCAnimations(mesh_vc);
 
 		pgAftStbd.DefineVC();
 		pgAftStbd.DefineVCAnimations(mesh_vc);
-
-		pgAftPort.DefineVC();
-		pgAftPort.DefineVCAnimations(mesh_vc);
 
 		huds.nmesh = mesh_vc;
 
@@ -4231,16 +4231,14 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			if (pMission->UseASE_IUS())
 			{
 				psubsystems->AddSubsystem( pASE_IUS = new ASE_IUS( psubsystems, pMission->IsASELocationAft() ) );
-				//pgAftPort.AddPanel( pPanelL10 = new vc::PanelL10( this ) );
-				pgAft.AddPanel( pPanelL10 = new vc::PanelL10( this ) );
-				pgAft.AddPanel( pPanelL12U_IUS = new vc::PanelL12U_IUS( this ) );
+				pgAftPort.AddPanel( pPanelL10 = new vc::PanelL10( this ) );
+				pgAftPort.AddPanel( pPanelL12U_IUS = new vc::PanelL12U_IUS( this ) );
 			}
 
 			if (pMission->UseCISS())
 			{
 				psubsystems->AddSubsystem( pCISS = new CISS( psubsystems, pMission->IsCISSGPrime() ) );
-				//pgAftPort.AddPanel( pPanelL12U_Centaur = new vc::PanelL12U_Centaur( this ) );
-				pgAft.AddPanel( pPanelL12U_Centaur = new vc::PanelL12U_Centaur( this ) );
+				pgAftPort.AddPanel( pPanelL12U_Centaur = new vc::PanelL12U_Centaur( this ) );
 				hasCISS = true;
 			}
 
@@ -4309,32 +4307,15 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			sprintf_s(pszBuffer, 255, "\tLook up panel \"%s\"... \t\t(%s)", pszPanelName, line);
 			oapiWriteLog(pszBuffer);
 
-			if (pgLeft.HasPanel(pszPanelName))
-				pgLeft.ParsePanelBlock(pszPanelName, scn);
-
-			if (pgForward.HasPanel(pszPanelName))
-				pgForward.ParsePanelBlock(pszPanelName, scn);
-
-			if (pgRight.HasPanel(pszPanelName))
-				pgRight.ParsePanelBlock(pszPanelName, scn);
-
-			if (pgCenter.HasPanel(pszPanelName))
-				pgCenter.ParsePanelBlock(pszPanelName, scn);
-
-			if (pgOverhead.HasPanel(pszPanelName))
-				pgOverhead.ParsePanelBlock(pszPanelName, scn);
-
-			if (pgOverheadAft.HasPanel(pszPanelName))
-				pgOverheadAft.ParsePanelBlock(pszPanelName, scn);
-
-			if (pgAftStbd.HasPanel(pszPanelName))
-				pgAftStbd.ParsePanelBlock(pszPanelName, scn);
-
-			if (pgAft.HasPanel(pszPanelName))
-				pgAft.ParsePanelBlock(pszPanelName, scn);
-
-			if (pgAftPort.HasPanel(pszPanelName))
-				pgAftPort.ParsePanelBlock(pszPanelName, scn);
+			if (pgForward.HasPanel(pszPanelName)) pgForward.ParsePanelBlock(pszPanelName, scn);
+			else if (pgLeft.HasPanel(pszPanelName)) pgLeft.ParsePanelBlock(pszPanelName, scn);
+			else if (pgCenter.HasPanel(pszPanelName)) pgCenter.ParsePanelBlock(pszPanelName, scn);
+			else if (pgRight.HasPanel(pszPanelName)) pgRight.ParsePanelBlock(pszPanelName, scn);
+			else if (pgOverhead.HasPanel(pszPanelName)) pgOverhead.ParsePanelBlock(pszPanelName, scn);
+			else if (pgOverheadAft.HasPanel(pszPanelName)) pgOverheadAft.ParsePanelBlock(pszPanelName, scn);
+			else if (pgAftPort.HasPanel(pszPanelName)) pgAftPort.ParsePanelBlock(pszPanelName, scn);
+			else if (pgAft.HasPanel(pszPanelName)) pgAft.ParsePanelBlock(pszPanelName, scn);
+			else if (pgAftStbd.HasPanel(pszPanelName)) pgAftStbd.ParsePanelBlock(pszPanelName, scn);
 
 			oapiWriteLog("\tLeave @PANEL block.");
 		}
@@ -4422,16 +4403,16 @@ void Atlantis::clbkSaveState(FILEHANDLE scn)
 
 	oapiWriteLog("SpaceShuttleUltra:\tSave panel states...");
 	oapiWriteLog("\tForward flight deck");
-	pgLeft.OnSaveState(scn);
 	pgForward.OnSaveState(scn);
-	pgRight.OnSaveState(scn);
+	pgLeft.OnSaveState(scn);
 	pgCenter.OnSaveState(scn);
+	pgRight.OnSaveState(scn);
 	pgOverhead.OnSaveState(scn);
 	pgOverheadAft.OnSaveState(scn);
 	oapiWriteLog("\tAft flight deck");
-	pgAftStbd.OnSaveState(scn);
-	pgAft.OnSaveState(scn);
 	pgAftPort.OnSaveState(scn);
+	pgAft.OnSaveState(scn);
+	pgAftStbd.OnSaveState(scn);
 
 	oapiWriteLog("SpaceShuttleUltra:\tSaving state done.");
 }
@@ -4521,8 +4502,8 @@ void Atlantis::clbkPostCreation()
 		psubsystems->RealizeAll();
 		pgForward.Realize();
 		pgLeft.Realize();
-		pgRight.Realize();
 		pgCenter.Realize();
+		pgRight.Realize();
 		pgOverhead.Realize();
 		pgOverheadAft.Realize();
 		pgAftPort.Realize();
@@ -4688,16 +4669,15 @@ void Atlantis::clbkPostCreation()
 			LandingGearDeployLT[1].SetLine();
 		}
 
-		pgCenter.LogPanels("Center");
 		pgForward.LogPanels("Forward");
-		pgOverhead.LogPanels("Overhead");
 		pgLeft.LogPanels("Left");
+		pgCenter.LogPanels("Center");
 		pgRight.LogPanels("Right");
-		pgAft.LogPanels("Aft");
-		pgAftPort.LogPanels("Aft Port");
-		pgAftStbd.LogPanels("Aft Starboard");
+		pgOverhead.LogPanels("Overhead");
 		pgOverheadAft.LogPanels("Aft Overhead");
-
+		pgAftPort.LogPanels("Aft Port");
+		pgAft.LogPanels("Aft");
+		pgAftStbd.LogPanels("Aft Starboard");
 	}
 	catch (std::exception &e)
 	{
@@ -4827,15 +4807,15 @@ void Atlantis::clbkPreStep(double simT, double simDT, double mjd)
 
 		//stSub.Start();
 		psubsystems->PreStep(simT, simDT, mjd);
-		pgLeft.OnPreStep(simT, simDT, mjd);
 		pgForward.OnPreStep(simT, simDT, mjd);
-		pgRight.OnPreStep(simT, simDT, mjd);
+		pgLeft.OnPreStep(simT, simDT, mjd);
 		pgCenter.OnPreStep(simT, simDT, mjd);
+		pgRight.OnPreStep(simT, simDT, mjd);
 		pgOverhead.OnPreStep(simT, simDT, mjd);
 		pgOverheadAft.OnPreStep(simT, simDT, mjd);
-		pgAftStbd.OnPreStep(simT, simDT, mjd);
-		pgAft.OnPreStep(simT, simDT, mjd);
 		pgAftPort.OnPreStep(simT, simDT, mjd);
+		pgAft.OnPreStep(simT, simDT, mjd);
+		pgAftStbd.OnPreStep(simT, simDT, mjd);
 		//double subTime = stSub.Stop();
 
 		OMSEngControl(LEFT);
@@ -5213,15 +5193,15 @@ void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 		}
 
 		//Panel groups
-		pgLeft.OnPostStep(simt, simdt, mjd);
 		pgForward.OnPostStep(simt, simdt, mjd);
-		pgRight.OnPostStep(simt, simdt, mjd);
+		pgLeft.OnPostStep(simt, simdt, mjd);
 		pgCenter.OnPostStep(simt, simdt, mjd);
+		pgRight.OnPostStep(simt, simdt, mjd);
 		pgOverhead.OnPostStep(simt, simdt, mjd);
 		pgOverheadAft.OnPostStep(simt, simdt, mjd);
-		pgAftStbd.OnPostStep(simt, simdt, mjd);
-		pgAft.OnPostStep(simt, simdt, mjd);
 		pgAftPort.OnPostStep(simt, simdt, mjd);
+		pgAft.OnPostStep(simt, simdt, mjd);
+		pgAftStbd.OnPostStep(simt, simdt, mjd);
 		//stSub.Stop();
 
 
@@ -5620,9 +5600,9 @@ void Atlantis::clbkVisualCreated(VISHANDLE _vis, int refcount)
 	pgRight.UpdateUVState();
 	pgOverhead.UpdateUVState();
 	pgOverheadAft.UpdateUVState();
-	pgAftStbd.UpdateUVState();
-	pgAft.UpdateUVState();
 	pgAftPort.UpdateUVState();
+	pgAft.UpdateUVState();
+	pgAftStbd.UpdateUVState();
 	oapiWriteLog( "Ended Panels UpdateUVState" );
 
 	oapiWriteLog("(Atlantis::clbkVisualCreated) Leaving.");
@@ -5671,17 +5651,6 @@ bool Atlantis::clbkLoadVC(int id)
 	//Reset Clip Radius settings
 	SetClipRadius(0.0);
 
-	// VC Cockpit not visible from Payload cameras or RMS camera.
-	if (id >= VC_DOCKCAM && id <= VC_LEECAM) {
-		// for PLBD/RMS camera views, show hid internal VC mesh and show cockpit mesh meant to be seen in external views
-		SetMeshVisibilityMode(mesh_vc, MESHVIS_NEVER);
-		SetMeshVisibilityMode(mesh_cockpit, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS);
-	}
-	else {
-		SetMeshVisibilityMode(mesh_vc, MESHVIS_VC);
-		SetMeshVisibilityMode(mesh_cockpit, MESHVIS_EXTERNAL);
-	}
-
 	if (pRMS) {
 		if (id != VC_LEECAM) pRMS->SetEECameraView(false);
 		if (id != VC_RMSCAM) pRMS->SetElbowCamView(false);
@@ -5701,9 +5670,9 @@ bool Atlantis::clbkLoadVC(int id)
 
 			huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_CDR;
 
-			pgCenter.RegisterVC();
 			pgForward.RegisterVC();
 			pgLeft.RegisterVC();
+			pgCenter.RegisterVC();
 			pgOverhead.RegisterVC();
 
 			ok = true;
@@ -5721,8 +5690,8 @@ bool Atlantis::clbkLoadVC(int id)
 
 			huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_PLT;
 
-			pgCenter.RegisterVC();
 			pgForward.RegisterVC();
+			pgCenter.RegisterVC();
 			pgRight.RegisterVC();
 			pgOverhead.RegisterVC();
 
@@ -5739,8 +5708,8 @@ bool Atlantis::clbkLoadVC(int id)
 			if (bHasODS) oapiVCSetNeighbours( VC_PLT, VC_STBDSTATION, VC_DOCKCAM, VC_MS1 );
 			else oapiVCSetNeighbours( VC_PLT, VC_STBDSTATION, VC_PLBCAMFR, VC_MS1 );
 
-			pgCenter.RegisterVC();
 			pgForward.RegisterVC();
+			pgCenter.RegisterVC();
 			pgRight.RegisterVC();
 			pgOverhead.RegisterVC();
 
@@ -5757,9 +5726,9 @@ bool Atlantis::clbkLoadVC(int id)
 			if (bHasODS) oapiVCSetNeighbours( VC_PORTSTATION, VC_CDR, VC_DOCKCAM, VC_MS2 );
 			else oapiVCSetNeighbours( VC_PORTSTATION, VC_CDR, VC_PLBCAMFR, VC_MS2 );
 
-			pgCenter.RegisterVC();
 			pgForward.RegisterVC();
 			pgLeft.RegisterVC();
+			pgCenter.RegisterVC();
 			pgOverhead.RegisterVC();
 
 			ok = true;
@@ -5776,8 +5745,8 @@ bool Atlantis::clbkLoadVC(int id)
 			else oapiVCSetNeighbours( VC_PLT, VC_AFTPILOT, VC_PLBCAMFR, VC_AFTWORKSTATION );
 
 			pgOverheadAft.RegisterVC();
-			pgAftStbd.RegisterVC();
 			pgAft.RegisterVC();
+			pgAftStbd.RegisterVC();
 
 			ok = true;
 			bUpdateVC = true;
@@ -5854,9 +5823,9 @@ bool Atlantis::clbkLoadVC(int id)
 			if (bHasODS) oapiVCSetNeighbours( VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION );
 			oapiVCSetNeighbours( VC_STBDSTATION, VC_RMSSTATION, VC_PLBCAMFR, VC_AFTWORKSTATION );
 
-			pgAftStbd.RegisterVC();
-			pgAft.RegisterVC();
 			pgAftPort.RegisterVC();
+			pgAft.RegisterVC();
+			pgAftStbd.RegisterVC();
 
 			ok = true;
 			bUpdateVC = true;
@@ -5872,9 +5841,9 @@ bool Atlantis::clbkLoadVC(int id)
 			if (bHasODS) oapiVCSetNeighbours( VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION );
 			else oapiVCSetNeighbours( VC_AFTPILOT, VC_PORTSTATION, VC_PLBCAMFL, VC_AFTWORKSTATION );
 
+			pgAftPort.RegisterVC();
 			pgAft.RegisterVC();
 			pgAftStbd.RegisterVC();
-			pgAftPort.RegisterVC();
 
 			ok = true;
 			bUpdateVC = true;
@@ -5890,8 +5859,8 @@ bool Atlantis::clbkLoadVC(int id)
 			else oapiVCSetNeighbours( VC_RMSSTATION, VC_CDR, VC_PLBCAMFL, VC_MIDDECK );
 
 			pgOverheadAft.RegisterVC();
-			pgAft.RegisterVC();
 			pgAftPort.RegisterVC();
+			pgAft.RegisterVC();
 
 			ok = true;
 			bUpdateVC = true;
@@ -5904,11 +5873,10 @@ bool Atlantis::clbkLoadVC(int id)
 			SetCameraMovement( VC_OFS_AFTWORKSTATION_F, VC_AZ_AFTWORKSTATION_F, VC_EL_AFTWORKSTATION_F, VC_OFS_AFTWORKSTATION_L, VC_AZ_AFTWORKSTATION_L, VC_EL_AFTWORKSTATION_L, VC_OFS_AFTWORKSTATION_R, VC_AZ_AFTWORKSTATION_R, VC_EL_AFTWORKSTATION_R );
 			oapiVCSetNeighbours( VC_STBDSTATION, VC_PORTSTATION, VC_RMSSTATION, VC_MS1 );
 
-			pgOverhead.RegisterVC();
 			pgOverheadAft.RegisterVC();
+			pgAftPort.RegisterVC();
 			pgAft.RegisterVC();
 			pgAftStbd.RegisterVC();
-			pgAftPort.RegisterVC();
 
 			ok = true;
 			bUpdateVC = true;
@@ -5927,7 +5895,6 @@ bool Atlantis::clbkLoadVC(int id)
 			pgCenter.RegisterVC();
 			pgOverhead.RegisterVC();
 			pgOverheadAft.RegisterVC();
-			pgAft.RegisterVC();
 
 			ok = true;
 			bUpdateVC = true;
@@ -5975,8 +5942,24 @@ bool Atlantis::clbkLoadVC(int id)
 			break;
 	}
 
-	// Common action for external payload cameras
-	if (id >= VC_DOCKCAM && id <= VC_LEECAM) {
+	// VC Cockpit not visible from Payload cameras or RMS camera.
+	if (id >= VC_DOCKCAM && id <= VC_LEECAM)
+	{
+		// hide internal VC mesh (and individual panels) and middeck, and show cockpit mesh meant to be seen in external views
+		SetMeshVisibilityMode(mesh_vc, MESHVIS_NEVER);
+		HideMidDeck();
+		pgForward.HidePanels();
+		pgLeft.HidePanels();
+		pgCenter.HidePanels();
+		pgRight.HidePanels();
+		pgOverhead.HidePanels();
+		pgOverheadAft.HidePanels();
+		pgAftPort.HidePanels();
+		pgAft.HidePanels();
+		pgAftStbd.HidePanels();
+
+		SetMeshVisibilityMode(mesh_cockpit, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS);
+
 		// Pan and tilt from camera control not from alt + arrow but from the dialog
 		SetCameraRotationRange( 0, 0, 0, 0 );
 		// No lean for payload camera
@@ -5984,14 +5967,22 @@ bool Atlantis::clbkLoadVC(int id)
 
 		// Refresh camera meshes and view positions
 		SetAnimationCameras();
-
-		// hide panels
-		HideMidDeck();
-		pgAft.HidePanels();
 	}
-	else {
+	else
+	{
+		SetMeshVisibilityMode( mesh_vc, MESHVIS_VC );
 		ShowMidDeck();
+		pgForward.ShowPanels();
+		pgLeft.ShowPanels();
+		pgCenter.ShowPanels();
+		pgRight.ShowPanels();
+		pgOverhead.ShowPanels();
+		pgOverheadAft.ShowPanels();
+		pgAftPort.ShowPanels();
 		pgAft.ShowPanels();
+		pgAftStbd.ShowPanels();
+
+		SetMeshVisibilityMode( mesh_cockpit, MESHVIS_EXTERNAL );
 	}
 
 	if (bUpdateVC) {
@@ -6016,13 +6007,15 @@ bool Atlantis::clbkVCMouseEvent(int id, int _event, VECTOR3 &p)
 		return true;
 	if (pgLeft.OnVCMouseEvent( id, _event, p ))
 		return true;
-	if (pgRight.OnVCMouseEvent( id, _event, p ))
-		return true;
 	if (pgCenter.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgRight.OnVCMouseEvent( id, _event, p ))
 		return true;
 	if (pgOverhead.OnVCMouseEvent( id, _event, p ))
 		return true;
 	if (pgOverheadAft.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgAftPort.OnVCMouseEvent( id, _event, p ))
 		return true;
 	if (pgAft.OnVCMouseEvent( id, _event, p ))
 		return true;
@@ -6038,21 +6031,21 @@ bool Atlantis::clbkVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 {
 	if (pgForward.OnVCRedrawEvent(id, _event, surf))
 		return true;
+	if (pgLeft.OnVCRedrawEvent(id, _event, surf))
+		return true;
 	if (pgCenter.OnVCRedrawEvent(id, _event, surf))
+		return true;
+	if (pgRight.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	if (pgOverhead.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	if (pgOverheadAft.OnVCRedrawEvent(id, _event, surf))
 		return true;
-	if (pgLeft.OnVCRedrawEvent(id, _event, surf))
-		return true;
-	if (pgRight.OnVCRedrawEvent(id, _event, surf))
+	if (pgAftPort.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	if (pgAft.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	if (pgAftStbd.OnVCRedrawEvent(id, _event, surf))
-		return true;
-	if (pgAftPort.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	return false;
 }
@@ -6174,14 +6167,14 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 			return 1;
 		case OAPI_KEY_3:
 			pgForward.ToggleCoordinateDisplayMode();
+			pgLeft.ToggleCoordinateDisplayMode();
 			pgCenter.ToggleCoordinateDisplayMode();
 			pgRight.ToggleCoordinateDisplayMode();
-			pgLeft.ToggleCoordinateDisplayMode();
 			pgOverhead.ToggleCoordinateDisplayMode();
 			pgOverheadAft.ToggleCoordinateDisplayMode();
+			pgAftPort.ToggleCoordinateDisplayMode();
 			pgAft.ToggleCoordinateDisplayMode();
 			pgAftStbd.ToggleCoordinateDisplayMode();
-			pgAftPort.ToggleCoordinateDisplayMode();
 			sprintf_s(oapiDebugString(), 255, "COORDINATE DISPLAY MODE");
 			return 1;
 		}
