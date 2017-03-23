@@ -39,7 +39,7 @@ namespace dps
 
 		if (WOWLON == false)
 		{
-			if (((STS()->GroundContact()) && (STS()->GetGearState() == AnimState::Action::OPEN)) ||// assume it's the rear wheels
+			if (((STS()->GroundContact()) && (STS()->GetGearState() == AnimState::OPEN)) ||// assume it's the rear wheels
 				(SRBSEPSW.IsSet() && SRBSEPPB.IsSet()) || (ETSEPSW.IsSet() && ETSEPPB.IsSet()))
 			{
 				WOWLON = true;
@@ -48,7 +48,7 @@ namespace dps
 		}
 		else if (WONG == false)
 		{
-			if (((STS()->GroundContact()) && (STS()->GetGearState() == AnimState::Action::OPEN) &&
+			if (((STS()->GroundContact()) && (STS()->GetGearState() == AnimState::OPEN) &&
 				(STS()->GetPitch() < (-4.0 * RAD))) ||// assume pitch under -4º and ground contact is nose wheels down
 				(SRBSEPSW.IsSet() && SRBSEPPB.IsSet()) || (ETSEPSW.IsSet() && ETSEPPB.IsSet()))
 				WONG = true;
