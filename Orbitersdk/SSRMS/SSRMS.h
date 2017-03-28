@@ -83,6 +83,7 @@ public:
 	bool clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad* skp);
 	void clbkRenderHUD(int mode, const HUDPAINTSPEC* hps, SURFHANDLE hDefaultTex);
 	void clbkPostCreation();
+	void clbkVisualCreated( VISHANDLE _vis, int refcount );
 	int  clbkConsumeBufferedKey(DWORD key, bool down, char *kstate);
 //
 // modifications DLH
@@ -220,7 +221,7 @@ private:
 	bool Seqfinished;
 	bool center_arm;
 
-	bool bFirstpass, bDiag;
+	bool bFirstpass, bDiag, dialog_open;
 	bool SpeedChange, LightChange;
 	double SimDT2;
 	bool bGrappled;

@@ -61,6 +61,7 @@
       <AdditionalIncludeDirectories>..\include;..\libUltra\include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <AdditionalDependencies>orbiter.lib;orbitersdk.lib;libUltra.lib;gdi32.lib;user32.lib</AdditionalDependencies>
