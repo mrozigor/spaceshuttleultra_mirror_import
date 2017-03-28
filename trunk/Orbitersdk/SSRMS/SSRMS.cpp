@@ -116,6 +116,7 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 //
 	bFirstpass = false;
 	bDiag = false;
+	dialog_open = false;
 	SpeedChange = true;
 	LightChange = true;
 
@@ -637,6 +638,8 @@ void SSRMS::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 	// do this at end of scenario loading, once we know which LEE is active
 	LEELight[activeLEE]->Activate(bLightOn);
 	LEELight[passiveLEE]->Activate(false);
+
+	pSubsystemDirector->RealizeAll();// must be here so attachments are created in time or else CTD
 }
 
 void SSRMS::clbkSaveState(FILEHANDLE scn)
@@ -644,7 +647,6 @@ void SSRMS::clbkSaveState(FILEHANDLE scn)
 	VESSEL3::clbkSaveState(scn);
 
 	char cbuf[255];
-	HWND hDlg;
 	sprintf(cbuf, "%f %f %f %f %f %f %f", joint_angle[SHOULDER_ROLL], joint_angle[SHOULDER_YAW], joint_angle[SHOULDER_PITCH],
 				joint_angle[ELBOW_PITCH], joint_angle[WRIST_PITCH], joint_angle[WRIST_YAW], joint_angle[WRIST_ROLL]);
 	oapiWriteScenario_string(scn, "ARM_STATUS", cbuf);
@@ -672,7 +674,7 @@ void SSRMS::clbkSaveState(FILEHANDLE scn)
 	WriteScenario_state(scn, "FOLDED", foldState);
 	if(LEELight[activeLEE]->IsActive()) oapiWriteLine(scn, "  LIGHT");
 		sprintf (cbuf, "");
-	if (hDlg = oapiFindDialog (hDLL, IDD_SSRMS)) oapiWriteLine(scn, "  DIALOG");
+	if (dialog_open) oapiWriteLine(scn, "  DIALOG");
 	oapiWriteScenario_int(scn, "ACTIVE_CAMERA", static_cast<int>(cameraView));
 	sprintf(cbuf, "%f %f %f %f", camAPan, camATilt, camBPan, camBTilt);
 	oapiWriteScenario_string(scn, "CAM_STATUS", cbuf);
@@ -980,8 +982,6 @@ void SSRMS::clbkPostCreation()
 	OrbiterSoundHandle = ConnectToOrbiterSoundDLL(GetHandle());
 	if(OrbiterSoundHandle!=-1)SoundOptionOnOff(OrbiterSoundHandle, PLAYATTITUDETHRUST, FALSE);
 
-	pSubsystemDirector->RealizeAll();
-
 	SetPropellantMass(ph_null, 1.0);
 
 	if(arm_moved) {
@@ -993,6 +993,12 @@ void SSRMS::clbkPostCreation()
 	UpdateCameraAnimations();
 
 	VESSEL3::clbkPostCreation();
+}
+
+void SSRMS::clbkVisualCreated( VISHANDLE _vis, int refcount )
+{
+	UpdateMeshPosition();
+	return;
 }
 
 int SSRMS::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
@@ -1574,9 +1580,13 @@ BOOL CALLBACK SSRMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		SetWindowText (GetDlgItem (hWnd, IDC_GRAPPLE), sts->pLEE[sts->activeLEE]->Grappled() ? "Release" : "Grapple");
 		SetTimer (hWnd, 1, 50, NULL);
 		t0 = oapiGetSimTime();
+		sts->dialog_open = true;
 		return FALSE;
 	case WM_DESTROY:
 		KillTimer (hWnd, 1);
+		return 0;
+	case WM_CLOSE:
+		sts->dialog_open = false;
 		return 0;
 	case WM_TIMER:
 		t1 = oapiGetSimTime();
@@ -1608,12 +1618,18 @@ BOOL CALLBACK SSRMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				sts->update_vectors=true;
 
 		} else if (SendDlgItemMessage (hWnd, IDC_EPP, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-				sts->SetJointAngle(sts->ELBOW_PITCH, sts->joint_angle[3]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*1);
-				sts->update_vectors=true;
+				if(sts->foldState.Open())
+				{
+					sts->SetJointAngle(sts->ELBOW_PITCH, sts->joint_angle[3]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*1);
+					sts->update_vectors=true;
+				}
 
 		} else if (SendDlgItemMessage (hWnd, IDC_EPN, BM_GETSTATE, 0, 0) & BST_PUSHED) {
-				sts->SetJointAngle(sts->ELBOW_PITCH, sts->joint_angle[3]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*-1);
-				sts->update_vectors=true;
+				if(sts->foldState.Open())
+				{
+					sts->SetJointAngle(sts->ELBOW_PITCH, sts->joint_angle[3]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*-1);
+					sts->update_vectors=true;
+				}
 
 		} else if (SendDlgItemMessage (hWnd, IDC_WPPB, BM_GETSTATE, 0, 0) & BST_PUSHED) {
 				sts->SetJointAngle(sts->SHOULDER_PITCH, sts->joint_angle[2]+(t1-t0)*JOINT_ROTATION_SPEED*sts->SpeedFactor*1);
