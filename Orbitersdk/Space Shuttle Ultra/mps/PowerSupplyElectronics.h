@@ -36,8 +36,7 @@ namespace mps
 	class DigitalComputerUnit;
 	class ComputerInterfaceElectronics;
 
-	using class discsignals::DiscInPort;
-	using class discsignals::DiscreteBundle;
+	using namespace discsignals;
 
 	class PowerSupplyElectronics
 	{

@@ -27,9 +27,9 @@
 #define _comm_EA2_H_
 
 
-#include "..\Atlantis.h"
 #include "..\AtlantisSubsystem.h"
-#include <DiscInPort.h>
+#include <discsignals.h>
+#include <orbitersdk.h>
 
 
 const VECTOR3 ANTENNA_OFFSET = _V( 3.5, 0.5, 10.5 );// m (approx)

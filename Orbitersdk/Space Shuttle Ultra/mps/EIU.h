@@ -26,7 +26,6 @@
 #define _mps_EIU_H_
 
 
-#include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
 #include "..\dps\dps_defs.h"
 #include "..\dps\BIU.h"
@@ -42,8 +41,8 @@ namespace mps
 		private:
 			int ID;
 			SSME* eng;
-			DiscInPort* ACchA;
-			DiscInPort* ACchB;
+			DiscInPort ACchA;
+			DiscInPort ACchB;
 
 			unsigned short DataPri[32];
 			unsigned short DataSec[6];

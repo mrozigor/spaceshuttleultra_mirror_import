@@ -5,6 +5,7 @@
 #include "SBTC_SOP.h"
 #include "Landing_SOP.h"
 #include "IDP.h"
+#include "..\vc\MDU.h"
 #include <UltraMath.h>
 #include "../ParameterValues.h"
 

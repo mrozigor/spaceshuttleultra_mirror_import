@@ -1,7 +1,8 @@
 #include "PayloadBay.h"
-#include <orbitersdk.h>
-#include "AtlantisSubsystem.h"
+#include "Atlantis.h"
 #include "ParameterValues.h"
+#include <UltraMath.h>
+#include <assert.h>
 
 
 PayloadBay::PayloadBay( AtlantisSubsystemDirector* _director ):AtlantisSubsystem( _director, "PayloadBay" )
@@ -176,7 +177,7 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 					PLBDLatch[4].action=AnimState::CLOSING;
 					PLBDLatch[5].action=AnimState::CLOSING;
 					PLBDLatch[4].pos=max(0.0, PLBDLatch[4].pos-da);
-					PLBDLatch[5].pos = PLBDLatch[5].pos;
+					PLBDLatch[5].pos = PLBDLatch[4].pos;
 				}
 				else
 				{
@@ -330,7 +331,7 @@ void PayloadBay::OnPostStep( double fSimT, double fDeltaT, double fMJD )
 					PLBDLatch[4].action=AnimState::OPENING;
 					PLBDLatch[5].action=AnimState::OPENING;
 					PLBDLatch[4].pos=min(1.0, PLBDLatch[4].pos+da);
-					PLBDLatch[5].pos = PLBDLatch[5].pos;
+					PLBDLatch[5].pos = PLBDLatch[4].pos;
 				}
 				else
 				{

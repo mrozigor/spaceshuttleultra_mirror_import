@@ -1,7 +1,9 @@
 #include "DragChute.h"
+#include "Atlantis.h"
 #include "Atlantis_defs.h"
 #include "ParameterValues.h"
 #include "CommonDefs.h"
+#include <UltraMath.h>
 
 
 DragChute::DragChute( AtlantisSubsystemDirector* _director ):AtlantisSubsystem( _director, "DragChute" )

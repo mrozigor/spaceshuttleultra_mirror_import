@@ -45,8 +45,8 @@ namespace vc {
 			StandardSingleLight( Atlantis* _sts, const string& _ident );
 			~StandardSingleLight();
 			
-			virtual void SetDefaultState( int _state );
-			virtual void SetStateOffset( int _state, float _U, float _V );
+			virtual void SetDefaultState( unsigned int _state );
+			virtual void SetStateOffset( unsigned int _state, float _U, float _V );
 			virtual bool ConnectLight( unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine );
 
 			virtual void OnPostStep( double fSimT, double fDeltaT, double fMJD );
@@ -71,8 +71,8 @@ namespace vc {
 			StandardDoubleLight( Atlantis* _sts, const string& _ident );
 			~StandardDoubleLight();
 			
-			virtual void SetDefaultState( int _state );
-			virtual void SetStateOffset( int _state, float _U, float _V );
+			virtual void SetDefaultState( unsigned int _state );
+			virtual void SetStateOffset( unsigned int _state, float _U, float _V );
 			virtual bool ConnectLight( unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine );
 
 			virtual void OnPostStep( double fSimT, double fDeltaT, double fMJD );

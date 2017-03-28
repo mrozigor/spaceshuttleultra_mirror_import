@@ -26,8 +26,9 @@
 #define __PLB_H_
 
 
+#include "AtlantisSubsystem.h"
+#include <discsignals.h>
 #include <orbitersdk.h>
-#include "Atlantis.h"
 
 
 using namespace discsignals;

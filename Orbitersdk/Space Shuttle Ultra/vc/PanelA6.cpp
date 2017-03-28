@@ -1,4 +1,5 @@
 #include "PanelA6.h"
+#include "..\Atlantis.h"
 #include "../meshres_vc.h"
 #include "../meshres_vc_additions.h"
 #include "../Atlantis_defs.h"

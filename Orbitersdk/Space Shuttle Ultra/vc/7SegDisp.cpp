@@ -1,5 +1,6 @@
 #include "7SegDisp.h"
 #include "../Atlantis.h"
+#include <assert.h>
 
 
 namespace vc

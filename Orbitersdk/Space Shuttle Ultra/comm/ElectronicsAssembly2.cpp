@@ -1,5 +1,7 @@
 #include "ElectronicsAssembly2.h"
+#include "..\Atlantis.h"
 #include "DeployedAssembly.h"
+#include <UltraMath.h>
 
 
 namespace comm 

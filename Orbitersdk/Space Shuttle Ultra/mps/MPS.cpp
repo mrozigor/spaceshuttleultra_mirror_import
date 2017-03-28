@@ -1,6 +1,6 @@
 #include "MPS.h"
 #include <orbitersdk.h>
-#include "..\AtlantisSubsystem.h"
+#include "..\Atlantis.h"
 #include "HeliumSystem.h"
 #include "UltraMath.h"
 #include <assert.h>

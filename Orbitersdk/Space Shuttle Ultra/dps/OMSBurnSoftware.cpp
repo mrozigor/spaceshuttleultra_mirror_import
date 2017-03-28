@@ -5,6 +5,7 @@
 #include <UltraMath.h>
 #include "../util/Stopwatch.h"
 #include "IDP.h"
+#include "..\vc\MDU.h"
 #include <kost_elements.h>
 
 namespace dps

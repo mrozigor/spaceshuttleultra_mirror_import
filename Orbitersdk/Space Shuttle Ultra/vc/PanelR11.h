@@ -29,6 +29,7 @@
 
 #include "AtlantisPanel.h"
 #include "MDU.h"
+#include "StandardSwitch.h"
 #include "Keyboard.h"
 
 namespace vc

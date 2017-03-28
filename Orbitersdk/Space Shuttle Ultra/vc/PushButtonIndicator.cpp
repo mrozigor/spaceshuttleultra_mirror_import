@@ -1,5 +1,8 @@
 #include "PushButtonIndicator.h"
+#include "..\Atlantis.h"
 #include <OrbiterSoundSDK40.h>
+#include <UltraMath.h>
+
 
 namespace vc
 {
@@ -12,6 +15,7 @@ namespace vc
 
 	PushButtonIndicatorSingleLight::~PushButtonIndicatorSingleLight()
 	{
+		if (pPushDown) delete pPushDown;
 	}
 
 	void PushButtonIndicatorSingleLight::DefineVCAnimations( UINT vc_idx )
@@ -82,6 +86,7 @@ namespace vc
 
 	PushButtonIndicatorDoubleLight::~PushButtonIndicatorDoubleLight()
 	{
+		if (pPushDown) delete pPushDown;
 	}
 
 	void PushButtonIndicatorDoubleLight::DefineVCAnimations( UINT vc_idx )

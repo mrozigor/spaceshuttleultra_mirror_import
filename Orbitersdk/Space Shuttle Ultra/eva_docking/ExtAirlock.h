@@ -24,7 +24,6 @@
   **************************************************************************/
 #pragma once
 #include "BasicExtAirlock.h"
-#include "..\Atlantis.h"
 
 
 namespace eva_docking

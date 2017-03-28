@@ -1,4 +1,6 @@
 #include "IDP.h"
+#include "..\Atlantis.h"
+#include "..\vc\MDU.h"
 #include "SimpleGPCSystem.h"
 #include "IO_Control.h"
 #include "SSME_Operations.h"

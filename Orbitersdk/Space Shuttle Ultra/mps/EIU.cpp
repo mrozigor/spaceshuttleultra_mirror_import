@@ -1,8 +1,10 @@
 #include "EIU.h"
+#include "..\Atlantis.h"
 #include "SSME.h"
 #include "SSMEController.h"
 #include "MPSdefs.h"
-#include "assert.h"
+#include <assert.h>
+#include <orbitersdk.h>
 
 
 namespace mps
@@ -17,9 +19,6 @@ namespace mps
 
 		this->ID = ID;
 		this->eng = eng;
-
-		ACchA = new DiscInPort;
-		ACchB = new DiscInPort;
 
 		mia[0].Init( this, this, "MIA1", 14 + ID );
 		mia[1].Init( this, this, "MIA2", 14 + ID );
@@ -45,8 +44,6 @@ namespace mps
 	EIU::~EIU( void )
 	{
 		if (DataRecorderOn == true) fclose( fp );
-		delete ACchA;
-		delete ACchB;
 		return;
 	}
 
@@ -97,20 +94,20 @@ namespace mps
 			case 1:
 				// C
 				// AC1/AC2
-				ACchA->Connect( O17_to_EIU_AC, 1 );
-				ACchB->Connect( O17_to_EIU_AC, 0 );
+				ACchA.Connect( O17_to_EIU_AC, 1 );
+				ACchB.Connect( O17_to_EIU_AC, 0 );
 				break;
 			case 2:
 				// L
 				// AC2/AC3
-				ACchA->Connect( O17_to_EIU_AC, 0 );
-				ACchB->Connect( O17_to_EIU_AC, 2 );
+				ACchA.Connect( O17_to_EIU_AC, 0 );
+				ACchB.Connect( O17_to_EIU_AC, 2 );
 				break;
 			case 3:
 				// R
 				// AC3/AC1
-				ACchA->Connect( O17_to_EIU_AC, 2 );
-				ACchB->Connect( O17_to_EIU_AC, 1 );
+				ACchA.Connect( O17_to_EIU_AC, 2 );
+				ACchB.Connect( O17_to_EIU_AC, 1 );
 				break;
 		}
 
@@ -118,8 +115,7 @@ namespace mps
 		{
 			char fname[32];
 			sprintf_s( fname, 32, "EIU_data_ch%d.txt", ID );
-			fp = fopen( fname, "w" );
-			if (fp != NULL) DataRecorderOn = true;
+			if (fopen_s( &fp, fname, "w" ) == 0) DataRecorderOn = true;
 		}
 		return;
 	}
@@ -131,7 +127,7 @@ namespace mps
 
 	void EIU::readpri( unsigned short* data )
 	{// HACK MIA-1, assume CIA-1 em same power bus
-		if (ACchA->IsSet() == false) return;
+		if (ACchA.IsSet() == false) return;
 
 		memcpy( data, DataPri, 32 * sizeof(unsigned short) );
 		return;
@@ -139,7 +135,7 @@ namespace mps
 
 	void EIU::readsec( unsigned short* data )
 	{// HACK MIA-4, assume CIA-2 em same power bus
-		if (ACchB->IsSet() == false) return;
+		if (ACchB.IsSet() == false) return;
 
 		memcpy( data, DataSec, 6 * sizeof(unsigned short) );
 		return;
@@ -161,9 +157,9 @@ namespace mps
 
 	void EIU::command( unsigned short cmd )
 	{// HACK just one cmd arrives from GPCs at the moment
-		if (ACchA->IsSet() == true)
+		if (ACchA.IsSet() == true)
 		{
-			if (ACchB->IsSet() == true)
+			if (ACchB.IsSet() == true)
 			{
 				// full EIU running
 				eng->Controller->VIE_CommandDataConverter_write( chA, cmd );
@@ -179,7 +175,7 @@ namespace mps
 		}
 		else
 		{
-			if (ACchB->IsSet() == true)
+			if (ACchB.IsSet() == true)
 			{
 				// HACK MIA 1 & 3 dead, assumes CIA-2 & 3 still running
 				eng->Controller->VIE_CommandDataConverter_write( chB, cmd );

@@ -48,6 +48,7 @@
 #include "CISS.h"
 #include "MechActuator.h"
 #include "PayloadBay.h"
+#include "mps/SSME.h"
 #include "mps/SSME_BLOCK_II.h"
 #include "vc/PanelA7A8ODS.h"
 #include "vc/PanelF2.h"
@@ -433,6 +434,7 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 
 	psubsystems->AddSubsystem(pMPS = new mps::MPS(psubsystems, pHePneu));
 
+	mps::SSME* pSSME[3];
 	psubsystems->AddSubsystem(pSSME[0] = new mps::SSME_BLOCK_II(psubsystems, "MPS_C", 1, 2, "AD08", pHeEng[0]));
 	psubsystems->AddSubsystem(pSSME[1] = new mps::SSME_BLOCK_II(psubsystems, "MPS_L", 2, 2, "AD08", pHeEng[1]));
 	psubsystems->AddSubsystem(pSSME[2] = new mps::SSME_BLOCK_II(psubsystems, "MPS_R", 3, 2, "AD08", pHeEng[2]));

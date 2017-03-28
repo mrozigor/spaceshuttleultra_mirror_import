@@ -28,7 +28,6 @@
 
 
 #include "SimpleGPCSoftware.h"
-#include "../Atlantis.h"
 #include "dps_defs.h"
 #include "DiscInPort.h"
 

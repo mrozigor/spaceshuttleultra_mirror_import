@@ -18,17 +18,17 @@ namespace vc
 	{
 	}
 
-	void StandardSingleLight::SetDefaultState( int _state )
+	void StandardSingleLight::SetDefaultState( unsigned int _state )
 	{
-		assert( (_state >= 0) && (_state < 2) );
+		assert( _state < 2 );
 		default_state = _state;
 		state = _state;
 		return;
 	}
 
-	void StandardSingleLight::SetStateOffset( int _state, float _U, float _V )
+	void StandardSingleLight::SetStateOffset( unsigned int _state, float _U, float _V )
 	{
-		assert( (_state >= 0) && (_state < 2) );
+		assert( _state < 2 );
 		offsetU[_state] = _U;
 		offsetV[_state] = _V;
 		return;
@@ -36,7 +36,7 @@ namespace vc
 	
 	bool StandardSingleLight::ConnectLight( unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine )
 	{
-		assert( (usPort >= 0) && (usPort < 2) );
+		assert( usPort < 2 );
 		input[usPort].Connect( pBundle, usLine );
 		return true;
 	}
@@ -108,17 +108,17 @@ namespace vc
 	{
 	}
 
-	void StandardDoubleLight::SetDefaultState( int _state )
+	void StandardDoubleLight::SetDefaultState( unsigned int _state )
 	{
-		assert( (_state >= 0) && (_state < 4) );
+		assert( _state < 4 );
 		default_state = _state;
 		state = _state;
 		return;
 	}
 
-	void StandardDoubleLight::SetStateOffset( int _state, float _U, float _V )
+	void StandardDoubleLight::SetStateOffset( unsigned int _state, float _U, float _V )
 	{
-		assert( (_state >= 0) && (_state < 4) );
+		assert( _state < 4 );
 		offsetU[_state] = _U;
 		offsetV[_state] = _V;
 		return;
@@ -126,7 +126,7 @@ namespace vc
 	
 	bool StandardDoubleLight::ConnectLight( unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine )
 	{
-		assert( (usPort >= 0) && (usPort < 4) );
+		assert( usPort < 4 );
 		input[usPort].Connect( pBundle, usLine );
 		return true;
 	}

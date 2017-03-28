@@ -1,6 +1,8 @@
 #include "ExtAirlock.h"
+#include "..\Atlantis.h"
 #include "..\meshres_ExtAL.h"
 #include "..\CommonDefs.h"
+#include <orbitersdk.h>
 
 
 namespace eva_docking

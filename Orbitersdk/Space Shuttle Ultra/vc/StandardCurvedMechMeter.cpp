@@ -1,5 +1,6 @@
 #include "StandardCurvedMechMeter.h"
 #include "../Atlantis.h"
+#include <UltraMath.h>
 
 
 namespace vc

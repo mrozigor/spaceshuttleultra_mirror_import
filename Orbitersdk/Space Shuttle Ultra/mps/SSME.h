@@ -26,9 +26,7 @@
 #define _mps_SSME_H_
 
 
-#include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
-#include "..\Atlantis.h"
 #include "SolenoidValve.h"
 #include "PressureActuatedValve.h"
 #include "HydraulicActuatedValve.h"
@@ -54,7 +52,7 @@ namespace mps
 	class HeSysEng;
 	class MPS;
 
-	using discsignals::DiscreteBundle;
+	using namespace discsignals;
 
 	class SSME:public AtlantisSubsystem
 	{

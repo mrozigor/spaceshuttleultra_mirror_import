@@ -1,6 +1,7 @@
 #include "../Atlantis.h"
 #include "PushButton.h"
 #include <OrbiterSoundSDK40.h>
+#include <UltraMath.h>
 
 namespace vc {
 

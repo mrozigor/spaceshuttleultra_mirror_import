@@ -1,4 +1,5 @@
 #include "RSLS_old.h"
+#include "..\Atlantis.h"
 #include "SSME_SOP.h"
 #include "IO_Control.h"
 #include "ATVC_SOP.h"

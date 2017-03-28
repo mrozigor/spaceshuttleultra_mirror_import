@@ -77,7 +77,7 @@ void MasterEventsController::OnPreStep( double fSimT, double fDeltaT, double fMJ
 		}
 	}
 
-	if (CR[ETORB_STRUCT_SEP_ARM] && CR[ETORB_STRUCT_SEP_FIRE_1] && CR [ETORB_STRUCT_SEP_FIRE_1])
+	if (CR[ETORB_STRUCT_SEP_ARM] && CR[ETORB_STRUCT_SEP_FIRE_1] && CR [ETORB_STRUCT_SEP_FIRE_2])
 	{
 		if (!PIC_ET_SEP)
 		{

@@ -35,8 +35,7 @@ namespace mps
 	class PowerSupplyElectronics;
 	class OutputElectronics;
 
-	using class discsignals::DiscInPort;
-	using class discsignals::DiscreteBundle;
+	using namespace discsignals;
 
 
 	class InputElectronics

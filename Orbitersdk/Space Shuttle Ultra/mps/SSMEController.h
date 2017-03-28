@@ -36,7 +36,7 @@ namespace mps
 	class SSME;
 	class EIU;
 
-	using class discsignals::DiscreteBundle;
+	using namespace discsignals;
 
 
 	class SSMEController

@@ -1,5 +1,6 @@
 #include "RA.h"
 #include "..\Atlantis.h"
+#include <UltraMath.h>
 
 
 namespace gnc

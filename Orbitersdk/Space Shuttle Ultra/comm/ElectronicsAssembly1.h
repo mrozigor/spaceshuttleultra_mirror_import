@@ -27,8 +27,9 @@
 #define _comm_EA1_H_
 
 
-#include "..\Atlantis.h"
 #include "..\AtlantisSubsystem.h"
+#include <discsignals.h>
+#include <orbitersdk.h>
 
 
 namespace comm

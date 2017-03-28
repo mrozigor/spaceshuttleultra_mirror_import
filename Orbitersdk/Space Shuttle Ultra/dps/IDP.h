@@ -27,7 +27,6 @@
 #include <vector>
 #include "../vc/vc_defs.h"
 #include "dps_defs.h"
-#include "../Atlantis.h"
 #include "../AtlantisSubsystem.h"
 #include "BIU.h"
 #include "DiscInPort.h"

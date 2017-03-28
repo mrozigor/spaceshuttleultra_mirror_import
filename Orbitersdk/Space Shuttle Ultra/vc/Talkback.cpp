@@ -45,6 +45,7 @@ namespace vc
 		grpIndex_L = 0;
 		panelmesh = (UINT)(-1);
 		usCover = TB_GRAY;
+		flags = TB_BARBERPOLE;
 	}
 
 	StandardTalkback2::~StandardTalkback2()
@@ -163,6 +164,8 @@ namespace vc
 		tkbk_next_state = TB_BARBERPOLE;
 		grpIndex = 0;
 		panelmesh = (UINT)(-1);
+		flags[0] = TB_BARBERPOLE;
+		flags[1] = TB_BARBERPOLE;
 	}
 
 	StandardTalkback3::~StandardTalkback3()
