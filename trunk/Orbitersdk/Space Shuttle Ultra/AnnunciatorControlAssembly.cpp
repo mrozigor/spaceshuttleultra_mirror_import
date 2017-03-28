@@ -1,7 +1,6 @@
 #include "AnnunciatorControlAssembly.h"
-#include <orbitersdk.h>
 #include "Atlantis.h"
-#include "assert.h"
+#include <assert.h>
 
 
 AnnunciatorControlAssembly::AnnunciatorControlAssembly( AtlantisSubsystemDirector* _director, const string& _ident, short nID ):AtlantisSubsystem( _director, _ident )

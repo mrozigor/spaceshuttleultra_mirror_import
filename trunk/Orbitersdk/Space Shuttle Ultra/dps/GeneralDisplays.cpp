@@ -1,5 +1,7 @@
 #include "GeneralDisplays.h"
+#include "..\Atlantis.h"
 #include "IDP.h"
+#include "..\vc\MDU.h"
 #include "AscentDAP.h"
 #include "SSME_Operations.h"
 #include "SRBSepSequence.h"

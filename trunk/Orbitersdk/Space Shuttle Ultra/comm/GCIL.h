@@ -27,25 +27,24 @@
 #define _comm_GCIL_H_
 
 
-#include "..\Atlantis.h"
 #include "..\AtlantisSubsystem.h"
-#include <DiscInPort.h>
+#include <discsignals.h>
 
 
 namespace comm
 {
 	class GCIL:public AtlantisSubsystem
 	{
-			discsignals::DiscInPort pControl_Command;
-			discsignals::DiscInPort pSteeringMode_GPC;
-			discsignals::DiscInPort pSteeringMode_GPCDesig;
-			discsignals::DiscInPort pSteeringMode_AutoTrack;
-			discsignals::DiscInPort pSteeringMode_ManSlew;
-			discsignals::DiscInPort pSearch;
-			discsignals::DiscInPort pPower_Off;
-			discsignals::DiscInPort pPower_On;
-			discsignals::DiscInPort pMode_COMM;
-			discsignals::DiscInPort pMode_RDRCOOP;
+			DiscInPort pControl_Command;
+			DiscInPort pSteeringMode_GPC;
+			DiscInPort pSteeringMode_GPCDesig;
+			DiscInPort pSteeringMode_AutoTrack;
+			DiscInPort pSteeringMode_ManSlew;
+			DiscInPort pSearch;
+			DiscInPort pPower_Off;
+			DiscInPort pPower_On;
+			DiscInPort pMode_COMM;
+			DiscInPort pMode_RDRCOOP;
 
 			DiscOutPort COMM_ON;
 			DiscOutPort RDR_STANDBY;

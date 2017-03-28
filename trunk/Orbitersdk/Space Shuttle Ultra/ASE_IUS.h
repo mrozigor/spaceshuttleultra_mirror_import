@@ -27,7 +27,8 @@
 
 
 #include "discsignals.h"
-#include "Atlantis.h"
+#include "AtlantisSubsystem.h"
+#include <orbitersdk.h>
 
 
 const static char* ASE_IUS_MESHNAME = "SSU\\IUS\\IUS_ASE";
@@ -91,7 +92,6 @@ class ASE_IUS:public AtlantisSubsystem
 		ATTACHMENTHANDLE hIUSattach;
 		VECTOR3 IUSattachpoints[3];
 
-		bool firststep;
 		bool umbilicalreleased;
 
 		DiscInPort pTiltTableActuatorDriveEnablePri1Intermediate;
@@ -151,7 +151,6 @@ class ASE_IUS:public AtlantisSubsystem
 
 		virtual void Realize();
 		virtual void OnPreStep( double SimT, double DeltaT, double MJD );
-		virtual void OnPostStep( double SimT, double DeltaT, double MJD );
 		virtual bool OnParseLine( const char* line );
 		virtual void OnSaveState( FILEHANDLE scn ) const;
 		bool SingleParamParseLine() const {return true;};

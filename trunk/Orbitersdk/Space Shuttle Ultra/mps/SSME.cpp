@@ -1,8 +1,10 @@
 #include "SSME.h"
+#include "..\Atlantis.h"
 #include "SSMEController_BLOCK_II.h"
 #include "PneumaticControlAssembly.h"
 #include "MPS.h"
 #include "MPSdefs.h"
+#include <orbitersdk.h>
 
 
 namespace mps

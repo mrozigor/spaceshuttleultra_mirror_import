@@ -1570,7 +1570,6 @@ BOOL CALLBACK SSRMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 //	HWND hDlg;
 	SSRMS *sts = (uMsg == WM_INITDIALOG ? (SSRMS*)lParam : (SSRMS*)oapiGetDialogContext (hWnd));
 
-	const double step = 0.05*RAD;
 	static double t0;
 	double t1;
 
@@ -1812,7 +1811,7 @@ BOOL CALLBACK SSRMS_DlgProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 // ==============================================================
 void SSRMS::StopMotion ()
 {
-	int i;
+	//int i;
 //	for (i = 0; i < 15; i++) armmotion[i] = false;
 	center_arm = false;
 }

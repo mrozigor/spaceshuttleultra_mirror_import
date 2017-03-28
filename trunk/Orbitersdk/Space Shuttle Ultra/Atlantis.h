@@ -50,13 +50,11 @@
 #include "dps/SSME_SOP.h"
 #include "dps/ATVC_SOP.h"
 #include "dps/RSLS_old.h"
-#include "mps/SSME.h"
 #include "mps/EIU.h"
 #include "mps/HeliumSystem.h"
 #include "mps/MPS.h"
 #include "PanelGroup.h"
 #include "vc/AtlantisPanel.h"
-#include "vc/PanelF7.h"
 #include "vc\7SegDisp_RCSOMS_PRPLT_QTY.h"
 #include "APU.h"
 #include <EngConst.h>
@@ -299,7 +297,6 @@ public:
 	dps::MMU* pMMU[2];
 	OMSSubsystem* pOMS;
 	gnc::IMU* pIMU[3];
-	mps::SSME* pSSME[3];
 	mps::EIU* pEIU[3];
 	dps::SSME_SOP* pSSME_SOP;
 	dps::RSLS_old* pRSLS;

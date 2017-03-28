@@ -1,4 +1,5 @@
 #include "SimpleGPCSoftware.h"
+#include "..\Atlantis.h"
 #include "../vc/MDU.h"
 #include "IDP.h"
 
@@ -107,9 +108,8 @@ void SimpleGPCSoftware::PrintCommonHeader(const char* header, vc::MDU* pMDU) con
 
 bool SimpleGPCSoftware::GetIntegerSigned( const char *data, int &num ) const
 {
-	int itmp = 0;
 	char* stmp = NULL;
-	itmp = strtol( data, &stmp, 10 );
+	int itmp = strtol( data, &stmp, 10 );
 
 	if ((strlen( data ) > 0) && (strlen( stmp ) == 0))
 	{
@@ -128,9 +128,8 @@ bool SimpleGPCSoftware::GetIntegerUnsigned( const char *data, int &num ) const
 
 bool SimpleGPCSoftware::GetDoubleSigned( const char *data, double &num ) const
 {
-	double dtmp = 0.0;
 	char* stmp = NULL;
-	dtmp = strtod( data, &stmp );
+	double dtmp = strtod( data, &stmp );
 
 	if ((strlen( data ) > 0) && (strlen( stmp ) == 0))
 	{

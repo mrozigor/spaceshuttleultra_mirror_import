@@ -26,7 +26,6 @@
 #define _ETUMBDOORSYSTEM_2DC6F882_ECF3_4c68_B922_62BB3F035441
 #pragma once
 
-#include "Atlantis.h"
 #include "AtlantisSubsystem.h"
 #include "discsignals.h"
 

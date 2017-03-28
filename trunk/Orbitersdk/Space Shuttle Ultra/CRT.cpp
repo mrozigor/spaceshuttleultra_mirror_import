@@ -1,5 +1,6 @@
 #include "Atlantis.h"
 #include "CRT.h"
+#include "vc\MDU.h"
 
 
 // ==============================================================

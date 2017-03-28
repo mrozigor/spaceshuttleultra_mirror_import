@@ -1,4 +1,5 @@
 #include "ETUmbDoorSystem.h"
+#include "Atlantis.h"
 #include <UltraMath.h>
 
 ETUmbDoorSystem::ETUmbDoorSystem(AtlantisSubsystemDirector* _director)

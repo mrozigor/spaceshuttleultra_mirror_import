@@ -1,4 +1,5 @@
 #include "GCIL.h"
+#include "..\Atlantis.h"
 
 
 namespace comm

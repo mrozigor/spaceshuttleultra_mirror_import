@@ -26,9 +26,7 @@
 #define _mps_SSME_BLOCK_II_H_
 
 
-#include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
-#include "..\Atlantis.h"
 #include "SSME.h"
 #include "Sensor.h"
 

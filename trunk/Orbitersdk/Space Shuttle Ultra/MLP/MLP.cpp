@@ -307,14 +307,17 @@ void MLP::OnT0() {
 	T0UmbilicalState.action=AnimState::OPENING;
 
 	// hide water bags
-	GROUPEDITSPEC grpSpec;
-	grpSpec.flags = GRPEDIT_SETUSERFLAG;
-	grpSpec.UsrFlag = 0x00000002;
-	DEVMESHHANDLE hDevMLP = GetDevMesh( vis, msh_idx );
-	oapiEditMeshGroup( hDevMLP, GRP_LSRB_water_bag, &grpSpec );
-	oapiEditMeshGroup( hDevMLP, GRP_LSRB_water_bag_water, &grpSpec );
-	oapiEditMeshGroup( hDevMLP, GRP_RSRB_water_bag, &grpSpec );
-	oapiEditMeshGroup( hDevMLP, GRP_RSRB_water_bag_water, &grpSpec );
+	if (vis)
+	{
+		GROUPEDITSPEC grpSpec;
+		grpSpec.flags = GRPEDIT_SETUSERFLAG;
+		grpSpec.UsrFlag = 0x00000002;
+		DEVMESHHANDLE hDevMLP = GetDevMesh( vis, msh_idx );
+		oapiEditMeshGroup( hDevMLP, GRP_LSRB_water_bag, &grpSpec );
+		oapiEditMeshGroup( hDevMLP, GRP_LSRB_water_bag_water, &grpSpec );
+		oapiEditMeshGroup( hDevMLP, GRP_RSRB_water_bag, &grpSpec );
+		oapiEditMeshGroup( hDevMLP, GRP_RSRB_water_bag_water, &grpSpec );
+	}
 	// vaporize water
 	SRBwaterbagvapor_lvl = 1;
 }

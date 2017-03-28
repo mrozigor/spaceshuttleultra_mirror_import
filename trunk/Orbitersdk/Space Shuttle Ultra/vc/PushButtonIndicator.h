@@ -26,11 +26,12 @@
 #define __PUSHBUTTONINDICATOR_H
 #pragma once
 
-#include "../Atlantis.h"
+
 #include "PushButton.h"
 #include "StandardLight.h"
 #include "DiscInPort.h"
 #include "DiscOutPort.h"
+#include <orbitersdk.h>
 
 
 namespace vc

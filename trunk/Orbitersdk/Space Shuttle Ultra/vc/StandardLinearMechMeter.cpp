@@ -1,5 +1,6 @@
 #include "StandardLinearMechMeter.h"
 #include "../Atlantis.h"
+#include <UltraMath.h>
 
 
 namespace vc

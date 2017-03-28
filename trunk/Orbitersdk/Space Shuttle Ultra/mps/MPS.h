@@ -26,8 +26,7 @@
 #define _mps_MPS_H_
 
 
-#include <orbitersdk.h>
-#include "..\Atlantis.h"
+#include "..\AtlantisSubsystem.h"
 #include "SolenoidValve.h"
 #include "PressureActuatedValve.h"
 #include "Sensor.h"

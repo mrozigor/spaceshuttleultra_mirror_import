@@ -1,5 +1,6 @@
 #include "MM801.h"
 #include "IDP.h"
+#include "..\vc\MDU.h"
 #include "../Atlantis.h"
 #include <UltraMath.h>
 

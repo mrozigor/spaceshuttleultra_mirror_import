@@ -1,4 +1,5 @@
 #include "PanelC3.h"
+#include "..\Atlantis.h"
 #include "../meshres_vc.h"
 #include "../Atlantis_defs.h"
 

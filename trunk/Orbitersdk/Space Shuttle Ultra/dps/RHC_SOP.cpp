@@ -194,7 +194,7 @@ namespace dps
 				// -X
 				A_P = -A_P;
 				A_R = -A_R;
-				A_Y = A_Y;
+				//A_Y = A_Y;
 			}
 
 			// convert to degrees

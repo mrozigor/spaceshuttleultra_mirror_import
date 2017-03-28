@@ -29,6 +29,7 @@
 #include "AtlantisPanel.h"
 #include "PushButtonIndicator.h"
 #include "StandardLight.h"
+#include "StandardSwitch.h"
 #include "StandardSwitchCover.h"
 #include "StandardRotarySwitch.h"
 

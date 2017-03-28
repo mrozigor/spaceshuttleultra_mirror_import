@@ -1,4 +1,5 @@
 #include "PanelF4.h"
+#include "..\Atlantis.h"
 #include "../Atlantis_defs.h"
 
 

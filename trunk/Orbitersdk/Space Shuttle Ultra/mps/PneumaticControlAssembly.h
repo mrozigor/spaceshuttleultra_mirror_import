@@ -50,7 +50,7 @@ namespace mps
 
 	class HeSysEng;
 
-	using class discsignals::DiscreteBundle;
+	using namespace discsignals;
 
 
 	class PneumaticControlAssembly

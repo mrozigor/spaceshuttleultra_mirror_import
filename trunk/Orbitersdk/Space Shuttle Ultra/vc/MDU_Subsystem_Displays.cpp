@@ -940,7 +940,7 @@ namespace vc
 		skp->Rectangle( 320, Round( 466.3895 - (1.4531 * dNum) ), 336, 401 );
 
 		// PC C/1
-		if (STS()->status <= 2) dNum = STS()->GetSSMEPress( 2 );
+		if (STS()->status <= 2) dNum = STS()->GetSSMEPress( 1 );
 		else dNum = 0.0;
 		sprintf_s( cbuf, 16, "%03.0f", dNum );
 		skp->Text( 366, 261, cbuf, strlen( cbuf ) );
@@ -959,7 +959,7 @@ namespace vc
 		skp->Rectangle( 373, Round( 466.3895 - (1.4531 * dNum) ), 389, 401 );
 
 		// PC R/3
-		if (STS()->status <= 2) dNum = STS()->GetSSMEPress( 2 );
+		if (STS()->status <= 2) dNum = STS()->GetSSMEPress( 3 );
 		else dNum = 0.0;
 		sprintf_s( cbuf, 16, "%03.0f", dNum );
 		skp->Text( 424, 276, cbuf, strlen( cbuf ) );

@@ -1,5 +1,7 @@
 #include "ASE_IUS.h"
 #include "meshres_IUS_ASE.h"
+#include "Atlantis.h"
+#include <UltraMath.h>
 
 
 ASE_IUS::ASE_IUS( AtlantisSubsystemDirector* _director, bool AftLocation ):AtlantisSubsystem( _director, "ASE_IUS" )
@@ -21,7 +23,6 @@ ASE_IUS::ASE_IUS( AtlantisSubsystemDirector* _director, bool AftLocation ):Atlan
 	asUmbilical.Set( AnimState::STOPPED, 0.066667 );
 	oldposition = ASE_IUS_TILT_TABLE_POS_0;
 
-	firststep = true;
 	umbilicalreleased = false;
 
 	// TODO "use" attachment 7 (aft active keel)
@@ -104,19 +105,6 @@ void ASE_IUS::Realize()
 
 void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 {
-	if (firststep)// set initial animation
-	{
-		if ((IsIUSAttached()) && (asTiltTable.pos < ASE_IUS_TILT_TABLE_POS_0))
-		{
-			asTiltTable.pos = ASE_IUS_TILT_TABLE_POS_0;
-			oldposition = asTiltTable.pos;
-		}
-		CalcUmbilicalAnimation();
-		STS()->SetAnimation( animTiltTable, asTiltTable.pos );
-		STS()->SetAnimation( animUmbilical, asUmbilical.pos );
-		firststep = true;
-	}
-
 	// panel inputs
 	PyroBusPri = pPyroBusPriOn.IsSet() | (PyroBusPri & !pPyroBusPriOff.IsSet());
 	PyroBusAlt = pPyroBusAltOn.IsSet() | (PyroBusAlt & !pPyroBusAltOff.IsSet());
@@ -220,16 +208,6 @@ void ASE_IUS::OnPreStep( double SimT, double DeltaT, double MJD )
 	return;
 }
 
-void ASE_IUS::OnPostStep( double SimT, double DeltaT, double MJD )
-{
-	/*if (firststep)// set initial animation/attachment (part 2)
-	{
-		STS()->SetAttachmentParams( hIUSattach, IUSattachpoints[0] + STS()->GetOrbiterCoGOffset(), IUSattachpoints[1] - IUSattachpoints[0], IUSattachpoints[2] - IUSattachpoints[0] );
-		firststep = false;
-	}*/
-	return;
-}
-
 bool ASE_IUS::OnParseLine( const char* line )
 {
 	if (!_strnicmp( line, "TILT_TABLE", 10 ))
@@ -290,6 +268,7 @@ void ASE_IUS::DefineAnimations()
 
 	static MGROUP_ROTATE IUSattachment_Rotate( LOCALVERTEXLIST, MAKEGROUPARRAY( IUSattachpoints ), 3, _V( 0, 0.3985, -1.3304 ) + ASEoffset, _V( -1, 0, 0 ), (float)(67.0 * RAD) );
 	STS()->AddAnimationComponent( animTiltTable, 0, 1, &IUSattachment_Rotate );
+	STS()->SetAnimation( animTiltTable, asTiltTable.pos );
 
 	/////// umbilical ///////
 	static UINT Umbilical[4] = {
@@ -301,6 +280,7 @@ void ASE_IUS::DefineAnimations()
 	static MGROUP_ROTATE Umbilical_Rotate = MGROUP_ROTATE( mesh_index, Umbilical, 4, ASE_IUS_UMBILICAL_ROTATION_AXIS_POS, _V( 1, 0, 0 ), (float)(90.0 * RAD) );
 	animUmbilical = STS()->CreateAnimation( 0.066667 );
 	STS()->AddAnimationComponent( animUmbilical, 0, 1, &Umbilical_Rotate, parent );
+	STS()->SetAnimation( animUmbilical, asUmbilical.pos );
 	return;
 }
 
@@ -318,7 +298,8 @@ void ASE_IUS::CreateAttachment()
 
 void ASE_IUS::UpdateAttachment( void )
 {
-	if (hIUSattach) STS()->SetAttachmentParams( hIUSattach, IUSattachpoints[0] + STS()->GetOrbiterCoGOffset(), IUSattachpoints[1] - IUSattachpoints[0], IUSattachpoints[2] - IUSattachpoints[0] );
+	CalcUmbilicalAnimation();
+	RunAnimation();
 	return;
 }
 

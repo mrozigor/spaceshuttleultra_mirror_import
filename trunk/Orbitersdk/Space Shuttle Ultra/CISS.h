@@ -27,7 +27,8 @@
 
 
 #include "discsignals.h"
-#include "Atlantis.h"
+#include "AtlantisSubsystem.h"
+#include <orbitersdk.h>
 
 
 const static char* CISS_G_MESHNAME = "SSU\\Centaur\\CISS_CentaurG";
