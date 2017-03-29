@@ -798,7 +798,7 @@ bool OMSBurnSoftware::OnParseLine(const char* keyword, const char* value)
 		return true;
 	}
 	else if(!_strnicmp(keyword, "MNVR", 4)) {
-		sscanf_s(value, "%d %d", &MnvrLoad, &MnvrToBurnAtt);
+		sscanf_s(value, "%d %d %d", &MnvrLoad, &MnvrToBurnAtt, &BurnCompleted );
 		return true;
 	}
 	else if(!_strnicmp(keyword, "TIMER", 5)) {
@@ -823,7 +823,7 @@ void OMSBurnSoftware::OnSaveState(FILEHANDLE scn) const
 	sprintf_s(cbuf, 255, "%0.0f %0.0f %0.0f %0.1f", TIG[0], TIG[1], TIG[2], TIG[3]);
 	oapiWriteScenario_string(scn, "TIG", cbuf);
 	oapiWriteScenario_int(scn, "TV_ROLL", TV_ROLL);
-	sprintf_s(cbuf, 255, "%d %d", MnvrLoad, MnvrToBurnAtt);
+	sprintf_s(cbuf, 255, "%d %d %d", MnvrLoad, MnvrToBurnAtt, BurnCompleted);
 	oapiWriteScenario_string(scn, "MNVR", cbuf);
 	if(bShowTimer) oapiWriteScenario_string(scn, "TIMER", "");
 }
