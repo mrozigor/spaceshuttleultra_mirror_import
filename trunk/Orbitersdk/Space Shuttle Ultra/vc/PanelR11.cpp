@@ -37,7 +37,7 @@ namespace vc
 		pCRT4->DefineVCGroup(MFDGROUPS[MDUID_CRT4]);
 		pCRT4->SetMouseRegion(0.036582f, 0.020135f, 0.521159f, 0.402556f);
 
-		pKeyboardAft->SetMouseRegion( 0.013315f, 0.448176f, 0.196891f, 0.799740f );
+		pKeyboardAft->SetMouseRegion( 0.092359f, 0.429578f, 0.275403f, 0.780348f );
 
 		pIDPCRTPower->SetInitialAnimState( 0.5f );
 		pIDPCRTPower->DefineSwitchGroup( GRP_R11LS1_VC );
