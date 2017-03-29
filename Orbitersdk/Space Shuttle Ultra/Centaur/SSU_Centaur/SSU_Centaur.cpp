@@ -233,9 +233,6 @@ void SSU_Centaur::clbkSetClassCaps( FILEHANDLE cfg )
 	AddExhaustStream( thACS[10], &psACS );
 	AddExhaust( thACS[11], 0.5, 0.05 );
 	AddExhaustStream( thACS[11], &psACS );
-
-	SetMaxThrust( ENGINE_RETRO, 0 );
-	SetMaxThrust( ENGINE_HOVER, 0 );
 	return;
 }
 

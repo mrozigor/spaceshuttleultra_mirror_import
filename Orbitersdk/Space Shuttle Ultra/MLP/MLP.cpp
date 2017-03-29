@@ -173,7 +173,7 @@ void MLP::clbkSetClassCaps(FILEHANDLE cfg)
 
 void MLP::clbkSaveState(FILEHANDLE scn)
 {
-	SaveDefaultState(scn);
+	VESSEL2::clbkSaveState(scn);
 
 	WriteScenario_state(scn, "T0_UMB", T0UmbilicalState);
 }

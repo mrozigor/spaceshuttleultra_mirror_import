@@ -554,7 +554,7 @@ namespace vc
 		SetBkMode( hDC_Tape_MACHV, TRANSPARENT );
 		SelectObject( hDC_Tape_MACHV, gdiBlackPen );
 
-		sfh_Tape_MACHV = oapiCreateSurface( 43, 7811 + offset_top + offset_bottom );
+		sfh_Tape_MACHV = oapiCreateSurfaceEx( 43, 7811 + offset_top + offset_bottom, OAPISURFACE_RENDERTARGET | OAPISURFACE_SKETCHPAD );
 		oapi::Sketchpad* skp_Tape_MACHV = oapiGetSketchpad( sfh_Tape_MACHV );
 
 		skp_Tape_MACHV->SetPen( skpWhitePen );
@@ -643,7 +643,7 @@ namespace vc
 		SetBkMode( hDC_Tape_KEAS, TRANSPARENT );
 		SelectObject( hDC_Tape_KEAS, gdiBlackPen );
 		
-		sfh_Tape_KEAS = oapiCreateSurface( 43, 3875 + offset_top + offset_bottom );
+		sfh_Tape_KEAS = oapiCreateSurfaceEx( 43, 3875 + offset_top + offset_bottom, OAPISURFACE_RENDERTARGET | OAPISURFACE_SKETCHPAD );
 		oapi::Sketchpad* skp_Tape_KEAS = oapiGetSketchpad( sfh_Tape_KEAS );
 
 		skp_Tape_KEAS->SetPen( skpWhitePen );
@@ -700,7 +700,7 @@ namespace vc
 		SetBkMode( hDC_Tape_Alpha, TRANSPARENT );
 		SelectObject( hDC_Tape_Alpha, gdiBlackPen );
 
-		sfh_Tape_Alpha = oapiCreateSurface( 43, 3396 + offset_top + offset_bottom );
+		sfh_Tape_Alpha = oapiCreateSurfaceEx( 43, 3396 + offset_top + offset_bottom, OAPISURFACE_RENDERTARGET | OAPISURFACE_SKETCHPAD );
 		oapi::Sketchpad* skp_Tape_Alpha = oapiGetSketchpad( sfh_Tape_Alpha );
 
 		skp_Tape_Alpha->SetPen( skpWhitePen );
@@ -788,7 +788,7 @@ namespace vc
 		SetBkMode( hDC_Tape_H, TRANSPARENT );
 		SelectObject( hDC_Tape_H, gdiBlackPen );
 		
-		sfh_Tape_H = oapiCreateSurface( 43, 6534 + offset_top + offset_bottom );
+		sfh_Tape_H = oapiCreateSurfaceEx( 43, 6534 + offset_top + offset_bottom, OAPISURFACE_RENDERTARGET | OAPISURFACE_SKETCHPAD );
 		oapi::Sketchpad* skp_Tape_H = oapiGetSketchpad( sfh_Tape_H );
 
 		skp_Tape_H->SetPen( skpWhitePen );
@@ -985,7 +985,7 @@ namespace vc
 		SetBkMode( hDC_Tape_Hdot, TRANSPARENT );
 		SelectObject( hDC_Tape_Hdot, gdiBlackPen );
 
-		sfh_Tape_Hdot = oapiCreateSurface( 43, 3468 + offset_top + offset_bottom );
+		sfh_Tape_Hdot = oapiCreateSurfaceEx( 43, 3468 + offset_top + offset_bottom, OAPISURFACE_RENDERTARGET | OAPISURFACE_SKETCHPAD );
 		oapi::Sketchpad* skp_Tape_Hdot = oapiGetSketchpad( sfh_Tape_Hdot );
 
 		skp_Tape_Hdot->SetPen( skpWhitePen );

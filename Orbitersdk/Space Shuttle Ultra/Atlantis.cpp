@@ -2839,7 +2839,7 @@ void Atlantis::DefineTouchdownPoints()
 
 void Atlantis::ClearMeshes()
 {
-	VESSEL::ClearMeshes();
+	VESSEL::ClearMeshes( true );
 	mesh_orbiter = MESH_UNDEFINED;
 	mesh_kuband = MESH_UNDEFINED;
 	mesh_cockpit = MESH_UNDEFINED;

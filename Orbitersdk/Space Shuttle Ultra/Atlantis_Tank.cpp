@@ -171,10 +171,6 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 
 	SetISP (5000.0);
 
-	SetMaxThrust (ENGINE_MAIN, 0);
-	SetMaxThrust (ENGINE_RETRO, 0);
-	SetMaxThrust (ENGINE_HOVER, 0);
-	SetMaxThrust (ENGINE_ATTITUDE, 0);
 	// Tank has no engines of its own
 
 	SetCW (0.2, 0.3, 1.2, 1.2);
@@ -185,7 +181,7 @@ void Atlantis_Tank::clbkSetClassCaps (FILEHANDLE cfg)
 	VECTOR3 pmi = {145.6,145.6,10.5};
 	SetPMI (pmi);
 	SetPitchMomentScale (1e-4);
-	SetBankMomentScale (1e-4);
+	SetYawMomentScale( 1e-4 );
 
 	VECTOR3 co = {0,0,0};
 	SetCameraOffset (co);
