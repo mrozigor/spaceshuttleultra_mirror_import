@@ -258,12 +258,10 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	SetRotDrag (_V(0, 0, 0));
 	SetCW(0, 0, 0, 0);
 	SetPitchMomentScale(0);
-	SetBankMomentScale(0);
+	SetYawMomentScale( 0 );
 	SetLiftCoeffFunc(0); 
 
-	ClearMeshes();
-	ClearExhaustRefs();
-	ClearAttExhaustRefs();
+	ClearMeshes( true );
 
 	// Crawler
 	//meshoffset = _V(0.767, 3.387, 2.534);

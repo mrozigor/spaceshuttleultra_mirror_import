@@ -264,7 +264,7 @@ void Atlantis_SRB::clbkSetClassCaps (FILEHANDLE cfg)
 
 void Atlantis_SRB::UpdateVisual(bool FWC) const
 {
-	ClearMeshes();
+	ClearMeshes( true );
 
 
 	for(int i=0;i<usSectionCount;i++) {
