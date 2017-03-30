@@ -59,7 +59,7 @@ namespace vc {
 		void HidePanels();
 		void ShowPanels();
 		void LogPanels(char *grp);
-		void UpdateUVState();
+		void VisualCreated();
 	};
 
 	template <class TVessel>
@@ -275,9 +275,9 @@ namespace vc {
 	}
 
 	template <class TVessel>
-	void PanelGroup<TVessel>::UpdateUVState()
+	void PanelGroup<TVessel>::VisualCreated()
 	{
 		for(unsigned int i = 0; i<panels.size(); i++)
-			panels.at(i)->UpdateUVState();
+			panels.at(i)->VisualCreated();
 	}
 };

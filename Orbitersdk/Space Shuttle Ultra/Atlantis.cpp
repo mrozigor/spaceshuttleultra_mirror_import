@@ -621,8 +621,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pshSlag2[0] = pshSlag2[1] = NULL;
 	pshSlag3[0] = pshSlag3[1] = NULL;
 
-	for (i = 0; i < 11; i++)
-		mfdbright[i] = 1.0;
 	huds.ngroup = GRP_VIRTUALHUD_VC;
 	huds.size = 0.13372;
 	
@@ -2660,17 +2658,6 @@ void Atlantis::UpdateMesh()
 	SetAnimation(anim_gear, gear_status.pos);
 
 	SetAnimationCameras(); // update camera positions
-
-
-	// update MFD brightness
-	/*if (vis) {
-		int i;
-		MESHHANDLE hMesh = GetMesh(vis, mesh_vc);
-		for (i = 0; i < 10; i++) {
-			MATERIAL *mat = oapiMeshMaterial(hMesh, 10 + i);
-			mat->emissive.r = mat->emissive.g = mat->emissive.b = (float)mfdbright[i];
-		}
-	}*/
 }
 
 void Atlantis::ShowMidDeck()
@@ -5595,17 +5582,17 @@ void Atlantis::clbkVisualCreated(VISHANDLE _vis, int refcount)
 	if (pExtAirlock) dynamic_cast<eva_docking::ExtAirlock*>(pExtAirlock)->VisualCreated( vis );
 
 	// update UVs for talkbacks and lights
-	oapiWriteLog( "Started Panels UpdateUVState" );
-	pgForward.UpdateUVState();
-	pgLeft.UpdateUVState();
-	pgCenter.UpdateUVState();
-	pgRight.UpdateUVState();
-	pgOverhead.UpdateUVState();
-	pgOverheadAft.UpdateUVState();
-	pgAftPort.UpdateUVState();
-	pgAft.UpdateUVState();
-	pgAftStbd.UpdateUVState();
-	oapiWriteLog( "Ended Panels UpdateUVState" );
+	oapiWriteLog( "Started Panels VisualCreated" );
+	pgForward.VisualCreated();
+	pgLeft.VisualCreated();
+	pgCenter.VisualCreated();
+	pgRight.VisualCreated();
+	pgOverhead.VisualCreated();
+	pgOverheadAft.VisualCreated();
+	pgAftPort.VisualCreated();
+	pgAft.VisualCreated();
+	pgAftStbd.VisualCreated();
+	oapiWriteLog( "Ended Panels VisualCreated" );
 
 	oapiWriteLog("(Atlantis::clbkVisualCreated) Leaving.");
 }
@@ -5617,14 +5604,6 @@ void Atlantis::clbkVisualDestroyed(VISHANDLE _vis, int refcount)
 {
 	if (vis == _vis) vis = NULL;
 	hDevHeatShieldMesh = NULL;
-}
-
-// --------------------------------------------------------------
-// Update mesh animation state
-// --------------------------------------------------------------
-void Atlantis::clbkAnimate(double simt)
-{
-	UpdateMesh();
 }
 
 // --------------------------------------------------------------
