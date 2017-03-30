@@ -386,7 +386,6 @@ public:
 	virtual dps::ShuttleBusManager* BusManager() const;
 	mission::Mission* GetMissionData() const;
 	// Overloaded callback functions
-	void clbkAnimate (double simt);
 	int  clbkConsumeBufferedKey (DWORD key, bool down, char *kstate);
 	bool clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp);
 	void clbkFocusChanged (bool getfocus, OBJHANDLE hNewVessel, OBJHANDLE hOldVessel);
@@ -1065,7 +1064,6 @@ private:
 	VECTOR3 TranslationCommand, RotationCommand;
 
 	VCHUDSPEC huds;
-	double mfdbright[11];
 	double pl_mass;
 
 	VECTOR3 currentCoG; // 0,0,0 corresponds to CoG at center of Orbiter mesh

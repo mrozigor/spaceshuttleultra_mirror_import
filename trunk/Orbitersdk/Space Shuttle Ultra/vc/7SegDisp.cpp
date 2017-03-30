@@ -77,7 +77,7 @@ namespace vc
 		return;
 	}
 
-	void _7SegDisp::UpdateUVState( void )
+	void _7SegDisp::VisualCreated( void )
 	{
 		state = default_state;// return state to default
 		for (unsigned int i = 0; i < grpIndex.size(); i++) UpdateUV( i );

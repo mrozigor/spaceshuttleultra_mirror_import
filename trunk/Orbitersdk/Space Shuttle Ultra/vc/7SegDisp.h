@@ -114,7 +114,7 @@ namespace vc
 			void DefineMesh( UINT _panelmesh );
 			void DefineComponent( UINT _grpIndex, bool _IsNumber = true, bool _HasDecimalPoint = false, bool _IsDoubleSign = false, int _default_state = _7SD_STATE_NUM0 );
 
-			virtual void UpdateUVState( void );
+			virtual void VisualCreated( void );
 
 			virtual void Controller( void ) = 0;
 	};

@@ -362,7 +362,6 @@ namespace vc {
 
 	protected:
 		unsigned short usMDUID;
-		SURFHANDLE shLabelTex;
 		dps::DEUCHAR textBuffer[51][26];
 		dps::IDP* prim_idp;
 		dps::IDP* sec_idp;
@@ -413,6 +412,9 @@ namespace vc {
 			else
 				return prim_idp;
 		}
+
+		void VisualCreated( void );
+
 		/**
 		 * Does nothing as it currently has no animations.
 		 * @sa BasicVCComponent::DefineVCAnimations

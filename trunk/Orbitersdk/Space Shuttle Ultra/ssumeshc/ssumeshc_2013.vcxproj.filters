@@ -34,7 +34,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\Meshes\SSU\KU.msh" />
     <None Include="ReadMe.txt" />
   </ItemGroup>
 </Project>

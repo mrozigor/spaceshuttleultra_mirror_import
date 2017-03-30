@@ -149,7 +149,7 @@ namespace vc
 		return;
 	}
 
-	void StandardTalkback2::UpdateUVState( void )
+	void StandardTalkback2::VisualCreated( void )
 	{
 		tkbk_state_U = tkbk_default_state;// return state to default
 		tkbk_state_L = tkbk_default_state;// return state to default
@@ -244,7 +244,7 @@ namespace vc
 		flags[idx]=usFlag;
 	}
 
-	void StandardTalkback3::UpdateUVState( void )
+	void StandardTalkback3::VisualCreated( void )
 	{
 		tkbk_state = tkbk_default_state;// return state to default
 		UpdateUV();

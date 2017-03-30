@@ -88,7 +88,7 @@ namespace vc
 		return;
 	}
 
-	void StandardSingleLight::UpdateUVState( void )
+	void StandardSingleLight::VisualCreated( void )
 	{
 		state = default_state;// return state to default
 		UpdateUV();
@@ -186,7 +186,7 @@ namespace vc
 		return;
 	}
 
-	void StandardDoubleLight::UpdateUVState( void )
+	void StandardDoubleLight::VisualCreated( void )
 	{
 		state = default_state;// return state to default
 		UpdateUV();

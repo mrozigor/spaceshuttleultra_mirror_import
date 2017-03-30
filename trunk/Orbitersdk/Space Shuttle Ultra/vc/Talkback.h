@@ -76,7 +76,7 @@ namespace vc
 			void SetInitialState( unsigned short _usFlag );
 			void SetInput( DiscreteBundle* pBundle, unsigned short usLine, unsigned short usFlag );
 			void SetCoverSegment( unsigned short _usFlag );
-			virtual void UpdateUVState( void );
+			virtual void VisualCreated( void );
 
 			unsigned short flags;
 			DiscInPort input;
@@ -100,7 +100,7 @@ namespace vc
 			void DefineMeshGroup( UINT _panelmesh, UINT _grpIndex );
 			void SetInitialState( unsigned short _usFlag );
 			void SetInput( unsigned short idx, DiscreteBundle* pBundle, unsigned short usLine, unsigned short usFlag );
-			virtual void UpdateUVState( void );
+			virtual void VisualCreated( void );
 
 			unsigned short flags[2];
 			DiscInPort input[2];

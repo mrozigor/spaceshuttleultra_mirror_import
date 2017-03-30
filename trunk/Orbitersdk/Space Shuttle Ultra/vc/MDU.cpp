@@ -105,10 +105,8 @@ namespace vc
 		bInverseX(false), counting(false)
 	{
 		_sts->RegisterMDU(_usMDUID, this);
-		//Clear text buffer
-		//Create display buffer
-		//Clear display buffer
-		shLabelTex = NULL;
+
+		fBrightness = 0.8;
 		
 		// set default button positions
 		btnPwrXmin = 0.038f; btnPwrXmax = 0.099f;
@@ -170,6 +168,11 @@ namespace vc
 					if (sec_idp) bUseSecondaryPort = true;
 				}
 			}
+			else if (!_strnicmp( line, "BRIGHTNESS", 10 ))
+			{
+				sscanf_s( (char*)(line + 10), "%lf", &fBrightness );
+				fBrightness = range( 0.4, fBrightness, 1.0 );
+			}
 		}
 		return false;
 	}
@@ -180,6 +183,7 @@ namespace vc
 		oapiWriteScenario_int( scn, "MENU", menu );
 		if (bPortConfigMan) oapiWriteScenario_string( scn, "PORT_CFG", "MAN" );
 		if (bUseSecondaryPort) oapiWriteScenario_string( scn, "PORT_SEL", "SEC" );
+		oapiWriteScenario_float( scn, "BRIGHTNESS", fBrightness );
 		return;
 	}
 
@@ -194,6 +198,19 @@ namespace vc
 	{
 		mfdspec.nmesh = vc_idx;
 		//
+	}
+
+	void MDU::VisualCreated( void )
+	{
+		if (STS()->vis)
+		{
+			DEVMESHHANDLE hMesh = STS()->GetDevMesh( STS()->vis, STS()->mesh_vc );
+			MATERIAL mat;
+			oapiMeshMaterial( hMesh, 14 + usMDUID, &mat );
+			mat.emissive.r = mat.emissive.g = mat.emissive.b = (float)fBrightness;
+			oapiSetMaterial( hMesh, 14 + usMDUID, &mat );
+		}
+		return;
 	}
 
 	/*void MDU::DrawCommonHeader(const char* cDispTitle)
@@ -318,6 +335,14 @@ namespace vc
 		else if(y >= btnBrtYmin && y<= btnBrtYmax && x >= btnBrtXmin && x <= btnBrtXmax)
 		{
 			//sprintf_s(oapiDebugString(), 80, "MDU %s BRIGHTNESS", GetQualifiedIdentifier().c_str());
+			if (_event & PANEL_MOUSE_LBDOWN)
+			{
+				if (fBrightness == 0.4) fBrightness = 0.8;
+				else if (fBrightness == 0.8) fBrightness = 1.0;
+				else fBrightness = 0.4;
+				
+				VisualCreated();
+			}
 		}
 		else if (y >= edgekeyYmin && y <= edgekeyYmax)
 		{

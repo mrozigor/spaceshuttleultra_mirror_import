@@ -53,7 +53,7 @@ namespace vc {
 
 			void UpdateUV( void );
 			void DefineMeshGroup( UINT _panelmesh, UINT _grpIndex );
-			void UpdateUVState( void );
+			void VisualCreated( void );
 
 			DiscInPort input[2];
 	};
@@ -79,7 +79,7 @@ namespace vc {
 
 			void UpdateUV( void );
 			void DefineMeshGroup( UINT _panelmesh, UINT _grpIndex );
-			void UpdateUVState( void );
+			void VisualCreated( void );
 
 			DiscInPort input[4];
 	};
