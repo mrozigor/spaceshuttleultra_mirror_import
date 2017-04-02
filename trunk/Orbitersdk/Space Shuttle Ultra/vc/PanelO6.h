@@ -34,6 +34,9 @@ namespace vc {
 
 	class PanelO6 : public AtlantisPanel {
 	private:
+		MESHHANDLE hPanelMesh;
+		UINT mesh_index;
+		
 		StdSwitch3* pLGlareShieldFlood;
 		StandardTalkback3* pSTYDoorPosition;
 		StandardTalkback3* pSTZDoorPosition;
@@ -105,8 +108,13 @@ namespace vc {
 	public:
 		PanelO6(Atlantis* psts);
 		virtual ~PanelO6();
+
+		virtual void AddMeshes( const VECTOR3& ofs );
+		virtual void SetMeshVisibility( bool visible );
+		virtual UINT GetVCMeshIndex( void ) const;
 		virtual void DefineVC();
 		virtual void RegisterVC();
+		virtual void DefineVCAnimations( UINT vcidx );
 		virtual void Realize();
 
 	};

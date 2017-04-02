@@ -142,6 +142,9 @@ Meshes\SSU\OPF3.msh
 Meshes\SSU\Orbiter.msh
 Meshes\SSU\OTS_Vandenberg.msh
 Meshes\SSU\panelL10_IUS.msh
+Meshes\SSU\panelO6.msh
+Meshes\SSU\panelO8.msh
+Meshes\SSU\panelR13L.msh
 Meshes\SSU\parachute.msh
 Meshes\SSU\RMS.msh
 Meshes\SSU\RMSVC.msh
@@ -409,7 +412,6 @@ Textures\SSU\ODSbuttons.dds
 Textures\SSU\OFT_FWDSkirt.dds
 Textures\SSU\OMSExhaust.dds
 Textures\SSU\overlay.dds
-Textures\SSU\PBI.dds
 Textures\SSU\panelA1L.dds
 Textures\SSU\panelA1R.dds
 Textures\SSU\panelA1U.dds
@@ -418,6 +420,8 @@ Textures\SSU\panelF6.dds
 Textures\SSU\panelF8.dds
 Textures\SSU\panelL10_IUS.dds
 Textures\SSU\panelR4.dds
+Textures\SSU\PBI_aft.dds
+Textures\SSU\PBI_fwd.dds
 Textures\SSU\PORT_OMSpod.dds
 Textures\SSU\PORT_OMSpod_spec.dds
 Textures\SSU\PORT_OMSpod_norm.dds
