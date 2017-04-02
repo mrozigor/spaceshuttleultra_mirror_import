@@ -398,6 +398,7 @@
     <ClCompile Include="vc\PanelF6.cpp" />
     <ClCompile Include="vc\PanelF7.cpp" />
     <ClCompile Include="vc\PanelF8.cpp" />
+    <ClCompile Include="vc\PanelL1.cpp" />
     <ClCompile Include="vc\PanelL10.cpp" />
     <ClCompile Include="vc\PanelL12U_Centaur.cpp" />
     <ClCompile Include="vc\PanelL12U_IUS.cpp" />
@@ -428,6 +429,7 @@
     <ClCompile Include="StbdMPMSystem.cpp" />
     <ClCompile Include="util\Stopwatch.cpp" />
     <ClCompile Include="vc\Talkback.cpp" />
+    <ClCompile Include="VideoControlUnit.cpp" />
     <ClCompile Include="WSB.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -477,6 +479,9 @@
     <ClInclude Include="meshres_CISS_GPrime.h" />
     <ClInclude Include="meshres_vc_l12u_centaur.h" />
     <ClInclude Include="meshres_vc_l12u_ius.h" />
+    <ClInclude Include="meshres_vc_o6.h" />
+    <ClInclude Include="meshres_vc_o8.h" />
+    <ClInclude Include="meshres_vc_r13l.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics.h" />
     <ClInclude Include="mps\ComputerInterfaceElectronics_BLOCK_II.h" />
     <ClInclude Include="mps\DigitalComputerUnit.h" />
@@ -564,6 +569,7 @@
     <ClInclude Include="vc\PanelF7.h" />
     <ClInclude Include="vc\PanelF8.h" />
     <ClInclude Include="vc\PanelGroup.h" />
+    <ClInclude Include="vc\PanelL1.h" />
     <ClInclude Include="vc\PanelL10.h" />
     <ClInclude Include="vc\PanelL12U_Centaur.h" />
     <ClInclude Include="vc\PanelL12U_IUS.h" />
@@ -594,6 +600,7 @@
     <ClInclude Include="vc\Talkback.h" />
     <ClInclude Include="ValveTypeBool.h" />
     <ClInclude Include="vc\vc_defs.h" />
+    <ClInclude Include="VideoControlUnit.h" />
     <ClInclude Include="WSB.h" />
   </ItemGroup>
   <ItemGroup>
