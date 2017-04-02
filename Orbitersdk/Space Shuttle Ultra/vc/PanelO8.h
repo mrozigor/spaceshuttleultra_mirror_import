@@ -35,14 +35,22 @@ namespace vc
 	class PanelO8:public AtlantisPanel
 	{
 		private:
+			MESHHANDLE hPanelMesh;
+			UINT mesh_index;
+
 			StdSwitch2* pRadarAltimeter[2];
 			StdSwitch3* pAnnunciatorLampTest;
 
 		public:
 			PanelO8( Atlantis* psts );
 			virtual ~PanelO8();
+
+			virtual void AddMeshes( const VECTOR3& ofs );
+			virtual void SetMeshVisibility( bool visible );
+			virtual UINT GetVCMeshIndex( void ) const;
 			virtual void DefineVC();
 			virtual void RegisterVC();
+			virtual void DefineVCAnimations( UINT vcidx );
 			virtual void Realize();
 	};
 };

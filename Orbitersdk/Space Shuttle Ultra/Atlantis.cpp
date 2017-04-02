@@ -403,8 +403,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pgOverhead.AddPanel( new vc::PanelO1( this ) );
 	pgOverhead.AddPanel( new vc::PanelO2( this ) );
 	pgOverhead.AddPanel(new vc::PanelO3(this));
-	pgOverhead.AddPanel(new vc::PanelO6(this));
-	pgOverhead.AddPanel( new vc::PanelO8( this ) );
 
 	pgOverheadAft.AddPanel(new vc::PanelO17(this));
 	
@@ -419,6 +417,8 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	
 	pPanelA8 = NULL;
 	pA7A8Panel = NULL;
+	pPanelO6 = NULL;
+	pPanelO8 = NULL;
 	pPanelL10 = NULL;
 	pPanelL12U_IUS = NULL;
 	pPanelL12U_Centaur = NULL;
@@ -2384,6 +2384,8 @@ void Atlantis::AddOrbiterVisual()
 		*/
 		if (pA7A8Panel) pA7A8Panel->AddMeshes(VC_OFFSET);
 		if (pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
+		if (pPanelO6) pPanelO6->AddMeshes( VC_OFFSET );
+		if (pPanelO8) pPanelO8->AddMeshes( VC_OFFSET );
 		if (pPanelL10) pPanelL10->AddMeshes( VC_OFFSET );
 		if (pPanelL12U_IUS) pPanelL12U_IUS->AddMeshes( VC_OFFSET );
 		if (pPanelL12U_Centaur) pPanelL12U_Centaur->AddMeshes( VC_OFFSET );
@@ -4180,6 +4182,9 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 
 			/////// panels ///////
 			pgLeft.AddPanel( new vc::PanelL1( this ) );
+
+			pgOverhead.AddPanel( pPanelO6 = new vc::PanelO6( this ) );
+			pgOverhead.AddPanel( pPanelO8 = new vc::PanelO8( this ) );
 
 			pgAftStbd.AddPanel( pPanelR13L = new vc::PanelR13L( this ) );
 
