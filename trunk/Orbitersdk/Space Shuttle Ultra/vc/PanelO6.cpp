@@ -237,9 +237,9 @@ namespace vc {
 		
 		AddAIDToMouseEventList(AID_O6);
 
-		pSTYDoorPosition->DefineMeshGroup( STS()->mesh_vc, GRP_DS1_O6_VC );
+		pSTYDoorPosition->DefineMeshGroup( mesh_index, GRP_DS1_O6_VC );
 		
-		pSTZDoorPosition->DefineMeshGroup( STS()->mesh_vc, GRP_DS2_O6_VC );
+		pSTZDoorPosition->DefineMeshGroup( mesh_index, GRP_DS2_O6_VC );
 
 		pSTRKDoorControlSys1Cover->SetMouseRegion( 0, 0.656091f, 0.175973f, 0.700474f, 0.227679f );
 		pSTRKDoorControlSys1Cover->SetMouseRegion( 1, 0.656091f, 0.236236f, 0.700474f, 0.251363f );
@@ -330,15 +330,15 @@ namespace vc {
 		pGPC5Pwr->SetReference(_V(0.0, 3.09556, 13.98215), SWITCH_VERTICAL);
 		pGPC5Pwr->SetInitialAnimState(0.5f);
 
-		pGPCOutput[0]->DefineMeshGroups( STS()->mesh_vc, GRP_DS3_U_O6_VC, GRP_DS3_L_O6_VC );
+		pGPCOutput[0]->DefineMeshGroups( mesh_index, GRP_DS3_U_O6_VC, GRP_DS3_L_O6_VC );
 		
-		pGPCOutput[1]->DefineMeshGroups( STS()->mesh_vc, GRP_DS4_U_O6_VC, GRP_DS4_L_O6_VC );
+		pGPCOutput[1]->DefineMeshGroups( mesh_index, GRP_DS4_U_O6_VC, GRP_DS4_L_O6_VC );
 		
-		pGPCOutput[2]->DefineMeshGroups( STS()->mesh_vc, GRP_DS5_U_O6_VC, GRP_DS5_L_O6_VC );
+		pGPCOutput[2]->DefineMeshGroups( mesh_index, GRP_DS5_U_O6_VC, GRP_DS5_L_O6_VC );
 		
-		pGPCOutput[3]->DefineMeshGroups( STS()->mesh_vc, GRP_DS6_U_O6_VC, GRP_DS6_L_O6_VC );
+		pGPCOutput[3]->DefineMeshGroups( mesh_index, GRP_DS6_U_O6_VC, GRP_DS6_L_O6_VC );
 		
-		pGPCOutput[4]->DefineMeshGroups( STS()->mesh_vc, GRP_DS7_U_O6_VC, GRP_DS7_L_O6_VC );
+		pGPCOutput[4]->DefineMeshGroups( mesh_index, GRP_DS7_U_O6_VC, GRP_DS7_L_O6_VC );
 
 		pGPCOutputCover[0]->SetMouseRegion(0, 0.4798f, 0.6438f, 0.5473f, 0.7007f);
 		pGPCOutputCover[0]->SetMouseRegion(1, 0.483795f, 0.705872f, 0.535098f, 0.723074f);
@@ -405,15 +405,15 @@ namespace vc {
 
 		pIPL5->SetMouseRegion(0.7554f, 0.7365f, 0.8026f, 0.7741f);
 
-		pGPCMode[0]->DefineMeshGroup( STS()->mesh_vc, GRP_DS8_O6_VC );
+		pGPCMode[0]->DefineMeshGroup( mesh_index, GRP_DS8_O6_VC );
 		
-		pGPCMode[1]->DefineMeshGroup( STS()->mesh_vc, GRP_DS9_O6_VC );
+		pGPCMode[1]->DefineMeshGroup( mesh_index, GRP_DS9_O6_VC );
 		
-		pGPCMode[2]->DefineMeshGroup( STS()->mesh_vc, GRP_DS10_O6_VC );
+		pGPCMode[2]->DefineMeshGroup( mesh_index, GRP_DS10_O6_VC );
 		
-		pGPCMode[3]->DefineMeshGroup( STS()->mesh_vc, GRP_DS11_O6_VC );
+		pGPCMode[3]->DefineMeshGroup( mesh_index, GRP_DS11_O6_VC );
 		
-		pGPCMode[4]->DefineMeshGroup( STS()->mesh_vc, GRP_DS12_O6_VC );
+		pGPCMode[4]->DefineMeshGroup( mesh_index, GRP_DS12_O6_VC );
 
 		pGPC1Mode->SetMouseRegion(0.4798f, 0.8718f, 0.5473f, 0.9117f);
 		pGPC1Mode->DefineSwitchGroup( GRP_S46_O6_VC );

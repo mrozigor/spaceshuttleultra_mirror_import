@@ -47,7 +47,7 @@ namespace vc
 		StdSwitch3* pPortMPM;
 		StdSwitch3* pStbdMPM;
 		StdSwitch3* pRMSSelect;
-		StdSwitch3* pShoulderBrace;
+		LockableLever3* pShoulderBrace;
 		StdSwitch3* pSingleDirectDrive;
 
 		StandardSwitchCover* pPortMPMCover;
