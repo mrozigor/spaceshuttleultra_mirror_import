@@ -47,7 +47,7 @@ namespace vc
 		Add(pStbdMPM = new StdSwitch3(_sts, "Stbd MPM Deploy"));
 		Add(pEEMode = new StdSwitch3(_sts, "EE Mode"));
 		Add(pEEManContr = new StdSwitch3(_sts, "EE Man Contr"));
-		Add(pShoulderBrace = new StdSwitch3(_sts, "Shoulder Brace Release"));
+		Add(pShoulderBrace = new LockableLever3(_sts, "Shoulder Brace Release"));
 		Add(pRMSSelect = new StdSwitch3(_sts, "RMS SELECT"));
 		Add(pSingleDirectDrive = new StdSwitch3(_sts, "Single/Direct Drive"));
 
@@ -125,9 +125,7 @@ namespace vc
 		pEEManContr->SetLabel(2, "RIGID");
 		pEEManContr->SetLabel(1, "OFF");
 		pEEManContr->SetLabel(0, "DERIGID");
-		pShoulderBrace->SetLabel(2, "PORT");
 		pShoulderBrace->SetLabel(1, "OFF");
-		pShoulderBrace->SetLabel(0, "STBD");
 		pRMSSelect->SetLabel(2, "PORT");
 		pRMSSelect->SetLabel(1, "OFF");
 		pRMSSelect->SetLabel(0, "STBD");
@@ -198,7 +196,7 @@ namespace vc
 		oapiWriteLog("PanelA8::AtlantisPanel::RegisterVC() called");
 
 		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
-		oapiVCRegisterArea(AID_A8, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP);
+		oapiVCRegisterArea(AID_A8, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBPRESSED | PANEL_MOUSE_LBUP);
 		oapiVCSetAreaClickmode_Quadrilateral (AID_A8,
 			_V(-0.797, 2.893, 12.277)+ofs, _V(-0.266, 2.893, 12.277)+ofs, 
 			_V(-0.797, 2.119, 12.522)+ofs, _V(-0.266, 2.119, 12.522)+ofs);
@@ -212,6 +210,7 @@ namespace vc
 		const VECTOR3 switch_rot_horz=_V(0.0, -0.9499, 0.3126);
 		const VECTOR3 rotary_switch_rot = _V(0.0, -0.3126, -0.9499);
 		const VECTOR3 push_dir = rotary_switch_rot;
+		const VECTOR3 switch_pull = -push_dir;
 
 		AddAIDToMouseEventList(AID_A8);
 
@@ -260,6 +259,7 @@ namespace vc
 		pShoulderBrace->SetReference(_V(-0.687, 2.402, 12.434), switch_rot_horz);
 		pShoulderBrace->DefineSwitchGroup(GRP_A8S10_A8_VC);
 		pShoulderBrace->SetInitialAnimState(0.5f);
+		pShoulderBrace->SetPullDirection( switch_pull );
 		pShoulderBrace->SetOrientation(true);
 		pShoulderBrace->SetSpringLoaded(true);
 
@@ -443,7 +443,7 @@ namespace vc
 		pPortMPMTb->SetInput(0, pBundle, 2, TB_DPY);
 		pPortMPMTb->SetInput(1, pBundle, 3, TB_STO);
 		// for the moment, ignore STBD connections for shoulder brace
-		pShoulderBrace->outputB.Connect(pBundle, 4);
+		pShoulderBrace->ConnectPort( 2, pBundle, 4 );
 		pShoulderBraceTb->SetInput( pBundle, 5, TB_GRAY );
 		pRMSSelect->outputB.Connect(pBundle, 6);
 		pMasterAlarm->ConnectPushButton( pBundle, 7 );

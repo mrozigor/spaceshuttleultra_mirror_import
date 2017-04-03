@@ -374,18 +374,21 @@ namespace dps {
 					{
 						if ((scratchPad[i] == '+') || (scratchPad[i] == '-'))// delimiter
 						{
-							lastchardelimiter = true;
 							if (i == 0)// first run
 							{
 								Data += scratchPad[i];
 							}
 							else
 							{
-								items.push_back( make_pair( item, Data.c_str() ) );
+								if (lastchardelimiter == false)// skip item if delimiter is repeated
+								{
+									items.push_back( make_pair( item, Data.c_str() ) );
+								}
 								item++;
 								Data = "";
 								Data += scratchPad[i];
 							}
+							lastchardelimiter = true;
 						}
 						else
 						{
