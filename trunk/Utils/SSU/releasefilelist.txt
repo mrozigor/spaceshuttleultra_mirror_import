@@ -141,9 +141,11 @@ Meshes\SSU\OPF1_2.msh
 Meshes\SSU\OPF3.msh
 Meshes\SSU\Orbiter.msh
 Meshes\SSU\OTS_Vandenberg.msh
+Meshes\SSU\panelL1.msh
 Meshes\SSU\panelL10_IUS.msh
 Meshes\SSU\panelO6.msh
 Meshes\SSU\panelO8.msh
+Meshes\SSU\panelR1.msh
 Meshes\SSU\panelR13L.msh
 Meshes\SSU\parachute.msh
 Meshes\SSU\RMS.msh
