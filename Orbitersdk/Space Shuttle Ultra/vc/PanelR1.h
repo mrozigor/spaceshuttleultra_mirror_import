@@ -37,6 +37,9 @@ namespace vc
 	class PanelR1 : public AtlantisPanel
 	{
 		private:
+			MESHHANDLE hPanelMesh;
+			UINT mesh_index;
+
 			StdSwitch2* pControlBusPwrMNAPwr;
 			StdSwitch2* pControlBusPwrMNBPwr;
 			StdSwitch2* pControlBusPwrMNCPwr;
@@ -151,8 +154,12 @@ namespace vc
 			PanelR1( Atlantis* _sts );
 			virtual ~PanelR1();
 
+			virtual void AddMeshes( const VECTOR3& ofs );
+			virtual void SetMeshVisibility( bool visible );
+			virtual UINT GetVCMeshIndex( void ) const;
 			virtual void DefineVC( void );
 			virtual void RegisterVC( void );
+			virtual void DefineVCAnimations( UINT vcidx );
 			virtual void Realize( void );
 	};
 }

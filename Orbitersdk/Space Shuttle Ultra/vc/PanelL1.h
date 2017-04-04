@@ -37,6 +37,9 @@ namespace vc
 	class PanelL1 : public AtlantisPanel
 	{
 		private:
+			MESHHANDLE hPanelMesh;
+			UINT mesh_index;
+
 			StandardSwitchCover* pFireSuppressionAvBayDischAgentCover[3];
 			PushButtonIndicatorSingleLight* pFireSuppressionAvBayDischAgent[3];
 
@@ -55,8 +58,12 @@ namespace vc
 			PanelL1( Atlantis* _sts );
 			virtual ~PanelL1();
 
+			virtual void AddMeshes( const VECTOR3& ofs );
+			virtual void SetMeshVisibility( bool visible );
+			virtual UINT GetVCMeshIndex( void ) const;
 			virtual void DefineVC( void );
 			virtual void RegisterVC( void );
+			virtual void DefineVCAnimations( UINT vcidx );
 			virtual void Realize( void );
 	};
 }
