@@ -126,13 +126,13 @@
 #define AID_F8		   460
 #define AID_F8_MAX	   470
 
-#define AID_A6_MIN     500
-#define AID_A6         500
-#define AID_A6_WND0  501
-#define AID_A6_WND1  502
-#define AID_A6_WND2  503
-#define AID_A6_WND3  504
-#define AID_A6_MAX     509
+#define AID_A6U_MIN     500
+#define AID_A6U         500
+#define AID_A6U_WND0  501
+#define AID_A6U_WND1  502
+#define AID_A6U_WND2  503
+#define AID_A6U_WND3  504
+#define AID_A6U_MAX     509
 
 #define AID_R11_MIN		540
 #define AID_R11			540

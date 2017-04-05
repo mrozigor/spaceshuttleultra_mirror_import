@@ -2,6 +2,8 @@
 #include "../Atlantis.h"
 #include <UltraMath.h>
 #include "../Atlantis_defs.h"
+#include "..\meshres_vc.h"
+
 
 namespace vc
 {

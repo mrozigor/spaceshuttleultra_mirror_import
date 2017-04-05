@@ -99,11 +99,11 @@ namespace vc {
 		pMFD2->SetPowerButtonArea(0.0f, 0.859715f, 0.099139f, 0.965387f);
 		pMFD2->SetEdgekeyArea(0.211796f, 0.942848f, 0.779738f, 0.992954f);
 
-		pCRT1->DefineVCGroup(MFDGROUPS[MDUID_CRT1]);
-		pCRT2->DefineVCGroup(MFDGROUPS[MDUID_CRT2]);
-		pCRT3->DefineVCGroup(MFDGROUPS[MDUID_CRT3]);
-		pMFD1->DefineVCGroup(MFDGROUPS[MDUID_MFD1]);
-		pMFD2->DefineVCGroup(MFDGROUPS[MDUID_MFD2]);
+		pCRT1->DefineVCGroup( GRP_CRT1_VC );
+		pCRT2->DefineVCGroup( GRP_CRT2_VC );
+		pCRT3->DefineVCGroup( GRP_CRT3_VC );
+		pMFD1->DefineVCGroup( GRP_MFD1_VC );
+		pMFD2->DefineVCGroup( GRP_MFD2_VC );
 
 		pEventTime->DefineMesh( STS()->mesh_vc );
 		pEventTime->DefineComponent( GRP_F7_EVENT_S_VC, true, false, false, _7SD_STATE_NUM0 );

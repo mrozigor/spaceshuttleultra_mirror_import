@@ -1,6 +1,7 @@
 #include "PanelA1U.h"
 #include "../Atlantis.h"
 #include "../Atlantis_defs.h"
+#include "..\meshres_vc.h"
 
 
 namespace vc

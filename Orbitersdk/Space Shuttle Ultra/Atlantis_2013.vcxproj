@@ -372,7 +372,7 @@
     <ClCompile Include="vc\PanelA1U.cpp" />
     <ClCompile Include="vc\PanelA2.cpp" />
     <ClCompile Include="vc\PanelA4.cpp" />
-    <ClCompile Include="vc\PanelA6.cpp" />
+    <ClCompile Include="vc\PanelA6U.cpp" />
     <ClCompile Include="vc\PanelA7A8ODS.cpp" />
     <ClCompile Include="vc\PanelA7U.cpp" />
     <ClCompile Include="vc\PanelA8.cpp" />
@@ -481,6 +481,7 @@
     <ClInclude Include="meshres_ExtAL.h" />
     <ClInclude Include="meshres_IUS_ASE.h" />
     <ClInclude Include="meshres_ku.h" />
+    <ClInclude Include="meshres_vc_a6u.h" />
     <ClInclude Include="meshres_vc_a8.h" />
     <ClInclude Include="meshres_vc_l1.h" />
     <ClInclude Include="meshres_vc_l10.h" />
@@ -557,7 +558,6 @@
     <ClInclude Include="meshres_odsvc.h" />
     <ClInclude Include="meshres_RMS.h" />
     <ClInclude Include="meshres_vc.h" />
-    <ClInclude Include="meshres_vc_additions.h" />
     <ClInclude Include="mission\Mission.h" />
     <ClInclude Include="dps\MMU.h" />
     <ClInclude Include="MPMSystems.h" />
@@ -566,7 +566,7 @@
     <ClInclude Include="vc\PanelA1U.h" />
     <ClInclude Include="vc\PanelA2.h" />
     <ClInclude Include="vc\PanelA4.h" />
-    <ClInclude Include="vc\PanelA6.h" />
+    <ClInclude Include="vc\PanelA6U.h" />
     <ClInclude Include="vc\PanelA7A8ODS.h" />
     <ClInclude Include="vc\PanelA7U.h" />
     <ClInclude Include="vc\PanelA8.h" />

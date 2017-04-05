@@ -56,8 +56,8 @@ namespace vc {
 		pPLT2->SetMouseRegion(0.511129f, 0.0f, 1.0f, 0.611175f);
 		pPLT2->SetEdgekeyArea(0.210163f, 0.915644f, 0.783473f, 0.973985f);
 		
-		pPLT1->DefineVCGroup(MFDGROUPS[MDUID_PLT1]);
-		pPLT2->DefineVCGroup(MFDGROUPS[MDUID_PLT2]);
+		pPLT1->DefineVCGroup( GRP_PLT1_VC );
+		pPLT2->DefineVCGroup( GRP_PLT2_VC );
 
 		pFltCntlrPower->DefineSwitchGroup(GRP_F8SWITCH5_VC);
 		pFltCntlrPower->SetInitialAnimState(0.5);

@@ -556,7 +556,7 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "KU Antenna Direct Stow" OFF
   "KU Antenna" GND
   @ENDPANEL 
-  @PANEL A6
+  @PANEL A6U
   "SENSE" -Z
   "Aft Flt Cntlr Pwr" ON
   "Payload Retention Logic Power Sys 1" OFF

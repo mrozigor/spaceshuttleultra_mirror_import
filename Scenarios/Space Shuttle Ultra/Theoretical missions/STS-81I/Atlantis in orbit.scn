@@ -496,7 +496,7 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   @ENDPANEL 
   @PANEL R11
   @ENDPANEL 
-  @PANEL A6
+  @PANEL A6U
   "SENSE" -X
   "Aft Flt Cntlr Pwr" OFF
   "Payload Ret Latch 1" OFF

@@ -160,9 +160,6 @@
     <ClCompile Include="eva_docking\ODS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="vc\PanelA6.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="vc\PanelA7A8ODS.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -562,6 +559,9 @@
     <ClCompile Include="vc\PanelL1.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="vc\PanelA6U.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gnc\AA.h">
@@ -669,9 +669,6 @@
     <ClInclude Include="meshres_vc.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="meshres_vc_additions.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="mission\Mission.h">
       <Filter>Includes</Filter>
     </ClInclude>
@@ -685,9 +682,6 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="eva_docking\ODS.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="vc\PanelA6.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="vc\PanelA7A8ODS.h">
@@ -1147,6 +1141,12 @@
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="meshres_vc_l1.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="vc\PanelA6U.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc_a6u.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>

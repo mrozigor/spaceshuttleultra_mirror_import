@@ -1,6 +1,6 @@
 // ======================================================
-// Created by ssumeshc 0.2
-// Date of conversion : Sat Dec 10 14:36:21 2016
+// Created by ssumeshc 0.3
+// Date of conversion : Wed Apr 05 11:37:51 2017
 
 // Input file: Orbiter.msh
 // ======================================================
@@ -8,6 +8,8 @@
 #pragma once
 
 const unsigned int NUMGRP = 148;
+const unsigned int NUMMAT = 4;
+const unsigned int NUMTEX = 6;
 
 const unsigned int GRP_LEFT_MLG_DOOR	=	0;	//LEFT_MLG_DOOR
 const unsigned int GRP_RIGHT_MLG_DOOR	=	1;	//RIGHT_MLG_DOOR
@@ -158,3 +160,14 @@ const unsigned int GRP_PORTOMS_BASE_TILES	=	145;	//PORTOMS_base_tiles
 const unsigned int GRP_RIGHT_ARCS_POD	=	146;	//RIGHT_ARCS_POD
 const unsigned int GRP_LEFT_ARCS_POD	=	147;	//LEFT_ARCS_POD
 
+const unsigned int MAT_AC3DMAT1	=	0;	//ac3dmat1
+const unsigned int MAT_SHINY_MATERIAL	=	1;	//Shiny material
+const unsigned int MAT_ID144	=	2;	//ID144
+const unsigned int MAT_AC3DMAT0	=	3;	//ac3dmat0
+
+const unsigned int TEX_SSU_SSUBAY	=	1;	//SSU\SSUbay.dds
+const unsigned int TEX_SSU_ATLANTIS_5THMOD	=	2;	//SSU\Atlantis_5thmod.dds
+const unsigned int TEX_SSU_PORT_OMSPOD	=	3;	//SSU\PORT_OMSpod.dds
+const unsigned int TEX_SSU_STBD_OMSPOD	=	4;	//SSU\STBD_OMSpod.dds
+const unsigned int TEX_SSU_SSME_TEX	=	5;	//SSU\SSME_TEX.dds
+const unsigned int TEX_SSU_SSU_BRIDGERAIL	=	6;	//SSU\SSU_Bridgerail.dds
