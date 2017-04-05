@@ -108,7 +108,8 @@ VECTOR3 GetYZX_PYRAnglesFromMatrix(const MATRIX3 &RotMatrix)
 	Angles.data[YAW]=asin(RotMatrix.m21);
 	if(Eq(abs(RotMatrix.m21), 1.0, 0.0001)) { // singularity; assume pitch is zero
 		Angles.data[PITCH]=0.0;
-		Angles.data[ROLL]=atan2(RotMatrix.m32, -RotMatrix.m12);
+		if(Angles.data[YAW] > 0.0) Angles.data[ROLL]=atan2(RotMatrix.m32, -RotMatrix.m12);
+		else Angles.data[ROLL]=atan2(RotMatrix.m32, RotMatrix.m12);
 	}
 	else { // normal case
 		Angles.data[PITCH]=atan2(-RotMatrix.m31, RotMatrix.m11);
