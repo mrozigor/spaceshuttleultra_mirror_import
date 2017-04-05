@@ -62,8 +62,8 @@ namespace vc {
 		pCDR1->SetMouseRegion(0.0f, 0.0f, 0.487004f, 0.615168f);
 		pCDR2->SetMouseRegion(0.508892f, 0.0f, 0.993170f, 0.613257f);
 		
-		pCDR1->DefineVCGroup(MFDGROUPS[MDUID_CDR1]);
-		pCDR2->DefineVCGroup(MFDGROUPS[MDUID_CDR2]);
+		pCDR1->DefineVCGroup( GRP_CDR1_VC );
+		pCDR2->DefineVCGroup( GRP_CDR2_VC );
 
 		pFltCntlrPower->DefineSwitchGroup(GRP_F6SWITCH_5_VC);
 		pFltCntlrPower->SetInitialAnimState(0.5);

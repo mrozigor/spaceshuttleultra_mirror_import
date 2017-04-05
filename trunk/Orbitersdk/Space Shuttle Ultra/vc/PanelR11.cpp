@@ -34,7 +34,7 @@ namespace vc
 
 		AddAIDToMouseEventList(AID_R11);
 
-		pCRT4->DefineVCGroup(MFDGROUPS[MDUID_CRT4]);
+		pCRT4->DefineVCGroup( GRP_CRT4_VC );
 		pCRT4->SetMouseRegion(0.036582f, 0.020135f, 0.521159f, 0.402556f);
 
 		pKeyboardAft->SetMouseRegion( 0.092359f, 0.429578f, 0.275403f, 0.780348f );

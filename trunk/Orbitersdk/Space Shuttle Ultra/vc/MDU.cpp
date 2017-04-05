@@ -1,6 +1,7 @@
 #include "../Atlantis.h"
 #include "MDU.h"
 #include "../dps/IDP.h"
+#include "..\meshres_vc.h"
 
 
 namespace vc
@@ -206,9 +207,9 @@ namespace vc
 		{
 			DEVMESHHANDLE hMesh = STS()->GetDevMesh( STS()->vis, STS()->mesh_vc );
 			MATERIAL mat;
-			oapiMeshMaterial( hMesh, 14 + usMDUID, &mat );
+			oapiMeshMaterial( hMesh, MAT_MDU_CDR1_VC + usMDUID, &mat );
 			mat.emissive.r = mat.emissive.g = mat.emissive.b = (float)fBrightness;
-			oapiSetMaterial( hMesh, 14 + usMDUID, &mat );
+			oapiSetMaterial( hMesh, MAT_MDU_CDR1_VC + usMDUID, &mat );
 		}
 		return;
 	}

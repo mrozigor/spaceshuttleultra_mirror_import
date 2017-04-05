@@ -40,7 +40,6 @@
 
 #include "orbitersdk.h"
 #include <vector>
-#include "meshres_vc.h"
 #include "dps/dps_defs.h"
 #include "dps/MasterTimingUnit.h"
 #include "dps/MMU.h"
@@ -110,16 +109,6 @@ const static char* CW_TONE_FILE = "cw_tone.wav";
 const static char* TEXT_RCSCONTROL = "Controlling RCS";
 const static char* TEXT_RMSCONTROL = "Controlling RMS";
 
-// ==========================================================
-// Mesh group indices for some components
-// ==========================================================
-
- const int MFDGROUPS[11] = {
-	GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC, 
-	GRP_CRT1_VC, GRP_CRT2_VC, GRP_CRT3_VC, GRP_CRT4_VC, 
-	GRP_MFD1_VC, GRP_MFD2_VC, 
-	GRP_AFD1_VC
-	};
 
 // ==========================================================
 // I-Loaded values
@@ -597,6 +586,7 @@ public:
 	vc::AtlantisPanel* pPanelL12U_IUS;
 	vc::AtlantisPanel* pPanelL12U_Centaur;
 	vc::AtlantisPanel* pPanelR1;
+	vc::AtlantisPanel* pPanelA6U;
 	vc::AtlantisPanel* pPanelR13L;
 
 

@@ -66,7 +66,7 @@
 #include "vc/PanelA1U.h"
 #include "vc/PanelA2.h"
 #include "vc/PanelA4.h"
-#include "vc/PanelA6.h"
+#include "vc/PanelA6U.h"
 #include "vc/PanelA8.h"
 #include "vc/PanelA7U.h"
 #include "vc/PanelR1.h"
@@ -408,12 +408,12 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pgAft.AddPanel( new vc::PanelA1U( this ) );
 	pgAft.AddPanel( new vc::PanelA2( this ) );
 	pgAft.AddPanel(new vc::PanelA4(this));
-	pgAft.AddPanel(new vc::PanelA6(this));
 	pgAft.AddPanel(new vc::PanelA7U(this));
 	pgAft.AddPanel(new vc::AftMDU(this));
 	
 	pgAftStbd.AddPanel(new vc::PanelR11(this));
 	
+	pPanelA6U = NULL;
 	pPanelA8 = NULL;
 	pA7A8Panel = NULL;
 	pPanelO6 = NULL;
@@ -2381,8 +2381,7 @@ void Atlantis::AddOrbiterVisual()
 		bMidDeckVisible = false;
 		SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
 
-		/* Add optional A7A3/A8A3 panel meshes
-		*/
+		if (pPanelA6U) pPanelA6U->AddMeshes( VC_OFFSET );
 		if (pA7A8Panel) pA7A8Panel->AddMeshes(VC_OFFSET);
 		if (pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
 		if (pPanelO6) pPanelO6->AddMeshes( VC_OFFSET );
@@ -4190,6 +4189,8 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			pgOverhead.AddPanel( pPanelO8 = new vc::PanelO8( this ) );
 
 			pgRight.AddPanel( pPanelR1 = new vc::PanelR1( this ) );// HACK should be placed before R2, but click area on R2 is too big
+
+			pgAft.AddPanel( pPanelA6U = new vc::PanelA6U( this ) );
 
 			pgAftStbd.AddPanel( pPanelR13L = new vc::PanelR13L( this ) );
 
@@ -7618,7 +7619,7 @@ void Atlantis::UpdateOrbiterTexture( const std::string& strTextureName )
 		sprintf_s( cbuf, 255, "(SpaceShuttleUltra) ERROR: Could not load texture %s", strTextureName.c_str() );
 		oapiWriteLog( cbuf );
 	}
-	else oapiSetTexture( hDevOrbiterMesh, 2, hOVTexture );
+	else oapiSetTexture( hDevOrbiterMesh, TEX_SSU_ATLANTIS_5THMOD, hOVTexture );
 }
 
 void Atlantis::UpdateLOMSPodTexture( const std::string& strTextureName )
@@ -7631,7 +7632,7 @@ void Atlantis::UpdateLOMSPodTexture( const std::string& strTextureName )
 		sprintf_s( cbuf, 255, "(SpaceShuttleUltra) ERROR: Could not load texture %s", strTextureName.c_str() );
 		oapiWriteLog( cbuf );
 	}
-	else oapiSetTexture( hDevOrbiterMesh, 3, hLOMSTexture );
+	else oapiSetTexture( hDevOrbiterMesh, TEX_SSU_PORT_OMSPOD, hLOMSTexture );
 }
 
 void Atlantis::UpdateROMSPodTexture( const std::string& strTextureName )
@@ -7644,7 +7645,7 @@ void Atlantis::UpdateROMSPodTexture( const std::string& strTextureName )
 		sprintf_s( cbuf, 255, "(SpaceShuttleUltra) ERROR: Could not load texture %s", strTextureName.c_str() );
 		oapiWriteLog( cbuf );
 	}
-	else oapiSetTexture( hDevOrbiterMesh, 4, hROMSTexture );
+	else oapiSetTexture( hDevOrbiterMesh, TEX_SSU_STBD_OMSPOD, hROMSTexture );
 }
 
 int Atlantis::GetSoundID() const {

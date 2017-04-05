@@ -21,7 +21,7 @@ namespace vc
 		AddAIDToMouseEventList(AID_MDU_AFD1);
 
 		pAFD->SetMouseRegion(0.0, 0.0, 1.0, 1.0);
-		pAFD->DefineVCGroup(MFDGROUPS[MDUID_AFD1]);
+		pAFD->DefineVCGroup( GRP_AFD1_VC );
 	}
 
 	void AftMDU::RegisterVC()

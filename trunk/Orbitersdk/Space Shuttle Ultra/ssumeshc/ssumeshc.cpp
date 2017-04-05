@@ -10,20 +10,26 @@
 #include <ctime>
 #include <set>
 
-const std::string SSUMESHC_VERSION = "0.2";
+const std::string SSUMESHC_VERSION = "0.3";
 
 std::wstring input_file_name = L"";
 std::wstring output_file_name = L".\\meshres.h";
-std::string constant_prefix = "GRP_";
-std::string constant_suffix = "";
+std::string group_prefix = "GRP_";
+std::string group_suffix = "";
+std::string material_prefix = "MAT_";
+std::string material_suffix = "";
+std::string texture_prefix = "TEX_";
+std::string texture_suffix = "";
 
 
-struct LABEL_GROUP {
-	unsigned int group_num;
-	std::string label;
+struct ITEM {
+	unsigned int num;
+	std::string name;
 };
 
-std::vector<LABEL_GROUP> labels;
+std::vector<ITEM> groups;
+std::vector<ITEM> materials;
+std::vector<ITEM> textures;
 
 const std::string& ToAlphaCode(unsigned long number)
 {
@@ -50,33 +56,55 @@ const std::string& ToAlphaCode(unsigned long number)
 	return __result;
 }
 
-void ParseMesh()
+void ParseMesh( bool mat, bool tex )
 {
 	unsigned int current_group_index = 0;
 	std::ifstream mshfile;
 	std::string line;
 	char buffer[400];
-	labels.clear();
+	groups.clear();
 	mshfile.open(input_file_name.c_str());
 	while(mshfile)
 	{
 		mshfile.getline(buffer, 400);
 		line.assign(buffer);
 		if(line.substr(0, 5) == "LABEL") {
-			LABEL_GROUP lg;
-			lg.group_num = current_group_index;
-			lg.label = line.substr(6);
-			labels.push_back(lg);
+			ITEM lg;
+			lg.num = current_group_index;
+			lg.name = line.substr(6);
+			groups.push_back(lg);
 		}
 		else if(line.substr(0, 4) == "GEOM")
 		{
 			current_group_index++;
 		}
+		else if (mat && (line.substr( 0, 9 ) == "MATERIALS"))
+		{
+			unsigned int count = stoi( line.substr( 10 ) );
+			for (unsigned int i = 0; mshfile && (i < count); i++)
+			{
+				mshfile.getline( buffer, 400 );
+				line.assign( buffer );
+
+				materials.push_back( ITEM{ i, line } );
+			}
+		}
+		else if (tex && (line.substr( 0, 8 ) == "TEXTURES"))
+		{
+			unsigned int count = stoi( line.substr( 9 ) );
+			for (unsigned int i = 1; mshfile && (i <= count); i++)
+			{
+				mshfile.getline( buffer, 400 );
+				line.assign( buffer );
+
+				textures.push_back( ITEM{ i, line } );
+			}
+		}
 	}
 	mshfile.close();
 }
 
-void WriteHeaderFile() 
+void WriteHeaderFile( bool mat, bool tex ) 
 {
 	
 	char date_buf[400];
@@ -84,8 +112,12 @@ void WriteHeaderFile()
 	ctime_s(date_buf, 400, &time_buf);
 
 	std::ofstream hfile;
-	std::set<std::string> existing_symbols;
-	existing_symbols.clear();
+	std::set<std::string> existing_symbols_groups;
+	std::set<std::string> existing_symbols_materials;
+	std::set<std::string> existing_symbols_textures;
+	existing_symbols_groups.clear();
+	existing_symbols_materials.clear();
+	existing_symbols_textures.clear();
 	hfile.open(output_file_name.c_str());
 	hfile << "// ======================================================" << std::endl;
 	hfile << "// Created by ssumeshc " << SSUMESHC_VERSION << std::endl;
@@ -95,15 +127,19 @@ void WriteHeaderFile()
 	hfile << std::endl;
 	hfile << "#pragma once" << std::endl;
 	hfile << std::endl;
-	hfile << "const unsigned int NUMGRP" << constant_suffix 
-		<< " = " << labels.size() << ";" << std::endl
-		<< std::endl;
-	for(unsigned int i = 0; i<labels.size(); i++) {
+	hfile << "const unsigned int NUMGRP" << group_suffix 
+		<< " = " << groups.size() << ";" << std::endl;
+	if (mat) hfile << "const unsigned int NUMMAT" << material_suffix 
+		<< " = " << materials.size() << ";" << std::endl;
+	if (tex) hfile << "const unsigned int NUMTEX" << texture_suffix 
+		<< " = " << textures.size() << ";" << std::endl;
+	hfile << std::endl;
+	for(unsigned int i = 0; i<groups.size(); i++) {
 		
 		std::string tmp;
-		std::string::iterator iter = labels[i].label.begin();
-		tmp = constant_prefix;
-		while(iter != labels[i].label.end())
+		std::string::iterator iter = groups[i].name.begin();
+		tmp = group_prefix;
+		while(iter != groups[i].name.end())
 		{
 			if(isspace(*iter))
 			{
@@ -119,23 +155,101 @@ void WriteHeaderFile()
 			iter++;
 		}
 
-		if(existing_symbols.find(tmp) != existing_symbols.end()) {
+		if(existing_symbols_groups.find(tmp) != existing_symbols_groups.end()) {
 			std::string temp;
 			unsigned long attempt = 0;
 			do{
 				temp = tmp + ToAlphaCode(attempt);
 				attempt++;
-			} while(existing_symbols.find(temp) != existing_symbols.end());
+			} while(existing_symbols_groups.find(temp) != existing_symbols_groups.end());
 			tmp = temp;
 		}
-		existing_symbols.insert(tmp);
+		existing_symbols_groups.insert(tmp);
 
-		tmp.append(constant_suffix);
-		hfile << "const unsigned int " << tmp << "\t=\t" << labels[i].group_num << ";"; 
-		hfile << "\t//" << labels[i].label;
+		tmp.append(group_suffix);
+		hfile << "const unsigned int " << tmp << "\t=\t" << groups[i].num << ";"; 
+		hfile << "\t//" << groups[i].name;
 		hfile << std::endl;
 	}
-	hfile << std::endl;
+
+	if (mat)
+	{
+		hfile << std::endl;
+		for (unsigned int i = 0; i < materials.size(); i++)
+		{
+			std::string tmp = material_prefix;
+			std::string::iterator iter = materials[i].name.begin();
+			while (iter != materials[i].name.end())
+			{
+				if (isspace( *iter )) tmp += '_';
+				else if (isalnum( *iter )) tmp += toupper( *iter );
+				else if (*iter == '_') tmp += '_';
+
+				iter++;
+			}
+
+			if (existing_symbols_materials.find( tmp ) != existing_symbols_materials.end())
+			{
+				std::string temp;
+				unsigned long attempt = 0;
+				do
+				{
+					temp = tmp + ToAlphaCode( attempt );
+					attempt++;
+				} while (existing_symbols_materials.find( temp ) != existing_symbols_materials.end() );
+				tmp = temp;
+			}
+			existing_symbols_materials.insert(tmp);
+
+			tmp.append( material_suffix );
+			hfile << "const unsigned int " << tmp << "\t=\t" << materials[i].num << ";"; 
+			hfile << "\t//" << materials[i].name;
+			hfile << std::endl;
+		}
+	}
+
+	if (tex)
+	{
+		hfile << std::endl;
+		for (unsigned int i = 0; i < textures.size(); i++)
+		{
+			std::string tmp = texture_prefix;
+			std::string tmp2 = textures[i].name;
+			tmp2 = tmp2.substr( 0, tmp2.find_last_of( '.' ) );
+
+			std::string::iterator iter = tmp2.begin();
+			while (iter != tmp2.end())
+			{
+				if (isspace( *iter )) tmp += '_';
+				else if (isalnum( *iter )) tmp += toupper( *iter );
+				else if (*iter == '_') tmp += '_';
+				else if (*iter == '/') tmp += '_';
+				else if (*iter == '\\') tmp += '_';
+
+				iter++;
+			}
+
+			if (existing_symbols_textures.find( tmp ) != existing_symbols_textures.end())
+			{
+				std::string temp;
+				unsigned long attempt = 0;
+				do
+				{
+					temp = tmp + ToAlphaCode( attempt );
+					attempt++;
+				} while (existing_symbols_textures.find( temp ) != existing_symbols_textures.end() );
+				tmp = temp;
+			}
+			existing_symbols_textures.insert(tmp);
+
+			tmp.append( texture_suffix );
+			hfile << "const unsigned int " << tmp << "\t=\t" << textures[i].num << ";"; 
+			hfile << "\t//" << textures[i].name;
+			hfile << std::endl;
+		}
+	}
+
+	//hfile << std::endl;
 	hfile.close();
 }
 
@@ -149,8 +263,14 @@ void printhelp()
 	std::wcout << std::endl;
 	std::wcout << "OPTIONS:" << std::endl;
 	std::wcout << "   -o FILE     Set output file" << std::endl; 
-	std::wcout << "   -p PREFIX   Set symbol prefix" << std::endl; 
-	std::wcout << "   -s SUFFIX   Set symbol suffix" << std::endl; 
+	std::wcout << "   -p PREFIX   Set group symbol prefix" << std::endl; 
+	std::wcout << "   -s SUFFIX   Set group symbol suffix" << std::endl; 
+	std::wcout << "   -m	      Enable material list output" << std::endl;
+	std::wcout << "   -b PREFIX   Set material symbol prefix" << std::endl;
+	std::wcout << "   -n SUFFIX   Set material symbol suffix" << std::endl;
+	std::wcout << "   -t	      Enable texture list output" << std::endl;
+	std::wcout << "   -e PREFIX   Set texture symbol prefix" << std::endl;
+	std::wcout << "   -r SUFFIX   Set texture symbol suffix" << std::endl;
 	std::wcout << "   -? -h       Display this help" << std::endl;
 
 }
@@ -158,6 +278,8 @@ void printhelp()
 int _tmain(int argc, _TCHAR* argv[])
 {
 	bool bValidInput = false;
+	bool doMAT = false;
+	bool doTEX = false;
 	if(argc < 1)
 	{
 		std::wcerr << L"No mesh file given as input." << std::endl;
@@ -172,15 +294,40 @@ int _tmain(int argc, _TCHAR* argv[])
 			{
 			case L'p':
 				temp.assign(argv[i]+2);
-				constant_prefix = std::string(temp.begin(), temp.end());
+				group_prefix = std::string(temp.begin(), temp.end());
 				break;
 			case L's':
 				temp.assign(argv[i]+2);
-				constant_suffix = std::string(temp.begin(), temp.end());
+				group_suffix = std::string(temp.begin(), temp.end());
 				break;
 			case L'o':
 				output_file_name.assign(argv[i]+2);
-
+				break;
+			case L'm':
+				doMAT = true;
+				break;
+			case L'b':
+				if (!doMAT) break;
+				temp.assign( argv[i] + 2 );
+				material_prefix = std::string( temp.begin(), temp.end() );
+				break;
+			case L'n':
+				if (!doMAT) break;
+				temp.assign( argv[i] + 2 );
+				material_suffix = std::string( temp.begin(), temp.end() );
+				break;
+			case L't':
+				doTEX = true;
+				break;
+			case L'e':
+				if (!doTEX) break;
+				temp.assign( argv[i] + 2 );
+				texture_prefix = std::string( temp.begin(), temp.end() );
+				break;
+			case L'r':
+				if (!doTEX) break;
+				temp.assign( argv[i] + 2 );
+				texture_suffix = std::string( temp.begin(), temp.end() );
 				break;
 			case L'?':
 			case L'h':
@@ -202,13 +349,32 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		std::wcout << L"Input File name: " << input_file_name.c_str() << std::endl;
 		std::wcout << L"Output File name: " << output_file_name.c_str() << std::endl;
-		std::wcout << L"Constant prefix: " << std::wstring(constant_prefix.begin(), constant_prefix.end()) << std::endl;
-		std::wcout << L"Constant suffix: " << std::wstring(constant_suffix.begin(), constant_suffix.end()) << std::endl;
+		std::wcout << L"Group prefix: " << std::wstring(group_prefix.begin(), group_prefix.end()) << std::endl;
+		std::wcout << L"Group suffix: " << std::wstring(group_suffix.begin(), group_suffix.end()) << std::endl;
+
+		if (doMAT)
+		{
+			std::wcout << L"Material prefix: " << std::wstring(material_prefix.begin(), material_prefix.end()) << std::endl;
+			std::wcout << L"Material suffix: " << std::wstring(material_suffix.begin(), material_suffix.end()) << std::endl;
+		}
+
+		if (doTEX)
+		{
+			std::wcout << L"Texture prefix: " << std::wstring(texture_prefix.begin(), texture_prefix.end()) << std::endl;
+			std::wcout << L"Texture suffix: " << std::wstring(texture_suffix.begin(), texture_suffix.end()) << std::endl;
+		}
 
 		std::wcout << L"Parse mesh file..." << std::endl;
-		ParseMesh();
+		ParseMesh( doMAT, doTEX );
 
-		WriteHeaderFile();
+		WriteHeaderFile( doMAT, doTEX );
+
+		std::wcout << L"Found:" << std::endl;
+		std::wcout << L"\t" << groups.size() << L" groups" << std::endl;
+		if (doMAT) std::wcout << L"\t" << materials.size() << L" materials" << std::endl;
+		if (doTEX) std::wcout << L"\t" << textures.size() << L" textures" << std::endl;
+
+		std::wcout << std::endl << L"Done! Bye..." << std::endl;
 		return 0;
 	}
 	else {

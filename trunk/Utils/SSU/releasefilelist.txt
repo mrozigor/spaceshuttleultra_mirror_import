@@ -141,6 +141,7 @@ Meshes\SSU\OPF1_2.msh
 Meshes\SSU\OPF3.msh
 Meshes\SSU\Orbiter.msh
 Meshes\SSU\OTS_Vandenberg.msh
+Meshes\SSU\panelA6U.msh
 Meshes\SSU\panelL1.msh
 Meshes\SSU\panelL10_IUS.msh
 Meshes\SSU\panelO6.msh

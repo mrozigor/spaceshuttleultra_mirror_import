@@ -343,7 +343,7 @@ STS-101:SpaceShuttleUltra
   "KU Antenna Direct Stow" OFF
   "KU Antenna" GND
   @ENDPANEL 
-  @PANEL A6
+  @PANEL A6U
   "SENSE" [0]
   @ENDPANEL 
   @PANEL AftMDU

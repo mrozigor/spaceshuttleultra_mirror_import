@@ -215,7 +215,7 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "KU Antenna Direct Stow" OFF
   "KU Antenna" GND
   @ENDPANEL 
-  @PANEL A6
+  @PANEL A6U
   "SENSE" [0]
   @ENDPANEL 
   @PANEL AftMDU

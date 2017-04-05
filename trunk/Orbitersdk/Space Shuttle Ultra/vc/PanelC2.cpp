@@ -1,7 +1,7 @@
 #include "PanelC2.h"
 #include "../Atlantis.h"
 #include "../Atlantis_defs.h"
-#include "../meshres_vc_additions.h"
+#include "..\meshres_vc.h"
 
 
 extern GDIParams g_Param;
@@ -355,7 +355,7 @@ namespace vc
 			_V( -0.2725, 1.95676, 14.5416 ) + ofs, _V( 0.2683, 1.95676, 14.5416 ) + ofs, 
 			_V( -0.2725, 1.7619, 14.3552 ) + ofs, _V( 0.2683, 1.7619, 14.3552 ) + ofs );
 
-		SURFHANDLE digittex = oapiGetTextureHandle( STS()->hOrbiterVCMesh, TEX_CLOCKNUMS_VC );
+		SURFHANDLE digittex = oapiGetTextureHandle( STS()->hOrbiterVCMesh, TEX_SSU_CLOCKNUMS_VC );
 		oapiVCRegisterArea( AID_C2_WND0, _R( 0, 0, 63, 63 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digittex );
 		oapiVCRegisterArea( AID_C2_WND1, _R( 64, 0, 127, 63 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digittex );
 		oapiVCRegisterArea( AID_C2_WND2, _R( 128, 0, 191, 63 ), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_CURRENT, digittex );

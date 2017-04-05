@@ -104,7 +104,7 @@ Endeavour:SpaceShuttleUltra
   "KU Antenna Direct Stow" OFF
   "KU Antenna" GND
   @ENDPANEL 
-  @PANEL A6
+  @PANEL A6U
   "SENSE" -Z
   "Aft Flt Cntlr Pwr" ON
   @ENDPANEL 
