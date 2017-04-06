@@ -31,20 +31,27 @@
 
 namespace vc {
 
-class PanelO17 : public AtlantisPanel {
-	StdSwitch2* pEIUPowerLC;
-	StdSwitch2* pEIUPowerCR;
-	StdSwitch2* pEIUPowerRL;
+	class PanelO17 : public AtlantisPanel {
+		MESHHANDLE hPanelMesh;
+		UINT mesh_index;
 
-	StdSwitch2* pMECPower[2];
-public:
-	PanelO17(Atlantis* psts);
-	virtual ~PanelO17();
+		StdSwitch2* pEIUPowerLC;
+		StdSwitch2* pEIUPowerCR;
+		StdSwitch2* pEIUPowerRL;
 
-	virtual void DefineVC();
-	virtual void RegisterVC();
-	virtual void Realize();
-};
+		StdSwitch2* pMECPower[2];
+	public:
+		PanelO17(Atlantis* psts);
+		virtual ~PanelO17();
+
+		virtual void AddMeshes( const VECTOR3& ofs );
+		virtual void SetMeshVisibility( bool visible );
+		virtual UINT GetVCMeshIndex( void ) const;
+		virtual void DefineVC();
+		virtual void RegisterVC();
+		virtual void DefineVCAnimations( UINT vcidx );
+		virtual void Realize();
+	};
 
 };
 

@@ -146,6 +146,7 @@ Meshes\SSU\panelL1.msh
 Meshes\SSU\panelL10_IUS.msh
 Meshes\SSU\panelO6.msh
 Meshes\SSU\panelO8.msh
+Meshes\SSU\panelO17.msh
 Meshes\SSU\panelR1.msh
 Meshes\SSU\panelR13L.msh
 Meshes\SSU\parachute.msh

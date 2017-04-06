@@ -402,8 +402,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pgOverhead.AddPanel( new vc::PanelO1( this ) );
 	pgOverhead.AddPanel( new vc::PanelO2( this ) );
 	pgOverhead.AddPanel(new vc::PanelO3(this));
-
-	pgOverheadAft.AddPanel(new vc::PanelO17(this));
 	
 	pgAft.AddPanel( new vc::PanelA1U( this ) );
 	pgAft.AddPanel( new vc::PanelA2( this ) );
@@ -418,6 +416,7 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pA7A8Panel = NULL;
 	pPanelO6 = NULL;
 	pPanelO8 = NULL;
+	pPanelO17 = NULL;
 	pPanelL1 = NULL;
 	pPanelL10 = NULL;
 	pPanelL12U_IUS = NULL;
@@ -2120,12 +2119,12 @@ void Atlantis::DefineAnimations(void)
 
 	// SBTCs
 	static UINT LeftSBTC_GRP[1] = {GRP_CDR_SBTC_VC};
-	anim_leftsbtc = CreateAnimation( 0.5 );
+	anim_leftsbtc = CreateAnimation( 0.6 );
 	static MGROUP_ROTATE LeftSBTC( mesh_vc, LeftSBTC_GRP, 1, _V( 0, 1.6685, 14.2797 ), _V( 1, 0, 0 ), static_cast<float>(60.0 * RAD) );
 	AddAnimationComponent( anim_leftsbtc, 0, 1, &LeftSBTC );
 
 	static UINT RightSBTC_GRP[1] = {GRP_PLT_SBTC_VC};
-	anim_rightsbtc = CreateAnimation( 0.5 );
+	anim_rightsbtc = CreateAnimation( 0.6 );
 	static MGROUP_ROTATE RightSBTC( mesh_vc, RightSBTC_GRP, 1, _V( 0, 1.6115, 14.2286 ), _V( 1, 0, 0 ), static_cast<float>(60.0 * RAD) );
 	AddAnimationComponent( anim_rightsbtc, 0, 1, &RightSBTC );
 
@@ -2386,6 +2385,7 @@ void Atlantis::AddOrbiterVisual()
 		if (pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
 		if (pPanelO6) pPanelO6->AddMeshes( VC_OFFSET );
 		if (pPanelO8) pPanelO8->AddMeshes( VC_OFFSET );
+		if (pPanelO17) pPanelO17->AddMeshes( VC_OFFSET );
 		if (pPanelL1) pPanelL1->AddMeshes( VC_OFFSET );
 		if (pPanelL10) pPanelL10->AddMeshes( VC_OFFSET );
 		if (pPanelL12U_IUS) pPanelL12U_IUS->AddMeshes( VC_OFFSET );
@@ -4187,6 +4187,8 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 
 			pgOverhead.AddPanel( pPanelO6 = new vc::PanelO6( this ) );
 			pgOverhead.AddPanel( pPanelO8 = new vc::PanelO8( this ) );
+
+			pgOverheadAft.AddPanel( pPanelO17 = new vc::PanelO17( this ) );
 
 			pgRight.AddPanel( pPanelR1 = new vc::PanelR1( this ) );// HACK should be placed before R2, but click area on R2 is too big
 
