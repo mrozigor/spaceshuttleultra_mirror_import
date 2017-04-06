@@ -142,6 +142,7 @@ Meshes\SSU\OPF3.msh
 Meshes\SSU\Orbiter.msh
 Meshes\SSU\OTS_Vandenberg.msh
 Meshes\SSU\panelA6U.msh
+Meshes\SSU\panelC3.msh
 Meshes\SSU\panelL1.msh
 Meshes\SSU\panelL10_IUS.msh
 Meshes\SSU\panelO6.msh
@@ -337,7 +338,8 @@ Textures\SSU\Atlantis_5thmod.dds
 Textures\SSU\Atlantis_original.dds
 Textures\SSU\C&Wlights.dds
 Textures\SSU\c2.dds
-Textures\SSU\c3.dds
+Textures\SSU\panelC3.dds
+Textures\SSU\panelC3_OV102.dds
 Textures\SSU\Cabletray_tex.dds
 Textures\SSU\Cabletray_tex_SWT.dds
 Textures\SSU\Casing.dds

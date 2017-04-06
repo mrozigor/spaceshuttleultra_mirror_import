@@ -1,6 +1,6 @@
 // ======================================================
 // Created by ssumeshc 0.3
-// Date of conversion : Wed Apr 05 11:37:51 2017
+// Date of conversion : Thu Apr 06 22:31:12 2017
 
 // Input file: panelA6U.msh
 // ======================================================
@@ -96,7 +96,7 @@ const unsigned int MAT_PUSHBUTTONINDICATORS_A6U_VC	=	5;	//pushbuttonindicators
 const unsigned int MAT_TALKBACKS_A6U_VC	=	6;	//talkbacks
 
 const unsigned int TEX_SSU_A6A7_A6U_VC	=	1;	//SSU/A6A7.dds
-const unsigned int TEX_SSU_C3_A6U_VC	=	2;	//SSU/C3.dds
+const unsigned int TEX_SSU_PANELC3_A6U_VC	=	2;	//SSU/panelC3.dds
 const unsigned int TEX_SSU_PBI_FWD_A6U_VC	=	3;	//SSU/PBI_fwd.dds
 const unsigned int TEX_SSU_TALKBACK_A6U_VC	=	4;	//SSU/talkback.dds
 const unsigned int TEX_SSU_CLOCKNUMS_A6U_VC	=	5;	//SSU/clocknums.dds D
