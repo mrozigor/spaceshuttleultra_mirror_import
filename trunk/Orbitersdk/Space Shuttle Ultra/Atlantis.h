@@ -570,15 +570,9 @@ public:
 	// RCS Thruster interface functions
 	//**********************************************************
 	
-	/**
-	 * Pointer to the A7A8 custom panel region
-	 */
+	vc::AtlantisPanel* pPanelC3;
 	vc::AtlantisPanel* pA7A8Panel;
-	/**
-	 * Pointer to the A8 (RMS) panel region
-	 */
 	vc::AtlantisPanel* pPanelA8;
-
 	vc::AtlantisPanel* pPanelO6;
 	vc::AtlantisPanel* pPanelO8;
 	vc::AtlantisPanel* pPanelO17;

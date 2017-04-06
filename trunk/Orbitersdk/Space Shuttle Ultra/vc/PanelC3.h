@@ -37,13 +37,24 @@ namespace vc
 	class PanelC3 : public AtlantisPanel
 	{
 	public:
-		PanelC3(Atlantis* _sts);
+		PanelC3( Atlantis* _sts, const std::string &orbiter );
 		virtual ~PanelC3();
 
+		virtual void AddMeshes( const VECTOR3& ofs );
+		virtual void SetMeshVisibility( bool visible );
+		virtual UINT GetVCMeshIndex( void ) const;
 		virtual void DefineVC();
 		virtual void RegisterVC();
+		virtual void DefineVCAnimations( UINT vcidx );
 		virtual void Realize();
+		virtual void VisualCreated( void );
+
 	private:
+		MESHHANDLE hPanelMesh;
+		UINT mesh_index;
+
+		bool OV102;
+
 		//DAP PBIs
 		PushButtonIndicatorSingleLight* pPBIs[24];
 

@@ -121,7 +121,7 @@ public:
 	bool DisableCoordinateDisplayMode() {bCoordinateDisplayMode = false; return true;};
 	bool ToggleCoordinateDisplayMode() {bCoordinateDisplayMode = !bCoordinateDisplayMode; return true;};
 
-	void VisualCreated();
+	virtual void VisualCreated();
 	inline void SetPanelState(PanelState s)
 	{
 		pstate = s;

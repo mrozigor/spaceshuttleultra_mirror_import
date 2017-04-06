@@ -12806,7 +12806,7 @@ MATERIAL plastic
 0.709804 0.709804 0.709804 0.675
 TEXTURES 5
 SSU/r1l1.dds
-SSU/C3.dds
+SSU/panelC3.dds
 SSU/R2.dds
 SSU/Fpanels.dds
 SSU/PBI_fwd.dds
