@@ -86,7 +86,10 @@ void ParseMesh( bool mat, bool tex )
 				mshfile.getline( buffer, 400 );
 				line.assign( buffer );
 
-				materials.push_back( ITEM{ i, line } );
+				ITEM tmp;
+				tmp.num = i;
+				tmp.name = line;
+				materials.push_back( tmp );
 			}
 		}
 		else if (tex && (line.substr( 0, 8 ) == "TEXTURES"))
@@ -97,7 +100,10 @@ void ParseMesh( bool mat, bool tex )
 				mshfile.getline( buffer, 400 );
 				line.assign( buffer );
 
-				textures.push_back( ITEM{ i, line } );
+				ITEM tmp;
+				tmp.num = i;
+				tmp.name = line;
+				textures.push_back( tmp );
 			}
 		}
 	}
