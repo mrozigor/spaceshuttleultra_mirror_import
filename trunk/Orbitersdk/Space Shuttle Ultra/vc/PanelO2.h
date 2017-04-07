@@ -37,6 +37,9 @@ namespace vc
 	class PanelO2 : public AtlantisPanel
 	{
 		private:
+			MESHHANDLE hPanelMesh;
+			UINT mesh_index;
+
 			StandardCurvedMechMeter* pCryoO2HtrAssyTempMeter;
 			StandardCurvedMechMeter* pCryoO2PressMeter;
 			StandardCurvedMechMeter* pCryoO2QtyMeter;
@@ -56,8 +59,12 @@ namespace vc
 			PanelO2( Atlantis* _sts );
 			virtual ~PanelO2();
 
+			virtual void AddMeshes( const VECTOR3& ofs );
+			virtual void SetMeshVisibility( bool visible );
+			virtual UINT GetVCMeshIndex( void ) const;
 			virtual void DefineVC( void );
 			virtual void RegisterVC( void );
+			virtual void DefineVCAnimations( UINT vcidx );
 			virtual void Realize( void );
 			virtual void OnPreStep( double SimT, double DeltaT, double MJD );
 	};

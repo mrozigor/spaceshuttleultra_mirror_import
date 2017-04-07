@@ -1,13 +1,17 @@
 #include "PanelO2.h"
 #include "../Atlantis.h"
 #include "../Atlantis_defs.h"
-#include "..\meshres_vc.h"
+#include "..\CommonDefs.h"
+#include "..\meshres_vc_o2.h"
 
 
 namespace vc
 {
 	PanelO2::PanelO2( Atlantis *_sts ):AtlantisPanel( _sts, "O2" )
 	{
+		hPanelMesh = oapiLoadMeshGlobal( DEFAULT_MESHNAME_PANELO2 );
+		mesh_index = MESH_UNDEFINED;
+
 		Add( pCryoO2HtrAssyTempMeter = new StandardCurvedMechMeter( _sts, "Cryo O2 Htr Assy Temp Meter" ) );
 		Add( pCryoO2PressMeter = new StandardCurvedMechMeter( _sts, "Cryo O2 Press Meter" ) );
 		Add( pCryoO2QtyMeter = new StandardCurvedMechMeter( _sts, "Cryo O2 Qty Meter" ) );
@@ -44,6 +48,30 @@ namespace vc
 	{
 	}
 
+	void PanelO2::AddMeshes( const VECTOR3 &ofs )
+	{
+		SetHasOwnVCMesh();
+
+		if (mesh_index == MESH_UNDEFINED)
+		{
+			mesh_index = STS()->AddMesh( hPanelMesh, &ofs );
+			STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_VC );
+		}
+		return;
+	}
+
+	void PanelO2::SetMeshVisibility( bool visible )
+	{
+		if (visible) STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_VC );
+		else STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_NEVER );
+		return;
+	}
+
+	UINT PanelO2::GetVCMeshIndex( void ) const
+	{
+		return mesh_index;
+	}
+
 	void PanelO2::DefineVC( void )
 	{
 		VECTOR3 switch_rot = _V( 1, 0, 0 );
@@ -53,51 +81,51 @@ namespace vc
 
 		AddAIDToMouseEventList( AID_O2 );
 
-		pCryoO2HtrAssyTempMeter->DefineNeedleGroup( GRP_O2M5T_VC );
+		pCryoO2HtrAssyTempMeter->DefineNeedleGroup( GRP_M5_O2_VC );
 		pCryoO2HtrAssyTempMeter->SetInitialAnimState( 0.55 );
 		pCryoO2HtrAssyTempMeter->SetMotionRange( 12.5 );
 		pCryoO2HtrAssyTempMeter->SetReference( needle_ref, needle_rot );
 
-		pCryoO2PressMeter->DefineNeedleGroup( GRP_O2M6P_VC );
+		pCryoO2PressMeter->DefineNeedleGroup( GRP_M6_L_O2_VC );
 		pCryoO2PressMeter->SetInitialAnimState( 0.55 );
 		pCryoO2PressMeter->SetMotionRange( 15.0 );
 		pCryoO2PressMeter->SetReference( needle_ref, needle_rot );
 
-		pCryoO2QtyMeter->DefineNeedleGroup( GRP_O2M6Q_VC );
+		pCryoO2QtyMeter->DefineNeedleGroup( GRP_M6_R_O2_VC );
 		pCryoO2QtyMeter->SetInitialAnimState( 0.55 );
 		pCryoO2QtyMeter->SetMotionRange( 15.0 );
 		pCryoO2QtyMeter->SetReference( needle_ref, needle_rot );
 
-		pCryoH2PressMeter->DefineNeedleGroup( GRP_O2M7P_VC );
+		pCryoH2PressMeter->DefineNeedleGroup( GRP_M7_L_O2_VC );
 		pCryoH2PressMeter->SetInitialAnimState( 0.55 );
 		pCryoH2PressMeter->SetMotionRange( 15.0 );
 		pCryoH2PressMeter->SetReference( needle_ref, needle_rot );
 
-		pCryoH2QtyMeter->DefineNeedleGroup( GRP_O2M7Q_VC );
+		pCryoH2QtyMeter->DefineNeedleGroup( GRP_M7_R_O2_VC );
 		pCryoH2QtyMeter->SetInitialAnimState( 0.55 );
 		pCryoH2QtyMeter->SetMotionRange( 15.0 );
 		pCryoH2QtyMeter->SetReference( needle_ref, needle_rot );
 
-		pFuelCellStackTempMeter->DefineNeedleGroup( GRP_O2M8T_VC );
+		pFuelCellStackTempMeter->DefineNeedleGroup( GRP_M8_O2_VC );
 		pFuelCellStackTempMeter->SetInitialAnimState( 0.5 );
 		pFuelCellStackTempMeter->SetMotionRange( 15.0 );
 		pFuelCellStackTempMeter->SetReference( needle_ref, needle_rot );
 
-		pCryoO2HtrAssyTemp->DefineSwitchGroup( GRP_O2S7_VC );
+		pCryoO2HtrAssyTemp->DefineSwitchGroup( GRP_S7_O2_VC );
 		pCryoO2HtrAssyTemp->DefineRotationAngle( 270.0f );
 		pCryoO2HtrAssyTemp->SetOffset( 45.0f );
 		pCryoO2HtrAssyTemp->SetInitialAnimState( 1.0 );
 		pCryoO2HtrAssyTemp->SetReference( _V( -0.0746, 2.7949, 14.3503 ), rotary_switch_rot );
 		pCryoO2HtrAssyTemp->SetMouseRegion( 0.098072f, 0.698591f, 0.253288f, 0.816324f );
 
-		pCryoPressQty->DefineSwitchGroup( GRP_O2S8_VC );
+		pCryoPressQty->DefineSwitchGroup( GRP_S8_O2_VC );
 		pCryoPressQty->DefineRotationAngle( 120.0f );
 		pCryoPressQty->SetOffset( 120.0f );
 		pCryoPressQty->SetInitialAnimState( 1.0 );
 		pCryoPressQty->SetReference( _V( -0.0031, 2.7910, 14.3511 ), rotary_switch_rot );
 		pCryoPressQty->SetMouseRegion( 0.397906f, 0.715321f, 0.576245f, 0.827557f );
 
-		pFuelCellStackTemp->DefineSwitchGroup( GRP_O2S9_VC );
+		pFuelCellStackTemp->DefineSwitchGroup( GRP_S9_O2_VC );
 		pFuelCellStackTemp->SetInitialAnimState( 0.5 );
 		pFuelCellStackTemp->SetReference( _V( 0.0523, 2.7866, 14.3599 ), switch_rot );
 		pFuelCellStackTemp->SetMouseRegion( 0.728346f, 0.749182f, 0.823905f, 0.834874f );
@@ -112,8 +140,14 @@ namespace vc
 
 		oapiVCRegisterArea( AID_O2, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED );
 		oapiVCSetAreaClickmode_Quadrilateral( AID_O2, 
-			_V( -0.1139, 3.0096, 14.3150 ) + ofs, _V( 0.1082, 3.0096, 14.3150 ) + ofs, 
-			_V( -0.1139, 2.7283, 14.3728 ) + ofs, _V( 0.1082, 2.7283, 14.3728 ) + ofs );
+			_V( -0.1146, 3.0096, 14.3150 ) + ofs, _V( 0.1082, 3.0096, 14.3150 ) + ofs, 
+			_V( -0.1146, 2.7283, 14.3728 ) + ofs, _V( 0.1082, 2.7283, 14.3728 ) + ofs );
+		return;
+	}
+
+	void PanelO2::DefineVCAnimations( UINT vcidx )
+	{
+		AtlantisPanel::DefineVCAnimations( mesh_index );
 		return;
 	}
 

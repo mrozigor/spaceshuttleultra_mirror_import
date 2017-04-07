@@ -36,6 +36,9 @@ namespace vc
 	class PanelO1 : public AtlantisPanel
 	{
 		private:
+			MESHHANDLE hPanelMesh;
+			UINT mesh_index;
+
 			StandardSingleLight* pGPCLight[25];
 
 			DiscInPort lighttest[2];
@@ -46,8 +49,12 @@ namespace vc
 			PanelO1( Atlantis* _sts );
 			virtual ~PanelO1();
 
+			virtual void AddMeshes( const VECTOR3& ofs );
+			virtual void SetMeshVisibility( bool visible );
+			virtual UINT GetVCMeshIndex( void ) const;
 			virtual void DefineVC( void );
 			virtual void RegisterVC( void );
+			virtual void DefineVCAnimations( UINT vcidx );
 			virtual void Realize( void );
 			virtual void OnPostStep( double SimT, double DeltaT, double MJD );
 	};
