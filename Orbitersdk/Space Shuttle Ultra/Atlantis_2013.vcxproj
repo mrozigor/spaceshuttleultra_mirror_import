@@ -488,7 +488,10 @@
     <ClInclude Include="meshres_vc_l10.h" />
     <ClInclude Include="meshres_vc_l12u_centaur.h" />
     <ClInclude Include="meshres_vc_l12u_ius.h" />
+    <ClInclude Include="meshres_vc_o1.h" />
     <ClInclude Include="meshres_vc_o17.h" />
+    <ClInclude Include="meshres_vc_o2.h" />
+    <ClInclude Include="meshres_vc_o3.h" />
     <ClInclude Include="meshres_vc_o6.h" />
     <ClInclude Include="meshres_vc_o8.h" />
     <ClInclude Include="meshres_vc_r1.h" />

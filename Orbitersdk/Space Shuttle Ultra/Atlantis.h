@@ -573,6 +573,9 @@ public:
 	vc::AtlantisPanel* pPanelC3;
 	vc::AtlantisPanel* pA7A8Panel;
 	vc::AtlantisPanel* pPanelA8;
+	vc::AtlantisPanel* pPanelO1;
+	vc::AtlantisPanel* pPanelO2;
+	vc::AtlantisPanel* pPanelO3;
 	vc::AtlantisPanel* pPanelO6;
 	vc::AtlantisPanel* pPanelO8;
 	vc::AtlantisPanel* pPanelO17;

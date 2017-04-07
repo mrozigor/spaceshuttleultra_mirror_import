@@ -39,6 +39,9 @@ namespace vc
 	class PanelO3 : public AtlantisPanel
 	{
 		private:
+			MESHHANDLE hPanelMesh;
+			UINT mesh_index;
+
 			RotaryDemuxSwitch* pRCSOMS_PRESS;
 			RotaryDemuxSwitch* pRCSOMS_PRPLTQTY;
 
@@ -68,8 +71,12 @@ namespace vc
 			PanelO3( Atlantis* _sts );
 			virtual ~PanelO3();
 
+			virtual void AddMeshes( const VECTOR3& ofs );
+			virtual void SetMeshVisibility( bool visible );
+			virtual UINT GetVCMeshIndex( void ) const;
 			virtual void DefineVC();
 			virtual void RegisterVC();
+			virtual void DefineVCAnimations( UINT vcidx );
 			virtual void Realize();
 			virtual void OnPreStep( double SimT, double DeltaT, double MJD );
 	};

@@ -1155,6 +1155,15 @@
     <ClInclude Include="meshres_vc_c3.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="meshres_vc_o3.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc_o1.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="meshres_vc_o2.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Atlantis.rc" />

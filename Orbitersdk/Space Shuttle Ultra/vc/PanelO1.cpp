@@ -1,13 +1,17 @@
 #include "PanelO1.h"
 #include "../Atlantis.h"
 #include "../Atlantis_defs.h"
-#include "..\meshres_vc.h"
+#include "..\CommonDefs.h"
+#include "..\meshres_vc_o1.h"
 
 
 namespace vc
 {
 	PanelO1::PanelO1( Atlantis *_sts ):AtlantisPanel( _sts, "O1" )
 	{
+		hPanelMesh = oapiLoadMeshGlobal( DEFAULT_MESHNAME_PANELO1 );
+		mesh_index = MESH_UNDEFINED;
+
 		Add( pGPCLight[0] = new StandardSingleLight( _sts, "GPC 1 1" ) );
 		Add( pGPCLight[1] = new StandardSingleLight( _sts, "GPC 1 2" ) );
 		Add( pGPCLight[2] = new StandardSingleLight( _sts, "GPC 1 3" ) );
@@ -43,83 +47,107 @@ namespace vc
 	{
 	}
 
+	void PanelO1::AddMeshes( const VECTOR3 &ofs )
+	{
+		SetHasOwnVCMesh();
+
+		if (mesh_index == MESH_UNDEFINED)
+		{
+			mesh_index = STS()->AddMesh( hPanelMesh, &ofs );
+			STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_VC );
+		}
+		return;
+	}
+
+	void PanelO1::SetMeshVisibility( bool visible )
+	{
+		if (visible) STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_VC );
+		else STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_NEVER );
+		return;
+	}
+
+	UINT PanelO1::GetVCMeshIndex( void ) const
+	{
+		return mesh_index;
+	}
+
 	void PanelO1::DefineVC( void )
 	{
 		AddAIDToMouseEventList( AID_O1 );
 
-		pGPCLight[0]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_11_VC );
+		pGPCLight[0]->DefineMeshGroup( mesh_index, GRP_XDS1_11_O1_VC );
 		pGPCLight[0]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[1]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_12_VC );
+		pGPCLight[1]->DefineMeshGroup( mesh_index, GRP_XDS1_12_O1_VC );
 		pGPCLight[1]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[2]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_13_VC );
+		pGPCLight[2]->DefineMeshGroup( mesh_index, GRP_XDS1_13_O1_VC );
 		pGPCLight[2]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[3]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_14_VC );
+		pGPCLight[3]->DefineMeshGroup( mesh_index, GRP_XDS1_14_O1_VC );
 		pGPCLight[3]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[4]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_15_VC );
+		pGPCLight[4]->DefineMeshGroup( mesh_index, GRP_XDS1_15_O1_VC );
 		pGPCLight[4]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[5]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_21_VC );
+		pGPCLight[5]->DefineMeshGroup( mesh_index, GRP_XDS1_21_O1_VC );
 		pGPCLight[5]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[6]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_22_VC );
+		pGPCLight[6]->DefineMeshGroup( mesh_index, GRP_XDS1_22_O1_VC );
 		pGPCLight[6]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[7]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_23_VC );
+		pGPCLight[7]->DefineMeshGroup( mesh_index, GRP_XDS1_23_O1_VC );
 		pGPCLight[7]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[8]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_24_VC );
+		pGPCLight[8]->DefineMeshGroup( mesh_index, GRP_XDS1_24_O1_VC );
 		pGPCLight[8]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[9]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_25_VC );
+		pGPCLight[9]->DefineMeshGroup( mesh_index, GRP_XDS1_25_O1_VC );
 		pGPCLight[9]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[10]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_31_VC );
+		pGPCLight[10]->DefineMeshGroup( mesh_index, GRP_XDS1_31_O1_VC );
 		pGPCLight[10]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[11]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_32_VC );
+		pGPCLight[11]->DefineMeshGroup( mesh_index, GRP_XDS1_32_O1_VC );
 		pGPCLight[11]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[12]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_33_VC );
+		pGPCLight[12]->DefineMeshGroup( mesh_index, GRP_XDS1_33_O1_VC );
 		pGPCLight[12]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[13]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_34_VC );
+		pGPCLight[13]->DefineMeshGroup( mesh_index, GRP_XDS1_34_O1_VC );
 		pGPCLight[13]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[14]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_35_VC );
+		pGPCLight[14]->DefineMeshGroup( mesh_index, GRP_XDS1_35_O1_VC );
 		pGPCLight[14]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[15]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_41_VC );
+		pGPCLight[15]->DefineMeshGroup( mesh_index, GRP_XDS1_41_O1_VC );
 		pGPCLight[15]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[16]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_42_VC );
+		pGPCLight[16]->DefineMeshGroup( mesh_index, GRP_XDS1_42_O1_VC );
 		pGPCLight[16]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[17]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_43_VC );
+		pGPCLight[17]->DefineMeshGroup( mesh_index, GRP_XDS1_43_O1_VC );
 		pGPCLight[17]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[18]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_44_VC );
+		pGPCLight[18]->DefineMeshGroup( mesh_index, GRP_XDS1_44_O1_VC );
 		pGPCLight[18]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[19]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_45_VC );
+		pGPCLight[19]->DefineMeshGroup( mesh_index, GRP_XDS1_45_O1_VC );
 		pGPCLight[19]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[20]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_51_VC );
+		pGPCLight[20]->DefineMeshGroup( mesh_index, GRP_XDS1_51_O1_VC );
 		pGPCLight[20]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[21]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_52_VC );
+		pGPCLight[21]->DefineMeshGroup( mesh_index, GRP_XDS1_52_O1_VC );
 		pGPCLight[21]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[22]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_53_VC );
+		pGPCLight[22]->DefineMeshGroup( mesh_index, GRP_XDS1_53_O1_VC );
 		pGPCLight[22]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[23]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_54_VC );
+		pGPCLight[23]->DefineMeshGroup( mesh_index, GRP_XDS1_54_O1_VC );
 		pGPCLight[23]->SetStateOffset( 1, 0.0f, -0.050781f );
 
-		pGPCLight[24]->DefineMeshGroup( STS()->mesh_vc, GRP_O1XDS1_55_VC );
+		pGPCLight[24]->DefineMeshGroup( mesh_index, GRP_XDS1_55_O1_VC );
 		pGPCLight[24]->SetStateOffset( 1, 0.0f, -0.050781f );
 		return;
 	}
@@ -132,8 +160,14 @@ namespace vc
 
 		oapiVCRegisterArea( AID_O1, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED );
 		oapiVCSetAreaClickmode_Quadrilateral( AID_O1, 
-			_V( -0.7261, 3.0096, 14.3150 ) + ofs, _V( -0.1139, 3.0096, 14.3150 ) + ofs, 
-			_V( -0.7261, 2.7283, 14.3728 ) + ofs, _V( -0.1139, 2.7283, 14.3728 ) + ofs );
+			_V( -0.7261, 3.0096, 14.3150 ) + ofs, _V( -0.1146, 3.0096, 14.3150 ) + ofs, 
+			_V( -0.7261, 2.7283, 14.3728 ) + ofs, _V( -0.1146, 2.7283, 14.3728 ) + ofs );
+		return;
+	}
+
+	void PanelO1::DefineVCAnimations( UINT vcidx )
+	{
+		AtlantisPanel::DefineVCAnimations( mesh_index );
 		return;
 	}
 

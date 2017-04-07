@@ -397,10 +397,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pgCenter.AddPanel(new vc::PanelC2(this));
 
 	pgRight.AddPanel(new vc::PanelR2(this));
-
-	pgOverhead.AddPanel( new vc::PanelO1( this ) );
-	pgOverhead.AddPanel( new vc::PanelO2( this ) );
-	pgOverhead.AddPanel(new vc::PanelO3(this));
 	
 	pgAft.AddPanel( new vc::PanelA1U( this ) );
 	pgAft.AddPanel( new vc::PanelA2( this ) );
@@ -414,6 +410,9 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pPanelA6U = NULL;
 	pPanelA8 = NULL;
 	pA7A8Panel = NULL;
+	pPanelO1 = NULL;
+	pPanelO2 = NULL;
+	pPanelO3 = NULL;
 	pPanelO6 = NULL;
 	pPanelO8 = NULL;
 	pPanelO17 = NULL;
@@ -2384,6 +2383,9 @@ void Atlantis::AddOrbiterVisual()
 		if (pPanelA6U) pPanelA6U->AddMeshes( VC_OFFSET );
 		if (pA7A8Panel) pA7A8Panel->AddMeshes(VC_OFFSET);
 		if (pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
+		if (pPanelO1) pPanelO1->AddMeshes( VC_OFFSET );
+		if (pPanelO2) pPanelO2->AddMeshes( VC_OFFSET );
+		if (pPanelO3) pPanelO3->AddMeshes( VC_OFFSET );
 		if (pPanelO6) pPanelO6->AddMeshes( VC_OFFSET );
 		if (pPanelO8) pPanelO8->AddMeshes( VC_OFFSET );
 		if (pPanelO17) pPanelO17->AddMeshes( VC_OFFSET );
@@ -4190,6 +4192,9 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 
 			pgRight.AddPanel( pPanelR1 = new vc::PanelR1( this ) );// HACK should be placed before R2, but click area on R2 is too big
 
+			pgOverhead.AddPanel( pPanelO1 = new vc::PanelO1( this ) );
+			pgOverhead.AddPanel( pPanelO2 = new vc::PanelO2( this ) );
+			pgOverhead.AddPanel( pPanelO3 = new vc::PanelO3( this ) );
 			pgOverhead.AddPanel( pPanelO6 = new vc::PanelO6( this ) );
 			pgOverhead.AddPanel( pPanelO8 = new vc::PanelO8( this ) );
 

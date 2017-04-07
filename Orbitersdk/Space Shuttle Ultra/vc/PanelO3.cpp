@@ -1,13 +1,17 @@
 #include "PanelO3.h"
 #include "../Atlantis.h"
 #include "../Atlantis_defs.h"
-#include "..\meshres_vc.h"
+#include "..\CommonDefs.h"
+#include "..\meshres_vc_o3.h"
 
 
 namespace vc
 {
 	PanelO3::PanelO3( Atlantis *_sts ):AtlantisPanel( _sts, "O3" )
 	{
+		hPanelMesh = oapiLoadMeshGlobal( DEFAULT_MESHNAME_PANELO3 );
+		mesh_index = MESH_UNDEFINED;
+
 		Add( pRCSOMS_PRESS = new RotaryDemuxSwitch( _sts, "RCS/OMS/PRESS", 3 ) );
 		pRCSOMS_PRESS->SetLabel( 0, "OMS PRPLT" );
 		pRCSOMS_PRESS->SetLabel( 1, "RCS PRPLT" );
@@ -40,6 +44,30 @@ namespace vc
 	{
 	}
 
+	void PanelO3::AddMeshes( const VECTOR3 &ofs )
+	{
+		SetHasOwnVCMesh();
+
+		if (mesh_index == MESH_UNDEFINED)
+		{
+			mesh_index = STS()->AddMesh( hPanelMesh, &ofs );
+			STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_VC );
+		}
+		return;
+	}
+
+	void PanelO3::SetMeshVisibility( bool visible )
+	{
+		if (visible) STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_VC );
+		else STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_NEVER );
+		return;
+	}
+
+	UINT PanelO3::GetVCMeshIndex( void ) const
+	{
+		return mesh_index;
+	}
+
 	void PanelO3::DefineVC()
 	{
 		VECTOR3 switch_rot = _V( 1, 0, 0 );
@@ -49,72 +77,72 @@ namespace vc
 
 		AddAIDToMouseEventList( AID_O3 );
 
-		pRCSOMS_PRESS->DefineSwitchGroup( GRP_O3S10_VC );
+		pRCSOMS_PRESS->DefineSwitchGroup( GRP_S10_O3_VC );
 		pRCSOMS_PRESS->DefineRotationAngle( 64.0f );
 		pRCSOMS_PRESS->SetOffset( 148.0f );
 		pRCSOMS_PRESS->SetInitialAnimState( 0.0f );
 		pRCSOMS_PRESS->SetReference( _V( 0.2147, 2.7921, 14.3509 ), rotary_switch_rot );
 		pRCSOMS_PRESS->SetMouseRegion( 0.142551f, 0.704583f, 0.202544f, 0.829816f );
 
-		pRCSOMS_PRPLTQTY->DefineSwitchGroup( GRP_O3S11_VC );
+		pRCSOMS_PRPLTQTY->DefineSwitchGroup( GRP_S11_O3_VC );
 		pRCSOMS_PRPLTQTY->DefineRotationAngle( 130.0f );
 		pRCSOMS_PRPLTQTY->SetOffset( 115.0f );
 		pRCSOMS_PRPLTQTY->SetInitialAnimState( 0.25f );
 		pRCSOMS_PRPLTQTY->SetReference( _V( 0.3653, 2.7950, 14.3503 ), rotary_switch_rot );
 		pRCSOMS_PRPLTQTY->SetMouseRegion( 0.398181f, 0.692892f, 0.454926f, 0.814155f );
 
-		pMissionTimer->DefineSwitchGroup( GRP_O3S12_VC );
+		pMissionTimer->DefineSwitchGroup( GRP_S12_O3_VC );
 		pMissionTimer->SetInitialAnimState( 0.5f );
 		pMissionTimer->SetReference( _V( 0.5121638,  2.799416,  14.35993 ), switch_rot );
 		pMissionTimer->SetMouseRegion( 0.655579f, 0.695221f, 0.687731f, 0.794568f );
 		pMissionTimer->SetSpringLoaded( true, 0 );
 
-		pRCSOMS_PRPLT_QTY->DefineMesh( STS()->mesh_vc );
-		pRCSOMS_PRPLT_QTY->DefineComponent( GRP_O3_PRPLT_RIGHT2_VC, true, false, false, _7SD_STATE_NUM0 );
-		pRCSOMS_PRPLT_QTY->DefineComponent( GRP_O3_PRPLT_RIGHT1_VC, true, false, false, _7SD_STATE_NUM0 );
-		pRCSOMS_PRPLT_QTY->DefineComponent( GRP_O3_PRPLT_FWD2_VC, true, false, false, _7SD_STATE_NUM0 );
-		pRCSOMS_PRPLT_QTY->DefineComponent( GRP_O3_PRPLT_FWD1_VC, true, false, false, _7SD_STATE_NUM0 );
-		pRCSOMS_PRPLT_QTY->DefineComponent( GRP_O3_PRPLT_LEFT2_VC, true, false, false, _7SD_STATE_NUM0 );
-		pRCSOMS_PRPLT_QTY->DefineComponent( GRP_O3_PRPLT_LEFT1_VC, true, false, false, _7SD_STATE_NUM0 );
+		pRCSOMS_PRPLT_QTY->DefineMesh( mesh_index );
+		pRCSOMS_PRPLT_QTY->DefineComponent( GRP_M12_1_O3_VC, true, false, false, _7SD_STATE_NUM0 );
+		pRCSOMS_PRPLT_QTY->DefineComponent( GRP_M12_2_O3_VC, true, false, false, _7SD_STATE_NUM0 );
+		pRCSOMS_PRPLT_QTY->DefineComponent( GRP_M12_3_O3_VC, true, false, false, _7SD_STATE_NUM0 );
+		pRCSOMS_PRPLT_QTY->DefineComponent( GRP_M12_4_O3_VC, true, false, false, _7SD_STATE_NUM0 );
+		pRCSOMS_PRPLT_QTY->DefineComponent( GRP_M12_5_O3_VC, true, false, false, _7SD_STATE_NUM0 );
+		pRCSOMS_PRPLT_QTY->DefineComponent( GRP_M12_6_O3_VC, true, false, false, _7SD_STATE_NUM0 );
 
-		pMissionTime->DefineMesh( STS()->mesh_vc );
-		pMissionTime->DefineComponent( GRP_O3_MET_S2_VC, true, false, false, _7SD_STATE_NUM0 );
-		pMissionTime->DefineComponent( GRP_O3_MET_S1_VC, true, false, false, _7SD_STATE_NUM0 );
-		pMissionTime->DefineComponent( GRP_O3_MET_M2_VC, true, false, false, _7SD_STATE_NUM0 );
-		pMissionTime->DefineComponent( GRP_O3_MET_M1_VC, true, false, false, _7SD_STATE_NUM0 );
-		pMissionTime->DefineComponent( GRP_O3_MET_H2_VC, true, false, false, _7SD_STATE_NUM0 );
-		pMissionTime->DefineComponent( GRP_O3_MET_H1_VC, true, false, false, _7SD_STATE_NUM0 );
-		pMissionTime->DefineComponent( GRP_O3_MET_DAY3_VC, true, false, false, _7SD_STATE_NUM0 );
-		pMissionTime->DefineComponent( GRP_O3_MET_DAY2_VC, true, false, false, _7SD_STATE_NUM0 );
-		pMissionTime->DefineComponent( GRP_O3_MET_DAY1_VC, true, false, false, _7SD_STATE_NUM0 );
+		pMissionTime->DefineMesh( mesh_index );
+		pMissionTime->DefineComponent( GRP_M13_1_O3_VC, true, false, false, _7SD_STATE_NUM0 );
+		pMissionTime->DefineComponent( GRP_M13_2_O3_VC, true, false, false, _7SD_STATE_NUM0 );
+		pMissionTime->DefineComponent( GRP_M13_3_O3_VC, true, false, false, _7SD_STATE_NUM0 );
+		pMissionTime->DefineComponent( GRP_M13_4_O3_VC, true, false, false, _7SD_STATE_NUM0 );
+		pMissionTime->DefineComponent( GRP_M13_5_O3_VC, true, false, false, _7SD_STATE_NUM0 );
+		pMissionTime->DefineComponent( GRP_M13_6_O3_VC, true, false, false, _7SD_STATE_NUM0 );
+		pMissionTime->DefineComponent( GRP_M13_7_O3_VC, true, false, false, _7SD_STATE_NUM0 );
+		pMissionTime->DefineComponent( GRP_M13_8_O3_VC, true, false, false, _7SD_STATE_NUM0 );
+		pMissionTime->DefineComponent( GRP_M13_9_O3_VC, true, false, false, _7SD_STATE_NUM0 );
 		pMissionTime->SetLocation( true );
 
-		pRCSOMSPressLeftOxidMeter->DefineNeedleGroup( GRP_O3M9O_VC );
+		pRCSOMSPressLeftOxidMeter->DefineNeedleGroup( GRP_M9_L_O3_VC );
 		pRCSOMSPressLeftOxidMeter->SetInitialAnimState( 0.55 );
 		pRCSOMSPressLeftOxidMeter->SetMotionRange( 15.0 );
 		pRCSOMSPressLeftOxidMeter->SetReference( needle_ref, needle_rot );
 
-		pRCSOMSPressLeftFuelMeter->DefineNeedleGroup( GRP_O3M9F_VC );
+		pRCSOMSPressLeftFuelMeter->DefineNeedleGroup( GRP_M9_R_O3_VC );
 		pRCSOMSPressLeftFuelMeter->SetInitialAnimState( 0.55 );
 		pRCSOMSPressLeftFuelMeter->SetMotionRange( 15.0 );
 		pRCSOMSPressLeftFuelMeter->SetReference( needle_ref, needle_rot );
 
-		pRCSOMSPressFwdKitOxidMeter->DefineNeedleGroup( GRP_O3M10O_VC );
+		pRCSOMSPressFwdKitOxidMeter->DefineNeedleGroup( GRP_M10_L_O3_VC );
 		pRCSOMSPressFwdKitOxidMeter->SetInitialAnimState( 0.55 );
 		pRCSOMSPressFwdKitOxidMeter->SetMotionRange( 15.0 );
 		pRCSOMSPressFwdKitOxidMeter->SetReference( needle_ref, needle_rot );
 
-		pRCSOMSPressFwdKitFuelMeter->DefineNeedleGroup( GRP_O3M10F_VC );
+		pRCSOMSPressFwdKitFuelMeter->DefineNeedleGroup( GRP_M10_R_O3_VC );
 		pRCSOMSPressFwdKitFuelMeter->SetInitialAnimState( 0.55 );
 		pRCSOMSPressFwdKitFuelMeter->SetMotionRange( 15.0 );
 		pRCSOMSPressFwdKitFuelMeter->SetReference( needle_ref, needle_rot );
 
-		pRCSOMSPressRightOxidMeter->DefineNeedleGroup( GRP_O3M11O_VC );
+		pRCSOMSPressRightOxidMeter->DefineNeedleGroup( GRP_M11_L_O3_VC );
 		pRCSOMSPressRightOxidMeter->SetInitialAnimState( 0.55 );
 		pRCSOMSPressRightOxidMeter->SetMotionRange( 15.0 );
 		pRCSOMSPressRightOxidMeter->SetReference( needle_ref, needle_rot );
 
-		pRCSOMSPressRightFuelMeter->DefineNeedleGroup( GRP_O3M11F_VC );
+		pRCSOMSPressRightFuelMeter->DefineNeedleGroup( GRP_M11_R_O3_VC );
 		pRCSOMSPressRightFuelMeter->SetInitialAnimState( 0.55 );
 		pRCSOMSPressRightFuelMeter->SetMotionRange( 15.0 );
 		pRCSOMSPressRightFuelMeter->SetReference( needle_ref, needle_rot );
@@ -130,6 +158,12 @@ namespace vc
 		oapiVCSetAreaClickmode_Quadrilateral( AID_O3, 
 			_V( 0.110078, 3.0096, 14.3151 ) + ofs, _V( 0.713058, 3.0096, 14.3151 ) + ofs, 
 			_V( 0.110078, 2.72832, 14.3729 ) + ofs , _V( 0.713058, 2.72832, 14.3729 ) + ofs );
+		return;
+	}
+
+	void PanelO3::DefineVCAnimations( UINT vcidx )
+	{
+		AtlantisPanel::DefineVCAnimations( mesh_index );
 		return;
 	}
 
