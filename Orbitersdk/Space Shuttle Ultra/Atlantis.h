@@ -584,6 +584,7 @@ public:
 	vc::AtlantisPanel* pPanelL12U_IUS;
 	vc::AtlantisPanel* pPanelL12U_Centaur;
 	vc::AtlantisPanel* pPanelR1;
+	vc::AtlantisPanel* pPanelR2;
 	vc::AtlantisPanel* pPanelA6U;
 	vc::AtlantisPanel* pPanelR13L;
 

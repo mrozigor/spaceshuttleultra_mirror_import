@@ -1164,6 +1164,9 @@
     <ClInclude Include="meshres_vc_o2.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="meshres_vc_r2.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Atlantis.rc" />

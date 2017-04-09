@@ -114,7 +114,7 @@ void APU::OnPreStep(double SimT, double DeltaT, double MJD)
 				else PlayVesselWave(STS()->GetSoundID(), APU_RUNNING, LOOP);
 			}
 
-			if(FuelLevel[0]<=0.0) State=SHUTDOWN;
+			if ((FuelLevel[0]<=0.0) || (!APU_CntlrPwr) || (!APU_FuelTankValves)) State=SHUTDOWN;
 			if(!APU_Run) {
 				State=SHUTDOWN;
 				if(STS()->GetSoundID()!=-1) PlayVesselWave(STS()->GetSoundID(), APU_SHUTDOWN, NOLOOP);
