@@ -39,7 +39,7 @@ SSRMS::SSRMS(OBJHANDLE hObj, int fmodel)
 	//load mesh
 	hSSRMSMesh = oapiLoadMeshGlobal("SSRMSF");
 	mesh_ssrms = AddMesh(hSSRMSMesh);
-	SetMeshVisibilityMode(mesh_ssrms, MESHVIS_ALWAYS|MESHVIS_EXTPASS);
+	SetMeshVisibilityMode(mesh_ssrms, MESHVIS_ALWAYS/*|MESHVIS_EXTPASS*/);
 
 	//initialize RMS
 	for(int i=0;i<7;i++) {
