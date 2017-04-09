@@ -14,15 +14,16 @@ void WSB::Realize()
 { 
 	DiscreteBundle* pBundle=BundleManager()->CreateBundle(GetIdentifier(), 16);
 	Ready.Connect(pBundle, 0);
-	ControllerA.Connect(pBundle, 1);
-	ControllerB.Connect(pBundle, 2);
-	BoilerN2Supply.Connect(pBundle, 3);
+	Power.Connect(pBundle, 1);
+	ControllerA.Connect(pBundle, 2);
+	ControllerB.Connect(pBundle, 3);
+	BoilerN2Supply.Connect(pBundle, 4);
 }
 
 void WSB::OnPreStep(double SimT, double DeltaT, double MJD)
 {
 	// indicate if WSB is ready for APU start
-	if(BoilerN2Supply && (ControllerA || ControllerB)) {
+	if(Power && BoilerN2Supply && (ControllerA || ControllerB)) {
 		Ready.SetLine();
 	}
 	else {

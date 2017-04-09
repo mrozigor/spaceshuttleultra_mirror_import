@@ -433,21 +433,21 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "Boiler1 N2 Supply" ON
   "Boiler2 N2 Supply" ON
   "Boiler3 N2 Supply" ON
-  "Boiler1 Cntlr" ON
-  "Boiler2 Cntlr" ON
-  "Boiler3 Cntlr" ON
-  "Boiler1 Cntlr Pwr/Htr" A
-  "Boiler2 Cntlr Pwr/Htr" A
-  "Boiler3 Cntlr Pwr/Htr" A
-  "APU1 Run" START/RUN
-  "APU2 Run" START/RUN
-  "APU3 Run" START/RUN
+  "Boiler1 Power" ON
+  "Boiler2 Power" ON
+  "Boiler3 Power" ON
+  "Boiler1 Cntlr/Htr" A
+  "Boiler2 Cntlr/Htr" A
+  "Boiler3 Cntlr/Htr" A
+  "APU1 Operate" START/RUN
+  "APU2 Operate" START/RUN
+  "APU3 Operate" START/RUN
   "Hyd Main Pump Press 1" NORM
   "Hyd Main Pump Press 2" NORM
   "Hyd Main Pump Press 3" NORM
-  "APU1 Cntlr Pwr " ON
-  "APU2 Cntlr Pwr " ON
-  "APU3 Cntlr Pwr " ON
+  "APU1 Cntlr Pwr" ON
+  "APU2 Cntlr Pwr" ON
+  "APU3 Cntlr Pwr" ON
   "APU1 Fuel Tank Valve" OPEN
   "APU2 Fuel Tank Valve" OPEN
   "APU3 Fuel Tank Valve" OPEN

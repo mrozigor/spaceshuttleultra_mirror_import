@@ -34,11 +34,14 @@ namespace vc
 {
 	class PanelR2 : public AtlantisPanel
 	{
-		StdSwitch3* pBlrCntlrPwrHtr[3];
-		StdSwitch2* pBlrCntlr[3];
+		MESHHANDLE hPanelMesh;
+		UINT mesh_index;
+
+		StdSwitch3* pBlrCntlrHtr[3];
+		StdSwitch2* pBlrPower[3];
 		StdSwitch2* pBlrN2Supply[3];
 
-		LockableLever3* pAPUControl[3];
+		LockableLever3* pAPUOperate[3];
 		LockableLever2* pHydPumpPress[3];
 		LockableLever2* pAPUCntlrPwr[3];
 		LockableLever2* pAPUFuelTkVlv[3];
@@ -77,8 +80,12 @@ namespace vc
 		PanelR2(Atlantis* psts);
 		virtual ~PanelR2();
 
+		virtual void AddMeshes( const VECTOR3& ofs );
+		virtual void SetMeshVisibility( bool visible );
+		virtual UINT GetVCMeshIndex( void ) const;
 		virtual void RegisterVC();
 		virtual void DefineVC();
+		virtual void DefineVCAnimations( UINT vcidx );
 		virtual void Realize();
 	};
 };
