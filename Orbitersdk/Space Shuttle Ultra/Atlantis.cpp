@@ -404,23 +404,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	
 	pgAftStbd.AddPanel(new vc::PanelR11(this));
 	
-	pPanelC3 = NULL;
-	pPanelA6U = NULL;
-	pPanelA8 = NULL;
-	pA7A8Panel = NULL;
-	pPanelO1 = NULL;
-	pPanelO2 = NULL;
-	pPanelO3 = NULL;
-	pPanelO6 = NULL;
-	pPanelO8 = NULL;
-	pPanelO17 = NULL;
-	pPanelL1 = NULL;
-	pPanelL10 = NULL;
-	pPanelL12U_IUS = NULL;
-	pPanelL12U_Centaur = NULL;
-	pPanelR1 = NULL;
-	pPanelR2 = NULL;
-	pPanelR13L = NULL;
 	pExtAirlock = NULL;
 
 	psubsystems = new AtlantisSubsystemDirector(this);
@@ -2378,48 +2361,39 @@ void Atlantis::AddOrbiterVisual()
 		bMidDeckVisible = false;
 		SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
 
-		if (pPanelC3) pPanelC3->AddMeshes( VC_OFFSET );
-		if (pPanelA6U) pPanelA6U->AddMeshes( VC_OFFSET );
-		if (pA7A8Panel) pA7A8Panel->AddMeshes(VC_OFFSET);
-		if (pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
-		if (pPanelO1) pPanelO1->AddMeshes( VC_OFFSET );
-		if (pPanelO2) pPanelO2->AddMeshes( VC_OFFSET );
-		if (pPanelO3) pPanelO3->AddMeshes( VC_OFFSET );
-		if (pPanelO6) pPanelO6->AddMeshes( VC_OFFSET );
-		if (pPanelO8) pPanelO8->AddMeshes( VC_OFFSET );
-		if (pPanelO17) pPanelO17->AddMeshes( VC_OFFSET );
-		if (pPanelL1) pPanelL1->AddMeshes( VC_OFFSET );
-		if (pPanelL10) pPanelL10->AddMeshes( VC_OFFSET );
-		if (pPanelL12U_IUS) pPanelL12U_IUS->AddMeshes( VC_OFFSET );
-		if (pPanelL12U_Centaur) pPanelL12U_Centaur->AddMeshes( VC_OFFSET );
-		if (pPanelR1) pPanelR1->AddMeshes( VC_OFFSET );
-		if (pPanelR2) pPanelR2->AddMeshes( VC_OFFSET );
-		if (pPanelR13L) pPanelR13L->AddMeshes( VC_OFFSET );
-
+		pgForward.AddMeshes( VC_OFFSET );
 		pgForward.DefineVC();
 		pgForward.DefineVCAnimations(mesh_vc);
 
+		pgLeft.AddMeshes( VC_OFFSET );
 		pgLeft.DefineVC();
 		pgLeft.DefineVCAnimations(mesh_vc);
 
+		pgCenter.AddMeshes( VC_OFFSET );
 		pgCenter.DefineVC();
 		pgCenter.DefineVCAnimations(mesh_vc);
 
+		pgRight.AddMeshes( VC_OFFSET );
 		pgRight.DefineVC();
 		pgRight.DefineVCAnimations(mesh_vc);
 
+		pgOverhead.AddMeshes( VC_OFFSET );
 		pgOverhead.DefineVC();
 		pgOverhead.DefineVCAnimations(mesh_vc);
 
+		pgOverheadAft.AddMeshes( VC_OFFSET );
 		pgOverheadAft.DefineVC();
 		pgOverheadAft.DefineVCAnimations(mesh_vc);
 
+		pgAftPort.AddMeshes( VC_OFFSET );
 		pgAftPort.DefineVC();
 		pgAftPort.DefineVCAnimations(mesh_vc);
 
+		pgAft.AddMeshes( VC_OFFSET );
 		pgAft.DefineVC();
 		pgAft.DefineVCAnimations(mesh_vc);
 
+		pgAftStbd.AddMeshes( VC_OFFSET );
 		pgAftStbd.DefineVC();
 		pgAftStbd.DefineVCAnimations(mesh_vc);
 
@@ -4186,24 +4160,24 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			pMission = ssuGetMission(pszBuffer);
 
 			/////// panels ///////
-			pgLeft.AddPanel( pPanelL1 = new vc::PanelL1( this ) );
+			pgLeft.AddPanel( new vc::PanelL1( this ) );
 
-			pgCenter.AddPanel( pPanelC3 = new vc::PanelC3( this, pMission->GetOrbiter() ) );
+			pgCenter.AddPanel( new vc::PanelC3( this, pMission->GetOrbiter() ) );
 
-			pgRight.AddPanel( pPanelR2 = new vc::PanelR2( this ) );
-			pgRight.AddPanel( pPanelR1 = new vc::PanelR1( this ) );// HACK should be placed before R2, but click area on R2 is too big
+			pgRight.AddPanel( new vc::PanelR2( this ) );
+			pgRight.AddPanel( new vc::PanelR1( this ) );// HACK should be placed before R2, but click area on R2 is too big
 
-			pgOverhead.AddPanel( pPanelO1 = new vc::PanelO1( this ) );
-			pgOverhead.AddPanel( pPanelO2 = new vc::PanelO2( this ) );
-			pgOverhead.AddPanel( pPanelO3 = new vc::PanelO3( this ) );
-			pgOverhead.AddPanel( pPanelO6 = new vc::PanelO6( this ) );
-			pgOverhead.AddPanel( pPanelO8 = new vc::PanelO8( this ) );
+			pgOverhead.AddPanel( new vc::PanelO1( this ) );
+			pgOverhead.AddPanel( new vc::PanelO2( this ) );
+			pgOverhead.AddPanel( new vc::PanelO3( this ) );
+			pgOverhead.AddPanel( new vc::PanelO6( this ) );
+			pgOverhead.AddPanel( new vc::PanelO8( this ) );
 
-			pgOverheadAft.AddPanel( pPanelO17 = new vc::PanelO17( this ) );
+			pgOverheadAft.AddPanel( new vc::PanelO17( this ) );
 
-			pgAft.AddPanel( pPanelA6U = new vc::PanelA6U( this ) );
+			pgAft.AddPanel( new vc::PanelA6U( this ) );
 
-			pgAftStbd.AddPanel( pPanelR13L = new vc::PanelR13L( this ) );
+			pgAftStbd.AddPanel( new vc::PanelR13L( this ) );
 
 			/////// subsystems ///////
 			psubsystems->AddSubsystem( new eps::PRSD( pMission->GetInternalPRSDTankSets(), pMission->HasEDOKit(), pMission->GetEDOPallets(), psubsystems ) );
@@ -4223,17 +4197,17 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			if (RMS)
 			{
 				psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
-				if (!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
+				pgAft.AddPanel( new vc::PanelA8( this ) );
 			}
 			if (STBDMPM)
 			{
 				psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
-				if (!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
+				if (!RMS) pgAft.AddPanel( new vc::PanelA8( this ) );
 			}
 			if (pMission->HasODS())
 			{
 				psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
-				pgAft.AddPanel(pA7A8Panel = new vc::PanelA7A8ODS(this));
+				pgAft.AddPanel( new vc::PanelA7A8ODS( this ) );
 			}
 			else if (pMission->HasExtAL()) psubsystems->AddSubsystem( pExtAirlock = new eva_docking::ExtAirlock( psubsystems, "ExternalAirlock" ) );
 
@@ -4242,14 +4216,14 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			if (pMission->UseASE_IUS())
 			{
 				psubsystems->AddSubsystem( pASE_IUS = new ASE_IUS( psubsystems, pMission->IsASELocationAft() ) );
-				pgAftPort.AddPanel( pPanelL10 = new vc::PanelL10( this ) );
-				pgAftPort.AddPanel( pPanelL12U_IUS = new vc::PanelL12U_IUS( this ) );
+				pgAftPort.AddPanel( new vc::PanelL10( this ) );
+				pgAftPort.AddPanel( new vc::PanelL12U_IUS( this ) );
 			}
 
 			if (pMission->UseCISS())
 			{
 				psubsystems->AddSubsystem( pCISS = new CISS( psubsystems, pMission->IsCISSGPrime() ) );
-				pgAftPort.AddPanel( pPanelL12U_Centaur = new vc::PanelL12U_Centaur( this ) );
+				pgAftPort.AddPanel( new vc::PanelL12U_Centaur( this ) );
 				hasCISS = true;
 			}
 
