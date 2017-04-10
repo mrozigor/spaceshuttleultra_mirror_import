@@ -60,6 +60,7 @@ namespace vc {
 		void ShowPanels();
 		void LogPanels(char *grp);
 		void VisualCreated();
+		void AddMeshes( const VECTOR3& ofs );
 	};
 
 	template <class TVessel>
@@ -279,5 +280,12 @@ namespace vc {
 	{
 		for(unsigned int i = 0; i<panels.size(); i++)
 			panels.at(i)->VisualCreated();
+	}
+
+	template <class TVessel>
+	void PanelGroup<TVessel>::AddMeshes( const VECTOR3& ofs )
+	{
+		for(unsigned int i = 0; i<panels.size(); i++)
+			panels.at(i)->AddMeshes( ofs );
 	}
 };

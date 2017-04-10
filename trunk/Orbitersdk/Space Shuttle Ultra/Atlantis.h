@@ -53,7 +53,6 @@
 #include "mps/HeliumSystem.h"
 #include "mps/MPS.h"
 #include "PanelGroup.h"
-#include "vc/AtlantisPanel.h"
 #include "vc\7SegDisp_RCSOMS_PRPLT_QTY.h"
 #include "APU.h"
 #include <EngConst.h>
@@ -236,7 +235,6 @@ class Atlantis: public VESSEL4 {
 	friend class CRT;
 	friend class vc::MDU;
 	friend class dps::IDP;
-	friend class vc::DAPControl;
 public:
 	SSUOptions* options;
 	/* **************************************************
@@ -565,28 +563,6 @@ public:
 	void ToggleGrapple (void);
 	void UpdateMesh ();
 	void UpdateSSMEGimbalAnimations();
-
-	//**********************************************************
-	// RCS Thruster interface functions
-	//**********************************************************
-	
-	vc::AtlantisPanel* pPanelC3;
-	vc::AtlantisPanel* pA7A8Panel;
-	vc::AtlantisPanel* pPanelA8;
-	vc::AtlantisPanel* pPanelO1;
-	vc::AtlantisPanel* pPanelO2;
-	vc::AtlantisPanel* pPanelO3;
-	vc::AtlantisPanel* pPanelO6;
-	vc::AtlantisPanel* pPanelO8;
-	vc::AtlantisPanel* pPanelO17;
-	vc::AtlantisPanel* pPanelL1;
-	vc::AtlantisPanel* pPanelL10;
-	vc::AtlantisPanel* pPanelL12U_IUS;
-	vc::AtlantisPanel* pPanelL12U_Centaur;
-	vc::AtlantisPanel* pPanelR1;
-	vc::AtlantisPanel* pPanelR2;
-	vc::AtlantisPanel* pPanelA6U;
-	vc::AtlantisPanel* pPanelR13L;
 
 
 	AerosurfacePositions aerosurfaces;
