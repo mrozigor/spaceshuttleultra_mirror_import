@@ -1,0 +1,169 @@
+﻿<RibbonWindow x:Class="SSUWorkbench.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:SSUWorkbench"
+        Title="SSU Workbench" Height="700" Width="1024" Icon="{StaticResource SSU_ICON}" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+    <RibbonWindow.Resources>
+        <BitmapImage x:Key="SAVE_SMALL" UriSource="images/document-save-5.png"/>
+        <BitmapImage x:Key="SAVE_LARGE" UriSource="images/document-save-5-lrg.png"/>
+        <BitmapImage x:Key="SAVE_AS_LARGE" UriSource="images/document-save-as-5-lrg.png"/>
+        <BitmapImage x:Key="PASTE" UriSource="images/edit-paste-6.png"/>
+        <BitmapImage x:Key="COPY" UriSource="images/edit-copy-2.png"/>
+        <BitmapImage x:Key="CUT" UriSource="images/edit-cut-8.png"/>
+    </RibbonWindow.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Ribbon Grid.Row="0">
+            <Ribbon.HelpPaneContent>
+                <RibbonButton Margin="10 0 0 0" />
+            </Ribbon.HelpPaneContent>
+            <Ribbon.QuickAccessToolBar>
+                <RibbonQuickAccessToolBar>
+                    <RibbonButton SmallImageSource="{StaticResource SAVE_SMALL}"/>
+                </RibbonQuickAccessToolBar>
+            </Ribbon.QuickAccessToolBar>
+            <Ribbon.ApplicationMenu>
+                <RibbonApplicationMenu SmallImageSource="{StaticResource SSU_ICON}">
+                    <RibbonApplicationMenu.AuxiliaryPaneContent>
+                        <StackPanel Margin="10">
+                            <TextBlock TextWrapping="Wrap">
+                                This is an auxiliary pane.
+                            </TextBlock>
+                        </StackPanel>
+                    </RibbonApplicationMenu.AuxiliaryPaneContent>
+                    <RibbonApplicationMenuItem x:Name="ribbonNew" Header="New Mssion (Ctrl + N)" Click="ribbonNew_Click"/>
+                    <RibbonApplicationMenuItem x:Name="ribbonOpen" Header="Open Mission (Ctrl + O)" Click="ribbonOpen_Click"/>
+                    <RibbonApplicationMenuItem x:Name="ribbonSave" Header="Save Mission (Ctrl + S)" ImageSource="{StaticResource SAVE_LARGE}" Click="ribbonSave_Click"/>
+                    <RibbonApplicationMenuItem x:Name="ribbonExport" Header="Export Scenario (Ctrl + E)" ImageSource="{StaticResource SAVE_LARGE}" Click="ribbonExport_Click"/>
+                    <RibbonSeparator/>
+                    <RibbonApplicationMenuItem x:Name="ribbonOptions" Header="Options" Click="ribbonOptions_Click"/>
+                    <RibbonApplicationMenuItem x:Name="ribbonAbout" Header="About" Click="ribbonAbout_Click"/>
+                    <RibbonApplicationMenu.FooterPaneContent>
+                        <RibbonButton x:Name="ribbonClose" Label="Close" HorizontalAlignment="Right" Click="ribbonClose_Click"/>
+                    </RibbonApplicationMenu.FooterPaneContent>
+                </RibbonApplicationMenu>
+            </Ribbon.ApplicationMenu>
+            <RibbonTab Header="Start">
+                <RibbonGroup Header="Clipboard">
+                    <RibbonSplitButton Label="Paste" LargeImageSource="{StaticResource PASTE}">
+                        <RibbonMenuItem Header="Paste" ImageSource="{StaticResource PASTE}"/>
+                        <RibbonMenuItem Header="Paste from..."/>
+                    </RibbonSplitButton>
+                    <RibbonButton Label="Cut" LargeImageSource="{StaticResource CUT}"/>
+                    <RibbonButton Label="Copy" LargeImageSource="{StaticResource COPY}"/>
+                </RibbonGroup>
+                <RibbonGroup Header="Scenario">
+                    <RibbonButton x:Name="rbtnCreate" Label="Create" Click="rbtnCreate_Click"/>
+                    <RibbonButton Label="Describe"/>
+                    <RibbonButton Label="Stages"/>
+                </RibbonGroup>
+            </RibbonTab>
+            <RibbonTab Header="Payloads">
+                <RibbonGroup Header="Create">
+                    <RibbonButton Label="Import"/>
+                    <RibbonButton Label="Define"/>
+                </RibbonGroup>
+            </RibbonTab>
+            <RibbonTab Header="FDF">
+                <RibbonGroup Header="Generate">
+                    <RibbonButton Label="ASCENT CL"/>
+                    <RibbonButton Label="POST INSERTION"/>
+                    <RibbonButton Label="ORBIT OPS"/>
+                    <RibbonButton Label="FLT PLAN"/>
+                </RibbonGroup>
+            </RibbonTab>
+            <RibbonTab Header="DPS">
+                <RibbonGroup Header="PASS"/>
+                <RibbonGroup Header="BFS"/>
+                <RibbonGroup Header="MDM"/>
+                <RibbonGroup Header="DEU"/>
+            </RibbonTab>
+            <RibbonTab Header="Program">
+                <RibbonGroup Header="Program">
+                    <RibbonButton Label="Select"/>
+                    <RibbonButton Label="Import"/>
+                    <RibbonButton Label="Export"/>
+                </RibbonGroup>
+                <RibbonGroup Header="Manifest"/>
+                <RibbonGroup Header="Resources"/>
+                <RibbonGroup Header="Events"/>
+            </RibbonTab> 
+        </Ribbon>
+        <TabControl Grid.Row="1">
+            <TabItem Header="FLT NO">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="250"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="FlightSummaryText" Grid.Column="0" Width="250" FontFamily="Arial" FontSize="8" FontStyle="Normal">
+                        
+                    </TextBlock>
+                    <Grid Grid.Column="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="28"/>
+                            <RowDefinition Height="28"/>
+                            <RowDefinition Height="28"/>
+                            <RowDefinition Height="28"/>
+                            <RowDefinition Height="28"/>
+                            <RowDefinition Height="28"/>
+                            <RowDefinition Height="28"/>
+                            <RowDefinition Height="28"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Label Grid.Column="0" Grid.Row="0" Margin="0,1">Flight number:</Label>
+                        <TextBox Name="FlightNumber" Grid.Column="1" Margin="0,2,0,3"/>
+                        <Label Grid.Column="0" Grid.Row="1" Margin="0,1">Flight name:</Label>
+                        <TextBox Name="FlightName" Grid.Column="1" Grid.Row="1" Margin="0,2,0,3" Text="{Binding mission.MissionName}"/>
+                        <Label Grid.Column="0" Grid.Row="2" Margin="0,1">Fiscal year:</Label>
+                        <TextBox Name="FiscalYear" Grid.Column="1" Grid.Row="2" Margin="0,2,0,3"/>
+                        
+                        <Label Grid.Column="0" Grid.Row="6" Margin="0,1">Target:</Label>
+                        <ComboBox Name="Target" Grid.Column="1" Grid.Row="6" Margin="0,2,0,3">
+                            <ComboBoxItem>None</ComboBoxItem>
+                            <ComboBoxItem>ISS</ComboBoxItem>
+                        </ComboBox>
+                    </Grid>
+                </Grid>
+            </TabItem>     
+            <TabItem Header="ORBITER">
+                <local:Orbiter />
+            </TabItem>
+            <TabItem Header="CREW"/>
+            <TabItem Header="LAUNCH">
+                <local:Launch />
+            </TabItem>
+            <TabItem Header="LANDING"/>
+            <TabItem Header="SSME">
+                <local:SSME />
+            </TabItem>
+            <TabItem Header="OMS/RCS">
+                <local:OMSRCS />
+            </TabItem>
+            <TabItem Header="ET/SRB">
+                <local:ETSRB />
+            </TabItem>
+            <TabItem Header="ORBIT"/>
+            <TabItem Header="FSW"/>
+            <TabItem Header="PAYLOAD"/>
+            <TabItem Header="MISSION"/>
+            <TabItem Header="FLT PLAN"/>
+            <TabItem Header="SCENARIO">
+                <local:Scenario />
+            </TabItem>
+            <TabItem Header="MECO (Legacy)">
+                <local:MECOTool />
+            </TabItem>
+        </TabControl>
+    </Grid>
+</RibbonWindow>

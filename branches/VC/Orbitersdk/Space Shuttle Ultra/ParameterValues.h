@@ -4,18 +4,28 @@
 #include "OrbiterAPI.h"
 #include "EngConst.h"
 
-const double ORBITER_EMPTY_MASS = 81100.0;
-// Orbiter empty mass [kg]
+const double ORBITER_EMPTY_MASS_OV102 = 80739.44;
+const double ORBITER_EMPTY_MASS_OV099 = 79429.01;
+const double ORBITER_EMPTY_MASS_OV103 = 77564.3;
+const double ORBITER_EMPTY_MASS_OV104 = 77564.3;
+const double ORBITER_EMPTY_MASS_OV105 = 78017.89;
+// Orbiter empty masses [kg]
 
-const double ORBITER_MAX_PROPELLANT_MASS = 14538.0;
-// Amount of fuel the orbiter can hold in internal OMS tanks
+const double ORBITER_MAX_PROPELLANT_MASS = 11284.23 + 2162.622;
+// Per SODB Vol 1, 3.4.3.3, maximum propellant load in the OMS tanks is 4711.5 lbs (2134.3095 kg) of fuel and 7743.5 lbs (3507.8055 kg) of oxidizer per pod. Min load is 2038 (923.214 kg) lbs of fuel and 3362 lbs (1522.986 kg) of oxidizer per pod.
+// This parameter for now includes the propellant mass of the Aft RCS fuel and oxidizer
 
 const double ORBITER_FRCS_PROPELLANT_MASS = 1464 * LBM + 923*LBM;
+
+const double ORBITER_LEFT_ARCS_PROPELLANT_MASS = 1464 * LBM + 923 * LBM;
+
+const double ORBITER_RIGHT_ARCS_PROPELLANT_MASS = 1464 * LBM + 923 * LBM;
+
 // Amount of fuel in forward RCS tanks
 
 //const double SSME_RATED_THRUST = 2090664.159; //100% thrust
 const double ORBITER_MAIN_THRUST = 2170732.15; //Nominal "104%" thrust
-const double ORBITER_MAX_THRUST = 2275094.273; //109% thrust
+//const double ORBITER_MAX_THRUST = 2275094.273; //109% thrust
 // Vacuum thrust rating per main engine [N]
 const double SSME_MAX_POWER_LEVEL = 109.0;
 
@@ -69,6 +79,8 @@ const double CHUTE_DEPLOY_SPEED = 165.0/MPS2KTS;
 // Speed at which chute is deployed (m/s)
 const double CHUTE_JETTISON_SPEED = 60.0/MPS2KTS;
 // Speed at which chute is jettisoned (m/s)
+const double CHUTE_FAIL_SPEED = 230.0/MPS2KTS;
+// Lowest speed at which chute breaks off if deployed (m/s)
 
 const double GEAR_OPERATING_SPEED = 0.3;
 // Opening/closing speed of landing gear (1/sec)
@@ -78,21 +90,14 @@ const double SPEEDBRAKE_OPERATING_SPEED = 0.20284;
 // Deployment speed of the speedbrake (1/sec)
 // cycle is 4.93 sec
 
-const double AIR_DATA_PROBE_SPEED = 0.06666667;
-
-const double DYNP_MAX = 100e3;
-// Max. allowed dynamic pressure [Pa]
-const double GEAR_MAX_DEPLOY_SPEED = 450/1.943844;
-// Max. safe gear deploy speed [m/s]
-
-const double DOOR_OPERATING_SPEED = 0.007353;
+const double PLBD_OPERATING_SPEED = 0.0158730;
 // Opening/closing speed of payload bay doors (1/sec)
-// This contains the door opening sequence (63 sec for each door) and an
-// interval of 10 sec between the two door operations
 
-const double DOORLATCH_OPERATING_SPEED = 0.05;
-// Opening/closing speed of payload bay door latch gang (1/sec)
-// 20 sec for each gang
+const double PLBD_CENTERLINE_LATCH_OPERATING_SPEED = 0.05;
+// Opening/closing speed of payload bay door centerline latch gang (1/sec)
+
+const double PLBD_BULKHEAD_LATCH_OPERATING_SPEED = 0.0333333;
+// Opening/closing speed of payload bay door bulkhead latch gang (1/sec)
 
 const double RAD_OPERATING_SPEED = 0.023255814;
 // Deployment/stowing speed of radiators (1/sec)
@@ -102,8 +107,8 @@ const double RADLATCH_OPERATING_SPEED = 0.0384615385;
 // Release/engaging speed of radiator latches (1/sec)
 // => radiator latch cycle = 26 sec
 
-const double KU_OPERATING_SPEED = 0.0275;
-// Deployment speed of the Ku Band antenna (1/sec)
+const double KU_OPERATING_SPEED = 0.0217391304;
+// Deployment speed of the Ku Band antenna (1/sec) (single motor)
 // Specified cycle is 23 sec, although actual observed cycle is ~19 sec
 
 const VECTOR3 ORBITER_CS = {304.62,457.57,149.27};
@@ -122,8 +127,8 @@ const double ORBITER_CW_GEAR[4] = {0.04, 0.04, 0.05, 0.0};
 const double PTU_HIGHRATE_SPEED = 12;
 const double PTU_LOWRATE_SPEED = 1.2;
 // Payload camera speed rates (deg/sec)
-const double MAX_PLBD_CAM_TILT = 170.0;
-const double MAX_PLBD_CAM_PAN = 170.0;
+const double MAX_PLB_CAM_TILT = 170.0;
+const double MAX_PLB_CAM_PAN = 170.0;
 
 //Post Contact Thrusting
 const double PCT_STAGE1 = 0.56;
@@ -143,11 +148,7 @@ const int AftYawThrusters[2] = {5, 7};
 const int AftRollThrusters[2] = {9, 11};
 //RCS Thruster Groups
 
-// ==========================================================
-// Some Tank-related parameters
-// ==========================================================
-
-const double ET_SEP_TIME = 18.00000; // ET Sep time (after MECO)
-const double ET_SEP_RATE = 1.2192; // Commanded ET sep rate (m/s)
+const double RHC_RATE = 0.75;// 1/x seconds from detent to full deflection
+const double RPTA_RATE = 0.75;// 1/x seconds from detent to full deflection
 
 #endif //_PARAMETERVALUES_H_795497C2_2F91_464b_9F03_19F48E9366EE

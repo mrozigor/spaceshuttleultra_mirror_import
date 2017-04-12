@@ -29,310 +29,189 @@
 // panel area identifiers
 // ==========================================================
 
-// define MFD function buttons
-#define AID_CDR1_LABEL		1
-#define AID_CDR2_LABEL		2
-#define AID_CRT1_LABEL		3
-#define AID_CRT2_LABEL		4
-#define AID_CRT3_LABEL		5
-#define AID_MFD1_LABEL		6
-#define AID_MFD2_LABEL		7
-#define AID_PLT1_LABEL		8
-#define AID_PLT2_LABEL		9
-#define AID_CRT4_LABEL		10
-#define AID_AFD_LABEL		11
-// D. Beachy: define power buttons
-#define AID_CDR1_PWR      12
-#define AID_CDR2_PWR      13
-#define AID_PLT1_PWR      14
-#define AID_PLT2_PWR      15
-#define AID_CRT1_PWR      16
-#define AID_CRT2_PWR      17
-#define AID_CRT3_PWR      18
-#define AID_CRT4_PWR      19
-#define AID_MFD1_PWR      20
-#define AID_MFD2_PWR      21
-#define AID_AFD_PWR		  22
-// MFD brightness buttons
-#define AID_CDR1_BRT      23
-#define AID_CDR2_BRT      24
-#define AID_PLT1_BRT      25
-#define AID_PLT2_BRT      26
-#define AID_CRT1_BRT      27
-#define AID_CRT2_BRT      28
-#define AID_CRT3_BRT      29
-#define AID_CRT4_BRT      30
-#define AID_MFD1_BRT      31
-#define AID_MFD2_BRT      32
-#define AID_AFD_BRT       33
-// Panel R13L (payload bay operations)
-#define AID_R13L_MIN     100
-#define AID_R13L         100
-#define AID_R13L_TKBK1   101
-#define AID_R13L_TKBK2   102
-#define AID_R13L_TKBK3   103
-#define AID_R13L_TKBK4   104
-#define AID_R13L_TKBK5   105
-#define AID_R13L_TKBK6   106
-#define AID_R13L_MAX     120
-// Panel F6 (commander's panel)
-#define AID_F6_MIN     200
-#define AID_F6         200
-#define AID_F6_TKBK1   201
-#define AID_F6_TKBK2   202
-#define AID_F6_TKBK3   203
-#define AID_F6_MAX     219
-// Panel F7 (event timer and MPS status)
-#define AID_F7_MIN	     260
-#define AID_F7	         260
-#define AID_F7_EVTTMR1   261
-#define AID_F7_EVTTMR2   262
-#define AID_F7_EVTTMR3   263
-#define AID_F7_EVTTMR4   264
-#define AID_F7_SSME_C_R  265
-#define AID_F7_SSME_C_Y  266
-#define AID_F7_SSME_L_R  267
-#define AID_F7_SSME_L_Y  268
-#define AID_F7_SSME_R_R  269
-#define AID_F7_SSME_R_Y  270
-#define AID_F7_MAX	     279
-// Panel C2 (event timer and CRT assignments)
-#define AID_C2_MIN     280
-#define AID_C2		   280
-#define AID_C2_WND0    281
-#define AID_C2_WND1    282
-#define AID_C2_WND2    283
-#define AID_C2_WND3    284
-#define AID_C2_MAX     289
-// Keyboards
-#define AID_KYBD_CDR   290
-#define AID_KYBD_PLT   291
-// Panel C3
-#define AID_C3_MIN     300
-#define AID_C3         300
-#define AID_C3_PBI1	   301
-#define AID_C3_PBI2	   302
-#define AID_C3_PBI3	   303
-#define AID_C3_PBI4	   304
-#define AID_C3_PBI5	   305
-#define AID_C3_PBI6	   306
-#define AID_C3_PBI7	   307
-#define AID_C3_PBI8	   308
-#define AID_C3_PBI9	   309
-#define AID_C3_PBI10   310
-#define AID_C3_PBI11   311
-#define AID_C3_PBI12   312
-#define AID_C3_PBI13   313
-#define AID_C3_PBI14   314
-#define AID_C3_PBI15   315
-#define AID_C3_PBI16   316
-#define AID_C3_PBI17   317
-#define AID_C3_PBI18   318
-#define AID_C3_PBI19   319
-#define AID_C3_PBI20   320
-#define AID_C3_PBI21   321
-#define AID_C3_PBI22   322
-#define AID_C3_PBI23   323
-#define AID_C3_PBI24   324
-#define AID_C3_MAX     329
-// Panel O3
-#define AID_O3_MIN	   330
-#define AID_O3		   330
-#define AID_O3_METTMR1 331
-#define AID_O3_METTMR2 332
-#define AID_O3_RCS     333
-#define AID_O3_MAX	   349
 
-#define AID_O6_MIN	   350
-#define AID_O6		   350
-#define AID_O6_DS1	   351
-#define AID_O6_DS2	   352
-#define AID_O6_DS3	   353
-#define AID_O6_DS4	   354
-#define AID_O6_DS5	   355
-#define AID_O6_DS6	   356
-#define AID_O6_DS7	   357
-#define AID_O6_DS8	   358
-#define AID_O6_DS9	   359
-#define AID_O6_DS10	   360
-#define AID_O6_DS11	   361
-#define AID_O6_DS12	   362
-#define AID_O6_MAX	   362
-// Panel R2
-#define AID_R2_MIN     400
-#define AID_R2         400
-#define AID_R2_TKBK1   401
-#define AID_R2_TKBK2   402
-#define AID_R2_TKBK3   403
-#define AID_R2_TKBK4   404
-#define AID_R2_TKBK5   405
-#define AID_R2_TKBK6   406
-#define AID_R2_TKBK7   407
-#define AID_R2_TKBK8   408
-#define AID_R2_MAX     419
+// F
+#define AID_F2_MIN		1000
+#define AID_F2			1000
+#define AID_F2_MAX		1009
 
-#define AID_A4_MIN	   420
-#define AID_A4		   420
-#define AID_A4_EVTTMR  421
-#define AID_A4_METTMR1 422
-#define AID_A4_METTMR2 423
-#define AID_A4_MAX	   429
-// Panel A8
-#define AID_A8_MIN     430
-#define AID_A8         430
-#define AID_A8_TKBK1   431
-#define AID_A8_TKBK2   432
-#define AID_A8_TKBK3   433
-#define AID_A8_TKBK4   434
-#define AID_A8_TKBK5   435
-#define AID_A8_TKBK6   436
-#define AID_A8_TKBK7   437
-#define AID_A8_TKBK8   438
-#define AID_A8_TKBK9   439
-#define AID_A8_TKBK10  440
-#define AID_A8_TKBK11  441
-#define AID_A8_TKBK12  442
-#define AID_A8_TKBK13  443
-#define AID_A8_TKBK14  444
-#define AID_A8_TKBK15  445
-#define AID_A8_TKBK16  446
-#define AID_A8_TKBK17  447
-#define AID_A8_TKBK18  448
-#define AID_A8_TKBK19  449
-#define AID_A8_TKBK20  451
-#define AID_A8_TKBK21  452
-#define AID_A8_LED1	   453
-#define AID_A8_LED2	   454
-#define AID_A8_LED3	   455
-#define AID_A8_MAX     459
+#define AID_F3_MIN		1010
+#define AID_F3			1010
+#define AID_F3_MAX		1019
 
-#define AID_F8_MIN	   460
-#define AID_F8		   460
-#define AID_F8_MAX	   470
+#define AID_F4_MIN		1020
+#define AID_F4			1020
+#define AID_F4_MAX		1029
 
-#define AID_A6_MIN     500
-#define AID_A6         500
-#define AID_A6_PBI1	   501
-#define AID_A6_PBI2	   502
-#define AID_A6_PBI3	   503
-#define AID_A6_PBI4	   504
-#define AID_A6_PBI5	   505
-#define AID_A6_PBI6	   506
-#define AID_A6_PBI7	   507
-#define AID_A6_PBI8	   508
-#define AID_A6_PBI9	   509
-#define AID_A6_PBI10   510
-#define AID_A6_PBI11   511
-#define AID_A6_PBI12   512
-#define AID_A6_PBI13   513
-#define AID_A6_PBI14   514
-#define AID_A6_PBI15   515
-#define AID_A6_PBI16   516
-#define AID_A6_PBI17   517
-#define AID_A6_PBI18   518
-#define AID_A6_PBI19   519
-#define AID_A6_PBI20   520
-#define AID_A6_PBI21   521
-#define AID_A6_PBI22   522
-#define AID_A6_PBI23   523
-#define AID_A6_PBI24   524
-#define AID_A6_TKBK1   525
-#define AID_A6_TKBK2   526
-#define AID_A6_TKBK3   527
-#define AID_A6_TKBK4   528
-#define AID_A6_TKBK5   529
-#define AID_A6_TKBK6   530
-#define AID_A6_TKBK7   531
-#define AID_A6_TKBK8   532
-#define AID_A6_TKBK9   533
-#define AID_A6_TKBK10  534
-#define AID_A6_MAX     539
+#define AID_F6_MIN		1030
+#define AID_F6			1030
+#define AID_F6_MAX		1039
 
-#define AID_R11_MIN		540
-#define AID_R11			540
-#define AID_R11_MAX		560
+#define AID_F7_MIN		1040
+#define AID_F7			1040
+#define AID_F7_MAX		1049
 
-#define AID_F2_MIN		580
-#define AID_F2			580
-#define AID_F2_BF_AUTO	581
-#define AID_F2_BF_MAN	582
-#define AID_F2_ST_AUTO	583
-#define AID_F2_ST_MAN	584
-#define AID_F2_P_CSS	585
-#define AID_F2_RY_CSS	586
-#define AID_F2_P_AUTO	587
-#define AID_F2_RY_AUTO	588
-#define AID_F2_MAX		599
+#define AID_F8_MIN		1050
+#define AID_F8			1050
+#define AID_F8_MAX		1059
 
-#define AID_F4_MIN		600
-#define AID_F4			600		
-#define AID_F4_BF_AUTO	601
-#define AID_F4_BF_MAN	602
-#define AID_F4_ST_AUTO	603
-#define AID_F4_ST_MAN	604
-#define AID_F4_P_CSS	605
-#define AID_F4_RY_CSS	606
-#define AID_F4_P_AUTO	607
-#define AID_F4_RY_AUTO	608
-#define AID_F4_MAX		620
+#define AID_F9_MIN		1060
+#define AID_F9			1060
+#define AID_F9_MAX		1069
 
-#define AID_A7U_MIN		640
-#define AID_A7U			640
-#define AID_A7U_PBI1	641
-#define AID_A7U_PBI2	642
-#define AID_A7U_PBI3	643
-#define AID_A7U_PBI4	644
-#define AID_A7U_PBI5	645
-#define AID_A7U_PBI6	646
-#define AID_A7U_PBI7	647
-#define AID_A7U_MAX		660
+// L
+#define AID_L1_MIN		2000
+#define AID_L1			2000
+#define AID_L1_MAX		2009
 
-#define AID_O17 		661
+#define AID_L10_IUS_MIN		2010
+#define AID_L10_IUS		2010
+#define AID_L10_IUS_MAX		2019
 
+#define AID_L12U_CENTAUR_MIN	2020
+#define AID_L12U_CENTAUR	2020
+#define AID_L12U_CENTAUR_MAX	2029
 
-#define AID_MDU_CDR1	1000
-#define AID_MDU_CDR2	1001
-#define AID_MDU_CRT1	1002
-#define AID_MDU_CRT2	1003
-#define AID_MDU_CRT3	1004
-#define AID_MDU_CRT4	1005
-#define AID_MDU_MFD1	1006
-#define AID_MDU_MFD2	1007
-#define AID_MDU_PLT1	1008
-#define AID_MDU_PLT2	1009
-#define AID_MDU_AFD1	1010
+#define AID_L12U_IUS_MIN	2030
+#define AID_L12U_IUS		2030
+#define AID_L12U_IUS_MAX	2039
 
-#define AID_A1U1         1011
-#define AID_A1U2         1012
+#define AID_L2_MIN		2040
+#define AID_L2			2040
+#define AID_L2_MAX		2049
 
-const unsigned int AID_CUSTOM_PANELS_MIN = 10000;
-const unsigned int AID_CUSTOM_PANELS_MAX = 30000;
+#define AID_L4_MIN		2050
+#define AID_L4			2050
+#define AID_L4_MAX		2059
 
-const unsigned int AID_A7A3 = 11000;
-const unsigned int AID_ODSLIGHTS = 11001;
-const unsigned int AID_A8A3 = 11010;
+#define AID_L9_MIN		2060
+#define AID_L9			2060
+#define AID_L9_MAX		2069
 
+// C
+#define AID_C2_MIN		3000
+#define AID_C2			3000
+#define AID_C2_WND0		3001
+#define AID_C2_WND1		3002
+#define AID_C2_WND2		3003
+#define AID_C2_WND3		3004
+#define AID_C2_MAX		3009
 
-#define SWITCH1		0
-#define SWITCH2		1
-#define SWITCH3		2
-#define SWITCH4		3
-#define SWITCH5		4
-#define SWITCH6		5
-#define SWITCH7		6
-#define SWITCH8		7
-#define SWITCH9		8
-#define SWITCH10	9
-#define SWITCH11	10
-#define SWITCH12	11
-#define SWITCH13	12
-#define SWITCH14	13
-#define SWITCH15	14
-#define SWITCH16	15
-#define SWITCH17	16
-#define SWITCH18	17
-#define SWITCH19	18
-#define SWITCH20	19
+#define AID_C3_MIN		3010
+#define AID_C3			3010
+#define AID_C3_MAX		3019
+
+// R
+#define AID_R1_MIN		4000
+#define AID_R1			4000
+#define AID_R1_MAX		4009
+
+#define AID_R2_MIN		4010
+#define AID_R2			4010
+#define AID_R2_MAX		4019
+
+#define AID_R11_MIN		4020
+#define AID_R11			4020
+#define AID_R11_MAX		4029
+
+#define AID_R13L_MIN		4030
+#define AID_R13L		4030
+#define AID_R13L_MAX		4039
+
+#define AID_R4_MIN		4040
+#define AID_R4			4040
+#define AID_R4_MAX		4049
+
+#define AID_R10_MIN		4050
+#define AID_R10			4050
+#define AID_R10_MAX		4059
+
+#define AID_R13U_MIN		4060
+#define AID_R13U		4060
+#define AID_R13U_MAX		4069
+
+// O
+#define AID_O1_MIN		5000
+#define AID_O1			5000
+#define AID_O1_MAX		5009
+
+#define AID_O2_MIN		5010
+#define AID_O2			5010
+#define AID_O2_MAX		5019
+
+#define AID_O3_MIN		5020
+#define AID_O3			5020
+#define AID_O3_MAX		5029
+
+#define AID_O6_MIN		5030
+#define AID_O6			5030
+#define AID_O6_MAX		5039
+
+#define AID_O8_MIN		5040
+#define AID_O8			5040
+#define AID_O8_MAX		5049
+
+#define AID_O17_MIN		5050
+#define AID_O17			5050
+#define AID_O17_MAX		5059
+
+#define AID_O5_MIN		5060
+#define AID_O5			5060
+#define AID_O5_MAX		5069
+
+#define AID_O7_MIN		5070
+#define AID_O7			5070
+#define AID_O7_MAX		5079
+
+#define AID_O9_MIN		5080
+#define AID_O9			5080
+#define AID_O9_MAX		5089
+
+#define AID_O13_MIN		5090
+#define AID_O13			5090
+#define AID_O13_MAX		5099
+
+// A
+#define AID_A1U_MIN		6000
+#define AID_A1U			6000
+#define AID_A1U_MAN		6009
+
+#define AID_A2_MIN		6010
+#define AID_A2			6010
+#define AID_A2_MAX		6019
+
+#define AID_A4_MIN		6020
+#define AID_A4			6020
+#define AID_A4_MAX		6029
+
+#define AID_A6U_MIN		6030
+#define AID_A6U			6030
+#define AID_A6U_WND0		6031
+#define AID_A6U_WND1		6032
+#define AID_A6U_WND2		6033
+#define AID_A6U_WND3		6034
+#define AID_A6U_MAX		6039
+
+#define AID_A7U_MIN		6040
+#define AID_A7U			6040
+#define AID_A7U_MAX		6049
+
+#define AID_A7A3_MIN		6050
+#define AID_A7A3		6050
+#define AID_A7A3_MAX		6059
+
+#define AID_A8_MIN		6060
+#define AID_A8			6060
+#define AID_A8_MAX		6069
+
+#define AID_A8A3_MIN		6070
+#define AID_A8A3		6070
+#define AID_A8A3_MAX		6079
+
+#define AID_AFTMDU_MIN		6080
+#define AID_AFTMDU		6080
+#define AID_AFTMDU_MAX		6089
+
 
 // time until a switch gets pushed to the next position by a spring for spring-loaded switches
 const double SWITCH_HOLD_TIME = 0.5;
@@ -346,7 +225,7 @@ namespace vc {
 	const int TB_BARBERPOLE = 0;
 	const int TB_STO = 1;
 	const int TB_LAT = 2;
-	const int TB_CLO = 3;
+	const int TB_CL = 3;
 	const int TB_OP = 4;
 	const int TB_ON = 5;
 	const int TB_OFF = 6;
@@ -354,6 +233,14 @@ namespace vc {
 	const int TB_GRAY = 8;
 	const int TB_DPY = 9;
 	const int TB_REL = 10;
+	const int TB_DN = 11;
+	const int TB_UP = 12;
+	const int TB_RUN = 13;
+	const int TB_IPL = 14;
+	const int TB_ICH = 15;
+	const int TB_RAD = 16;
+	const int TB_PL = 17;
+	const int TB_BYP = 18;
 
 	const int MDUID_CDR1 = 0;
 	const int MDUID_CDR2 = 1;
@@ -365,24 +252,10 @@ namespace vc {
 	const int MDUID_CRT4 = 7;
 	const int MDUID_MFD1 = 8;
 	const int MDUID_MFD2 = 9;
-	const int MDUID_AFD  = 10;
+	const int MDUID_AFD1 = 10;
 
 
 	class MDU;
-	//class BasicVCComponent;
-	class AtlantisVCComponent;
-	class BasicSwitch;
-	//class BasicPanel;
-	class AtlantisPanel;
-	//class PanelGroup;
-	class PanelF7;
-	class PanelR2;
-	class DAPControl;
-
-	/*typedef struct {
-		float x, y;
-	} VCMOUSEEVENTPOINT;*/
-
 	typedef MDU* PMDU;
 };
 

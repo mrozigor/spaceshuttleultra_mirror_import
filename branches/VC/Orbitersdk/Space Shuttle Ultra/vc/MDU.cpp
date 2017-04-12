@@ -1,33 +1,113 @@
 #include "../Atlantis.h"
 #include "MDU.h"
 #include "../dps/IDP.h"
-#include "../meshres_vc_additions.h"
+#include "..\meshres_vc.h"
 
-extern GDIParams g_Param;
 
-namespace vc {
+namespace vc
+{
+	HBRUSH MDU::gdiBlackBrush = NULL;
+	HBRUSH MDU::gdiDarkGrayBrush;
+	HBRUSH MDU::gdiLightGrayBrush;
+	HBRUSH MDU::gdiWhiteBrush;
+	HBRUSH MDU::gdiRedBrush;
+	HBRUSH MDU::gdiYellowBrush;
+	HBRUSH MDU::gdiCyanBrush;
+	HBRUSH MDU::gdiMagentaBrush;
+	HBRUSH MDU::gdiLightGreenBrush;
+	HBRUSH MDU::gdiBlueBrush;
 
-	//find location on bitmap of letter
-	void BitmapLocation(char ch, int &x, int &y)
-	{
-		int row=ch/16;
-		int col=ch-(16*row);
-		x=1+18*col;
-		y=1+33*row;
-	}
+	oapi::Brush* MDU::skpBlackBrush = NULL;
+	oapi::Brush* MDU::skpDarkGrayBrush;
+	oapi::Brush* MDU::skpLightGrayBrush;
+	oapi::Brush* MDU::skpWhiteBrush;
+	oapi::Brush* MDU::skpRedBrush;
+	oapi::Brush* MDU::skpYellowBrush;
+	oapi::Brush* MDU::skpCyanBrush;
+	oapi::Brush* MDU::skpMagentaBrush;
+	oapi::Brush* MDU::skpLightGreenBrush;
+	oapi::Brush* MDU::skpBlueBrush;
+	oapi::Brush* MDU::_skpBlackBrush;
+	
+	HPEN MDU::gdiBlackPen;
+	HPEN MDU::gdiDarkGrayPen;
+	HPEN MDU::gdiLightGrayPen;
+	HPEN MDU::gdiLightGrayThickPen;
+	HPEN MDU::gdiWhitePen;
+	HPEN MDU::gdiRedPen;
+	HPEN MDU::gdiYellowPen;
+	HPEN MDU::gdiCyanPen;
+	HPEN MDU::gdiMagentaPen;
+	HPEN MDU::gdiLightGreenPen;
+	HPEN MDU::gdiDarkGreenPen;
+	HPEN MDU::gdiLightGreenThickPen;
+
+	oapi::Pen* MDU::skpBlackPen;
+	oapi::Pen* MDU::skpDarkGrayPen;
+	oapi::Pen* MDU::skpLightGrayThickPen;
+	oapi::Pen* MDU::skpLightGrayPen;
+	oapi::Pen* MDU::skpWhitePen;
+	oapi::Pen* MDU::skpRedPen;
+	oapi::Pen* MDU::skpYellowPen;
+	oapi::Pen* MDU::skpCyanPen;
+	oapi::Pen* MDU::skpMagentaPen;
+	oapi::Pen* MDU::skpLightGreenPen;
+	oapi::Pen* MDU::skpDarkGreenPen;
+	oapi::Pen* MDU::skpLightGreenThickPen;
+	oapi::Pen* MDU::_skpBlackPen;
+
+	HPEN MDU::gdiOverbrightPen;
+	HPEN MDU::gdiNormalPen;
+	HPEN MDU::gdiDashedNormalPen;
+
+	oapi::Pen* MDU::skpOverbrightPen;
+	oapi::Pen* MDU::skpNormalPen;
+	oapi::Pen* MDU::skpDashedNormalPen;
+
+	HFONT MDU::gdiSSUAFont_h20w17;
+	HFONT MDU::gdiSSUAFont_h10w10bold;
+	HFONT MDU::gdiSSUAFont_h11w9;
+	HFONT MDU::gdiSSUBFont_h18w9;
+	HFONT MDU::gdiSSUBFont_h12w7;
+	HFONT MDU::gdiSSUBFont_h16w9;
+
+	oapi::Font* MDU::skpSSUAFont_h20;
+	oapi::Font* MDU::skpSSUAFont_h10bold;
+	oapi::Font* MDU::skpSSUAFont_h11;
+	oapi::Font* MDU::skpSSUBFont_h18;
+	oapi::Font* MDU::skpSSUBFont_h12;
+	oapi::Font* MDU::skpSSUBFont_h16;
+
+	HDC MDU::hDC_Tape_MACHV = NULL;
+	HDC MDU::hDC_Tape_KEAS;
+	HDC MDU::hDC_Tape_Alpha;
+	HDC MDU::hDC_Tape_H;
+	HDC MDU::hDC_Tape_Hdot;
+	HDC MDU::hDC_ADIMASK = NULL;
+	HDC MDU::hDC_ADIMASK_ORBIT;
+
+	HBITMAP MDU::hBM_Tape_MACHV_tmp;
+	HBITMAP MDU::hBM_Tape_KEAS_tmp;
+	HBITMAP MDU::hBM_Tape_Alpha_tmp;
+	HBITMAP MDU::hBM_Tape_H_tmp;
+	HBITMAP MDU::hBM_Tape_Hdot_tmp;
+	HBITMAP MDU::hBM_ADIMASK_tmp;
+	HBITMAP MDU::hBM_ADIMASK_ORBIT_tmp;
+	
+	SURFHANDLE MDU::sfh_Tape_MACHV;
+	SURFHANDLE MDU::sfh_Tape_KEAS;
+	SURFHANDLE MDU::sfh_Tape_Alpha;
+	SURFHANDLE MDU::sfh_Tape_H;
+	SURFHANDLE MDU::sfh_Tape_Hdot;
 
 	MDU::MDU(Atlantis* _sts, const string& _ident, unsigned short _usMDUID, bool _bUseCRTMFD)
-		: AtlantisVCComponent(_sts, _ident), usMDUID(_usMDUID), MFDID(-1),
-		bUseCRTMFD(_bUseCRTMFD),
-		prim_idp(NULL), sec_idp(NULL), bUseSecondaryPort(false),
+		: AtlantisVCComponent(_sts, _ident), usMDUID(_usMDUID),
+		prim_idp(NULL), sec_idp(NULL), bUseSecondaryPort(false), bPortConfigMan(false),
 		bInverseX(false), counting(false)
 	{
 		_sts->RegisterMDU(_usMDUID, this);
-		//Clear text buffer
-		//Create display buffer
-		//Clear display buffer
-		shLabelTex = NULL;
-		bIsConnectedToCRTMFD = false;
+
+		fBrightness = 0.8;
 		
 		// set default button positions
 		btnPwrXmin = 0.038f; btnPwrXmax = 0.099f;
@@ -36,15 +116,76 @@ namespace vc {
 		btnBrtYmin = 0.8350f; btnBrtYmax = 0.9144f;
 		edgekeyXmin = 0.2237f; edgekeyXmax = 0.7939f;
 		edgekeyYmin = 0.9185f; edgekeyYmax = 0.9601f;
+
+		CreateGDIObjects();
+		CreateSketchpadObjects();
+
+		hADIball = gcLoadSketchMesh( "SSU\\ADI_MEDS" );
+
+		CreateTapes();
+		CreateADI();
+
+		display = 0;
+		menu = 3;
 	}
 
 	MDU::~MDU()
 	{
+		DestroyADI();
+		DestroyTapes();
+
+		DestroyGDIObjects();
+		DestroySketchpadObjects();
+
+		if (hADIball) gcDeleteSketchMesh( hADIball );
 	}
 
-	void MDU::ConnectToCRTMFD()
+	bool MDU::OnReadState( FILEHANDLE scn )
 	{
-		bIsConnectedToCRTMFD = true;
+		char* line;
+
+		while (oapiReadScenario_nextline( scn, line ))
+		{
+			if (!_strnicmp( line, "@ENDOBJECT", 10 ))
+			{
+				return true;
+			}
+			else if (!_strnicmp( line, "DISPLAY", 7 ))
+			{
+				sscanf_s( (char*)(line + 7), "%d", &display );
+			}
+			else if (!_strnicmp( line, "MENU", 4 ))
+			{
+				sscanf_s( (char*)(line + 4), "%d", &menu );
+			}
+			else if (!_strnicmp( line, "PORT_CFG", 8 ))
+			{
+				if (!_strnicmp( line + 9, "MAN", 3 )) bPortConfigMan = true;
+			}
+			else if (!_strnicmp( line, "PORT_SEL", 8 ))
+			{
+				if (!_strnicmp( line + 9, "SEC", 3 ))
+				{
+					if (sec_idp) bUseSecondaryPort = true;
+				}
+			}
+			else if (!_strnicmp( line, "BRIGHTNESS", 10 ))
+			{
+				sscanf_s( (char*)(line + 10), "%lf", &fBrightness );
+				fBrightness = range( 0.4, fBrightness, 1.0 );
+			}
+		}
+		return false;
+	}
+
+	void MDU::OnSaveState( FILEHANDLE scn ) const
+	{
+		oapiWriteScenario_int( scn, "DISPLAY", display );
+		oapiWriteScenario_int( scn, "MENU", menu );
+		if (bPortConfigMan) oapiWriteScenario_string( scn, "PORT_CFG", "MAN" );
+		if (bUseSecondaryPort) oapiWriteScenario_string( scn, "PORT_SEL", "SEC" );
+		oapiWriteScenario_float( scn, "BRIGHTNESS", fBrightness );
+		return;
 	}
 
 	bool MDU::DefineRegionAID(UINT aid)
@@ -60,7 +201,20 @@ namespace vc {
 		//
 	}
 
-	void MDU::DrawCommonHeader(const char* cDispTitle)
+	void MDU::VisualCreated( void )
+	{
+		if (STS()->vis)
+		{
+			DEVMESHHANDLE hMesh = STS()->GetDevMesh( STS()->vis, STS()->mesh_vc );
+			MATERIAL mat;
+			oapiMeshMaterial( hMesh, MAT_MDU_CDR1_VC + usMDUID, &mat );
+			mat.emissive.r = mat.emissive.g = mat.emissive.b = (float)fBrightness;
+			oapiSetMaterial( hMesh, MAT_MDU_CDR1_VC + usMDUID, &mat );
+		}
+		return;
+	}
+
+	/*void MDU::DrawCommonHeader(const char* cDispTitle)
 	{
 		char cbuf[200];
 		char cspecbuf[4];
@@ -97,18 +251,7 @@ namespace vc {
 
 	
 		mvprint(0, 0, cbuf);
-	}
-
-	const string& MDU::GetEdgekeyMenu() const
-	{
-		static string r = "MAIN MENU";
-		return r;
-	}
-
-	char* MDU::GetEdgeKeyMenuLabel(int iButton)
-	{
-		return NULL;
-	}
+	}*/
 
 	short MDU::GetPortConfig() const
 	{
@@ -143,6 +286,16 @@ namespace vc {
 		else return false;
 	}
 
+	void MDU::TogglePort( void )
+	{
+		if (bUseSecondaryPort)
+		{
+			if (prim_idp) bUseSecondaryPort = false;
+		}
+		else if (sec_idp) bUseSecondaryPort = true;
+		return;
+	}
+
 	
 	void MDU::SetPowerButtonArea(float xmin, float ymin, float xmax, float ymax)
 	{
@@ -170,274 +323,1006 @@ namespace vc {
 
 	bool MDU::OnMouseEvent(int _event, float x, float y)
 	{
-		sprintf_s(oapiDebugString(), 80, "MDU %s mouse event %d (%f, %f)", GetQualifiedIdentifier().c_str(), _event, x, y);
-
-		if(MFDID!=-1) {
-			if(y >= btnPwrYmin && y<= btnPwrYmax && x >= btnPwrXmin && x <= btnPwrXmax)
+		//sprintf_s(oapiDebugString(), 80, "MDU %s mouse event %d (%f, %f)", GetQualifiedIdentifier().c_str(), _event, x, y);
+		if(y >= btnPwrYmin && y<= btnPwrYmax && x >= btnPwrXmin && x <= btnPwrXmax)
+		{
+			if(_event & PANEL_MOUSE_LBDOWN)
+			{
+				//sprintf_s(oapiDebugString(), 80, "MDU %s POWER ON/OFF", GetQualifiedIdentifier().c_str());
+				oapiSendMFDKey(usMDUID, OAPI_KEY_ESCAPE);
+				if (oapiGetMFDMode( usMDUID ) != 0) oapiOpenMFD( 1000, usMDUID );
+			}
+		}
+		else if(y >= btnBrtYmin && y<= btnBrtYmax && x >= btnBrtXmin && x <= btnBrtXmax)
+		{
+			//sprintf_s(oapiDebugString(), 80, "MDU %s BRIGHTNESS", GetQualifiedIdentifier().c_str());
+			if (_event & PANEL_MOUSE_LBDOWN)
+			{
+				if (fBrightness == 0.4) fBrightness = 0.8;
+				else if (fBrightness == 0.8) fBrightness = 1.0;
+				else fBrightness = 0.4;
+				
+				VisualCreated();
+			}
+		}
+		else if (y >= edgekeyYmin && y <= edgekeyYmax)
+		{
+			//const float edgekeyWidth = 0.0661;
+			//const float edgekeySpace = 0.12068;
+			float edgekeyClickPos = (x-edgekeyXmin)/(edgekeyXmax-edgekeyXmin); // calculate horizontal position of click relative to left edge of edgekey area (scaled between 0 and 1)
+			if(edgekeyClickPos >= 0.0 && edgekeyClickPos <= 0.1)
 			{
 				if(_event & PANEL_MOUSE_LBDOWN)
 				{
-					sprintf_s(oapiDebugString(), 80, "MDU %s POWER ON/OFF", GetQualifiedIdentifier().c_str());
-					STS()->SetLastCreatedMFD(usMDUID);
-					bIsConnectedToCRTMFD = false;
-					//oapiSendMFDKey(usMDUID, OAPI_KEY_ESCAPE);
-					oapiSendMFDKey(MFDID, OAPI_KEY_ESCAPE);
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 1", GetQualifiedIdentifier().c_str());
+					oapiProcessMFDButton (usMDUID, 0, _event);
 				}
 			}
-			else if(y >= btnPwrYmin && y<= btnPwrYmax && x >= btnPwrXmin && x <= btnPwrXmax)
+			else if(edgekeyClickPos >= 0.18 && edgekeyClickPos <= 0.28)
 			{
-				sprintf_s(oapiDebugString(), 80, "MDU %s BRIGHTNESS", GetQualifiedIdentifier().c_str());
+				if(_event & PANEL_MOUSE_LBDOWN)
+				{
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 2", GetQualifiedIdentifier().c_str());
+					oapiProcessMFDButton (usMDUID, 1, _event);
+				}
 			}
-			else if (y >= edgekeyYmin && y <= edgekeyYmax)
+			else if(edgekeyClickPos >= 0.36 && edgekeyClickPos <= 0.46)
 			{
-				//const float edgekeyWidth = 0.0661;
-				//const float edgekeySpace = 0.12068;
-				float edgekeyClickPos = (x-edgekeyXmin)/(edgekeyXmax-edgekeyXmin); // calculate horizontal position of click relative to left edge of edgekey area (scaled between 0 and 1)
-				if(edgekeyClickPos >= 0.0 && edgekeyClickPos <= 0.1)
+				if(_event & PANEL_MOUSE_LBDOWN)
 				{
-					if(_event & PANEL_MOUSE_LBDOWN)
-					{
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 1", GetQualifiedIdentifier().c_str());
-						oapiProcessMFDButton (MFDID, 0, _event);
-					}
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 3", GetQualifiedIdentifier().c_str());
+					oapiProcessMFDButton (usMDUID, 2, _event);
 				}
-				else if(edgekeyClickPos >= 0.18 && edgekeyClickPos <= 0.28)
+			} 
+			else if(edgekeyClickPos >= 0.54 && edgekeyClickPos <= 0.64)
+			{
+				if(_event & PANEL_MOUSE_LBDOWN)
 				{
-					if(_event & PANEL_MOUSE_LBDOWN)
-					{
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 2", GetQualifiedIdentifier().c_str());
-						oapiProcessMFDButton (MFDID, 1, _event);
-					}
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 4", GetQualifiedIdentifier().c_str());
+					oapiProcessMFDButton (usMDUID, 3, _event);
 				}
-				else if(edgekeyClickPos >= 0.36 && edgekeyClickPos <= 0.46)
-				{
-					if(_event & PANEL_MOUSE_LBDOWN)
-					{
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 3", GetQualifiedIdentifier().c_str());
-						oapiProcessMFDButton (MFDID, 2, _event);
-					}
-				} 
-				else if(edgekeyClickPos >= 0.54 && edgekeyClickPos <= 0.64)
-				{
-					if(_event & PANEL_MOUSE_LBDOWN)
-					{
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 4", GetQualifiedIdentifier().c_str());
-						oapiProcessMFDButton (MFDID, 3, _event);
-					}
-				}
-				else if(edgekeyClickPos >= 0.72 && edgekeyClickPos <= 0.82)
-				{
-					if(_event & PANEL_MOUSE_LBDOWN)
-					{
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 5", GetQualifiedIdentifier().c_str());
-						oapiProcessMFDButton (MFDID, 4, _event);
-					}
-				}
-				else if(edgekeyClickPos >= 0.90 && edgekeyClickPos <= 1.0)
-				{
-					if (_event & PANEL_MOUSE_LBDOWN) {
-						t0 = oapiGetSysTime();
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6 (%f)", GetQualifiedIdentifier().c_str(), t0);
-						counting = true;
-					} else if ((_event & PANEL_MOUSE_LBUP) && counting) {
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH PAGE", GetQualifiedIdentifier().c_str());
-						oapiSendMFDKey (MFDID, OAPI_KEY_F2);
-						counting = false;
-					} else if ((_event & PANEL_MOUSE_LBPRESSED) && counting && (oapiGetSysTime()-t0 >= 1.0)) {
-						sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH MODE", GetQualifiedIdentifier().c_str());
-						bIsConnectedToCRTMFD = false;
-						STS()->SetLastCreatedMFD(usMDUID);
-						oapiSendMFDKey (MFDID, OAPI_KEY_F1);
-						counting = false;		
-					}
-				}
-				//else sprintf_s(oapiDebugString(), 80, "MDU %s EDGEKEYS: %f", GetQualifiedIdentifier().c_str(), edgekeyClickPos);
 			}
+			else if(edgekeyClickPos >= 0.72 && edgekeyClickPos <= 0.82)
+			{
+				if(_event & PANEL_MOUSE_LBDOWN)
+				{
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 5", GetQualifiedIdentifier().c_str());
+					oapiProcessMFDButton (usMDUID, 4, _event);
+				}
+			}
+			else if(edgekeyClickPos >= 0.90 && edgekeyClickPos <= 1.0)
+			{
+				if (_event & PANEL_MOUSE_LBDOWN) {
+					t0 = oapiGetSysTime();
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6 (%f)", GetQualifiedIdentifier().c_str(), t0);
+					counting = true;
+				} else if ((_event & PANEL_MOUSE_LBUP) && counting) {
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH PAGE", GetQualifiedIdentifier().c_str());
+					oapiSendMFDKey (usMDUID, OAPI_KEY_F2);
+					counting = false;
+				} else if ((_event & PANEL_MOUSE_LBPRESSED) && counting && (oapiGetSysTime()-t0 >= 1.0)) {
+					//sprintf_s(oapiDebugString(), 80, "MDU %s BUTTON 6: SWITCH MODE", GetQualifiedIdentifier().c_str());
+					oapiSendMFDKey (usMDUID, OAPI_KEY_F1);
+					counting = false;		
+				}
+			}
+			//else sprintf_s(oapiDebugString(), 80, "MDU %s EDGEKEYS: %f", GetQualifiedIdentifier().c_str(), edgekeyClickPos);
 		}
 		return true;
 	}
 
-	
-	bool MDU::Paint(HDC hDC)
+	void MDU::PaintDisplay( oapi::Sketchpad* skp )
 	{
-		//oapiWriteLog("Paint called 1");
-		UpdateTextBuffer();
-		
-		int Save=SaveDC(hDC);
-		HDC CompatibleDC=CreateCompatibleDC(hDC);
-		HDC BitmapDC=CreateCompatibleDC(hDC);
-		SelectObject(BitmapDC, g_Param.deu_characters);
-		HBITMAP BMP=CreateCompatibleBitmap(hDC, 816, 806);
-		SelectObject(CompatibleDC, BMP);
-
-		//sprintf_s(oapiDebugString(), 255, "IDP: %d", GetDrivingIDP());
-		int SimT=(int)oapiGetSimTime();
-		bool flash=(SimT%2)==1;
-
-		//draw stuff
-		for(int i=0;i<51;i++) {
-			for(int j=0;j<26;j++) {
-				char cbuf[2];
-				if(textBuffer[i][j].cSymbol>='!') {
-					switch(textBuffer[i][j].cAttr) {
-						case dps::DEUATT_FLASHING:
-							if(!flash) break;
-						default:
-							sprintf_s(cbuf, 2, "%c", textBuffer[i][j].cSymbol);
-							int x, y;
-							vc::BitmapLocation(textBuffer[i][j].cSymbol, x, y);
-							BitBlt(CompatibleDC, i*5, j*9, 5, 9, g_Param.DeuCharBitmapDC, (int)(x*0.278), (int)(y*0.272), SRCCOPY);
+		switch (display)
+		{
+			case 0:// "DPS display"
+				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2) && hADIball)
+				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
+					skp->SetBrush( NULL );// disable fill
+					DPS( (oapi::Sketchpad2*)skp );
+					PaintEdgeMenu( skp );
+				}
+				else
+				{
+					HDC hDC = skp->GetDC();
+					if (hDC)
+					{
+						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
+						SelectObject( hDC, GetStockObject( HOLLOW_BRUSH ) );// disable fill
+						DPS( hDC );
+						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
 					}
 				}
-			}
+				break;
+			case 1:// A/E PFD
+				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2) && hADIball)
+				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
+					AEPFD( (oapi::Sketchpad2*)skp );
+					PaintEdgeMenu( skp );
+				}
+				else
+				{
+					HDC hDC = skp->GetDC();
+					if (hDC)
+					{
+						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
+						AEPFD( hDC );
+						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
+					}
+				}
+				break;
+			case 2:// ORBIT PFD
+				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2) && hADIball)
+				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
+					ORBITPFD( (oapi::Sketchpad2*)skp );
+					PaintEdgeMenu( skp );
+				}
+				else
+				{
+					HDC hDC = skp->GetDC();
+					if (hDC)
+					{
+						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
+						ORBITPFD( hDC );
+						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
+					}
+				}
+				break;
+			case 3:// OMS/MPS
+				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2))
+				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
+					OMSMPS( (oapi::Sketchpad2*)skp );
+					PaintEdgeMenu( skp );
+				}
+				else
+				{
+					HDC hDC = skp->GetDC();
+					if (hDC)
+					{
+						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
+						OMSMPS( hDC );
+						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
+					}
+				}
+				break;
+			case 4:// HYD/APU
+				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2))
+				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
+					APUHYD( (oapi::Sketchpad2*)skp );
+					PaintEdgeMenu( skp );
+				}
+				else
+				{
+					HDC hDC = skp->GetDC();
+					if (hDC)
+					{
+						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
+						APUHYD( hDC );
+						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
+					}
+				}
+				break;
+			case 5:// SPI
+				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2))
+				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
+					SPI( (oapi::Sketchpad2*)skp );
+					PaintEdgeMenu( skp );
+				}
+				else
+				{
+					HDC hDC = skp->GetDC();
+					if (hDC)
+					{
+						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
+						SPI( hDC );
+						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
+					}
+				}
+				break;
+			case 6:// CST Menu
+				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2))
+				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
+					SystemStatusDisplay_CSTMenu( (oapi::Sketchpad2*)skp );
+					PaintEdgeMenu( skp );
+				}
+				else
+				{
+					HDC hDC = skp->GetDC();
+					if (hDC)
+					{
+						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
+						SystemStatusDisplay_CSTMenu( hDC );
+						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
+					}
+				}
+				break;
+			case 7:// IDP Interactive CST
+				if (gcEnabled() && (gcSketchpadVersion( skp ) == 2))
+				{
+					skp->SetBrush( skpBlackBrush );
+					skp->SetPen( skpBlackPen );
+					skp->Rectangle( 0, 0, 512, 512 );
+					SystemStatusDisplay_IDPInteractiveCST( (oapi::Sketchpad2*)skp );
+					PaintEdgeMenu( skp );
+				}
+				else
+				{
+					HDC hDC = skp->GetDC();
+					if (hDC)
+					{
+						int save = SaveDC( hDC );
+						SelectObject( hDC, gdiBlackBrush );
+						SelectObject( hDC, gdiBlackPen );
+						Rectangle( hDC, 0, 0, 512, 512 );
+						SystemStatusDisplay_IDPInteractiveCST( hDC );
+						PaintEdgeMenu( hDC );
+						RestoreDC( hDC, save );
+					}
+				}
+				break;
 		}
-		BitBlt(hDC, 0, 0, 256, 256, CompatibleDC, 0, 0, SRCCOPY);
+		return;
+	}
 
-		// TODO: make pens class members and only create/destroy them once
-		HPEN hOverbrightPen = CreatePen(PS_SOLID, 0, RGB(255, 255, 0));
-		HPEN hNormalPen = CreatePen(PS_SOLID, 0, RGB(128, 255, 0));
-		// draw lines/circles
-		for(unsigned int i=0;i<lines.size();i++) {
-			if(lines[i].cAttr != dps::DEUATT_FLASHING || flash) {
-				if(lines[i].cAttr == dps::DEUATT_OVERBRIGHT) SelectObject(hDC, hOverbrightPen);
-				else SelectObject(hDC, hNormalPen);
-				MoveToEx(hDC, lines[i].x0, lines[i].y0, NULL);
-				LineTo(hDC, lines[i].x1, lines[i].y1);
-			}
+	bool MDU::NavigateMenu( DWORD key )
+	{
+		switch (menu)
+		{
+			case 0:// MAIN MENU
+				switch (key)
+				{
+					case OAPI_KEY_1:
+						menu = 1;
+						return true;
+					case OAPI_KEY_2:
+						menu = 2;
+						return true;
+					case OAPI_KEY_3:
+						menu = 3;
+						display = 0;
+						return true;
+					case OAPI_KEY_4:
+						menu = 4;
+						display = 6;
+						return true;
+				}
+				break;
+			case 1:// FLT INST
+				switch (key)
+				{
+					case OAPI_KEY_U:
+						menu = 0;
+						return true;
+					case OAPI_KEY_1:
+						display = 1;
+						return true;
+					case OAPI_KEY_2:
+						display = 2;
+						return true;
+				}
+				break;
+			case 2:// SUBSYS STATUS
+				switch (key)
+				{
+					case OAPI_KEY_U:
+						menu = 0;
+						return true;
+					case OAPI_KEY_1:
+						display = 3;
+						return true;
+					case OAPI_KEY_2:
+						display = 4;
+						return true;
+					case OAPI_KEY_3:
+						display = 5;
+						return true;
+					case OAPI_KEY_4:
+						TogglePort();
+						return true;
+				}
+				break;
+			case 3:// DPS MENU
+				switch (key)
+				{
+					case OAPI_KEY_U:
+						menu = 0;
+						return true;
+				}
+				break;
+			case 4:// MAINTENANCE MENU
+				switch (key)
+				{
+					case OAPI_KEY_U:
+						menu = 0;
+						return true;
+					case OAPI_KEY_2:
+						menu = 7;
+						return true;
+					case OAPI_KEY_3:
+						menu = 5;
+						return true;
+				}
+				break;
+			case 5:// CST MENU SELECTION
+				switch (key)
+				{
+					case OAPI_KEY_U:
+						menu = 4;
+						display = 6;
+						return true;
+					case OAPI_KEY_2:
+						menu = 6;
+						display = 7;
+						return true;
+				}
+				break;
+			case 6:// IDPx INTERACTIVE CST
+				switch (key)
+				{
+					case OAPI_KEY_U:
+						menu = 5;
+						return true;
+				}
+				break;
+			case 7:// MDU CONFIGURATION MENU
+				switch (key)
+				{
+					case OAPI_KEY_U:
+						menu = 4;
+						return true;
+					case OAPI_KEY_1:
+						TogglePort();
+						return true;
+					case OAPI_KEY_2:
+						bPortConfigMan = !bPortConfigMan;
+						return true;
+				}
+				break;
 		}
-		for(unsigned int i=0;i<ellipses.size();i++) {
-			if(ellipses[i].cAttr != dps::DEUATT_FLASHING || flash) {
-				if(ellipses[i].cAttr == dps::DEUATT_OVERBRIGHT) SelectObject(hDC, hOverbrightPen);
-				else SelectObject(hDC, hNormalPen);
-				int startX = (ellipses[i].xLeft+ellipses[i].xRight)/2;
-				int startY = ellipses[i].yTop;
-				Arc(hDC, ellipses[i].xLeft, ellipses[i].yTop, ellipses[i].xRight, ellipses[i].yBottom, startX, startY, startX, startY);
-			}
-		}
-
-		RestoreDC(hDC, Save);
-		DeleteObject(hNormalPen);
-		DeleteObject(hOverbrightPen);
-		DeleteDC(CompatibleDC);
-		DeleteDC(BitmapDC);
-		DeleteObject(BMP);
 		return false;
 	}
 
-	bool MDU::PaintEdgeMenu(HDC hDC)
+	char* MDU::ButtonLabel( int bt )
 	{
+		static char *label[8][5] = {{"", "FLT", "SUB", "DPS", "MEDS1"},
+			{"UP", "A/E", "ORBIT", "", ""},
+			{"UP", "OMS", "HYD", "SPI", "PORT"},
+			{"UP", "", "", "", ""},
+			{"UP", "", "CFG", "CST", ""},
+			{"UP", "", "S_IDP", "", ""},
+			{"UP", "", "", "", ""},
+			{"UP", "PORT", "AU/MA", "", ""}};
+
+		return ((menu < 8 && bt < 5) ? label[menu][bt] : NULL);
+	}
+
+	int MDU::ButtonMenu( const MFDBUTTONMENU **menu ) const
+	{
+		static const MFDBUTTONMENU mnu[8][5] = {
+			{{"", 0, 'U'}, {"FLT INST", 0, '1'}, {"SUBSYS STATUS", 0, '2'}, {"DPS", 0, '3'}, {"MEDS MAINT", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"A/E PFD", 0, '1'}, {"ORBIT PFD", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"OMS/MPS", 0, '1'}, {"HYD/APU", 0, '2'}, {"SPI", 0, '3'}, {"PORT SELECT", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"", 0, '1'}, {"CONFIG STATUS", 0, '2'}, {"CST", 0, '3'}, {"", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"", 0, '1'}, {"START IDP", 0, '2'}, {"", 0, '3'}, {"", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"", 0, '1'}, {"", 0, '2'}, {"0", 0, '3'}, {"", 0, '4'}},
+			{{"Move up", 0, 'U'}, {"PORT SELECT", 0, '1'}, {"AUTO/MAN", 0, '2'}, {"0", 0, '3'}, {"", 0, '4'}}
+			};
+
+		if (menu) *menu = mnu[this->menu];
+		return 5;// return the number of buttons used
+	}
+
+	void MDU::PaintEdgeMenu( HDC hDC )
+	{
+		SelectObject( hDC, gdiCyanPen );
+		MoveToEx( hDC, 0, 456, NULL );
+		LineTo( hDC, 511, 456 );
+		SelectObject( hDC, gdiSSUAFont_h11w9 );
+		SetTextColor( hDC, CR_CYAN );
+		SetTextAlign( hDC, TA_CENTER );
 		
-		//HDC hDC = oapiGetDC (surf);
-
-		// D. Beachy: BUGFIX: if MFD powered off, cover separator lines and do not paint buttons
-		if (MFDID==-1 || oapiGetMFDMode(MFDID) == MFD_NONE) {
-			RECT r = {0, 0, 256, 41};
-			FillRect(hDC, &r, (HBRUSH)GetStockObject(BLACK_BRUSH));
-		} else {   // MFD powered on
-			HFONT pFont = (HFONT)SelectObject (hDC, g_Param.font[0]);
-			SetTextColor (hDC, RGB(0,255,216));
-			SetTextAlign (hDC, TA_CENTER);
-			SetBkMode (hDC, TRANSPARENT);
-			const char *label;
-			int x = 25;
-
-			for (int bt = 0; bt < 5; bt++) {
-				if (label = oapiMFDButtonLabel (MFDID, bt)) {
-					TextOut (hDC, x, 23, label, strlen(label));
-					x += 40;
-				} else break;
-			}
-			TextOut (hDC, 224, 23, "PG", 2);
-			SelectObject (hDC, pFont);
+		// print buttons
+		int x = 66;
+		// button 1
+		DrawMenuButton( hDC, x );
+		if (menu != 0)
+		{
+			// draw up arrow
+			MoveToEx( hDC, 54, 510, NULL );
+			LineTo( hDC, 54, 500 );
+			LineTo( hDC, 40, 500 );
+			LineTo( hDC, 66, 486 );
+			LineTo( hDC, 92, 500 );
+			LineTo( hDC, 78, 500 );
+			LineTo( hDC, 78, 510 );
+			TextOut( hDC, x, 493, "UP", 2);
 		}
 
-		//oapiReleaseDC (surf, hDC);
+		// button 2
+		x += 76;
+		if (menu == 0)
+		{
+			TextOut( hDC, x, 486, "FLT", 3 );
+			TextOut( hDC, x, 499, " INST", 5 );
+			DrawMenuButton( hDC, x );
+		}
+		else if (menu == 1)
+		{
+			if (display == 1)
+			{
+				SetTextColor( hDC, CR_WHITE );
+				TextOut( hDC, x, 486, "A/E", 3 );
+				TextOut( hDC, x, 499, "PFD", 3 );
+				SetTextColor( hDC, CR_CYAN );
+				SelectObject( hDC, gdiWhitePen );
+				DrawMenuButton( hDC, x );
+				SelectObject( hDC, gdiCyanPen );
+			}
+			else
+			{
+				TextOut( hDC, x, 486, "A/E", 3 );
+				TextOut( hDC, x, 499, "PFD", 3 );
+				DrawMenuButton( hDC, x );
+			}
+		}
+		else if (menu == 2)
+		{
+			if (display == 3)
+			{
+				SetTextColor( hDC, CR_WHITE );
+				TextOut( hDC, x, 486, "OMS/ ", 5 );
+				TextOut( hDC, x, 499, "MPS", 3 );
+				SetTextColor( hDC, CR_CYAN );
+				SelectObject( hDC, gdiWhitePen );
+				DrawMenuButton( hDC, x );
+				SelectObject( hDC, gdiCyanPen );
+			}
+			else
+			{
+				TextOut( hDC, x, 486, "OMS/ ", 5 );
+				TextOut( hDC, x, 499, "MPS", 3 );
+				DrawMenuButton( hDC, x );
+			}
+		}
+		else if (menu == 7)
+		{
+			TextOut( hDC, x, 486, "PORT ", 5 );
+			TextOut( hDC, x, 499, "SELECT ", 7 );
+			DrawMenuButton( hDC, x );
+		}
+		else DrawMenuButton( hDC, x );
 
-		return false;
+		// button 3
+		x += 76;
+		if (menu == 0)
+		{
+			TextOut( hDC, x, 486, "SUBSYS ", 7 );
+			TextOut( hDC, x, 499, "STATUS ", 7 );
+			DrawMenuButton( hDC, x );
+		}
+		else if (menu == 1)
+		{
+			if (display == 2)
+			{
+				SetTextColor( hDC, CR_WHITE );
+				TextOut( hDC, x, 486, "ORBIT", 5 );
+				TextOut( hDC, x, 499, "PFD", 3 );
+				SetTextColor( hDC, CR_CYAN );
+				SelectObject( hDC, gdiWhitePen );
+				DrawMenuButton( hDC, x );
+				SelectObject( hDC, gdiCyanPen );
+			}
+			else
+			{
+				TextOut( hDC, x, 486, "ORBIT", 5 );
+				TextOut( hDC, x, 499, "PFD", 3 );
+				DrawMenuButton( hDC, x );
+			}
+		}
+		else if (menu == 2)
+		{
+			if (display == 4)
+			{
+				SetTextColor( hDC, CR_WHITE );
+				TextOut( hDC, x, 486, "HYD/ ", 5 );
+				TextOut( hDC, x, 499, "APU", 3 );
+				SetTextColor( hDC, CR_CYAN );
+				SelectObject( hDC, gdiWhitePen );
+				DrawMenuButton( hDC, x );
+				SelectObject( hDC, gdiCyanPen );
+			}
+			else
+			{
+				TextOut( hDC, x, 486, "HYD/ ", 5 );
+				TextOut( hDC, x, 499, "APU", 3 );
+				DrawMenuButton( hDC, x );
+			}
+		}
+		else if (menu == 4)
+		{
+			TextOut( hDC, x, 486, "CONFIG ", 7 );
+			TextOut( hDC, x, 499, "STATUS ", 7 );
+			DrawMenuButton( hDC, x );
+		}
+		else if (menu == 5)
+		{
+			TextOut( hDC, x, 486, "START", 5 );
+			TextOut( hDC, x, 499, "IDP", 3 );
+			DrawMenuButton( hDC, x );
+		}
+		else if (menu == 7)
+		{
+			TextOut( hDC, x, 486, "AUTO/", 5 );
+			TextOut( hDC, x, 499, "MANUAL ", 7 );
+			DrawMenuButton( hDC, x );
+		}
+		else DrawMenuButton( hDC, x );
+
+		// button 4
+		x += 76;
+		if (menu == 0)
+		{
+			TextOut( hDC, x, 486, "DPS", 3 );
+			DrawMenuButton( hDC, x );
+		}
+		else if (menu == 2)
+		{
+			if (display == 5)
+			{
+				SetTextColor( hDC, CR_WHITE );
+				TextOut( hDC, x, 486, "SPI", 3 );
+				SetTextColor( hDC, CR_CYAN );
+				SelectObject( hDC, gdiWhitePen );
+				DrawMenuButton( hDC, x );
+				SelectObject( hDC, gdiCyanPen );
+			}
+			else
+			{
+				TextOut( hDC, x, 486, "SPI", 3 );
+				DrawMenuButton( hDC, x );
+			}
+		}
+		else if (menu == 4)
+		{
+			TextOut( hDC, x, 486, "CST", 3 );
+			DrawMenuButton( hDC, x );
+		}
+		else DrawMenuButton( hDC, x );
+
+		// button 5
+		x += 76;
+		DrawMenuButton( hDC, x );
+		if (menu == 0)
+		{
+			TextOut( hDC, x, 486, "MEDS ", 5 );
+			TextOut( hDC, x, 499, "MAINT", 5 );
+		}
+		else if (menu == 2)
+		{
+			TextOut( hDC, x, 486, "PORT ", 5 );
+			TextOut( hDC, x, 499, "SELECT ", 7 );
+		}
+
+		// button 6
+		x += 76;
+		//TextOut( hDC, x, 50, "PG", 2 );
+		DrawMenuButton( hDC, x );
+
+		// print title
+		switch (menu)
+		{
+			case 0:
+				TextOut( hDC, 226, 471, "MAIN MENU", 9 );
+				break;
+			case 1:
+				TextOut( hDC, 226, 471, " FLIGHT INSTRUMENT MENU", 23 );
+				break;
+			case 2:
+				TextOut( hDC, 226, 471, "SUBSYSTEM MENU ", 15 );
+				break;
+			case 3:
+				TextOut( hDC, 226, 471, "DPS MENU ", 9 );
+				break;
+			case 4:
+				TextOut( hDC, 226, 471, " MAINTENANCE MENU", 17 );
+				break;
+			case 5:
+				TextOut( hDC, 226, 471, " CST MENU SELECTION", 19 );
+				break;
+			case 6:
+				{
+					char buf[32];
+					sprintf_s( buf, 32, " IDP%d INTERACTIVE CST", GetIDP()->GetIDPID() );
+					TextOut( hDC, 226, 471, buf, strlen( buf ) );
+				}
+				break;
+			case 7:
+				TextOut( hDC, 226, 471, " MDU CONFIGURATION MENU", 23 );
+				break;
+			default:
+				// print nothing
+				break;
+		}
+
+		// print configuration info
+		if (prim_idp)
+		{
+			char str[4];
+			str[0] = 'P';
+			str[1] = prim_idp->GetIDPID() + 48;
+			str[2] = bUseSecondaryPort ? ' ' : '*';
+			TextOut( hDC, 15, 486, str, 3 );
+		}
+
+		if (sec_idp)
+		{
+			char str[4];
+			str[0] = 'S';
+			str[1] = sec_idp->GetIDPID() + 48;
+			str[2] = !bUseSecondaryPort ? ' ' : '*';
+			TextOut( hDC, 15, 499, str, 3 );
+		}
+		//TextOut( hDC, 497, 486, "FC2", 3 );
+		if (bPortConfigMan) TextOut( hDC, 497, 499, "MAN", 3 );
+		else TextOut( hDC, 497, 499, "AUT", 3 );
+
+		// print MEDS fault line
+		/*if (!GetFlash())
+		{
+			SetTextColor( hDC, CR_WHITE );
+			TextOut( hDC, 226, 458, "IDP 1 2 3 4 STILL WIP", 21 );
+		}*/
+		return;
+	}
+
+	void MDU::PaintEdgeMenu( oapi::Sketchpad* skp )
+	{
+		skp->SetPen( skpCyanPen );
+		skp->Line( 0, 456, 511, 456 );
+		skp->SetFont( skpSSUAFont_h11 );
+		skp->SetTextColor( CR_CYAN );
+		skp->SetTextAlign( oapi::Sketchpad::CENTER );
+
+		// print buttons
+		int x = 66;
+		// button 1
+		DrawMenuButton( skp, x );
+		if (menu != 0)
+		{
+			// draw up arrow
+			skp->MoveTo( 54, 510 );
+			skp->LineTo( 54, 500 );
+			skp->LineTo( 40, 500 );
+			skp->LineTo( 66, 486 );
+			skp->LineTo( 92, 500 );
+			skp->LineTo( 78, 500 );
+			skp->LineTo( 78, 510 );
+			skp->Text( x, 493, "UP", 2);
+		}
+
+		// button 2
+		x += 76;
+		if (menu == 0)
+		{
+			skp->Text( x, 486, "FLT", 3 );
+			skp->Text( x, 499, " INST", 5 );
+			DrawMenuButton( skp, x );
+		}
+		else if (menu == 1)
+		{
+			if (display == 1)
+			{
+				skp->SetTextColor( CR_WHITE );
+				skp->Text( x, 486, "A/E", 3 );
+				skp->Text( x, 499, "PFD", 3 );
+				skp->SetTextColor( CR_CYAN );
+				skp->SetPen( skpWhitePen );
+				DrawMenuButton( skp, x );
+				skp->SetPen( skpCyanPen );
+			}
+			else
+			{
+				skp->Text( x, 486, "A/E", 3 );
+				skp->Text( x, 499, "PFD", 3 );
+				DrawMenuButton( skp, x );
+			}
+		}
+		else if (menu == 2)
+		{
+			if (display == 3)
+			{
+				skp->SetTextColor( CR_WHITE );
+				skp->Text( x, 486, "OMS/ ", 5 );
+				skp->Text( x, 499, "MPS", 3 );
+				skp->SetTextColor( CR_CYAN );
+				skp->SetPen( skpWhitePen );
+				DrawMenuButton( skp, x );
+				skp->SetPen( skpCyanPen );
+			}
+			else
+			{
+				skp->Text( x, 486, "OMS/ ", 5 );
+				skp->Text( x, 499, "MPS", 3 );
+				DrawMenuButton( skp, x );
+			}
+		}
+		else if (menu == 7)
+		{
+			skp->Text( x, 486, "PORT ", 5 );
+			skp->Text( x, 499, "SELECT ", 7 );
+			DrawMenuButton( skp, x );
+		}
+		else DrawMenuButton( skp, x );
+
+		// button 3
+		x += 76;
+		if (menu == 0)
+		{
+			skp->Text( x, 486, "SUBSYS ", 7 );
+			skp->Text( x, 499, "STATUS ", 7 );
+			DrawMenuButton( skp, x );
+		}
+		else if (menu == 1)
+		{
+			if (display == 2)
+			{
+				skp->SetTextColor( CR_WHITE );
+				skp->Text( x, 486, "ORBIT", 5 );
+				skp->Text( x, 499, "PFD", 3 );
+				skp->SetTextColor( CR_CYAN );
+				skp->SetPen( skpWhitePen );
+				DrawMenuButton( skp, x );
+				skp->SetPen( skpCyanPen );
+			}
+			else
+			{
+				skp->Text( x, 486, "ORBIT", 5 );
+				skp->Text( x, 499, "PFD", 3 );
+				DrawMenuButton( skp, x );
+			}
+		}
+		else if (menu == 2)
+		{
+			if (display == 4)
+			{
+				skp->SetTextColor( CR_WHITE );
+				skp->Text( x, 486, "HYD/ ", 5 );
+				skp->Text( x, 499, "APU", 3 );
+				skp->SetTextColor( CR_CYAN );
+				skp->SetPen( skpWhitePen );
+				DrawMenuButton( skp, x );
+				skp->SetPen( skpCyanPen );
+			}
+			else
+			{
+				skp->Text( x, 486, "HYD/ ", 5 );
+				skp->Text( x, 499, "APU", 3 );
+				DrawMenuButton( skp, x );
+			}
+		}
+		else if (menu == 4)
+		{
+			skp->Text( x, 486, "CONFIG ", 7 );
+			skp->Text( x, 499, "STATUS ", 7 );
+			DrawMenuButton( skp, x );
+		}
+		else if (menu == 5)
+		{
+			skp->Text( x, 486, "START", 5 );
+			skp->Text( x, 499, "IDP", 3 );
+			DrawMenuButton( skp, x );
+		}
+		else if (menu == 7)
+		{
+			skp->Text( x, 486, "AUTO/", 5 );
+			skp->Text( x, 499, "MANUAL ", 7 );
+			DrawMenuButton( skp, x );
+		}
+		else DrawMenuButton( skp, x );
+
+		// button 4
+		x += 76;
+		if (menu == 0)
+		{
+			skp->Text( x, 486, "DPS", 3 );
+			DrawMenuButton( skp, x );
+		}
+		else if (menu == 2)
+		{
+			if (display == 5)
+			{
+				skp->SetTextColor( CR_WHITE );
+				skp->Text( x, 486, "SPI", 3 );
+				skp->SetTextColor( CR_CYAN );
+				skp->SetPen( skpWhitePen );
+				DrawMenuButton( skp, x );
+				skp->SetPen( skpCyanPen );
+			}
+			else
+			{
+				skp->Text( x, 486, "SPI", 3 );
+				DrawMenuButton( skp, x );
+			}
+		}
+		else if (menu == 4)
+		{
+			skp->Text( x, 486, "CST", 3 );
+			DrawMenuButton( skp, x );
+		}
+		else DrawMenuButton( skp, x );
+
+		// button 5
+		x += 76;
+		DrawMenuButton( skp, x );
+		if (menu == 0)
+		{
+			skp->Text( x, 486, "MEDS ", 5 );
+			skp->Text( x, 499, "MAINT", 5 );
+		}
+		else if (menu == 2)
+		{
+			skp->Text( x, 486, "PORT ", 5 );
+			skp->Text( x, 499, "SELECT ", 7 );
+		}
+
+		// button 6
+		x += 76;
+		//skp->Text( x, 50, "PG", 2 );
+		DrawMenuButton( skp, x );
+
+		// print title
+		switch (menu)
+		{
+			case 0:
+				skp->Text( 226, 471, "MAIN MENU", 9 );
+				break;
+			case 1:
+				skp->Text( 226, 471, " FLIGHT INSTRUMENT MENU", 23 );
+				break;
+			case 2:
+				skp->Text( 226, 471, "SUBSYSTEM MENU ", 15 );
+				break;
+			case 3:
+				skp->Text( 226, 471, "DPS MENU ", 9 );
+				break;
+			case 4:
+				skp->Text( 226, 471, " MAINTENANCE MENU", 17 );
+				break;
+			case 5:
+				skp->Text( 226, 471, " CST MENU SELECTION", 19 );
+				break;
+			case 6:
+				{
+					char buf[32];
+					sprintf_s( buf, 32, " IDP%d INTERACTIVE CST", GetIDP()->GetIDPID() );
+					skp->Text( 226, 471, buf, strlen( buf ) );
+				}
+				break;
+			case 7:
+				skp->Text( 226, 471, " MDU CONFIGURATION MENU", 23 );
+				break;
+			default:
+				// print nothing
+				break;
+		}
+
+		// print configuration info
+		if (prim_idp)
+		{
+			char str[4];
+			str[0] = 'P';
+			str[1] = prim_idp->GetIDPID() + 48;
+			str[2] = bUseSecondaryPort ? ' ' : '*';
+			skp->Text( 15, 486, str, 3 );
+		}
+
+		if (sec_idp)
+		{
+			char str[4];
+			str[0] = 'S';
+			str[1] = sec_idp->GetIDPID() + 48;
+			str[2] = !bUseSecondaryPort ? ' ' : '*';
+			skp->Text( 15, 499, str, 3 );
+		}
+		//skp->Text( 497, 486, "FC2", 3 );
+		if (bPortConfigMan) skp->Text( 497, 499, "MAN", 3 );
+		else skp->Text( 497, 499, "AUT", 3 );
+
+		// print MEDS fault line
+		/*if (!GetFlash())
+		{
+			skp->SetTextColor( CR_WHITE );
+			skp->Text( 226, 458, "IDP 1 2 3 4 STILL WIP", 21 );
+		}*/
+		return;
+	}
+
+	void MDU::DrawMenuButton( HDC hDC, int x )
+	{
+		MoveToEx( hDC, x - 36, 510, NULL );
+		LineTo( hDC, x - 36, 483 );
+		MoveToEx( hDC, x - 36, 484, NULL );
+		LineTo( hDC, x + 36, 484 );
+		MoveToEx( hDC, x + 36, 483, NULL );
+		LineTo( hDC, x + 36, 510 );
+		return;
+	}
+
+	void MDU::DrawMenuButton( oapi::Sketchpad* skp, int x )
+	{
+		skp->Line( x - 36, 510, x - 36, 483 );
+		skp->Line( x - 36, 484, x + 36, 484 );
+		skp->Line( x + 36, 483, x + 36, 510 );
+		return;
 	}
 
 	bool MDU::RealizeMFD(int id)
 	{
-		MFDID=id;
 		if(id>=0) RegisterMFDContext(id);
 		return false;
 	}
 
 	void MDU::RegisterMFDContext(int id)
 	{
-		/*
-		mfds[i].ngroup   = mfdgrp[i];
-		mfds[i].flag     = MFD_SHOWMODELABELS;
-		mfds[i].nbt1     = 5;
-		mfds[i].nbt2     = 0;
-		mfds[i].bt_yofs  = 256/6;
-		mfds[i].bt_ydist = 256/7;
-		*/
 //		char pszBuffer[256];
 		mfdspec.nbt1 = 5;
 		mfdspec.nbt2 = 0;
 		mfdspec.flag = MFD_SHOWMODELABELS;
-		mfdspec.bt_yofs  = 256/6;
-		mfdspec.bt_ydist = 256/7;
-		STS()->SetLastCreatedMFD(usMDUID);
-		bIsConnectedToCRTMFD = false;
-		//oapiRegisterMFD (usMDUID, &mfdspec);
+		mfdspec.bt_yofs  = 512/6;
+		mfdspec.bt_ydist = 512/7;
 		oapiRegisterMFD (id, &mfdspec);
 		//sprintf_s(pszBuffer, 256, "MFD %s (%d) registered", GetQualifiedIdentifier().c_str(), usMDUID);
 		//oapiWriteLog(pszBuffer);
-	}
-
-	void MDU::RegisterVC()
-	{
-		AddAIDToRedrawEventList(AID_CDR1_LABEL+usMDUID);
-		//register lower label texture for redrawing
-		SURFHANDLE label_tex;
-		if(usMDUID==MDUID_PLT2 || usMDUID==MDUID_CRT4 || usMDUID==MDUID_AFD) label_tex=oapiGetTextureHandle(STS()->hOrbiterVCMesh, TEX_LABEL2_VC);
-		else label_tex=oapiGetTextureHandle(STS()->hOrbiterVCMesh, TEX_LABEL_VC);
-
-		RECT labelArea;
-		switch(usMDUID) {
-			case MDUID_CDR1:
-			case MDUID_PLT2:
-				labelArea=_R(0, 0, 256, 41);
-				break;
-			case MDUID_CDR2:
-			case MDUID_CRT4:
-				labelArea=_R(0, 61, 256, 102);
-				break;
-			case MDUID_CRT1:
-			case MDUID_AFD:
-				labelArea=_R(0, 121, 256, 162);
-				break;
-			case MDUID_CRT2:
-				labelArea=_R(0, 180, 256, 221);
-				break;
-			case MDUID_CRT3:
-				labelArea=_R(0, 247, 256, 288);
-				break;
-			case MDUID_MFD1:
-				labelArea=_R(0, 308, 256, 349);
-				break;
-			case MDUID_MFD2:
-				labelArea=_R(0, 368, 256, 409);
-				break;
-			case MDUID_PLT1:
-				labelArea=_R(0, 427, 256, 468);
-				break;
-		}
-
-		oapiVCRegisterArea(AID_CDR1_LABEL+usMDUID, labelArea, PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_BACKGROUND, label_tex);
-	}
-
-	bool MDU::OnVCRedrawEvent(int id, int _event, SURFHANDLE surf)
-	{
-		if(id==(AID_CDR1_LABEL+usMDUID)) {
-			HDC hDC=oapiGetDC(surf);
-			PaintEdgeMenu(hDC);
-			oapiReleaseDC(surf, hDC);
-			return true;
-		}
-		return false;
 	}
 
 	bool MDU::DefineVCGroup(UINT mgrp)
@@ -446,21 +1331,8 @@ namespace vc {
 		return true;
 	}
 
-	bool MDU::DefineVCTexture(SURFHANDLE tex)
-	{
-		shLabelTex = tex;
-		return true;
-	}
-	
-	bool MDU::IsCRTBufferEnabled() const
-	{
-		return false;
-	}
-
 	void MDU::UpdateTextBuffer()
 	{
-		//char cbuf[255];
-
 		for(int i=0;i<51;i++) {
 			for(int j=0;j<26;j++) {
 				textBuffer[i][j].cSymbol=0;
@@ -469,6 +1341,7 @@ namespace vc {
 
 		lines.clear();
 		ellipses.clear();
+		pixels.clear();
 
 		if(prim_idp) {
 			prim_idp->OnPaint(this);
@@ -476,33 +1349,12 @@ namespace vc {
 		else {
 			PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
 		}
-		/*if(!prim_idp->OnPaint(this)) {
-			if(STS()->ops==201) {
-				if(prim_idp) {
-					//if DISP is not set, show appropriate SPEC/default display
-					if(prim_idp->GetDisp()==dps::MODE_UNDEFINED) {
-						if(prim_idp->GetSpec()==dps::MODE_UNDEFINED) UNIVPTG();
-						else if(prim_idp->GetSpec()==20) DAP_CONFIG();
-						else {
-							char cbuf[55];
-							sprintf_s(cbuf, 55, "Spec: %d", (float)prim_idp->GetSpec());
-						}
-					}
-					else {
-						char cbuf[55];
-						sprintf_s(cbuf, 55, "Disp: %d", (float)prim_idp->GetDisp());
-					}
-					//else UNIVPTG();
-				}
-				else {
-					PrintToBuffer("ERROR: IDP NOT CONNECTED", 24, 0, 0, 0);
-				}
-			}
-		}*/
+
+		// print fault message line
+		prim_idp->PrintFaultMessageLine( this );
 		
 		//print Scratch Pad line
-		const char* scratch_pad=prim_idp->GetScratchPadLineString();
-		PrintToBuffer(scratch_pad, strlen(scratch_pad), 0, 25, 0);
+		prim_idp->PrintScratchPadLine( this );
 	}
 
 	void MDU::PrintToBuffer(const char* string, int length, int col, int row, char attributes)
@@ -520,18 +1372,6 @@ namespace vc {
 			textBuffer[col+i][row].cAttr=attributes;
 		}
 	}
-
-
-	
-
-	/*
-	MDU* MDU::CreateMDU(VESSEL2* vessel, UINT aid, const VECTOR3& top_left, const VECTOR3& top_right,
-		const VECTOR3& bottom_left, const VECTOR3& bottom_right)
-	{
-		//Create VC definitions for creating a independent MDU
-		return NULL;
-	}
-	*/
 
 	unsigned short MDU::GetDrivingIDP() const
 	{
@@ -554,517 +1394,7 @@ namespace vc {
 		
 	}
 
-	void MDU::SwitchMFDMode()
-	{
-	}
-
-	/*void MDU::UNIVPTG()
-	{
-		char cbuf[255];
-		//PrintToBuffer("TEST - MM 201", 13, 0, 0, 0);
-		PrintToBuffer("2011/   /", 9, 1, 0, 0);
-		PrintToBuffer("UNIV PTG", 8, 19, 0, 0);
-		sprintf_s(cbuf, 255, "%.3d/%.2d:%.2d:%.2d", STS()->MET[0], STS()->MET[1], STS()->MET[2], STS()->MET[3]);
-		PrintToBuffer(cbuf, strlen(cbuf), 38, 0, 0);
-
-		PrintToBuffer("CUR MNVR COMPL", 14, 3, 2, 0);
-		sprintf_s(cbuf, 255, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
-			STS()->START_TIME[0], STS()->START_TIME[1], STS()->START_TIME[2], STS()->START_TIME[3]);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 2, 0);
-		
-		PrintToBuffer("MNVR OPTION", 11, 0, 4, 0);
-		sprintf_s(cbuf, 255, "5 R %6.2f", STS()->MNVR_OPTION.data[ROLL]);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 5, 0);
-		sprintf_s(cbuf, 255, "6 P %6.2f", STS()->MNVR_OPTION.data[PITCH]);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 6, 0);
-		sprintf_s(cbuf, 255, "7 Y %6.2f", STS()->MNVR_OPTION.data[YAW]);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 7, 0);
-
-		PrintToBuffer("TRK/ROT OPTIONS", 15, 0, 9, 0);
-		sprintf_s(cbuf, 255, "8 TGT ID %03d", STS()->TGT_ID);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 10, 0);
-
-		PrintToBuffer("9  RA", 5, 1, 12, 0);
-		PrintToBuffer("10 DEC", 6, 1, 13, 0);
-		PrintToBuffer("11 LAT", 6, 1, 14, 0);
-		PrintToBuffer("12 LON", 6, 1, 15, 0);
-		PrintToBuffer("13 ALT", 6, 1, 16, 0);
-
-		sprintf_s(cbuf, 255, "14 BODY VECT %d", STS()->BODY_VECT);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 18, 0);
-		sprintf_s(cbuf, 255, "15 P  %6.2f", STS()->P);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 20, 0);
-		sprintf_s(cbuf, 255, "16 Y  %6.2f", STS()->Y);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 21, 0);
-		if(STS()->OM>=0.0) {
-			sprintf_s(cbuf, 255, "17 OM %6.2f", STS()->OM);
-			PrintToBuffer(cbuf, strlen(cbuf), 1, 22, 0);
-		}
-		else PrintToBuffer("17 OM", 6, 1, 22, 0);
-
-		PrintToBuffer("START MNVR 18", 13, 14, 4, 0);
-		PrintToBuffer("TRK  19", 7, 20, 5, 0);
-		PrintToBuffer("ROT  20", 7, 20, 6, 0);
-		PrintToBuffer("CNCL  21", 8, 19, 7, 0);
-		PrintToBuffer("CUR", 3, 28, 3, 0);
-		PrintToBuffer("FUT", 3, 32, 3, 0);
-		if(STS()->MNVR) {
-			if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 29, 4, 0);
-			else PrintToBuffer("X", 1, 33, 4, 0);
-		}
-		else if(STS()->TRK) {
-			if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 29, 5, 0);
-			else PrintToBuffer("X", 1, 33, 5, 0);
-		}
-		else if(STS()->ROT) {
-			if(STS()->ManeuverinProg) PrintToBuffer("X", 1, 29, 6, 0);
-			else PrintToBuffer("X", 1, 33, 6, 0);
-		}
-
-		PrintToBuffer("ATT MON", 7, 19, 9, 0);
-		PrintToBuffer("22 MON AXIS", 11, 20, 10, 0);
-		PrintToBuffer("ERR TOT 23", 10, 20, 11, 0);
-		PrintToBuffer("ERR DAP 24", 10, 20, 11, 0);
-
-		PrintToBuffer("ROLL    PITCH    YAW", 20, 26, 14, 0);
-		sprintf_s(cbuf, 255, "CUR   %6.2f  %6.2f  %6.2f", DEG*STS()->CurrentAttitude.data[ROLL], DEG*STS()->CurrentAttitude.data[PITCH], DEG*STS()->CurrentAttitude.data[YAW]);
-		PrintToBuffer(cbuf, strlen(cbuf), 19, 15, 0);
-		sprintf_s(cbuf, 255, "REQD  %6.2f  %6.2f  %6.2f", STS()->REQD_ATT.data[ROLL], STS()->REQD_ATT.data[PITCH], STS()->REQD_ATT.data[YAW]);
-		PrintToBuffer(cbuf, strlen(cbuf), 19, 16, 0);
-		sprintf_s(cbuf, 255, "ERR  %+7.2f %+7.2f %+7.2f", STS()->PitchYawRoll.data[ROLL], STS()->PitchYawRoll.data[PITCH], STS()->PitchYawRoll.data[YAW]);
-		PrintToBuffer(cbuf, strlen(cbuf), 19, 17, 0);
-		sprintf_s(cbuf, 255, "RATE %+7.3f %+7.3f %+7.3f", DEG*STS()->AngularVelocity.data[ROLL], DEG*STS()->AngularVelocity.data[PITCH], DEG*STS()->AngularVelocity.data[YAW]);
-		PrintToBuffer(cbuf, strlen(cbuf), 19, 18, 0);
-	}*/
-
-	/*void MDU::MNVR()
-	{
-		int minutes, seconds;
-		int timeDiff;
-		int TIMER[4];
-		int TGO[2];
-		char cbuf[255];
-
-		switch(STS()->ops) {
-		case 104:
-			DrawCommonHeader("OMS 1 MNVR EXEC");
-			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-				minutes=(int)(STS()->oparam.PeT/60);
-				seconds=(int)(STS()->oparam.PeT-(60*minutes));
-				sprintf_s(cbuf, 255, "TTP %.2d:%.2d", minutes, seconds); 
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
-				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-			}
-			else {
-				minutes=(int)(STS()->oparam.ApT/60);
-				seconds=(int)(STS()->oparam.ApT-(60*minutes));
-				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//TextOut(hDC, 102, 117, cbuf, strlen(cbuf));
-			}
-			break;
-		case 105:
-			DrawCommonHeader("OMS 2 MNVR EXEC");
-			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-				minutes=(int)(STS()->oparam.PeT/60);
-				seconds=(int)(STS()->oparam.PeT-(60*minutes));
-				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-			}
-			else {
-				minutes=(int)(STS()->oparam.ApT/60);
-				seconds=(int)(STS()->oparam.ApT-(60*minutes));
-				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-			}
-			break;
-		case 106:
-			DrawCommonHeader("OMS 2 MNVR COAST");
-			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-				minutes=(int)(STS()->oparam.PeT/60);
-				seconds=(int)(STS()->oparam.PeT-(60*minutes));
-				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-			}
-			else {
-				minutes=(int)(STS()->oparam.ApT/60);
-				seconds=(int)(STS()->oparam.ApT-(60*minutes));
-				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-			}
-			break;
-		case 202:
-			DrawCommonHeader("ORBIT MNVR EXEC");
-			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) {
-				minutes=(int)(STS()->oparam.PeT/60);
-				seconds=(int)(STS()->oparam.PeT-(60*minutes));
-				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds); 
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-			}
-			else {
-				minutes=(int)(STS()->oparam.ApT/60);
-				seconds=(int)(STS()->oparam.ApT-(60*minutes));
-				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds); 
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-			}
-			break;
-		case 301:
-			DrawCommonHeader("DEORB MNVR COAST");
-			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI
-				minutes=(int)(STS()->oparam.PeT/60);
-				seconds=(int)(STS()->oparam.PeT-(60*minutes));
-				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-			}
-			else {
-				minutes=(int)(STS()->oparam.ApT/60);
-				seconds=(int)(STS()->oparam.ApT-(60*minutes));
-				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-			}
-			break;
-		case 302:
-			DrawCommonHeader("DEORB MNVR EXEC");
-			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI
-				minutes=(int)(STS()->oparam.PeT/60);
-				seconds=(int)(STS()->oparam.PeT-(60*minutes));
-				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-			}
-			else {
-				minutes=(int)(STS()->oparam.ApT/60);
-				seconds=(int)(STS()->oparam.ApT-(60*minutes));
-				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-			}
-			break;
-		case 303:
-			DrawCommonHeader("DEORB MNVR COAST");
-			if((STS()->oparam.PeT)<(STS()->oparam.ApT)) { // should show REI/TFF
-				minutes=(int)(STS()->oparam.PeT/60);
-				seconds=(int)(STS()->oparam.PeT-(60*minutes));
-				sprintf(cbuf, "TTP %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-				//sprintf(oapiDebugString(), "%f %f", sts->oparam.PeT, sts->oparam.ApT);
-				//sprintf(oapiDebugString(), "OPARAM %f %f", sts->oparam.PeT, sts->oparam.SMi);
-			}
-			else {
-				minutes=(int)(STS()->oparam.ApT/60);
-				seconds=(int)(STS()->oparam.ApT-(60*minutes));
-				sprintf(cbuf, "TTA %.2d:%.2d", minutes, seconds);
-				PrintToBuffer(cbuf, strlen(cbuf), 20, 9, 0);
-			}
-			break;
-		}
-
-		timeDiff=(int)(STS()->tig-STS()->met+1);
-		if(true) { //for the moment, timer will always be drawn; this will change next version
-			TIMER[0]=timeDiff/86400;
-			TIMER[1]=(timeDiff-TIMER[0]*86400)/3600;
-			TIMER[2]=(timeDiff-TIMER[0]*86400-TIMER[1]*3600)/60;
-			TIMER[3]=timeDiff-TIMER[0]*86400-TIMER[1]*3600-TIMER[2]*60;
-			sprintf(cbuf, "%.3d/%.2d:%.2d:%.2d", abs(TIMER[0]), abs(TIMER[1]), abs(TIMER[2]), abs(TIMER[3]));
-			PrintToBuffer(cbuf, strlen(cbuf), 38, 1, 0);
-		}
-
-		PrintToBuffer("OMS BOTH 1", 10, 1, 1, 0);
-		PrintToBuffer("L 2", 3, 8, 2, 0);
-		PrintToBuffer("R 3", 3, 8, 3, 0);
-		PrintToBuffer("RCS SEL  4", 10, 1, 4, 0);
-		PrintToBuffer("*", 1, 11, STS()->OMS+1, 0);
-
-		sprintf(cbuf, "5 TV ROLL %d", (int)(STS()->TV_ROLL));
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 5, 0);
-		PrintToBuffer("TRIM LOAD", 9, 1, 6, 0);
-		sprintf(cbuf, "6 P  %+2.1f", STS()->Trim.data[0]);
-		PrintToBuffer(cbuf, strlen(cbuf), 2, 7, 0);
-		sprintf(cbuf, "7 LY %+2.1f", STS()->Trim.data[1]);
-		PrintToBuffer(cbuf, strlen(cbuf), 2, 8, 0);
-		sprintf(cbuf, "8 RY %+2.1f", STS()->Trim.data[2]);
-		PrintToBuffer(cbuf, strlen(cbuf), 2, 9, 0);
-		sprintf(cbuf, "9 WT %6.0f", STS()->WT);
-		PrintToBuffer(cbuf, strlen(cbuf), 1, 10, 0);
-		PrintToBuffer("10 TIG", 6, 0, 11, 0);
-		sprintf(cbuf, "%03.0f/%02.0f:%02.0f:%04.1f", STS()->TIG[0], STS()->TIG[1], STS()->TIG[2], STS()->TIG[3]);
-		PrintToBuffer(cbuf, strlen(cbuf), 3, 12, 0);
-
-		PrintToBuffer("TGT PEG 4", 9, 0, 13, 0);
-		PrintToBuffer("14 C1", 5, 1, 14, 0);
-		PrintToBuffer("15 C2", 5, 1, 15, 0);
-		PrintToBuffer("16 HT", 5, 1, 16, 0);
-		PrintToBuffer("17  T", 5, 1, 17, 0); //theta symbol should be before T
-		//TextOut(hDC, 0, 153, " 17  T", 6);
-		//Ellipse(hDC, 28, 156, 34, 165);
-		//MoveToEx(hDC, 28, 160, NULL);
-		//LineTo(hDC, 34, 160);
-		PrintToBuffer("18 PRPLT", 5, 1, 18, 0);
-
-		PrintToBuffer("TGT PEG 7", 9, 0, 19, 0);
-		PrintToBuffer("19  VX", 6, 1, 20, 0);
-		PrintToBuffer("20  VY", 6, 1, 21, 0);
-		PrintToBuffer("21  VZ", 6, 1, 22, 0);
-		//TextOut(hDC, 0, 171, "TGT PEG 7", 9);
-		//TextOut(hDC, 0, 180, " 19  VX", 7);
-		//DrawDelta(hDC, 30, 184, 27, 33, 190);
-		//TextOut(hDC, 0, 189, " 20  VY", 7);
-		//DrawDelta(hDC, 30, 193, 27, 33, 199);
-		//TextOut(hDC, 0, 198, " 21  VZ", 7);
-		//DrawDelta(hDC, 30, 202, 27, 33, 208);
-		if(STS()->PEG7.x!=0.0 || STS()->PEG7.y!=0.0 || STS()->PEG7.z!=0.0) {
-			sprintf(cbuf, "%+7.1f", STS()->PEG7.x);
-			PrintToBuffer(cbuf, strlen(cbuf), 8, 20, 0);
-			sprintf(cbuf, "%+6.1f", STS()->PEG7.y);
-			PrintToBuffer(cbuf, strlen(cbuf), 8, 21, 0);
-			sprintf(cbuf, "%+6.1f", STS()->PEG7.z);
-			PrintToBuffer(cbuf, strlen(cbuf), 8, 22, 0);
-		}
-
-		if(STS()->MNVRLOAD) {
-			PrintToBuffer("LOAD 22/TIMER 23", 16, 0, 23, 0);
-			sprintf(cbuf, "24 R %-3.0f", STS()->BurnAtt.data[ROLL]);
-			PrintToBuffer(cbuf, strlen(cbuf), 21, 3, 0);
-			sprintf(cbuf, "25 P %-3.0f", STS()->BurnAtt.data[PITCH]);
-			PrintToBuffer(cbuf, strlen(cbuf), 21, 4, 0);
-			sprintf(cbuf, "26 Y %-3.0f", STS()->BurnAtt.data[YAW]);
-			PrintToBuffer(cbuf, strlen(cbuf), 21, 5, 0);
-			if(!STS()->MnvrExecute && timeDiff<=15.0) PrintToBuffer("EXEC", 4, 46, 2, dps::DEUATT_FLASHING);
-		}
-		else {
-			PrintToBuffer("     22/TIMER 23", 16, 0, 23, 0);
-			PrintToBuffer("24 R", 4, 21, 3, 0);
-			PrintToBuffer("25 P", 4, 21, 4, 0);
-			PrintToBuffer("26 Y", 4, 21, 5, 0);
-		}
-
-		//MoveToEx(hDC, 98, 15, NULL);
-		//LineTo(hDC, 98, 218);
-
-		PrintToBuffer("BURN ATT", 8, 20, 2, 0);
-		if(!STS()->MnvrToBurnAtt) PrintToBuffer("MNVR 27", 7, 20, 6, 0);
-		else PrintToBuffer("MNVR 27*", 8, 20, 6, 0);
-
-		PrintToBuffer("REI", 3, 20, 8, 0);
-		PrintToBuffer("GMBL", 4, 25, 10, 0);
-		PrintToBuffer("L", 1, 24, 11, 0);
-		PrintToBuffer("R", 1, 30, 11, 0);
-		sprintf(cbuf, "P %+02.1f %+02.1f", STS()->OMSGimbal[0][0], STS()->OMSGimbal[1][0]);
-		PrintToBuffer(cbuf, strlen(cbuf), 20, 12, 0);
-		sprintf(cbuf, "Y %+02.1f %+02.1f", STS()->OMSGimbal[0][1], STS()->OMSGimbal[1][1]);
-		PrintToBuffer(cbuf, strlen(cbuf), 20, 13, 0);
-
-		PrintToBuffer("PRI 28   29", 11, 20, 15, 0);
-		PrintToBuffer("SEC 30   31", 11, 20, 16, 0);
-		PrintToBuffer("OFF 32   33", 11, 20, 17, 0);
-		PrintToBuffer("GMBL CK  34", 11, 20, 18, 0);
-
-		//MoveToEx(hDC, 156, 15, NULL);
-		//LineTo(hDC, 156, 111);
-		//LineTo(hDC, 250, 111);
-
-		if(!STS()->BurnInProg && !STS()->BurnCompleted) {
-			TGO[0]=(int)(STS()->BurnTime/60);
-			TGO[1]=(int)(STS()->BurnTime-(TGO[0]*60));
-		}
-		else if(!STS()->BurnCompleted) {
-			double btRemaining=STS()->IgnitionTime+STS()->BurnTime-STS()->met;
-			TGO[0]=(int)btRemaining/60;
-			TGO[1]=(int)btRemaining%60;
-		}
-		else TGO[0]=TGO[1]=0;
-		sprintf(cbuf, "VTOT   %6.2f", STS()->DeltaVTot);
-		PrintToBuffer(cbuf, strlen(cbuf), 37, 3, 0);
-		//DrawDelta(hDC, 161, 31, 158, 164, 37);
-		sprintf(cbuf, "TGO %.2d:%.2d", TGO[0], TGO[1]);
-		PrintToBuffer(cbuf, strlen(cbuf), 36, 4, 0);
-		sprintf(cbuf, "VGO X %+8.2f", STS()->VGO.x);
-		PrintToBuffer(cbuf, strlen(cbuf), 36, 6, 0);
-		sprintf(cbuf, "Y  %+7.2f", STS()->VGO.y);
-		PrintToBuffer(cbuf, strlen(cbuf), 40, 7, 0);
-		sprintf(cbuf, "Z  %+7.2f", STS()->VGO.z);
-		PrintToBuffer(cbuf, strlen(cbuf), 40, 8, 0);
-		PrintToBuffer("HA     HP", 9, 40, 10, 0);
-		sprintf(cbuf, "TGT");
-		PrintToBuffer(cbuf, strlen(cbuf), 36, 11, 0);
-		//TextOut(hDC, 158, 90, cbuf, strlen(cbuf));
-		sprintf(cbuf, "CUR");
-		PrintToBuffer(cbuf, strlen(cbuf), 36, 12, 0);
-		//TextOut(hDC, 158, 99, cbuf, strlen(cbuf));
-
-		sprintf(cbuf, "35 ABORT TGT");
-		PrintToBuffer(cbuf, strlen(cbuf), 35, 15, 0);
-		//TextOut(hDC, 150, 126, cbuf, strlen(cbuf));
-
-		//TextOut(hDC, 185, 135, "FWD RCS", 7);
-		//TextOut(hDC, 185, 144, "  ARM  36", 9);
-		//TextOut(hDC, 185, 153, "  DUMP 37", 9);
-		//TextOut(hDC, 185, 162, "  OFF  38", 9);
-		//TextOut(hDC, 185, 171, "SURF DRIVE", 10);
-		//TextOut(hDC, 185, 180, "  ON   39", 9);
-		//TextOut(hDC, 185, 189, "  OFF  40", 9);
-	}*/
-
-
-	/*void MDU::DAP_CONFIG()
-	{
-		char *strings[3]={" ALL", "NOSE", "TAIL"};
-		char cbuf[255];
-		int lim[3]={3, 5, 5};
-		int i, n;
-
-		DrawCommonHeader("DAP CONFIG");
-		
-		//TextOut(hDC, 84, 9, "1 A", 3);
-		//TextOut(hDC, 149, 9, "2 B", 3);
-		//TextOut(hDC, 105+65*(sts->DAPMode[0]), 9, "*", 1);
-		//PrintToBuffer("*", 1, 7, 2+9*STS()->DAPMode[1], 0);
-		//TextOut(hDC, 200, 9, Edit[edit], strlen(Edit[edit]));
-		//TextOut(hDC, 200, 18, "8 LOAD", 6);
-
-		PrintToBuffer("PRI", 3, 4, 2, 0);
-		PrintToBuffer("1 DAP A", 7, 9, 2, 0);
-		PrintToBuffer("2 DAP B", 7, 20, 2, 0);
-		PrintToBuffer("PRI", 3, 33, 2, 0);
-		//TextOut(hDC, 14, 27, "3 PRI", 5);
-		PrintToBuffer("ROT RATE", 8, 0, 3, 0);
-		//TextOut(hDC, 0, 36, "ROT RATE", 8);
-		PrintToBuffer("ATT DB", 6, 0, 4, 0);
-		//TextOut(hDC, 0, 45, "ATT DB", 6);
-		PrintToBuffer("RATE DB", 7, 0, 5, 0);
-		//TextOut(hDC, 0, 54, "RATE DB", 7);
-		PrintToBuffer("ROT PLS", 7, 0, 6, 0);
-		//TextOut(hDC, 0, 63, "ROT PLS", 7);
-		PrintToBuffer("COMP", 4, 0, 7, 0);
-		//TextOut(hDC, 0, 72, "COMP", 4);
-		PrintToBuffer("P OPTION", 8, 0, 8, 0);
-		//TextOut(hDC, 0, 81, "P OPTION", 8);
-		PrintToBuffer("Y OPTION", 8, 0, 9, 0);
-		//TextOut(hDC, 0, 90, "Y OPTION", 8);
-		PrintToBuffer("TRAN PLS", 8, 0, 10, 0);
-		//TextOut(hDC, 0, 99, "TRAN PLS", 8);
-
-		PrintToBuffer("ALT", 3, 4, 11, 0);
-		PrintToBuffer("ALT", 3, 33, 11, 0);
-		//TextOut(hDC, 14, 108, "4 ALT", 5);
-		PrintToBuffer("RATE DB", 7, 0, 12, 0);
-		//TextOut(hDC, 0, 117, "RATE DB", 7);
-		PrintToBuffer("JET OPT", 7, 0, 13, 0);
-		//TextOut(hDC, 0, 126, "JET OPT", 7);
-		PrintToBuffer("# JETS", 6, 0, 14, 0);
-		//TextOut(hDC, 0, 135, "# JETS", 6);
-		PrintToBuffer("ON TIME", 7, 0, 15, 0);
-		//TextOut(hDC, 0, 144, "ON TIME", 7);
-		PrintToBuffer("DELAY", 5, 0, 16, 0);
-		//TextOut(hDC, 0, 153, "DELAY", 5);
-
-		PrintToBuffer("VERN", 4, 4, 17, 0);
-		PrintToBuffer("VERN", 4, 33, 17, 0);
-		//TextOut(hDC, 14, 162, "5 VERN", 6);
-		PrintToBuffer("ROT RATE", 8, 0, 18, 0);
-		//TextOut(hDC, 0, 171, "ROT RATE", 8);
-		PrintToBuffer("ATT DB", 6, 0, 19, 0);
-		//TextOut(hDC, 0, 180, "ATT DB", 6);
-		PrintToBuffer("RATE DB", 7, 0, 20, 0);
-		//TextOut(hDC, 0, 189, "RATE DB", 7);
-		PrintToBuffer("ROT PLS", 7, 0, 21, 0);
-		//TextOut(hDC, 0, 198, "ROT PLS", 7);
-		PrintToBuffer("COMP", 4, 0, 22, 0);
-		//TextOut(hDC, 0, 207, "COMP", 4);
-		PrintToBuffer("CNTL ACC", 8, 0, 23, 0);
-		//TextOut(hDC, 0, 216, "CNTL ACC", 8);
-		//if(sts->DAPMode[1]==0) TextOut(hDC, 20, 27, "*", 1);
-		//else if(sts->DAPMode[1]==1) TextOut(hDC, 20, 108, "*", 1);
-		//else TextOut(hDC, 20, 162, "*", 1);
-
-		//MoveToEx(hDC, 59, 38, NULL);
-		//LineTo (hDC, 59, 229);
-		//MoveToEx(hDC, 124, 38, NULL);
-		//LineTo (hDC, 124, 229);
-		//MoveToEx(hDC, 189, 38, NULL);
-		//LineTo (hDC, 189, 229);
-
-		int edit=2; //temporary
-		for(n=1, i=0;n<=lim[edit];n+=2, i++) {
-			sprintf_s(cbuf, 255, "%d %.4f", 10*n, STS()->DAP[i].PRI_ROT_RATE);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 3, 0);
-			//TextOut(hDC, 60+65*i, 36, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "%d  %05.2f", 10*n+1, STS()->DAP[i].PRI_ATT_DB);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 4, 0);
-			//TextOut(hDC, 60+65*i, 45, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "%d   %.2f", 10*n+2, STS()->DAP[i].PRI_RATE_DB);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 5, 0);
-			//TextOut(hDC, 60+65*i, 54, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "%d   %.2f", 10*n+3, STS()->DAP[i].PRI_ROT_PLS);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 6, 0);
-			//TextOut(hDC, 60+65*i, 63, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "%d  %.3f", 10*n+4, STS()->DAP[i].PRI_COMP);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 7, 0);
-			//TextOut(hDC, 60+65*i, 72, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "%d   %s", 10*n+5, strings[STS()->DAP[i].PRI_P_OPTION]);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 8, 0);
-			//TextOut(hDC, 60+65*i, 81, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "%d   %s", 10*n+6, strings[STS()->DAP[i].PRI_Y_OPTION]);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 9, 0);
-			//TextOut(hDC, 60+65*i, 90, cbuf, strlen(cbuf));
-			sprintf_s(cbuf, 255, "%d   %.2f", 10*n+7, STS()->DAP[i].PRI_TRAN_PLS);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 10, 0);
-			//TextOut(hDC, 60+65*i, 99, cbuf, strlen(cbuf));
-
-			sprintf(cbuf, "%d  %.3f", 10*n+8, STS()->DAP[i].ALT_RATE_DB);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 12, 0);
-			//TextOut(hDC, 60+65*i, 117, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d   %s", 10*n+9, strings[STS()->DAP[i].ALT_JET_OPT]);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 13, 0);
-			//TextOut(hDC, 60+65*i, 126, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d      %d", 10*n+10, STS()->DAP[i].ALT_JETS);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 14, 0);
-			//TextOut(hDC, 60+65*i, 135, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d   %.2f", 10*n+11, STS()->DAP[i].ALT_ON_TIME);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 15, 0);
-			//TextOut(hDC, 60+65*i, 144, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d   %.2f", 10*n+12, STS()->DAP[i].ALT_DELAY);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 16, 0);
-			//TextOut(hDC, 60+65*i, 153, cbuf, strlen(cbuf));
-
-			sprintf(cbuf, "%d %.4f", 10*n+13, STS()->DAP[i].VERN_ROT_RATE);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 18, 0);
-			//TextOut(hDC, 60+65*i, 171, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d   %.2f", 10*n+14, STS()->DAP[i].VERN_ATT_DB);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 19, 0);
-			//TextOut(hDC, 60+65*i, 180, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d  %.3f", 10*n+15, STS()->DAP[i].VERN_RATE_DB);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 20, 0);
-			//TextOut(hDC, 60+65*i, 189, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d   %.2f", 10*n+16, STS()->DAP[i].VERN_ROT_PLS);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 21, 0);
-			//TextOut(hDC, 60+65*i, 198, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d  %.3f", 10*n+17, STS()->DAP[i].VERN_COMP);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 22, 0);
-			//TextOut(hDC, 60+65*i, 207, cbuf, strlen(cbuf));
-			sprintf(cbuf, "%d      %d", 10*n+18, STS()->DAP[i].VERN_CNTL_ACC);
-			PrintToBuffer(cbuf, strlen(cbuf), 9+11*i, 23, 0);
-			//TextOut(hDC, 60+65*i, 216, cbuf, strlen(cbuf));
-		}
-	}
-
-
-	void MDU::ORBIT_TGT()
-	{
-		DrawCommonHeader("ORBIT TGT");
-	}*/
-
-	void MDU::GPCMEMORY()
+	/*void MDU::GPCMEMORY()
 	{
 	
 		DrawCommonHeader("GPC MEMORY");
@@ -1100,6 +1430,179 @@ namespace vc {
 		mvprint(29, 5, "BIT RST 23");
 		mvprint(42, 5, "WRITE 25");
 		mvprint(19, 6, "26 ENG UNITS");
+	}*/
+	
+	void MDU::CreateGDIObjects()
+	{
+		if (gdiBlackBrush) return;// already created
+
+		gdiBlackBrush = CreateSolidBrush( CR_BLACK );
+		gdiDarkGrayBrush = CreateSolidBrush( CR_DARK_GRAY );
+		gdiLightGrayBrush = CreateSolidBrush( CR_LIGHT_GRAY );
+		gdiWhiteBrush = CreateSolidBrush( CR_WHITE );
+		gdiRedBrush = CreateSolidBrush( CR_RED );
+		gdiYellowBrush = CreateSolidBrush( CR_YELLOW );
+		gdiCyanBrush = CreateSolidBrush( CR_CYAN );
+		gdiMagentaBrush = CreateSolidBrush( CR_MAGENTA );
+		gdiLightGreenBrush = CreateSolidBrush( CR_LIGHT_GREEN );
+		gdiBlueBrush = CreateSolidBrush( CR_BLUE );
+
+		gdiBlackPen = CreatePen( PS_SOLID, 2, CR_BLACK );
+		gdiDarkGrayPen = CreatePen( PS_SOLID, 2, CR_DARK_GRAY );
+		gdiLightGrayPen = CreatePen( PS_SOLID, 2, CR_LIGHT_GRAY );
+		gdiLightGrayThickPen = CreatePen( PS_SOLID, 3, CR_LIGHT_GRAY );
+		gdiWhitePen = CreatePen( PS_SOLID, 2, CR_WHITE );
+		gdiRedPen = CreatePen( PS_SOLID, 2, CR_RED );
+		gdiYellowPen = CreatePen( PS_SOLID, 2, CR_YELLOW );
+		gdiCyanPen = CreatePen( PS_SOLID, 2, CR_CYAN );
+		gdiMagentaPen = CreatePen( PS_SOLID, 2, CR_MAGENTA );
+		gdiLightGreenPen = CreatePen( PS_SOLID, 2, CR_LIGHT_GREEN );
+		gdiDarkGreenPen = CreatePen( PS_SOLID, 2, CR_DARK_GREEN );
+		gdiLightGreenThickPen = CreatePen( PS_SOLID, 4, CR_LIGHT_GREEN );
+
+		gdiOverbrightPen = CreatePen( PS_SOLID, 2, CR_DPS_OVERBRIGHT );
+		gdiNormalPen = CreatePen( PS_SOLID, 2, CR_DPS_NORMAL );
+		LOGBRUSH lb = {BS_SOLID, CR_DPS_NORMAL, 0};
+		DWORD pstyle[2] = {16, 8};
+		gdiDashedNormalPen = ExtCreatePen( PS_GEOMETRIC | PS_USERSTYLE, 2, &lb, 2, pstyle );
+
+		gdiSSUAFont_h20w17 = CreateFont( 20, 17, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "SSU_Font_A" );
+		gdiSSUAFont_h10w10bold = CreateFont( 10, 10, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "SSU_Font_A" );
+		gdiSSUAFont_h11w9 = CreateFont( 11, 9, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "SSU_Font_A" );
+		gdiSSUBFont_h18w9 = CreateFont( 18, 9, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "SSU_Font_B" );
+		gdiSSUBFont_h12w7 = CreateFont( 12, 7, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "SSU_Font_B" );
+		gdiSSUBFont_h16w9 = CreateFont( 16, 9, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH, "SSU_Font_B" );
+		return;
+	}
+
+	void MDU::DestroyGDIObjects()
+	{
+		if (!gdiBlackBrush) return;// already deleted
+
+		DeleteObject( gdiBlackBrush );
+		DeleteObject( gdiDarkGrayBrush );
+		DeleteObject( gdiLightGrayBrush );
+		DeleteObject( gdiWhiteBrush );
+		DeleteObject( gdiRedBrush );
+		DeleteObject( gdiYellowBrush );
+		DeleteObject( gdiCyanBrush );
+		DeleteObject( gdiMagentaBrush );
+		DeleteObject( gdiLightGreenBrush );
+		DeleteObject( gdiBlueBrush );
+
+		DeleteObject( gdiBlackPen );
+		DeleteObject( gdiDarkGrayPen );
+		DeleteObject( gdiLightGrayPen );
+		DeleteObject( gdiLightGrayThickPen );
+		DeleteObject( gdiWhitePen );
+		DeleteObject( gdiRedPen );
+		DeleteObject( gdiYellowPen );
+		DeleteObject( gdiCyanPen );
+		DeleteObject( gdiMagentaPen );
+		DeleteObject( gdiLightGreenPen );
+		DeleteObject( gdiDarkGreenPen );
+		DeleteObject( gdiLightGreenThickPen );
+
+		DeleteObject( gdiOverbrightPen );
+		DeleteObject( gdiNormalPen );
+		DeleteObject( gdiDashedNormalPen );
+
+		DeleteObject( gdiSSUAFont_h20w17 );
+		DeleteObject( gdiSSUAFont_h10w10bold );
+		DeleteObject( gdiSSUAFont_h11w9 );
+		DeleteObject( gdiSSUBFont_h18w9 );
+		DeleteObject( gdiSSUBFont_h12w7 );
+		DeleteObject( gdiSSUBFont_h16w9 );
+
+		gdiBlackBrush = NULL;
+		return;
+	}
+
+	void MDU::CreateSketchpadObjects()
+	{
+		if (skpBlackBrush) return;// already created
+
+		skpBlackBrush = oapiCreateBrush( CR_BLACK );
+		skpDarkGrayBrush = oapiCreateBrush( CR_DARK_GRAY );
+		skpLightGrayBrush = oapiCreateBrush( CR_LIGHT_GRAY );
+		skpWhiteBrush = oapiCreateBrush( CR_WHITE );
+		skpRedBrush = oapiCreateBrush( CR_RED );
+		skpYellowBrush = oapiCreateBrush( CR_YELLOW );
+		skpCyanBrush = oapiCreateBrush( CR_CYAN );
+		skpMagentaBrush = oapiCreateBrush( CR_MAGENTA );
+		skpLightGreenBrush = oapiCreateBrush( CR_LIGHT_GREEN );
+		skpBlueBrush = oapiCreateBrush( CR_BLUE );
+		_skpBlackBrush = oapiCreateBrush( RGB( 0, 0, 0 ) );
+
+		skpBlackPen = oapiCreatePen( 1, 2, CR_BLACK );
+		skpDarkGrayPen = oapiCreatePen( 1, 2, CR_DARK_GRAY );
+		skpLightGrayPen = oapiCreatePen( 1, 2, CR_LIGHT_GRAY );
+		skpLightGrayThickPen = oapiCreatePen( 1, 3, CR_LIGHT_GRAY );
+		skpWhitePen = oapiCreatePen( 1, 2, CR_WHITE );
+		skpRedPen = oapiCreatePen( 1, 2, CR_RED );
+		skpYellowPen = oapiCreatePen( 1, 2, CR_YELLOW );
+		skpCyanPen = oapiCreatePen( 1, 2, CR_CYAN );
+		skpMagentaPen = oapiCreatePen( 1, 2, CR_MAGENTA );
+		skpLightGreenPen = oapiCreatePen( 1, 2, CR_LIGHT_GREEN );
+		skpDarkGreenPen = oapiCreatePen( 1, 2, CR_DARK_GREEN );
+		skpLightGreenThickPen = oapiCreatePen( 1, 4, CR_LIGHT_GREEN );
+		_skpBlackPen = oapiCreatePen( 1, 2, RGB( 0, 0, 0 ) );
+		
+		skpOverbrightPen = oapiCreatePen( 1, 2, CR_DPS_OVERBRIGHT );
+		skpNormalPen = oapiCreatePen( 1, 2, CR_DPS_NORMAL );
+		skpDashedNormalPen = oapiCreatePen( 2, 2, CR_DPS_NORMAL );
+
+		skpSSUAFont_h20 = oapiCreateFont( 20, true, "*SSU_Font_A" );
+		skpSSUAFont_h10bold = oapiCreateFont( 10, false, "*SSU_Font_A", FONT_BOLD );
+		skpSSUAFont_h11 = oapiCreateFont( 11, true, "*SSU_Font_A" );
+		skpSSUBFont_h18 = oapiCreateFont( 18, true, "*SSU_Font_B" );
+		skpSSUBFont_h12 = oapiCreateFont( 12, true, "*SSU_Font_B" );
+		skpSSUBFont_h16 = oapiCreateFont( 16, true, "*SSU_Font_B" );
+		return;
+	}
+
+	void MDU::DestroySketchpadObjects()
+	{
+		if (!skpBlackBrush) return;// already deleted
+
+		oapiReleaseBrush( skpBlackBrush );
+		oapiReleaseBrush( skpDarkGrayBrush );
+		oapiReleaseBrush( skpLightGrayBrush );
+		oapiReleaseBrush( skpWhiteBrush );
+		oapiReleaseBrush( skpRedBrush );
+		oapiReleaseBrush( skpYellowBrush );
+		oapiReleaseBrush( skpCyanBrush );
+		oapiReleaseBrush( skpMagentaBrush );
+		oapiReleaseBrush( skpLightGreenBrush );
+		oapiReleaseBrush( skpBlueBrush );
+		oapiReleaseBrush( _skpBlackBrush );
+
+		oapiReleasePen( skpBlackPen );
+		oapiReleasePen( skpDarkGrayPen );
+		oapiReleasePen( skpLightGrayPen );
+		oapiReleasePen( skpLightGrayThickPen );
+		oapiReleasePen( skpWhitePen );
+		oapiReleasePen( skpRedPen );
+		oapiReleasePen( skpYellowPen );
+		oapiReleasePen( skpCyanPen );
+		oapiReleasePen( skpMagentaPen );
+		oapiReleasePen( skpLightGreenPen );
+		oapiReleasePen( skpDarkGreenPen );
+		oapiReleasePen( skpLightGreenThickPen );
+		oapiReleasePen( _skpBlackPen );
+
+		oapiReleasePen( skpOverbrightPen );
+		oapiReleasePen( skpNormalPen );
+		oapiReleasePen( skpDashedNormalPen );
+
+		oapiReleaseFont( skpSSUAFont_h20 );
+		oapiReleaseFont( skpSSUAFont_h10bold );
+		oapiReleaseFont( skpSSUAFont_h11 );
+		oapiReleaseFont( skpSSUBFont_h18 );
+		oapiReleaseFont( skpSSUBFont_h12 );
+		oapiReleaseFont( skpSSUBFont_h16 );
+
+		skpBlackBrush = NULL;
+		return;
 	}
 };
-

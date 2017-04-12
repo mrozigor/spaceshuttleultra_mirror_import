@@ -35,7 +35,7 @@ const double APU_FUEL_TANK_MASS = 325.0*0.45359237;
 const double APU_FUEL_TANK_FLOWRATE[2] = {(3.25*0.45359237)/60.0, (1.5*0.45359237)/60.0};
 // APU fuel consumption rate(kg/sec)
 
-using class ::discsignals::DiscInPort;
+using ::discsignals::DiscInPort;
 
 class APU: public AtlantisSubsystem
 {

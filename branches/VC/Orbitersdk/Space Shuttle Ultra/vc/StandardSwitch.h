@@ -36,9 +36,9 @@
 
 namespace vc {
 
-	using class ::discsignals::DiscreteBundle;
-	using class ::discsignals::DiscOutPort;
-	using class ::discsignals::DiscInPort;
+	using ::discsignals::DiscreteBundle;
+	using ::discsignals::DiscOutPort;
+	using ::discsignals::DiscInPort;
 
 	class LockableLever: public BasicSwitch 
 	{

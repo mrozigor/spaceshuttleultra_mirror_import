@@ -682,7 +682,7 @@ void kostStateVector2Elements(
 		if(tmp <= 1.0)
 			{params->EcA = 0.0;}
 		else
-			{params->EcA = acosh(tmp);}
+			{params->EcA = Acosh(tmp);}
 	}
 	else if(isCircular)
 	{

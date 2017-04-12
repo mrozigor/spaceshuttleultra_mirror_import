@@ -108,7 +108,8 @@ VECTOR3 GetYZX_PYRAnglesFromMatrix(const MATRIX3 &RotMatrix)
 	Angles.data[YAW]=asin(RotMatrix.m21);
 	if(Eq(abs(RotMatrix.m21), 1.0, 0.0001)) { // singularity; assume pitch is zero
 		Angles.data[PITCH]=0.0;
-		Angles.data[ROLL]=atan2(RotMatrix.m32, -RotMatrix.m12);
+		if(Angles.data[YAW] > 0.0) Angles.data[ROLL]=atan2(RotMatrix.m32, -RotMatrix.m12);
+		else Angles.data[ROLL]=atan2(RotMatrix.m32, RotMatrix.m12);
 	}
 	else { // normal case
 		Angles.data[PITCH]=atan2(-RotMatrix.m31, RotMatrix.m11);
@@ -369,7 +370,7 @@ MATRIX3 ConvertPYOMToLVLH(double radP, double radY, double radOM)
 	// Y axis only changes when OM is changed
 	VECTOR3 z_axis = _V(Temp.m11, Temp.m21, Temp.m31); // body vector; orbiter body axis vector pointed along +Z LVLH axis
 	VECTOR3 x_axis, y_axis;
-	if(!Eq(z_axis, _V(0, 1, 0), 0.01) && !Eq(z_axis, _V(0, -1, 0), 0.01)) {
+	if(!Eq(z_axis, _V(0, 1, 0), 0.0001) && !Eq(z_axis, _V(0, -1, 0), 0.0001)) {
 		if(radOM > 0.0) y_axis = RotateVector(z_axis, -radOM, _V(0, 1, 0)); // orbiter should rotate in +ve direction, which means that ref. vector rotates in -ve direction
 		//if(radOM > 0.0) y_axis = RotateVector(z_axis, radOM, _V(0, 1, 0));
 		else y_axis = _V(0, 1, 0);
@@ -391,11 +392,11 @@ MATRIX3 ConvertPYOMToLVLH(double radP, double radY, double radOM)
 		RotMatrix.m21, RotMatrix.m22, RotMatrix.m23,
 		RotMatrix.m31, RotMatrix.m32, RotMatrix.m33);
 	oapiWriteLog(oapiDebugString());*/
-	sprintf_s(oapiDebugString(), 255, "m11: %f m12: %f m13 %f m21: %f m22: %f m23 %f m31: %f m32: %f m33 %f",
+	/*sprintf_s(oapiDebugString(), 255, "m11: %f m12: %f m13 %f m21: %f m22: %f m23 %f m31: %f m32: %f m33 %f",
 		RotMatrix.m11, RotMatrix.m12, RotMatrix.m13,
 		RotMatrix.m21, RotMatrix.m22, RotMatrix.m23,
 		RotMatrix.m31, RotMatrix.m32, RotMatrix.m33);
-	oapiWriteLog(oapiDebugString());
+	oapiWriteLog(oapiDebugString());*/
 
 	//VECTOR3 angles = GetYZXAnglesFromMatrix(RotMatrix);
 	//return angles;
@@ -415,6 +416,18 @@ MATRIX3 GetGlobalToLVLHMatrix(const VECTOR3& pos, const VECTOR3& vel, bool chang
 	return _M(x_unit.x, x_unit.y, x_unit.z,
 				y_unit.x, y_unit.y, y_unit.z,
 				z_unit.x, z_unit.y, z_unit.z);
+}
+
+double CalculateCameraRotationAngle(VECTOR3& dir, const VECTOR3& rot)
+{
+	// if camera is pointing straight up or down, make it slightly offset from (0,1,0) vector
+	if(Eq(dotp(dir, _V(0, -1, 0)), 1.0, 1e-4)) dir = _V(1.74532924314e-4, -0.999999984769, 0.0);
+	else if(Eq(dotp(dir, _V(0, 1, 0)), 1.0, 1e-4)) dir = _V(1.74532924314e-4, 0.999999984769, 0.0);
+
+	VECTOR3 cam_rot = crossp(crossp(dir, _V(0, 1, 0)), dir);
+	cam_rot /= length(cam_rot);
+	if(cam_rot.y < 0) cam_rot = -cam_rot;
+	return SignedAngle(cam_rot, rot, dir);
 }
 
 /*VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad)

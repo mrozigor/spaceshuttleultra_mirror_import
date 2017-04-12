@@ -58,9 +58,9 @@ public:
 	const string& GetLabel(int iPosition) const;
 	void SetLabel(int iPosition, const string& _label);
 	/**
-	 * Sets initial position of switch
-	 * Has to be called in DefineVC function
-	 */
+	* Sets initial position of switch
+	* If used, it has to be called as early as possible so it doesn't overwrite scenario entry.
+	*/
 	void SetInitialPosition(unsigned short usInPos);
 	void SetOrientation(bool bHorizontal);
 	/**
@@ -71,6 +71,11 @@ public:
 	 * Set a single switch position to be spring loaded
 	 */
 	void SetSpringLoaded(bool IsSpringLoaded, unsigned short usPos);
+
+	/**
+	 * Returns true if the switch has more than one non-spring loaded position.
+	 */
+	bool IsFullySpringLoaded( void );
 
 	virtual void DefineVCAnimations(UINT vc_idx);
 	virtual bool GetStateString(unsigned long ulBufferSize, char* pszBuffer);

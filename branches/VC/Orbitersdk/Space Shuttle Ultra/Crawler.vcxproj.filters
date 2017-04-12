@@ -48,21 +48,6 @@
     <ClCompile Include="Crawler\DefineStrutAnimations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\libUltra\src\DiscInPort.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libUltra\src\DiscOutPort.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libUltra\src\DiscreteBundle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libUltra\src\DiscreteBundleManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libUltra\src\DiscretePort.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Crawler\LDSPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -73,12 +58,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\libUltra\include\BasicPanel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libUltra\include\BasicVCComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Crawler\Crawler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -121,16 +100,7 @@
     <ClInclude Include="Crawler\meshres_drivetruck.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\libUltra\include\PanelGroup.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource_Crawler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libUltra\include\Subsystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libUltra\include\SubsystemDirector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Crawler\LDSPanel.h">

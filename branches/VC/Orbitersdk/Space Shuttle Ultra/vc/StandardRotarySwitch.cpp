@@ -37,4 +37,33 @@ namespace vc
 			else outputSignals.at(i).ResetLine();
 		}
 	}
+
+
+	StandardRotarySwitch::StandardRotarySwitch( Atlantis *_sts, const std::string &_ident, unsigned short _usNumPositions, unsigned short _usNumMuxes ):BasicRotarySwitch( _sts, _usNumPositions, _ident ),
+		inputSignals( _usNumMuxes, vector<DiscInPort>( _usNumPositions ) ),
+		outputSignal( _usNumMuxes )
+	{
+	}
+
+	StandardRotarySwitch::~StandardRotarySwitch()
+	{
+	}
+
+	void StandardRotarySwitch::ConnectInputSignal( unsigned short usMux, unsigned short usIndex, DiscreteBundle *pBundle, unsigned short usLine )
+	{
+		inputSignals.at( usMux ).at( usIndex ).Connect( pBundle, usLine );
+		return;
+	}
+
+	void StandardRotarySwitch::ConnectOutputSignal( unsigned short usMux, DiscreteBundle *pBundle, unsigned short usLine)
+	{
+		outputSignal.at( usMux ).Connect( pBundle, usLine );
+		return;
+	}
+
+	void StandardRotarySwitch::OnPreStep( double SimT, double DeltaT, double MJD )
+	{
+		for (int i = outputSignal.size() - 1; i >= 0; i--) outputSignal.at( i ).SetLine( inputSignals.at( i ).at( usCurrentPosition ).GetVoltage() );
+		return;
+	}
 };

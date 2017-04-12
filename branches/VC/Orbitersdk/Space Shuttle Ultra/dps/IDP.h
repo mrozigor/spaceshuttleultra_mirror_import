@@ -27,21 +27,28 @@
 #include <vector>
 #include "../vc/vc_defs.h"
 #include "dps_defs.h"
+#include "../AtlantisSubsystem.h"
 #include "BIU.h"
-#include "../Keyboard.h"
 #include "DiscInPort.h"
 #include <map>
 
 namespace dps {	
-	using class ::Keyboard;
-	using class discsignals::DiscInPort;
+	using discsignals::DiscInPort;
 
 	using namespace std;
+
+	class IO_Control;
+	class SSME_Operations;
+	class AscentDAP;
+	class AerojetDAP;
+	class Landing_SOP;
+	class OMSBurnSoftware;
 
 	const char DEUATT_NORMAL = 0;
 	const char DEUATT_OVERBRIGHT = 1;
 	const char DEUATT_FLASHING = 2;
 	const char DEUATT_UNDERLINED = 4;
+	const char DEUATT_DASHED = 8;
 
 	/**
 	 * Used to set IDP SPEC/DISP to undefined (not set)
@@ -84,21 +91,28 @@ namespace dps {
 		unsigned short usOPS;
 		unsigned short usSPEC;
 		unsigned short usDISP;
-		Keyboard* pKeyboardA;
-		Keyboard* pKeyboardB;
-		bool bUseKeyboardA;
 		char cScratchPadLine[120];
 		short sScratchPadLength;
+		char cFaultMessageLine[120];
+		bool syntaxerr;
 		unsigned short usGPCDriver;
 		unsigned short usSelectedFC;
-		DiscInPort KeybSelectA;
-		DiscInPort KeybSelectB;
+		DiscInPort Power;
+		DiscInPort KeybSelectA;// Left IDP/CRT Sel
+		DiscInPort KeybSelectB;// Right IDP/CRT Sel
 		DiscInPort MajorFuncGNC;
 		DiscInPort MajorFuncPL;
 
 		DEU_STATUS status;
 
 		word16 usDisplayBuffer[4096];
+
+		IO_Control* pIO_Control;
+		SSME_Operations* pSSME_Operations;
+		AscentDAP* pAscentDAP;
+		AerojetDAP* pAerojetDAP;
+		Landing_SOP* pLanding_SOP;
+		OMSBurnSoftware* pOMSBurnSoftware;
 
 		
 		void AppendScratchPadLine(char cKey);
@@ -107,7 +121,7 @@ namespace dps {
 	protected:
 		virtual void OnMMChange(unsigned short usNewMM);
 		virtual void OnSysSummary();
-		virtual void OnFaultSummary();
+		virtual void OnFaultSummary( bool ClearList );
 		virtual void OnMsgReset();
 		virtual void OnAck();
 		virtual void OnClear();
@@ -120,26 +134,30 @@ namespace dps {
 	public:
 		IDP(AtlantisSubsystemDirector* pDirect, const string& _ident, unsigned short _usIDPID);
 		virtual ~IDP();
+		void Realize();
 		virtual void busCommandPhase(BusController* biu);
 		virtual void busReadPhase(BusController* biu);
 		virtual BUS_COMMAND_WORD busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw, 
 			unsigned long num_data, word16 *cdw);
 		void ConnectToMDU(vc::PMDU pMDU, bool bPrimary = true);
-		void ConnectToKeyboard(Keyboard* pKeyboardA, Keyboard* pKeyboardB);
 		unsigned short GetIDPID() const;
 		unsigned short GetOps() const;
 		unsigned short GetSpec() const;
 		unsigned short GetDisp() const;
-		unsigned short GetKeyboardSelection() const;
+		bool IsKeyboardSelected( unsigned short usKeyboardID ) const;
 		virtual MAJORFUNCTION GetMajfunc() const;
 		virtual const char* GetScratchPadLineString() const;
+		virtual const char* GetScratchPadLineString_B( void ) const;
 		virtual const char* GetScratchPadLineScan() const;
+		virtual int GetFlashingEntry( void ) const;
+		void PrintScratchPadLine( vc::MDU* pMDU ) const;
+		void PrintFaultMessageLine( vc::MDU* pMDU ) const;
+
 		/**
 		 * Perform a initial program load.
 		 * Basically just reset software configuration to basic and 
 		 * request critical format data from assigned GPC.
 		 */
-		
 		virtual void IPL();
 		bool IsBFS() const;
 		virtual bool PutKey(unsigned short usKeyboardID, char cKey);
@@ -153,11 +171,54 @@ namespace dps {
 		inline bool IsOPSLine() const {return (cScratchPadLine[0] == SSU_KEY_OPS);};
 		inline bool IsSPECLine() const {return (cScratchPadLine[0] == SSU_KEY_SPEC);};
 		inline bool IsITEMLine() const {return (cScratchPadLine[0] == SSU_KEY_ITEM);};
-		inline bool IsGPCIDPLine() const {return (cScratchPadLine[0] == SSU_KEY_GPCIDP);};
+		inline bool IsGPCIDPLine() const {return (cScratchPadLine[0] == SSU_KEY_GPCCRT);};
 		inline bool IsNoLine() const {return (cScratchPadLine[0] == '\0');};
 		bool IsCompleteLine() const;
 
+		/**
+		 * Returns active keyboards:
+		 * 0 none
+		 * 1 CDR
+		 * 2 PLT
+		 * 3 CDR & PLT
+		 */
+		int GetActiveKeyboard( void ) const;
+
 		virtual bool OnPaint(vc::MDU* pMDU);
-		
+
+		bool IsDisp( int code ) const;
+
+		int GetADIAttitude( void );
+		int GetADIError( void );
+		int GetADIRate( void );
+		bool GetMECOConfirmedFlag( void ) const;
+		bool GetAutoThrottleState( void ) const;
+		VECTOR3 GetAttitudeErrors_AscentDAP( void ) const;
+		VECTOR3 GetAttitudeErrors_AerojetDAP( void ) const;
+		VECTOR3 GetAttitudeCommandErrors( void ) const;
+		bool GetAutoPitchState( void ) const;
+		bool GetAutoRollYawState( void ) const;
+		bool GetAutoSpeedbrakeState( void ) const;
+		double GetAutoSpeedbrakeCommand( void ) const;
+		bool GetWOW( void ) const;
+		double GetNZError( void ) const;
+		bool GetPrefinalState( void ) const;
+		double GetYRunwayPositionError( void ) const;
+		bool GetOnHACState( void ) const;
+		double GetHACRadialError( void ) const;
+		double GetTimeToHAC( void ) const;
+		double GetdeltaAZ( void ) const;
+		double GetDistanceToHACCenter( void ) const;
+		const std::string& GetSelectedRunway( void ) const;
+		double GetRangeToRunway( void ) const;
+		bool GetApproachAndLandState( void ) const;
+		double GetVacc( void ) const;
+		double GetHTA( void ) const;
+		double GetGlideSlopeDistance( void ) const;
+		double GetNZ( void ) const;
+		double GetdeltaAZLimit( double mach ) const;
+		double GetSelectedRunwayHeading( void ) const;
+		double GetTargetHeading( void ) const;
+		bool GetFCSmode( void ) const;
 	};
 };

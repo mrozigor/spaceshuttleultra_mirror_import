@@ -5,6 +5,7 @@
 #include <UltraMath.h>
 #include "../util/Stopwatch.h"
 #include "IDP.h"
+#include "..\vc\MDU.h"
 #include <kost_elements.h>
 
 namespace dps
@@ -44,7 +45,7 @@ pOrbitDAP(NULL), pStateVector(NULL)
 {
 	TIG[0]=TIG[1]=TIG[2]=TIG[3]=0.0;
 	OMS = 0;
-	TV_ROLL=0.0;
+	TV_ROLL=0;
 	PEG7 = _V(0.0, 0.0, 0.0);
 	Trim = _V(0.0, 0.0, 0.0);
 
@@ -209,6 +210,19 @@ bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 			metAt400KFeet = pStateVector->GetMETAtAltitude(EI_ALT);
 			bShowTimer = false;
 		}
+		else if (newMajorMode == 105)
+		{
+			bShowTimer = false;
+			MnvrLoad=false;
+			MnvrExecute=false;
+			MnvrToBurnAtt=false;
+			// reset burn flags
+			BurnInProg=false;
+			BurnCompleted=false;
+			// reset burn data (VGO, TGO, etc.) displayed on CRT screen
+			VGO = _V(0, 0, 0);
+			DeltaVTot = 0.0;
+		}
 		return true;
 	}
 	else {
@@ -227,95 +241,150 @@ bool OMSBurnSoftware::OnMajorModeChange(unsigned int newMajorMode)
 	return false;
 }
 
-bool OMSBurnSoftware::ItemInput(int spec, int item, const char* Data)
+bool OMSBurnSoftware::ItemInput(int spec, int item, const char* Data, bool &IllegalEntry )
 {
 	double dNew;
 	if(spec != dps::MODE_UNDEFINED) return false;
 	if(item>=1 && item<=4) {
-		OMS=item-1;
+		if (strlen( Data ) == 0)
+		{
+			OMS=item-1;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 	if(item==5) {
-		dNew=atof(Data);
-		if(dNew>=0.0 && dNew<=359.99)
-			TV_ROLL=dNew;
+		int num;
+		if (GetIntegerUnsigned( Data, num ))
+		{
+			if (num <= 359) TV_ROLL = num;
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item>=6 && item<=8) {
-		dNew=atof(Data);
-		if(fabs(dNew)<=6.0) 
+		if (GetDoubleSigned( Data, dNew ))
 		{
-			Trim.data[item-6]=dNew;
+			if(fabs(dNew)<=6.0) 
+			{
+				Trim.data[item-6]=dNew;
+			}
+			else IllegalEntry = true;
 		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==9) {
-		//dNew=atof(Data);
-		WT=atof(Data);
+		int num;
+		if (GetIntegerUnsigned( Data, num ))
+		{
+			WT = num;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
-	else if(item>=10 && item<=13) {
-		if(item==13) dNew=atof(Data);
-		else dNew=atoi(Data);
-		//sprintf(oapiDebugString(), "%f", dNew);
-		if((item==10 && dNew<365.0) || (item==11 && dNew<24.0) || (item>11 && dNew<60.0)) {
-			TIG[item-10]=dNew;
+	else if(item>=10 && item<=12) {
+		int num;
+		if (GetIntegerUnsigned( Data, num ))
+		{
+			if (((item == 10) && (num < 365)) || ((item == 11) && (num < 24)) || ((item == 12) && (num < 60))) TIG[item - 10] = num;
+			else IllegalEntry = true;
 		}
+		else IllegalEntry = true;
+		return true;
+	}
+	else if (item == 13) {
+		if (GetDoubleUnsigned( Data, dNew ))
+		{
+			if (dNew < 60.0) TIG[3] = dNew;
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==14 && GetMajorMode()!=202) {
-		dNew=atof(Data);
-		if(dNew >= 0.0 && dNew <= 99999.0) C1 = dNew;
+		int num;
+		if (GetIntegerUnsigned( Data, num ))
+		{
+			if (num <= 99999) C1 = num;
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==15 && GetMajorMode()!=202) {
-		dNew=atof(Data);
-		if(fabs(dNew)<10.0) {
-			C2=dNew;
+		if (GetDoubleSigned( Data, dNew ))
+		{
+			if(fabs(dNew)<10.0) C2=dNew;
+			else IllegalEntry = true;
 		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==16 && GetMajorMode()!=202) {
-		dNew=atof(Data);
-		if(dNew >= 0.0 && dNew <= 999.999) HT = dNew;
+		if (GetDoubleUnsigned( Data, dNew ))
+		{
+			if (dNew <= 999.999) HT = dNew;
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==17 && GetMajorMode()!=202) {
-		dNew=atof(Data);
-		if(dNew >= 0.0 && dNew <= 540.0) ThetaT = dNew;
+		if (GetDoubleUnsigned( Data, dNew ))
+		{
+			if (dNew <= 540.0) ThetaT = dNew;
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item>=19 && item<=21) {
-		dNew=atof(Data);
-		if((item == 19 && fabs(dNew) <= 9999.9) || (item != 19 && fabs(dNew) <= 999.9)) {
-			PEG7.data[item-19]=dNew;
-		}
+		if (GetDoubleSigned( Data, dNew ))
+		{
+			if((item == 19 && fabs(dNew) <= 9999.9) || (item != 19 && fabs(dNew) <= 999.9)) PEG7.data[item-19]=dNew;
+			else IllegalEntry = true;
+			}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==22) {
-		if(GetMajorMode() != 303) {
-			// in OPS 1 & 3, use PEG4 targets if PEG4 values are nonzero
-			// PEG 7 is always used in OPS 2 
-			if(GetMajorMode() != 202 && !Eq(ThetaT, 0.0, 0.001)) StartCalculatingPEG4Targets();
-			else LoadManeuver();
+		if (strlen( Data ) == 0)
+		{
+			if(GetMajorMode() != 303) {
+				// in OPS 1 & 3, use PEG4 targets if PEG4 values are nonzero
+				// PEG 7 is always used in OPS 2 
+				if(GetMajorMode() != 202 && !Eq(ThetaT, 0.0, 0.001)) StartCalculatingPEG4Targets();
+				else LoadManeuver();
+			}
 		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==23) {
-		if(MnvrLoad) bShowTimer = true;
+		if (strlen( Data ) == 0)
+		{
+			if(MnvrLoad) bShowTimer = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 	else if(item==27) {
-		if(!MnvrToBurnAtt) {
-			//STS()->LoadBurnAttManeuver(BurnAtt);
-			MnvrToBurnAtt = true;
-			//pOrbitDAP->ManeuverToLVLHAttitude(BurnAtt);
-			pOrbitDAP->ManeuverToINRTLAttitude(BurnAtt);
+		if (strlen( Data ) == 0)
+		{
+			if(!MnvrToBurnAtt) {
+				//STS()->LoadBurnAttManeuver(BurnAtt);
+				MnvrToBurnAtt = true;
+				//pOrbitDAP->ManeuverToLVLHAttitude(BurnAtt);
+				pOrbitDAP->ManeuverToINRTLAttitude(BurnAtt);
+			}
+			/*else {
+				STS()->TerminateManeuver();
+				MnvrToBurnAtt=false;
+			}*/
 		}
-		/*else {
-			STS()->TerminateManeuver();
-			MnvrToBurnAtt=false;
-		}*/
+		else IllegalEntry = true;
 		return true;
 	}
 
@@ -382,7 +451,7 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 		pMDU->mvprint(20, 9, cbuf);
 	}
 	else {
-		if(PeT<ApT && PeT>=STS()->GetMET()) {
+		if ((PeT<ApT && PeT>=STS()->GetMET()) || ((PeT > ApT) && (ApT < STS()->GetMET()))) {
 			double TTP = PeT - STS()->GetMET();
 			minutes=(int)(TTP/60);
 			seconds=(int)(TTP-(60*minutes));
@@ -414,57 +483,151 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(1, 4, "RCS SEL  4");
 	pMDU->mvprint(11, OMS+1, "*");
 
-	sprintf_s(cbuf, 255, "5 TV ROLL %d", round(TV_ROLL));
+	sprintf_s(cbuf, 255, "5 TV ROLL %3d", TV_ROLL );
 	pMDU->mvprint(1, 5, cbuf);
+	pMDU->Underline( 11, 5 );
+	pMDU->Underline( 12, 5 );
+	pMDU->Underline( 13, 5 );
 	pMDU->mvprint(1, 6, "TRIM LOAD");
-	sprintf(cbuf, "6 P  %+2.1f", Trim.data[0]);
+	sprintf_s(cbuf, 255, "6 P   %2.1f", fabs( Trim.data[0] ));
 	pMDU->mvprint(2, 7, cbuf);
-	sprintf(cbuf, "7 LY %+2.1f", Trim.data[1]);
+	pMDU->NumberSignBracket( 7, 7, Trim.data[0] );
+	pMDU->Underline( 8, 7 );
+	pMDU->Underline( 9, 7 );
+	pMDU->Underline( 10, 7 );
+	sprintf_s(cbuf, 255, "7 LY  %2.1f", fabs( Trim.data[1] ));
 	pMDU->mvprint(2, 8, cbuf);
-	sprintf(cbuf, "8 RY %+2.1f", Trim.data[2]);
+	pMDU->NumberSignBracket( 7, 8, Trim.data[1] );
+	sprintf_s(cbuf, 255, "8 RY  %2.1f", fabs( Trim.data[2] ));
 	pMDU->mvprint(2, 9, cbuf);
-	sprintf(cbuf, "9 WT  %6.0f", WT);
+	pMDU->NumberSignBracket( 7, 9, Trim.data[2] );
+	sprintf_s(cbuf, 255, "9 WT %6.0f", WT);
 	pMDU->mvprint(1, 10, cbuf);
+	pMDU->Underline( 6, 10 );
+	pMDU->Underline( 7, 10 );
+	pMDU->Underline( 8, 10 );
+	pMDU->Underline( 9, 10 );
+	pMDU->Underline( 10, 10 );
+	pMDU->Underline( 11, 10 );
 	pMDU->mvprint(0, 11, "10 TIG");
-	sprintf(cbuf, "%03.0f/%02.0f:%02.0f:%04.1f", TIG[0], TIG[1], TIG[2], TIG[3]);
+	sprintf_s(cbuf, 255, "%03.0f/%02.0f:%02.0f:%04.1f", TIG[0], TIG[1], TIG[2], TIG[3]);
 	pMDU->mvprint(3, 12, cbuf);
+	pMDU->Underline( 3, 12 );
+	pMDU->Underline( 4, 12 );
+	pMDU->Underline( 5, 12 );
+	pMDU->Underline( 7, 12 );
+	pMDU->Underline( 8, 12 );
+	pMDU->Underline( 10, 12 );
+	pMDU->Underline( 11, 12 );
+	pMDU->Underline( 13, 12 );
+	pMDU->Underline( 14, 12 );
+	pMDU->Underline( 15, 12 );
+	pMDU->Underline( 16, 12 );
 
-	pMDU->mvprint(0, 13, "TGT PEG 4");
-	pMDU->mvprint(1, 14, "14 C1");
-	sprintf(cbuf, "%05.0f", C1);
+	pMDU->mvprint(1, 13, "TGT PEG 4");
+	pMDU->mvprint(2, 14, "14 C1");
+	sprintf_s(cbuf, 255, "%5.0f", C1);
 	pMDU->mvprint(12, 14, cbuf);
-	pMDU->mvprint(1, 15, "15 C2");
-	sprintf(cbuf, "%+06.4f", C2);
-	pMDU->mvprint(10, 15, cbuf);
-	pMDU->mvprint(1, 16, "16 HT");
-	sprintf(cbuf, "%07.3f", HT);
+	pMDU->Underline( 12, 14 );
+	pMDU->Underline( 13, 14 );
+	pMDU->Underline( 14, 14 );
+	pMDU->Underline( 15, 14 );
+	pMDU->Underline( 16, 14 );
+	pMDU->mvprint(2, 15, "15 C2");
+	sprintf_s(cbuf, 255, "%6.4f", fabs( C2 ));
+	pMDU->mvprint(11, 15, cbuf);
+	pMDU->NumberSignBracket( 10, 15, C2 );
+	pMDU->Underline( 11, 15 );
+	pMDU->Underline( 12, 15 );
+	pMDU->Underline( 13, 15 );
+	pMDU->Underline( 14, 15 );
+	pMDU->Underline( 15, 15 );
+	pMDU->Underline( 16, 15 );
+	pMDU->mvprint(2, 16, "16 HT");
+	sprintf_s(cbuf, 255, "%7.3f", HT);
 	pMDU->mvprint(10, 16, cbuf);
-	pMDU->Theta(4, 17);
-	pMDU->mvprint(1, 17, "17  T");
-	sprintf(cbuf, "%07.3f", ThetaT);
+	pMDU->Underline( 10, 16 );
+	pMDU->Underline( 11, 16 );
+	pMDU->Underline( 12, 16 );
+	pMDU->Underline( 13, 16 );
+	pMDU->Underline( 14, 16 );
+	pMDU->Underline( 15, 16 );
+	pMDU->Underline( 16, 16 );
+	pMDU->mvprint(2, 17, "17  T");
+	pMDU->Theta(5, 17);
+	sprintf_s(cbuf, 255, "%7.3f", ThetaT);
 	pMDU->mvprint(10, 17, cbuf);
-	pMDU->mvprint(1, 18, "18 PRPLT");
+	pMDU->Underline( 10, 17 );
+	pMDU->Underline( 11, 17 );
+	pMDU->Underline( 12, 17 );
+	pMDU->Underline( 13, 17 );
+	pMDU->Underline( 14, 17 );
+	pMDU->Underline( 15, 17 );
+	pMDU->Underline( 16, 17 );
+	pMDU->mvprint(2, 18, "18 PRPLT");
+	sprintf_s( cbuf, 255, "%5.0f", fabs( 0.0 ) );
+	pMDU->mvprint( 12, 18, cbuf );
+	pMDU->NumberSignBracket( 11, 18, 0.0 );
+	pMDU->Underline( 12, 18 );
+	pMDU->Underline( 13, 18 );
+	pMDU->Underline( 14, 18 );
+	pMDU->Underline( 15, 18 );
+	pMDU->Underline( 16, 18 );
 
-	pMDU->mvprint(0, 19, "TGT PEG 7");
-	pMDU->mvprint(1, 20, "19  VX");
-	pMDU->mvprint(1, 21, "20  VY");
-	pMDU->mvprint(1, 22, "21  VZ");
-	for(int i=20;i<=22;i++) pMDU->Delta(4, i); // delta symbols for DV X/Y/Z
+	pMDU->mvprint(1, 19, "TGT PEG 7");
+	pMDU->mvprint(2, 20, "19  VX");
+	pMDU->mvprint(2, 21, "20  VY");
+	pMDU->mvprint(2, 22, "21  VZ");
+	for(int i=20;i<=22;i++) pMDU->Delta(5, i); // delta symbols for DV X/Y/Z
 	if(PEG7.x!=0.0 || PEG7.y!=0.0 || PEG7.z!=0.0) {
-		sprintf(cbuf, "%+7.1f", PEG7.x);
-		pMDU->mvprint(9, 20, cbuf);
-		sprintf(cbuf, "%+6.1f", PEG7.y);
-		pMDU->mvprint(10, 21, cbuf);
-		sprintf(cbuf, "%+6.1f", PEG7.z);
-		pMDU->mvprint(10, 22, cbuf);
+		sprintf_s(cbuf, 255, "%6.1f", fabs( PEG7.x ));
+		pMDU->mvprint(10, 20, cbuf);
+		pMDU->NumberSignBracket( 9, 20, PEG7.x );
+		sprintf_s(cbuf, 255, "%5.1f", fabs( PEG7.y ));
+		pMDU->mvprint(11, 21, cbuf);
+		pMDU->NumberSignBracket( 10, 21, PEG7.y );
+		sprintf_s(cbuf, 255, "%5.1f", fabs( PEG7.z ));
+		pMDU->mvprint(11, 22, cbuf);
+		pMDU->NumberSignBracket( 10, 22, PEG7.z );
 	}
+	else
+	{
+		pMDU->mvprint( 14, 20, "." );
+		pMDU->NumberSignBracket( 9, 20, 0.0 );
+		pMDU->mvprint( 14, 21, "." );
+		pMDU->NumberSignBracket( 10, 21, 0.0 );
+		pMDU->mvprint( 14, 22, "." );
+		pMDU->NumberSignBracket( 10, 22, 0.0 );
+	}
+	pMDU->Underline( 10, 20 );
+	pMDU->Underline( 11, 20 );
+	pMDU->Underline( 12, 20 );
+	pMDU->Underline( 13, 20 );
+	pMDU->Underline( 14, 20 );
+	pMDU->Underline( 15, 20 );
+	pMDU->Underline( 11, 21 );
+	pMDU->Underline( 12, 21 );
+	pMDU->Underline( 13, 21 );
+	pMDU->Underline( 14, 21 );
+	pMDU->Underline( 15, 21 );
+	pMDU->Underline( 11, 22 );
+	pMDU->Underline( 12, 22 );
+	pMDU->Underline( 13, 22 );
+	pMDU->Underline( 14, 22 );
+	pMDU->Underline( 15, 22 );
 
 	if(MnvrLoad || GetMajorMode()==303) {
-		sprintf(cbuf, "24 R %-3.0f", BurnAtt.data[ROLL]);
+		double tmp = BurnAtt.data[ROLL];
+		if (tmp < 0) tmp += 360;
+		sprintf_s(cbuf, 255, "24 R %03.0f", tmp);
 		pMDU->mvprint(21, 3, cbuf);
-		sprintf(cbuf, "25 P %-3.0f", BurnAtt.data[PITCH]);
+		tmp = BurnAtt.data[PITCH];
+		if (tmp < 0) tmp += 360;
+		sprintf_s(cbuf, 255, "25 P %03.0f", tmp);
 		pMDU->mvprint(21, 4, cbuf);
-		sprintf(cbuf, "26 Y %-3.0f", BurnAtt.data[YAW]);
+		tmp = BurnAtt.data[YAW];
+		if (tmp < 0) tmp += 360;
+		sprintf_s(cbuf, 255, "26 Y %03.0f", tmp);
 		pMDU->mvprint(21, 5, cbuf);
 	}
 	else {
@@ -472,22 +635,39 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 		pMDU->mvprint(21, 4, "25 P");
 		pMDU->mvprint(21, 5, "26 Y");
 	}
+	pMDU->Underline( 26, 3 );
+	pMDU->Underline( 27, 3 );
+	pMDU->Underline( 28, 3 );
 
 	if(MnvrLoad) {
-		pMDU->mvprint(0, 23, "LOAD  22/TIMER 23");
+		pMDU->mvprint(1, 23, "LOAD 22/TIMER 23");
 
 		unsigned int majorMode = GetMajorMode();
 		if(majorMode == 104 || majorMode == 105 || majorMode == 202 || majorMode == 302) {
-			if(!MnvrExecute && timeDiff<=15.0) pMDU->mvprint(46, 2, "EXEC", dps::DEUATT_FLASHING);
+			if(!MnvrExecute && timeDiff<=15.0) pMDU->mvprint(46, 2, "EXEC", dps::DEUATT_FLASHING + dps::DEUATT_OVERBRIGHT );
 		}
 	}
 	else pMDU->mvprint(6, 23, "22/TIMER 23");
 
-	pMDU->mvprint(20, 2, "BURN ATT");
-	if(!MnvrToBurnAtt) pMDU->mvprint(20, 6, "MNVR 27");
-	else pMDU->mvprint(20, 6, "MNVR 27*");
-	// display selected DAP mode
 	OrbitDAP::DAP_CONTROL_MODE dapMode = pOrbitDAP->GetDAPMode();
+
+	pMDU->mvprint(20, 2, "BURN ATT");
+	pMDU->mvprint( 21, 7, "TTG" );
+	if(!MnvrToBurnAtt) pMDU->mvprint(20, 6, "MNVR 27");
+	else
+	{
+		pMDU->mvprint(20, 6, "MNVR 27*");
+		double ttg;
+		if ((dapMode == OrbitDAP::AUTO) && (BurnInProg == false) && (BurnCompleted == false) && (pOrbitDAP->GetTimeToAttitude( ttg ) == true))
+		{
+			char att = 0;
+			if ((ttg > (timeDiff - 30)) || (((GetMajorMode() / 100) == 2) && (ttg > 3599))) att = dps::DEUATT_OVERBRIGHT;
+
+			sprintf_s( cbuf, 255, "%02d:%02d", (int)ttg / 60, (int)ttg % 60 );
+			pMDU->mvprint( 25, 7, cbuf, att );
+		}
+	}
+	// display selected DAP mode
 	std::string text;
 	switch(dapMode) {
 	case OrbitDAP::AUTO:
@@ -503,26 +683,27 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 		text = "FREE";
 		break;
 	}
-	if(MnvrToBurnAtt && dapMode != OrbitDAP::AUTO) pMDU->mvprint(30, 6, text.c_str(), dps::DEUATT_OVERBRIGHT);
-	else pMDU->mvprint(30, 6, text.c_str());
+	if(MnvrToBurnAtt && dapMode != OrbitDAP::AUTO) pMDU->mvprint(29, 6, text.c_str(), dps::DEUATT_OVERBRIGHT);
+	else pMDU->mvprint(29, 6, text.c_str());
 
 
 	pMDU->mvprint(20, 8, "REI");
 	pMDU->mvprint(25, 10, "GMBL");
 	pMDU->mvprint(24, 11, "L");
 	pMDU->mvprint(30, 11, "R");
-	sprintf(cbuf, "P %+02.1f %+02.1f", omsPitchGimbal[LEFT].GetVoltage()*OMS_PITCH_RANGE, omsPitchGimbal[RIGHT].GetVoltage()*OMS_PITCH_RANGE);
+	sprintf_s(cbuf, 255, "P %+02.1f  %+02.1f", omsPitchGimbal[LEFT].GetVoltage()*OMS_PITCH_RANGE, omsPitchGimbal[RIGHT].GetVoltage()*OMS_PITCH_RANGE);
 	pMDU->mvprint(20, 12, cbuf);
-	sprintf(cbuf, "Y %+02.1f %+02.1f", omsYawGimbal[LEFT].GetVoltage()*OMS_YAW_RANGE, omsYawGimbal[RIGHT].GetVoltage()*OMS_YAW_RANGE);
+	sprintf_s(cbuf, 255, "Y %+02.1f  %+02.1f", omsYawGimbal[LEFT].GetVoltage()*OMS_YAW_RANGE, omsYawGimbal[RIGHT].GetVoltage()*OMS_YAW_RANGE);
 	pMDU->mvprint(20, 13, cbuf);
 
 	pMDU->mvprint(20, 15, "PRI 28   29");
 	pMDU->mvprint(20, 16, "SEC 30   31");
 	pMDU->mvprint(20, 17, "OFF 32   33");
-	pMDU->mvprint(20, 18, "GMBL CK  34");
+	pMDU->mvprint(20, 19, "GMBL CK  34");
 
-	pMDU->Line(175, 117, 255, 117);
-	pMDU->Line(175, 18, 175, 117);
+	pMDU->Line( 180, 14, 180, 336 );
+	pMDU->Line( 350, 28, 350, 182 );
+	pMDU->Line( 350, 182, 500, 182 );
 	if(MnvrLoad && !BurnInProg && !BurnCompleted) {
 		TGO[0]=(int)(BurnTime/60);
 		TGO[1]=(int)(BurnTime-(TGO[0]*60));
@@ -533,37 +714,51 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 		TGO[1]=max(0, (int)btRemaining%60);
 	}
 	else TGO[0]=TGO[1]=0;
-	sprintf(cbuf, "VTOT   %6.2f", DeltaVTot);
+	sprintf_s(cbuf, 255, "VTOT   %6.2f", DeltaVTot);
 	pMDU->mvprint(37, 3, cbuf);
 	pMDU->Delta(36, 3);
-	sprintf(cbuf, "TGO      %2d:%.2d", TGO[0], TGO[1]);
+	sprintf_s(cbuf, 255, "TGO      %2d:%.2d", TGO[0], TGO[1]);
 	pMDU->mvprint(36, 4, cbuf);
-	sprintf(cbuf, "VGO X %+8.2f", VGO.x);
+	sprintf_s(cbuf, 255, "VGO X  %7.2f", fabs( VGO.x ));
 	pMDU->mvprint(36, 6, cbuf);
-	sprintf(cbuf, "Y  %+7.2f", VGO.y);
+	pMDU->NumberSign( 42, 6, VGO.x );
+	sprintf_s(cbuf, 255, "Y   %6.2f", fabs( VGO.y ));
 	pMDU->mvprint(40, 7, cbuf);
-	sprintf(cbuf, "Z  %+7.2f", VGO.z);
+	pMDU->NumberSign( 43, 7, VGO.y );
+	sprintf_s(cbuf, 255, "Z   %6.2f", fabs( VGO.z ));
 	pMDU->mvprint(40, 8, cbuf);
-	pMDU->mvprint(40, 10, "HA     HP");
+	pMDU->NumberSign( 43, 8, VGO.z );
+	pMDU->mvprint(41, 10, "HA    HP");
 	double earthRadius = oapiGetSize(STS()->GetGravityRef());
 	if(MnvrLoad && !Eq(tgtApD, 0.0)) {
 		double ap = (tgtApD-earthRadius)/NMI2M;
 		double pe = (tgtPeD-earthRadius)/NMI2M;
-		sprintf(cbuf, "TGT %3d   %+4d", round(ap), round(pe));
+		sprintf_s(cbuf, 255, "TGT %3d    %3d", Round(ap), abs( Round(pe) ));
 		pMDU->mvprint(36, 11, cbuf);
+		pMDU->NumberSign( 46, 11, Round(pe) );
 	}
 	else {
 		pMDU->mvprint(36, 11, "TGT");
 	}
-	//double ap = (oparam.ApD-earthRadius)/NMI2M;
-	//double pe = (oparam.PeD-earthRadius)/NMI2M;
+	
 	double ap = (ApD-earthRadius)/NMI2M;
 	double pe = (PeD-earthRadius)/NMI2M;
-	sprintf(cbuf, "CUR %3d   %+4d", round(ap), round(pe));
+	sprintf_s(cbuf, 255, "CUR %3d    %3d", Round(ap), abs( Round(pe) ));
 	pMDU->mvprint(36, 12, cbuf);
-	//pMDU->mvprint(36, 12, "CUR");
+	pMDU->NumberSign( 46, 12, Round(pe) );
 
 	pMDU->mvprint(35, 15, "35 ABORT TGT");
+	pMDU->Underline( 48, 15 );
+	pMDU->Underline( 49, 15 );
+
+	pMDU->mvprint( 37, 17, "FWD RCS" );
+	pMDU->mvprint( 39, 18, "ARM   36" );
+	pMDU->mvprint( 39, 19, "DUMP  37" );
+	pMDU->mvprint( 39, 20, "OFF   38" );
+
+	pMDU->mvprint( 37, 21, "SURF DRIVE" );
+	pMDU->mvprint( 39, 22, "ON    39" );
+	pMDU->mvprint( 39, 23, "OFF   40" );
 
 	return true;
 }
@@ -571,39 +766,39 @@ bool OMSBurnSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 bool OMSBurnSoftware::OnParseLine(const char* keyword, const char* value)
 {
 	if(!_strnicmp(keyword, "OMS", 3)) {
-		sscanf(value, "%d", &OMS);
+		sscanf_s(value, "%d", &OMS);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "PEG7", 4)) {
-		sscanf(value, "%lf%lf%lf", &PEG7.x, &PEG7.y, &PEG7.z);
+		sscanf_s(value, "%lf%lf%lf", &PEG7.x, &PEG7.y, &PEG7.z);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "PEG4", 4)) {
-		sscanf(value, "%lf%lf%lf%lf", &C1, &C2, &HT, &ThetaT);
+		sscanf_s(value, "%lf%lf%lf%lf", &C1, &C2, &HT, &ThetaT);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "Trim", 4)) {
-		sscanf(value, "%lf%lf%lf", &Trim.x, &Trim.y, &Trim.z);
+		sscanf_s(value, "%lf%lf%lf", &Trim.x, &Trim.y, &Trim.z);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "BURN_ATT", 8)) {
-		sscanf(value, "%lf%lf%lf", &BurnAtt.x, &BurnAtt.y, &BurnAtt.z);
+		sscanf_s(value, "%lf%lf%lf", &BurnAtt.x, &BurnAtt.y, &BurnAtt.z);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "WT", 2)) {
-		sscanf(value, "%lf", &WT);
+		sscanf_s(value, "%lf", &WT);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "TIG", 3)) {
-		sscanf(value, "%lf%lf%lf%lf", &TIG[0], &TIG[1], &TIG[2], &TIG[3]);
+		sscanf_s(value, "%lf%lf%lf%lf", &TIG[0], &TIG[1], &TIG[2], &TIG[3]);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "TV_ROLL", 7)) {
-		sscanf_s(value, "%lf", &TV_ROLL);
+		sscanf_s(value, "%d", &TV_ROLL);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "MNVR", 4)) {
-		sscanf_s(value, "%d %d", &MnvrLoad, &MnvrToBurnAtt);
+		sscanf_s(value, "%d %d %d", &MnvrLoad, &MnvrToBurnAtt, &BurnCompleted );
 		return true;
 	}
 	else if(!_strnicmp(keyword, "TIMER", 5)) {
@@ -627,8 +822,8 @@ void OMSBurnSoftware::OnSaveState(FILEHANDLE scn) const
 	oapiWriteScenario_float(scn, "WT", WT);
 	sprintf_s(cbuf, 255, "%0.0f %0.0f %0.0f %0.1f", TIG[0], TIG[1], TIG[2], TIG[3]);
 	oapiWriteScenario_string(scn, "TIG", cbuf);
-	oapiWriteScenario_float(scn, "TV_ROLL", TV_ROLL);
-	sprintf_s(cbuf, 255, "%d %d", MnvrLoad, MnvrToBurnAtt);
+	oapiWriteScenario_int(scn, "TV_ROLL", TV_ROLL);
+	sprintf_s(cbuf, 255, "%d %d %d", MnvrLoad, MnvrToBurnAtt, BurnCompleted);
 	oapiWriteScenario_string(scn, "MNVR", cbuf);
 	if(bShowTimer) oapiWriteScenario_string(scn, "TIMER", "");
 }
@@ -692,9 +887,6 @@ void OMSBurnSoftware::StartCalculatingPEG4Targets()
 		double angleToLaunchSite = SignedAngle(launchSitePos, initialPos, crossp(initialPos, initialVel));
 		if(angleToLaunchSite < 0) angleToLaunchSite += 2*PI;
 		correctedThetaT -= angleToLaunchSite;
-
-		sprintf_s(oapiDebugString(), 255, "Angle to launch site at TIG: %f %f", DEG*angleToLaunchSite, DEG*correctedThetaT);
-		oapiWriteLog(oapiDebugString());
 	}
 	
 	peg4Targeting.SetPEG4Targets(C1/MPS2FPS, C2, HT*NMI2M, correctedThetaT, initialPos, initialVel, acceleration);
@@ -707,9 +899,8 @@ void OMSBurnSoftware::StartCalculatingPEG4Targets()
 void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 {
 	int i;
-	double StartWeight, EndWeight, EndWeightLast=0.0, FuelRate, ThrustFactor=1.0;
+	double StartWeight, EndWeight, /*EndWeightLast=0.0,*/ FuelRate, ThrustFactor=1.0;
 	//VECTOR3 ThrustVector;
-	bool bDone=false;
 	MnvrLoad=true;
 	tig = ConvertDDHHMMSSToSeconds(TIG);
 	
@@ -788,8 +979,6 @@ void OMSBurnSoftware::LoadManeuver(bool calculateBurnAtt)
 		VECTOR3 DeltaVDir = PEG7/length(PEG7);
 		MATRIX3 LVLHToDeltaVMatrix = GetRotationMatrix(DeltaVDir, RAD*TV_ROLL);
 		MATRIX3 LVLHToBurnAttMatrix = mul(LVLHToDeltaVMatrix, ThrustToBodyMatrix);
-		//sprintf_s(oapiDebugString(), 255, "LVLH Burn att: P: %f Y: %f R: %f", radLVLHBurnAtt.data[PITCH]*DEG, radLVLHBurnAtt.data[YAW]*DEG, radLVLHBurnAtt.data[ROLL]*DEG);
-		//oapiWriteLog(oapiDebugString());
 
 		// convert LVLH angles to inertial angles at TIG
 		VECTOR3 rhEquPos = ConvertBetweenLHAndRHFrames(equPos);
@@ -843,4 +1032,9 @@ void OMSBurnSoftware::UpdateBurnPropagator()
 	propagator.UpdateStateVector(pos, vel, tig);
 }
 
+VECTOR3 OMSBurnSoftware::GetAttitudeCommandErrors() const
+{
+	if ((BurnInProg == false) || (OMS != 3)) return pOrbitDAP->GetAttitudeErrors(); // OMS || no burn
+	else return VGO;// RCS
+}
 };

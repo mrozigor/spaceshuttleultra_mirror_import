@@ -71,6 +71,12 @@ namespace vc
 		virtual void OnRotateLeft();
 		virtual void OnRotateRight();
 		virtual void OnPositionChange(unsigned short usNewPosition);
+
+		/**
+		 * Sets initial position of switch
+		 * If used, it has to be called as early as possible so it doesn't overwrite scenario entry.
+		 */
+		void SetInitialPosition(unsigned short usInPos);
 	};
 };
 

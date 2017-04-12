@@ -52,7 +52,7 @@ namespace vc {
 			oapiWriteLog(pszBuffer);
 			//VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
 			
-			pswitchrot = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec), 1, GetReference() /*+ ofs*/, GetDirection(), (float)(90 * RAD));
+			pswitchrot = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec), 1, GetReference() /*+ ofs*/, GetDirection(), (float)(66 * RAD));
 			anim_switch = STS()->CreateAnimation(InitialAnimState());
 			ANIMATIONCOMPONENT_HANDLE parent = STS()->AddAnimationComponent(anim_switch, 0.0, 1.0, pswitchrot, NULL);
 
@@ -69,6 +69,13 @@ namespace vc {
 	bool LockableLever::OnMouseEvent(int _event, float x, float y)
 	{
 		if((_event & PANEL_MOUSE_LBUP) && bIsPulled) { // switch released
+			// WARNING: this code assumes that on a 3 position LL, the center is never loaded
+			if (vbSpringLoaded.at( usCurrentPosition ))
+			{
+				if (usCurrentPosition == 0) OnPositionUp();
+				else if (usCurrentPosition == (usNumPositions - 1)) OnPositionDown();
+			}
+
 			bIsPulled=false;
 			OnRelease();
 
@@ -287,7 +294,7 @@ void StandardSwitch::DefineVCAnimations(UINT vc_idx)
 			GetQualifiedIdentifier().c_str());
 		oapiWriteLog(pszBuffer);
 		//VECTOR3 ofs = STS()->GetOrbiterCoGOffset();
-		pswitchrot = new MGROUP_ROTATE(vc_idx, &grpIndex, 1, GetReference() /*+ ofs*/, GetDirection(), (float)(90 * RAD));
+		pswitchrot = new MGROUP_ROTATE(vc_idx, &grpIndex, 1, GetReference() /*+ ofs*/, GetDirection(), (float)(66 * RAD));
 		anim_switch = STS()->CreateAnimation(InitialAnimState());
 		STS()->AddAnimationComponent(anim_switch, 0.0, 1.0, pswitchrot, NULL);
 		VerifyAnimations();

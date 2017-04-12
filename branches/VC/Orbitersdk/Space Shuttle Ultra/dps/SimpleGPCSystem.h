@@ -31,6 +31,11 @@ public:
 	 */
 	bool IsValidMajorModeTransition(unsigned int newMajorMode) const;
 
+	/**
+	 * Returns true if the specified SPEC is valid in the current OPS.
+	 */
+	bool IsValidSPEC( int spec ) const;
+
 	unsigned int GetMajorMode() const { return majorMode; };
 
 	virtual void Realize();
@@ -44,7 +49,7 @@ public:
 
 	/**
 	 * Handles Item entry on shuttle's keyboard.
-	 * Returns true if item/spec are supported, false otherwise.
+	 * Returns true if item entry is legal, false otherwise.
 	 * @param spec spec currently displayed
 	 * @param item ITEM number
 	 * @param Data string containing data entered

@@ -118,7 +118,6 @@ namespace vc
 
 		VECTOR3 curRot=RotateVectorZ(_V(0.0, 1.0, 0.0), fAngle);
 		VECTOR3 cross_product=crossp(curRot, _V(x-0.5, y-0.5, 0.0));
-		sprintf_s(oapiDebugString(), 255, "Angle: %f cp: %f", fAngle, cross_product.z);
 
 		if(cross_product.z>0.05) {
 			OnRotateLeft();
@@ -160,11 +159,16 @@ namespace vc
 	{
 		if(bHasAnimations)
 		{
-			if(usNewPosition>=0 && usNewPosition<usNumPositions) {
+			if(usNewPosition<usNumPositions) {
 				SetAnimation(anim_switch, (double)(usNewPosition)/(usNumPositions - 1));
 				//sprintf_s(oapiDebugString(), 255, "%s: animation %f %f", GetIdentifier().c_str(), rotAngle, (double)(usNewPosition)/(usNumPositions - 1));
 			}
 			//else sprintf_s(oapiDebugString(), 255, "%s: invalid switch position %d", GetIdentifier().c_str(), static_cast<int>(usNewPosition));
 		}
+	}
+
+	void BasicRotarySwitch::SetInitialPosition(unsigned short usPos)
+	{
+		usCurrentPosition=usPos;
 	}
 };

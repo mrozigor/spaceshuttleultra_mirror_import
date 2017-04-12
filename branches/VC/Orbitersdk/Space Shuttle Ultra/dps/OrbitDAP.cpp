@@ -1,7 +1,11 @@
 #include "OrbitDAP.h"
 #include "IDP.h"
+#include "..\vc\MDU.h"
 #include <UltraMath.h>
 #include "../ParameterValues.h"
+#include "RHC_SOP.h"
+#include "THC_SOP.h"
+
 
 namespace dps
 {
@@ -18,7 +22,7 @@ void LoadAttManeuver(const char* value, AttManeuver& maneuver)
 {
 	int nTemp;
 	VECTOR3 vTemp;
-	sscanf(value, "%d%lf%lf%lf", &nTemp, &vTemp.data[PITCH], &vTemp.data[YAW], &vTemp.data[ROLL]);
+	sscanf_s(value, "%d%lf%lf%lf", &nTemp, &vTemp.data[PITCH], &vTemp.data[YAW], &vTemp.data[ROLL]);
 
 	if(nTemp == AttManeuver::MNVR || nTemp == AttManeuver::TRK) {
 		maneuver.IsValid = true;
@@ -34,13 +38,14 @@ ControlMode(RCS),
 DAPMode(PRI), DAPSelect(A), DAPControlMode(INRTL), editDAP(-1),
 ManeuverStatus(MNVR_OFF),
 bFirstStep(true), lastStepDeltaT(1.0),
-PCTActive(false),
+PCTArmed(false), PCTActive(false),
 pStateVector(NULL) 
 {
 	OMSTrim = _V(0.0, 0.0, 0.0);
 	degReqdRates = _V(0.0, 0.0, 0.0);
 	TransPulseDV = _V(0.0, 0.0, 0.0);
 	ATT_ERR = _V(0.0, 0.0, 0.0);
+	REQD_ATT = _V(0.0, 0.0, 0.0);
 
 	for(unsigned int i=0;i<4;i++) START_TIME[i] = 0;
 	MNVR_OPTION = _V(0.0, 0.0, 0.0);
@@ -49,6 +54,11 @@ pStateVector(NULL)
 	P=0;
 	Y=0;
 	OM=-1;
+	RA = 0.0;
+	DEC = 0.0;
+	LAT = 0.0;
+	LON = 0.0;
+	_ALT = 0.0;
 
 	ActiveManeuver.IsValid = false;
 	CurManeuver.IsValid = false;
@@ -67,7 +77,7 @@ pStateVector(NULL)
 		NullingRates[i] = false;
 
 		//Initialize DAP Config
-		DAPConfiguration[i].PRI_ROT_RATE=0.2;
+		DAPConfiguration[i].PRI_ROT_RATE=2.0;
 		DAPConfiguration[i].PRI_ATT_DB=5.0;
 		DAPConfiguration[i].PRI_RATE_DB=0.2;
 		DAPConfiguration[i].PRI_ROT_PLS=0.1;
@@ -80,13 +90,19 @@ pStateVector(NULL)
 		DAPConfiguration[i].ALT_DELAY=0.0;
 		DAPConfiguration[i].ALT_JET_OPT=0;
 		DAPConfiguration[i].ALT_JETS=2;
-		DAPConfiguration[i].VERN_ROT_RATE=0.2;
+		DAPConfiguration[i].VERN_ROT_RATE=0.1;
 		DAPConfiguration[i].VERN_ATT_DB=1.0;
 		DAPConfiguration[i].VERN_RATE_DB=0.020;
 		DAPConfiguration[i].VERN_ROT_PLS=0.01;
 		DAPConfiguration[i].VERN_COMP=0.0;
 		DAPConfiguration[i].VERN_CNTL_ACC=0;
 	}
+
+	ERRTOT = true;
+
+	RA_DEC_flash = false;
+	LAT_LON_ALT_flash = false;
+	P_Y_flash = false;
 }
 
 OrbitDAP::~OrbitDAP()
@@ -182,8 +198,6 @@ void OrbitDAP::StartManeuver(const MATRIX3& tgtAtt, AttManeuver::TYPE type)
 		MATRIX3 AttError = GetRotationErrorMatrix(curM50Matrix, tgtAtt);
 		double Angle = CalcEulerAngle(AttError, Axis);
 		mnvrCompletionMET = STS()->GetMET() + (Angle*DEG)/degRotRate;
-		//sprintf_s(oapiDebugString(), 255, "Starting MNVR: m11: %f m12: %f m13: %f m21: %f m22: %f m23: %f m31: %f m32: %f m33: %f", ActiveManeuver.tgtMatrix.m11, ActiveManeuver.tgtMatrix.m12, ActiveManeuver.tgtMatrix.m13, ActiveManeuver.tgtMatrix.m21, ActiveManeuver.tgtMatrix.m22, ActiveManeuver.tgtMatrix.m23, ActiveManeuver.tgtMatrix.m31, ActiveManeuver.tgtMatrix.m32, ActiveManeuver.tgtMatrix.m33);
-		//oapiWriteLog(oapiDebugString());
 		lastUpdateTime = 0.0;
 	}
 	else {
@@ -195,21 +209,36 @@ void OrbitDAP::StartManeuver(const MATRIX3& tgtAtt, AttManeuver::TYPE type)
 bool OrbitDAP::GetRHCRequiredRates()
 {
 	bool outOfDetent = false;
+	double RHC[3];
+	RHC[0] = pRHC_SOP->GetPitchCommand();
+	RHC[1] = pRHC_SOP->GetYawCommand();
+	RHC[2] = pRHC_SOP->GetRollCommand();
+	bool RHCdetent[3];
+	RHCdetent[0] = pRHC_SOP->GetPitchDetent();
+	RHCdetent[1] = pRHC_SOP->GetYawDetent();
+	RHCdetent[2] = pRHC_SOP->GetRollDetent();
+	bool RHCpastsoftstop[3];
+	RHCpastsoftstop[0] = pRHC_SOP->GetPitchPastSoftStop();
+	RHCpastsoftstop[1] = pRHC_SOP->GetYawPastSoftStop();
+	RHCpastsoftstop[2] = pRHC_SOP->GetRollPastSoftStop();
+
 	for(unsigned int i=0;i<3;i++) {
-		if(abs(RHCInput[i].GetVoltage()) > RHC_DETENT) {
+		if (RHCdetent[i] == false)
+		{
 			outOfDetent = true;
-			if(abs(RHCInput[i].GetVoltage()) < RHC_SOFT_STOP) {
+			if (RHCpastsoftstop[i] == false)
+			{
 				if(RotMode[i]==DISC_RATE) { // DISC RATE
 					// if RHC was pushed past soft stop previously (high rotation rates), maintain high rotation rate; otherwise rotate at specified rate
-					degReqdRates.data[i] = max(degRotRate, abs(degAngularVelocity.data[i]))*sign(RHCInput[i].GetVoltage());
+					degReqdRates.data[i] = max(degRotRate, abs(degAngularVelocity.data[i]))*sign( RHC[i] );
 				}
 				else if(!RotPulseInProg[i]) { // PULSE
-					degReqdRates.data[i] = degReqdRates.data[i]+degRotPulse*sign(RHCInput[i].GetVoltage());
+					degReqdRates.data[i] = degReqdRates.data[i]+degRotPulse*sign( RHC[i] );
 					RotPulseInProg[i]=true;
 				}
 			}
 			else {
-				degReqdRates.data[i] = 1000*sign(RHCInput[i].GetVoltage());
+				degReqdRates.data[i] = 1000*sign( RHC[i] );
 			}
 		}
 	}
@@ -218,19 +247,20 @@ bool OrbitDAP::GetRHCRequiredRates()
 
 void OrbitDAP::HandleTHCInput(double DeltaT)
 {
-	VECTOR3 ThrusterLevel=_V(0.0, 0.0, 0.0);
+	int THC[3];
+	THC[0] = pTHC_SOP->GetXCommand();
+	THC[1] = pTHC_SOP->GetYCommand();
+	THC[2] = pTHC_SOP->GetZCommand();
 
 	for(int i=0;i<3;i++) {
-		if(abs(THCInput[i].GetVoltage())>0.01) {
-			//if PCT is in progress, disable it when THC is moved out of detent
-			if(PCTActive) StopPCT();
-
+		if (THC[i] != 0)
+		{
 			if(TransMode[i]==NORM) {
-				TransThrusterCommands[i].SetLine(static_cast<float>( sign(THCInput[i].GetVoltage()) ));
+				TransThrusterCommands[i].SetLine(static_cast<float>( sign( THC[i] ) ));
 			}
 			else if(TransMode[i]==TRANS_PULSE && !TransPulseInProg[i]) {
 				TransPulseInProg[i]=true;
-				TransPulseDV.data[i] = TransPulse*sign(THCInput[i].GetVoltage());
+				TransPulseDV.data[i] = TransPulse*sign( THC[i] );
 			}
 			else {
 				TransThrusterCommands[i].ResetLine();
@@ -240,7 +270,6 @@ void OrbitDAP::HandleTHCInput(double DeltaT)
 			TransThrusterCommands[i].ResetLine();
 		}
 
-		//sprintf_s(oapiDebugString(), 255, "Pulse DV: %f %f %f", TransPulseDV.x, TransPulseDV.y, TransPulseDV.z);
 		if(TransPulseInProg[i]) {
 			if(!Eq(TransPulseDV.data[i], 0.0, 0.001)) {
 				TransThrusterCommands[i].SetLine(static_cast<float>( sign(TransPulseDV.data[i]) ));
@@ -258,9 +287,7 @@ void OrbitDAP::HandleTHCInput(double DeltaT)
 			}
 			else {
 				//if THC is in detent and pulse is complete, allow further pulses
-				if(abs(THCInput[i].GetVoltage())<0.01) {
-					TransPulseInProg[i]=false;
-				}
+				if (THC[i] == 0) TransPulseInProg[i]=false;
 				TransThrusterCommands[i].ResetLine();
 			}
 		}
@@ -274,7 +301,6 @@ void OrbitDAP::CalcEulerAxisRates()
 	VECTOR3 RotationAxis;
 	double RotationAngle=CalcEulerAngle(attErrorMatrix, RotationAxis);
 	//Rates=RotationAxis*-RotRate;
-	VECTOR3 RotationAxis_orig = RotationAxis;
 	RotationAxis = _V(RotationAxis.y, RotationAxis.z, RotationAxis.x); // change rotation axis so PYR axes are mapped correctly
 	for(unsigned int i=0;i<3;i++) {
 		if(DAPControlMode==AUTO || RotMode[i]==DISC_RATE) {
@@ -337,19 +363,21 @@ void OrbitDAP::UpdateNullRates()
 	degNullRates.data[ROLL] = -orb_rad*sin(tgtLVLHAtt.data[YAW]);
 	degNullRates.data[PITCH] = -orb_rad*cos(tgtLVLHAtt.data[YAW])*cos(tgtLVLHAtt.data[ROLL]);
 	degNullRates.data[YAW] = orb_rad*cos(tgtLVLHAtt.data[YAW])*sin(tgtLVLHAtt.data[ROLL]);
-	sprintf_s(oapiDebugString(), 255, "Null rates: %f %f %f", degNullRates.data[PITCH], degNullRates.data[YAW], degNullRates.data[ROLL]);
-	oapiWriteLog(oapiDebugString());
 }
 
 void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 {
 	const VECTOR3 PRI_LIMITS = _V(0.005, 0.005, 0.005);
 	const VECTOR3 VERN_LIMITS = _V(0.0015, 0.0015, 0.0015);
+	//static char buf[100];
+
+
 	//double dDiff;
 	VECTOR3 Error = degRates-degAngularVelocity;
 	Error.data[YAW] = Error.data[YAW]; // temporary
 	Error.data[ROLL] = Error.data[ROLL];
-	//sprintf_s(oapiDebugString(), 255, "Rate error: %f %f %f", Error.data[PITCH], Error.data[YAW], Error.data[ROLL]);
+
+
 
 	VECTOR3 Limits;
 	double MaxThrusterLevel;
@@ -372,6 +400,11 @@ void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 	}
 	//if(ManeuverStatus==MNVR_IN_PROGRESS) Limits=Limits*5.0;
 
+	bool RHCdetent[3];
+	RHCdetent[0] = pRHC_SOP->GetPitchDetent();
+	RHCdetent[1] = pRHC_SOP->GetYawDetent();
+	RHCdetent[2] = pRHC_SOP->GetRollDetent();
+
 	for(unsigned int i=0;i<3;i++) {
 		if(abs(Error.data[i])>Limits.data[i]) {
 			//RotThrusterCommands[i].SetLine(static_cast<float>(MaxThrusterLevel*sign(Error.data[i])));
@@ -387,9 +420,13 @@ void OrbitDAP::SetRates(const VECTOR3 &degRates, double DeltaT)
 			RotThrusterCommands[i].ResetLine();
 			NullingRates[i] = false;
 			//If RHC is out of detent, pretend pulse is still in progress
-			if(abs(RHCInput[i].GetVoltage())<RHC_DETENT) RotPulseInProg[i]=false;
+			if (RHCdetent[i] == true) RotPulseInProg[i]=false;
 		}
 	}
+
+
+
+
 }
 
 void OrbitDAP::OMSTVC(const VECTOR3 &Rates, double SimDT)
@@ -418,7 +455,6 @@ void OrbitDAP::OMSTVC(const VECTOR3 &Rates, double SimDT)
 		if(ControlMode==BOTH_OMS) Pitch+=dRoll;
 		if(!GimbalOMS(RIGHT, Pitch, Yaw)) RCSWraparound=true;
 	}
-	//sprintf_s(oapiDebugString(), 255, "OMS TVC: %f %f %f %f dPitch: %f", OMSGimbal[0][0], OMSGimbal[0][1], OMSGimbal[1][0], OMSGimbal[1][1], pitchDelta);
 
 	if(RCSWraparound) SetRates(Rates, SimDT);
 	else if(ControlMode!=BOTH_OMS) SetRates(_V(0.0, 0.0, Rates.data[ROLL]), SimDT); //for single-engine burns, use RCS for roll control
@@ -453,23 +489,105 @@ void OrbitDAP::GetAttitudeData()
 
 void OrbitDAP::Realize()
 {
+	// PBI push buttons
 	DiscreteBundle* pBundle = BundleManager()->CreateBundle("DAP_PBIS1", 16);
-	for(int i=0;i<16;i++) {
-		PBI_input[i].Connect(pBundle, i);
-		PBI_output[i].Connect(pBundle, i);
-	}
+	for(int i=0;i<16;i++) PBI_input[i].Connect(pBundle, i);
 
 	pBundle=BundleManager()->CreateBundle("DAP_PBIS2", 16);
-	for(int i=16;i<24;i++) {
-		PBI_input[i].Connect(pBundle, i-16);
-		PBI_output[i].Connect(pBundle, i-16);
-	}
+	for(int i=16;i<24;i++) PBI_input[i].Connect(pBundle, i-16);
+
+	// lights
+	pBundle = BundleManager()->CreateBundle( "ACA1_1", 16 );
+	PBI_output_C3[3].Connect( pBundle, 2 );
+	PBI_output_C3[4].Connect( pBundle, 6 );
+	PBI_output_C3[5].Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA1_2", 16 );
+	PBI_output_C3[9].Connect( pBundle, 2 );
+	CDR_BodyFlap_MAN_LT.Connect( pBundle, 4 );
+	PBI_output_C3[10].Connect( pBundle, 6 );
+	PBI_output_C3[11].Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA1_3", 16 );
+	PBI_output_C3[15].Connect( pBundle, 2 );
+	PBI_output_C3[16].Connect( pBundle, 6 );
+	PBI_output_C3[17].Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA1_4", 16 );
+	CDR_SPDBK_THROT_AUTO_LT.Connect( pBundle, 0 );
+	PBI_output_C3[21].Connect( pBundle, 2 );
+	PBI_output_C3[22].Connect( pBundle, 6 );
+	CDR_BodyFlap_AUTO_LT.Connect( pBundle, 8 );
+	PBI_output_C3[23].Connect( pBundle, 10 );
+
+	pBundle = STS()->BundleManager()->CreateBundle( "ACA2_4", 16 );
+	PLT_SPDBK_THROT_AUTO_LT.Connect( pBundle, 2 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA3_1", 16 );
+	PBI_output_C3[0].Connect( pBundle, 2 );
+	PBI_output_C3[1].Connect( pBundle, 6 );
+	PBI_output_C3[2].Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA3_2", 16 );
+	PBI_output_C3[6].Connect( pBundle, 2 );
+	PBI_output_C3[7].Connect( pBundle, 6 );
+	PBI_output_C3[8].Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA3_3", 16 );
+	PBI_output_C3[12].Connect( pBundle, 2 );
+	PBI_output_C3[13].Connect( pBundle, 6 );
+	PBI_output_C3[14].Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA3_4", 16 );
+	PBI_output_C3[18].Connect( pBundle, 2 );
+	PBI_output_C3[19].Connect( pBundle, 6 );
+	PBI_output_C3[20].Connect( pBundle, 10 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA4_1", 16 );
+	PBI_output_A6[0].Connect( pBundle, 0 );
+	PBI_output_A6[1].Connect( pBundle, 4 );
+	PBI_output_A6[2].Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA4_2", 16 );
+	PBI_output_A6[6].Connect( pBundle, 0 );
+	PBI_output_A6[7].Connect( pBundle, 4 );
+	PBI_output_A6[8].Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA4_3", 16 );
+	PBI_output_A6[12].Connect( pBundle, 0 );
+	PBI_output_A6[13].Connect( pBundle, 4 );
+	PBI_output_A6[14].Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA4_4", 16 );
+	PBI_output_A6[18].Connect( pBundle, 0 );
+	PBI_output_A6[19].Connect( pBundle, 4 );
+	PBI_output_A6[20].Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA5_1", 16 );
+	PBI_output_A6[3].Connect( pBundle, 0 );
+	PBI_output_A6[4].Connect( pBundle, 4 );
+	PBI_output_A6[5].Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA5_2", 16 );
+	PBI_output_A6[9].Connect( pBundle, 0 );
+	PBI_output_A6[10].Connect( pBundle, 4 );
+	PBI_output_A6[11].Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA5_3", 16 );
+	PBI_output_A6[15].Connect( pBundle, 0 );
+	PBI_output_A6[16].Connect( pBundle, 4 );
+	PBI_output_A6[17].Connect( pBundle, 8 );
+
+	pBundle = BundleManager()->CreateBundle( "ACA5_4", 16 );
+	PBI_output_A6[21].Connect( pBundle, 0 );
+	PBI_output_A6[22].Connect( pBundle, 4 );
+	PBI_output_A6[23].Connect( pBundle, 8 );
 	
-	for(int i=0;i<24;i++) {
+	/*for(int i=0;i<24;i++) {
 		PBI_state[i] = GetPBIState(i);
 		if(PBI_state[i]) PBI_output[i].SetLine();
 		else PBI_output[i].ResetLine();
-	}	
+	}*/	
 
 	pBundle = BundleManager()->CreateBundle("LOMS", 5);
 	POMSGimbalCommand[LEFT].Connect(pBundle, 3);
@@ -484,33 +602,25 @@ void OrbitDAP::Realize()
 		TransThrusterCommands[i].Connect(pBundle, i+3);
 	}
 
-	pBundle=STS()->BundleManager()->CreateBundle("HC_INPUT", 16);
-	for(int i=0;i<3;i++) {
-		RHCInput[i].Connect(pBundle, i);
-		THCInput[i].Connect(pBundle, i+3);
-	}
-
-	pBundle = BundleManager()->CreateBundle("CSS_CONTROLS", 4);
-	PitchAuto.Connect(pBundle, 0);
-	PitchCSS.Connect(pBundle, 1);
-	RollYawAuto.Connect(pBundle, 2);
-	RollYawCSS.Connect(pBundle, 3);
-
-	pBundle=BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
-	PCTArmed.Connect(pBundle, 0);
-
-	pBundle=BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);
-	BodyFlapAuto.Connect(pBundle, 0);
-	port_PCTActive[0].Connect(pBundle, 0);
-	port_PCTActive[1].Connect(pBundle, 1);
+	pBundle = BundleManager()->CreateBundle( "DAP_CH_CONTROLS", 16 );
+	CDR_SPDBK_THROT.Connect( pBundle, 8 );
+	PLT_SPDBK_THROT.Connect( pBundle, 9 );
+	CDR_BodyFlap.Connect( pBundle, 10 );
 	
 	pStateVector = static_cast<StateVectorSoftware*>(FindSoftware("StateVectorSoftware"));
+	pRHC_SOP = static_cast<RHC_SOP*>(FindSoftware( "RHC_SOP" ));
+	pTHC_SOP = static_cast<THC_SOP*>(FindSoftware( "THC_SOP" ));
 
 	UpdateDAPParameters();
 }
 
 void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 {
+	cdrspdbkthrot.Set( CDR_SPDBK_THROT.IsSet() );
+	pltspdbkthrot.Set( PLT_SPDBK_THROT.IsSet() );
+	cdrbodyflap.Set( CDR_BodyFlap.IsSet() );
+	sparepbi.Set( PBI_input[6].IsSet() );
+
 	GetAttitudeData();
 
 	for(int i=0;i<24;i++) {
@@ -518,8 +628,16 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 			ButtonPress(i);
 		}
 		PBI_state[i] = GetPBIState(i);
-		if(PBI_state[i]) PBI_output[i].SetLine();
-		else PBI_output[i].ResetLine();
+		if(PBI_state[i])
+		{
+			PBI_output_C3[i].SetLine();
+			PBI_output_A6[i].SetLine();
+		}
+		else
+		{
+			PBI_output_C3[i].ResetLine();
+			PBI_output_A6[i].ResetLine();
+		}
 	}
 
 	// in AUTO, INRTL or LVLH modes, start maneuver
@@ -545,10 +663,49 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 	}
 
-	if(PCTArmed && BodyFlapAuto && !PCTActive) StartPCT();
-	else if(!BodyFlapAuto && PCTActive) StopPCT();
-	if(!PCTActive) HandleTHCInput(DeltaT);
-	else PCTControl(SimT);
+	// PCT
+	if ((GetMajorMode() / 100) == 2)
+	{
+		if (PCTArmed)
+		{
+			if (PCTActive)
+			{
+				// active
+				if (cdrspdbkthrot.Get() || pltspdbkthrot.Get())
+				{
+					DisarmPCT();
+					StopPCT();
+				}
+				else
+				{
+					bool RHCdetent = pRHC_SOP->GetPitchDetent() &
+						pRHC_SOP->GetYawDetent() &
+						pRHC_SOP->GetRollDetent();
+
+					bool THCdetent = (pTHC_SOP->GetXCommand() == 0) &
+						(pTHC_SOP->GetYCommand() == 0) &
+						(pTHC_SOP->GetZCommand() == 0);
+
+					if (cdrbodyflap.Get() || sparepbi.Get() || PBI_input[5].IsSet() || !RHCdetent || !THCdetent) StopPCT();
+				}
+			}
+			else
+			{
+				// armed
+				if (cdrspdbkthrot.Get() || pltspdbkthrot.Get()) DisarmPCT();
+				else if (cdrbodyflap.Get() || sparepbi.Get()) StartPCT();
+			}
+		}
+		else
+		{
+			// disarmed
+			if (cdrspdbkthrot.Get() || pltspdbkthrot.Get()) ArmPCT();
+		}
+
+		if (PCTActive == true) PCTControl( SimT );
+		else HandleTHCInput( DeltaT );
+	}
+	else HandleTHCInput(DeltaT);
 
 	if(GetRHCRequiredRates()) {
 		if(DAPControlMode == AUTO) {
@@ -585,6 +742,16 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 		}
 		else {
 			tgtM50Matrix = ActiveManeuver.tgtMatrix;
+
+			if (((STS()->GetMET()-lastUpdateTime) > 10.0) && (ManeuverStatus < MNVR_COMPLETE))
+			{
+				// recalculate time to reach target attitude
+				VECTOR3 Axis;
+				MATRIX3 AttError = GetRotationErrorMatrix(curM50Matrix, ActiveManeuver.tgtMatrix);
+				double Angle = CalcEulerAngle(AttError, Axis);
+				mnvrCompletionMET = STS()->GetMET() + (Angle*DEG)/degRotRate;
+				lastUpdateTime = STS()->GetMET();
+			}
 		}
 		
 		attErrorMatrix = GetRotationErrorMatrix(curM50Matrix, tgtM50Matrix);
@@ -608,12 +775,6 @@ void OrbitDAP::OnPreStep(double SimT, double DeltaT, double MJD)
 	if(ControlMode == RCS) SetRates(degReqdRates, DeltaT);
 	else OMSTVC(ATT_ERR*0.1, DeltaT);
 
-	// set entry DAP mode PBIs to OFF
-	PitchAuto.ResetLine();
-	PitchCSS.ResetLine();
-	RollYawAuto.ResetLine();
-	RollYawCSS.ResetLine();
-
 	lastStepDeltaT = DeltaT;
 }
 
@@ -621,312 +782,634 @@ bool OrbitDAP::OnMajorModeChange(unsigned int newMajorMode)
 {
 	if(newMajorMode >= 104 && newMajorMode <= 303) {
 		// perform initialization
+
+		// turn FCS lights off
+		DiscOutPort port;
+		DiscreteBundle* pBundle = BundleManager()->CreateBundle( "ACA1_2", 16 );
+		port.Connect( pBundle, 8 );
+		port.ResetLine();
+		port.Connect( pBundle, 12 );
+		port.ResetLine();
+
+		pBundle = BundleManager()->CreateBundle( "ACA1_3", 16 );
+		port.Connect( pBundle, 4 );
+		port.ResetLine();
+		port.Connect( pBundle, 8 );
+		port.ResetLine();
+
+		pBundle = BundleManager()->CreateBundle( "ACA2_2", 16 );
+		port.Connect( pBundle, 10 );
+		port.ResetLine();
+		port.Connect( pBundle, 14 );
+		port.ResetLine();
+
+		pBundle = BundleManager()->CreateBundle( "ACA2_3", 16 );
+		port.Connect( pBundle, 6 );
+		port.ResetLine();
+		port.Connect( pBundle, 10 );
+		port.ResetLine();
+		
 		return true;
 	}
 	return false;
 }
 
-bool OrbitDAP::ItemInput(int spec, int item, const char* Data)
+bool OrbitDAP::ItemInput(int spec, int item, const char* Data, bool &IllegalEntry )
 {
-	if(GetMajorMode()!=201) return false;
-
 	if(spec==dps::MODE_UNDEFINED) {
+		if(GetMajorMode()!=201) return false;
+
 		if(item>=1 && item<=4) {
-			int nNew=atoi(Data);
-			if((item==1 && nNew<365) || (item==2 && nNew<24) || (item>2 && nNew<60)) {
-				START_TIME[item-1]=nNew;
+			int nNew = 0;
+			if (GetIntegerUnsigned( Data, nNew ))
+			{
+				if((item==1 && nNew<365) || (item==2 && nNew<24) || (item>2 && nNew<60)) START_TIME[item-1]=nNew;
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==5 || item==6) {
-			double dNew=atof(Data);
-			if(dNew>=0.0 && dNew<360.0) {
-				if(item==5) MNVR_OPTION.data[ROLL]=dNew;
-				else MNVR_OPTION.data[PITCH]=dNew;
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if (dNew<359.99)
+				{
+					if(item==5) MNVR_OPTION.data[ROLL]=dNew;
+					else MNVR_OPTION.data[PITCH]=dNew;
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==7) {
-			double dNew=atof(Data);
-			if((dNew>=0.0 && dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) {
-				MNVR_OPTION.data[YAW]=dNew;
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if ((dNew<=90.0) || (dNew>=270.0 && dNew<359.99)) MNVR_OPTION.data[YAW]=dNew;
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
-		if(item==8) {
-			int nNew=atoi(Data);
-			if(nNew==2 || nNew==4) {
-				TGT_ID=nNew;
-			}
-		}
-		if(item==14) {
-			int nNew=atoi(Data);
-			if(nNew>=1 && nNew<=5) {
-				BODY_VECT=nNew;
-				if(BODY_VECT==1) {
-					P=0.0;
-					Y=0.0;
+		else if(item==8) {
+			int nNew;
+			if (GetIntegerUnsigned( Data, nNew ))
+			{
+				/*if (nNew == 1)// Orbiting vehicle
+				{
+					TGT_ID = nNew;
+					RA_DEC_flash = false;
+					LAT_LON_ALT_flash = false;
 				}
-				else if(BODY_VECT==2) {
-					P=180.0;
-					Y=0.0;
+				else*/ if (nNew == 2)// Center of Earth
+				{
+					TGT_ID = nNew;
+					RA_DEC_flash = false;
+					LAT_LON_ALT_flash = false;
 				}
-				else if(BODY_VECT==3) {
-					P=90.0;
-					Y=0.0;
+				/*else if (nNew == 3)// Earth relative target
+				{
+					TGT_ID = nNew;
+					RA_DEC_flash = false;
+					LAT_LON_ALT_flash = true;
 				}
-				else if(BODY_VECT==4) {
-					P=90.0;
-					Y=79.333;
+				else if (nNew == 4)// Center of Sun
+				{
+					TGT_ID = nNew;
+					RA_DEC_flash = false;
+					LAT_LON_ALT_flash = false;
 				}
+				else if (nNew == 5)// Celestial target
+				{
+					TGT_ID = nNew;
+					RA_DEC_flash = true;
+					LAT_LON_ALT_flash = false;
+				}
+				else if ((nNew >= 11) && (nNew <= 60))// Navigation stars, OPS 2, 3, and 8
+				{
+					TGT_ID = nNew;
+					RA_DEC_flash = false;
+					LAT_LON_ALT_flash = false;
+				}
+				else if ((nNew >= 61) && (nNew <= 110))// Navigation stars, OPS 2 and 8
+				{
+					TGT_ID = nNew;
+					RA_DEC_flash = false;
+					LAT_LON_ALT_flash = false;
+				}*/
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
-		if(item==15 && BODY_VECT==5) {
-			double dNew=atof(Data);
-			if(dNew>=0.0 && dNew<360.0) {
-				P=dNew;
+		else if (item == 9)
+		{
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if ((dNew <= 359.999) && (TGT_ID == 5))
+				{
+					RA = dNew;
+					RA_DEC_flash = false;
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
-		if(item==16 && BODY_VECT==5) {
-			double dNew=atof(Data);
-			if((dNew>=0.0 && dNew<=90.0) || (dNew>=270.0 && dNew<360.0)) {
-				Y=dNew;
+		else if (item == 10)
+		{
+			double dNew;
+			if (GetDoubleSigned( Data, dNew ))
+			{
+				if ((dNew >= -90.0) && (dNew <= 90.0) && (TGT_ID == 5))
+				{
+					DEC = dNew;
+					RA_DEC_flash = false;
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
-		if(item==17) {
-			double dNew=atof(Data);
-			if(dNew>=0.0 && dNew<360.0) {
-				OM=dNew;
+		else if (item == 11)
+		{
+			double dNew;
+			if (GetDoubleSigned( Data, dNew ))
+			{
+				if ((dNew >= -90.0) && (dNew <= 90.0) && (TGT_ID == 3))
+				{
+					LAT = dNew;
+					LAT_LON_ALT_flash = false;
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
+		}
+		else if (item == 12)
+		{
+			double dNew;
+			if (GetDoubleSigned( Data, dNew ))
+			{
+				if ((dNew >= -180.0) && (dNew <= 180.0) && (TGT_ID == 3))
+				{
+					LON = dNew;
+					LAT_LON_ALT_flash = false;
+				}
+				else IllegalEntry = true;
+			}
+			else IllegalEntry = true;
+		}
+		else if (item == 13)
+		{
+			double dNew;
+			if (GetDoubleSigned( Data, dNew ))
+			{
+				if ((dNew >= -3444.0) && (dNew <= 20000.0) && (TGT_ID == 3))
+				{
+					_ALT = dNew;
+					LAT_LON_ALT_flash = false;
+				}
+				else IllegalEntry = true;
+			}
+			else IllegalEntry = true;
+		}
+		else if(item==14) {
+			int nNew;
+			if (GetIntegerUnsigned( Data, nNew ))
+			{
+				if(nNew>=1 && nNew<=5)
+				{
+					BODY_VECT=nNew;
+					P_Y_flash = false;
+					if(BODY_VECT==1) {
+						P=0.0;
+						Y=0.0;
+					}
+					else if(BODY_VECT==2) {
+						P=180.0;
+						Y=0.0;
+					}
+					else if(BODY_VECT==3) {
+						P=90.0;
+						Y=0.0;
+					}
+					else if(BODY_VECT==4) {
+						P=0.0;
+						Y=280.57;
+					}
+					else P_Y_flash = true;
+				}
+				else IllegalEntry = true;
+			}
+			else IllegalEntry = true;
+		}
+		else if(item==15) {
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if ((dNew < 359.99) && (BODY_VECT == 5))
+				{
+					P=dNew;
+					P_Y_flash = false;
+				}
+				else IllegalEntry = true;
+			}
+			else IllegalEntry = true;
+		}
+		else if(item==16) {
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if (((dNew <= 90.0) || ((dNew >= 270.0) && (dNew < 359.99))) && (BODY_VECT == 5))
+				{
+					Y=dNew;
+					P_Y_flash = false;
+				}
+				else IllegalEntry = true;
+			}
+			else IllegalEntry = true;
+		}
+		else if(item==17) {
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew<359.99) OM=dNew;
+				else IllegalEntry = true;
+			}
+			else IllegalEntry = true;
 		}
 		else if(item==18) {
-			//VECTOR3 radTargetAtt = ConvertAnglesBetweenM50AndOrbiter(MNVR_OPTION*RAD, true);
-			MATRIX3 tgtAtt = GetRotationMatrixYZX(_V(MNVR_OPTION.data[ROLL], MNVR_OPTION.data[PITCH], MNVR_OPTION.data[YAW])*RAD);
-			double startTime = START_TIME[0]*86400.0+ START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
-			if(startTime <= STS()->GetMET()) {
-				LoadCurINRTLManeuver(tgtAtt);
+			if (strlen( Data ) == 0)
+			{
+				//VECTOR3 radTargetAtt = ConvertAnglesBetweenM50AndOrbiter(MNVR_OPTION*RAD, true);
+				MATRIX3 tgtAtt = GetRotationMatrixYZX(_V(MNVR_OPTION.data[ROLL], MNVR_OPTION.data[PITCH], MNVR_OPTION.data[YAW])*RAD);
+				double startTime = START_TIME[0]*86400.0+ START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
+				if(startTime <= STS()->GetMET()) {
+					LoadCurINRTLManeuver(tgtAtt);
+				}
+				else {
+					FutMnvrStartTime = startTime;
+					LoadFutINRTLManeuver(tgtAtt);
+				}
+
+				RA_DEC_flash = false;
+				LAT_LON_ALT_flash = false;
+				P_Y_flash = false;
 			}
-			else {
-				FutMnvrStartTime = startTime;
-				LoadFutINRTLManeuver(tgtAtt);
-			}
+			else IllegalEntry = true;
 		}
 		else if(item==19) {
-			//VECTOR3 radTargetAtt = ConvertPYOMToBodyAngles(P*RAD, Y*RAD, OM*RAD);
-			MATRIX3 tgtAtt = ConvertPYOMToLVLH(P*RAD, Y*RAD, OM*RAD);
-			double startTime = START_TIME[0]*86400.0 + START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
-			if(startTime <= STS()->GetMET()) {
-				if(TGT_ID == 2) {
-					LoadCurLVLHManeuver(tgtAtt);
+			if (strlen( Data ) == 0)
+			{
+				if (TGT_ID == 2)
+				{
+					MATRIX3 tgtAtt = ConvertPYOMToLVLH(P*RAD, Y*RAD, OM*RAD);
+					double startTime = START_TIME[0]*86400.0 + START_TIME[1]*3600.0 + START_TIME[2]*60.0 + START_TIME[3];
+					if (startTime <= STS()->GetMET()) LoadCurLVLHManeuver(tgtAtt);
+					else
+					{
+						FutMnvrStartTime = startTime;
+						LoadFutLVLHManeuver(tgtAtt);
+					}
 				}
-			}
-			else {
-				FutMnvrStartTime = startTime;
-				if(TGT_ID == 2) {
-					LoadFutLVLHManeuver(tgtAtt);
+				else if (TGT_ID == 3)
+				{
+					// TODO LAT, LON, ALT
 				}
+				else if (TGT_ID == 5)
+				{
+					// TODO RA, DEC
+				}
+
+				RA_DEC_flash = false;
+				LAT_LON_ALT_flash = false;
+				P_Y_flash = false;
 			}
+			else IllegalEntry = true;
 		}
 		/*else if(item==20) {
-		LoadRotationManeuver();
+			LoadRotationManeuver();
+			RA_DEC_flash = false;
+			LAT_LON_ALT_flash = false;
+			P_Y_flash = false;
 		}*/
 		else if(item==21) {
-			CurManeuver.IsValid = false;
-			FutManeuver.IsValid = false;
-			RotatingAxis[YAW]=false;
-			RotatingAxis[PITCH]=false;
-			RotatingAxis[ROLL]=false;
+			if (strlen( Data ) == 0)
+			{
+				CurManeuver.IsValid = false;
+				FutManeuver.IsValid = false;
+				RotatingAxis[YAW]=false;
+				RotatingAxis[PITCH]=false;
+				RotatingAxis[ROLL]=false;
 
-			DAPControlMode=INRTL;
-			//StartINRTLManeuver(radCurrentOrbiterAtt);
-			StartManeuver(curM50Matrix, AttManeuver::MNVR);
+				DAPControlMode=INRTL;
+				//StartINRTLManeuver(radCurrentOrbiterAtt);
+				StartManeuver(curM50Matrix, AttManeuver::MNVR);
+			}
+			else IllegalEntry = true;
+		}
+		else if (item == 23)
+		{
+			if (strlen( Data ) == 0) ERRTOT = true;// ERR TOT
+			else IllegalEntry = true;
+		}
+		else if (item == 24)
+		{
+			if (strlen( Data ) == 0) ERRTOT = false;// ERR DAP
+			else IllegalEntry = true;
 		}
 		return true;
 	}
 	else if(spec==20) {
 		if(item==3 || item==4) {
-			editDAP=item-3;
-			DAPConfiguration[2]=DAPConfiguration[editDAP];
+			int num;
+			if (GetIntegerUnsigned( Data, num ))
+			{
+				if (num <= 15)
+				{
+					// TODO use num
+					editDAP=item-3;
+					DAPConfiguration[2]=DAPConfiguration[editDAP];
+				}
+				else IllegalEntry = true;
+			}
+			else IllegalEntry = true;
 		}
 		else if(item==5) {
-			if(editDAP != -1) DAPConfiguration[editDAP]=DAPConfiguration[2];
-			editDAP=-1;
+			if (strlen( Data ) == 0)
+			{
+				if(editDAP != -1) DAPConfiguration[editDAP]=DAPConfiguration[2];
+				editDAP=-1;
+			}
+			else IllegalEntry = true;
 		}
 		if(item==10 || item==30 || item==50) {
-			double dNew=atof(Data);
-			if(dNew>=0.05 && dNew<=2.0) {
-				DAPConfiguration[convert[item]].PRI_ROT_RATE=dNew;
-				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.05 && dNew<=2.0) {
+					DAPConfiguration[convert[item]].PRI_ROT_RATE=dNew;
+					if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==11 || item==31 || item==51) {
-			double dNew=atof(Data);
-			if(dNew>0.10 && dNew<=40.0) {
-				DAPConfiguration[convert[item]].PRI_ATT_DB=dNew;
-				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>0.10 && dNew<=40.0) {
+					DAPConfiguration[convert[item]].PRI_ATT_DB=dNew;
+					if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==12 || item==32 || item==52) {
-			double dNew=atof(Data);
-			if(dNew>=0.10 && dNew<=5.0) {
-				DAPConfiguration[convert[item]].PRI_RATE_DB=dNew;
-				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.10 && dNew<=5.0) {
+					DAPConfiguration[convert[item]].PRI_RATE_DB=dNew;
+					if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==13 || item==33 || item==53) {
-			double dNew=atof(Data);
-			if(dNew>=0.04 && dNew<=1.0) {
-				DAPConfiguration[convert[item]].PRI_ROT_PLS=dNew;
-				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.04 && dNew<=1.0) {
+					DAPConfiguration[convert[item]].PRI_ROT_PLS=dNew;
+					if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==14 || item==34 || item==54) {
-			double dNew=atof(Data);
-			if(dNew>=0.0 && dNew<=0.999) {
-				DAPConfiguration[convert[item]].PRI_COMP=dNew;
-				if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if (dNew<=0.999) {
+					DAPConfiguration[convert[item]].PRI_COMP=dNew;
+					if(convert[item]==DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==15 || item==35 || item==55) {
-			if(DAPConfiguration[convert[item]].PRI_P_OPTION<2) {
-				DAPConfiguration[convert[item]].PRI_P_OPTION++;
-				if(DAPMode==PRI) {
-					if(DAPConfiguration[DAPSelect].PRI_P_OPTION==1) {
-						STS()->DisableThrusters(AftPitchThrusters, 2);
-						UpdateDAPParameters();
+			if (strlen( Data ) == 0)
+			{
+				if(DAPConfiguration[convert[item]].PRI_P_OPTION<2) {
+					DAPConfiguration[convert[item]].PRI_P_OPTION++;
+					if(DAPMode==PRI) {
+						if(DAPConfiguration[DAPSelect].PRI_P_OPTION==1) {
+							STS()->DisableThrusters(AftPitchThrusters, 2);
+							UpdateDAPParameters();
+						}
+						else if(DAPConfiguration[DAPSelect].PRI_P_OPTION==2) {
+							STS()->EnableThrusters(AftPitchThrusters, 2);
+							STS()->DisableThrusters(NosePitchThrusters, 2);
+							UpdateDAPParameters();
+						}
 					}
-					else if(DAPConfiguration[DAPSelect].PRI_P_OPTION==2) {
-						STS()->EnableThrusters(AftPitchThrusters, 2);
-						STS()->DisableThrusters(NosePitchThrusters, 2);
+				}
+				else {
+					DAPConfiguration[convert[item]].PRI_P_OPTION=0;
+					if(DAPConfiguration[DAPSelect].PRI_P_OPTION==0) {
+						STS()->EnableThrusters(NosePitchThrusters, 2);
 						UpdateDAPParameters();
 					}
 				}
 			}
-			else {
-				DAPConfiguration[convert[item]].PRI_P_OPTION=0;
-				if(DAPConfiguration[DAPSelect].PRI_P_OPTION==0) {
-					STS()->EnableThrusters(NosePitchThrusters, 2);
-					UpdateDAPParameters();
-				}
-			}
+			else IllegalEntry = true;
 		}
 		else if(item==16 || item==36 || item==56) {
-			if(DAPConfiguration[convert[item]].PRI_Y_OPTION<2) {
-				DAPConfiguration[convert[item]].PRI_Y_OPTION++;
-				if(DAPMode==PRI) {
-					if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==1) {
-						STS()->DisableThrusters(AftYawThrusters, 2);
-						UpdateDAPParameters();
+			if (strlen( Data ) == 0)
+			{
+				if(DAPConfiguration[convert[item]].PRI_Y_OPTION<2) {
+					DAPConfiguration[convert[item]].PRI_Y_OPTION++;
+					if(DAPMode==PRI) {
+						if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==1) {
+							STS()->DisableThrusters(AftYawThrusters, 2);
+							UpdateDAPParameters();
+						}
+						else if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==2) {
+							STS()->EnableThrusters(AftYawThrusters, 2);
+							STS()->DisableThrusters(NoseYawThrusters, 2);
+							UpdateDAPParameters();
+						}
 					}
-					else if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==2) {
-						STS()->EnableThrusters(AftYawThrusters, 2);
-						STS()->DisableThrusters(NoseYawThrusters, 2);
+				}
+				else {
+					DAPConfiguration[convert[item]].PRI_Y_OPTION=0;
+					if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==0) {
+						STS()->EnableThrusters(NoseYawThrusters, 2);
 						UpdateDAPParameters();
 					}
 				}
 			}
-			else {
-				DAPConfiguration[convert[item]].PRI_Y_OPTION=0;
-				if(DAPConfiguration[DAPSelect].PRI_Y_OPTION==0) {
-					STS()->EnableThrusters(NoseYawThrusters, 2);
-					UpdateDAPParameters();
-				}
-			}
+			else IllegalEntry = true;
 		}
 		else if(item==17 || item==37 || item==57) {
-			double dNew=atof(Data);
-			if(dNew>=0.01 && dNew<=5.0) {
-				DAPConfiguration[convert[item]].PRI_TRAN_PLS=dNew;
-				if(convert[item]== DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.01 && dNew<=5.0) {
+					DAPConfiguration[convert[item]].PRI_TRAN_PLS=dNew;
+					if(convert[item]== DAPSelect && DAPMode==PRI) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==18 || item==38 || item==58) {
-			double dNew=atof(Data);
-			if(dNew>=0.05 && dNew<=5.0) {
-				DAPConfiguration[convert[item]].ALT_RATE_DB=dNew;
-				if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.05 && dNew<=5.0) {
+					DAPConfiguration[convert[item]].ALT_RATE_DB=dNew;
+					if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==19 || item==39 || item==59) {
-			if(DAPConfiguration[convert[item]].ALT_JET_OPT==0) {
-				DAPConfiguration[convert[item]].ALT_JET_OPT=2;
-				if(DAPMode==ALT) {
-					if(DAPConfiguration[DAPSelect].ALT_JET_OPT==2) {
-						STS()->DisableThrusters(NoseRotThrusters, 6);
-						STS()->EnableThrusters(AftRotThrusters, 6);
-						UpdateDAPParameters();
+			if (strlen( Data ) == 0)
+			{
+				if(DAPConfiguration[convert[item]].ALT_JET_OPT==0) {
+					DAPConfiguration[convert[item]].ALT_JET_OPT=2;
+					if(DAPMode==ALT) {
+						if(DAPConfiguration[DAPSelect].ALT_JET_OPT==2) {
+							STS()->DisableThrusters(NoseRotThrusters, 6);
+							STS()->EnableThrusters(AftRotThrusters, 6);
+							UpdateDAPParameters();
+						}
+					}
+				}
+				else {
+					DAPConfiguration[convert[item]].ALT_JET_OPT=0;
+					if(DAPMode==ALT) {
+						if(DAPConfiguration[DAPSelect].ALT_JET_OPT==0) {
+							STS()->EnableThrusters(NoseRotThrusters, 6);
+							UpdateDAPParameters();
+						}
 					}
 				}
 			}
-			else {
-				DAPConfiguration[convert[item]].ALT_JET_OPT=0;
-				if(DAPMode==ALT) {
-					if(DAPConfiguration[DAPSelect].ALT_JET_OPT==0) {
-						STS()->EnableThrusters(NoseRotThrusters, 6);
-						UpdateDAPParameters();
-					}
-				}
-			}
+			else IllegalEntry = true;
 		}
 		else if(item==20 || item==40 || item==60) {
-			int nNew=atoi(Data);
-			if(nNew>=1 && nNew<=3) {
-				DAPConfiguration[convert[item]].ALT_JETS=nNew;
-				if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+			int nNew;
+			if (GetIntegerUnsigned( Data, nNew ))
+			{
+				if(nNew>=1 && nNew<=3) {
+					DAPConfiguration[convert[item]].ALT_JETS=nNew;
+					if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==21 || item==41 || item==61) {
-			double dNew=atof(Data);
-			if(dNew>=0.08 && dNew<=9.99) {
-				DAPConfiguration[convert[item]].ALT_ON_TIME=dNew;
-				if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.08 && dNew<=9.99) {
+					DAPConfiguration[convert[item]].ALT_ON_TIME=dNew;
+					if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==22 || item==42 || item==62) {
-			double dNew=atof(Data);
-			if(dNew>=0.0 && dNew<=99.99) {
-				DAPConfiguration[convert[item]].ALT_DELAY=dNew;
-				if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if (dNew<=99.99) {
+					DAPConfiguration[convert[item]].ALT_DELAY=dNew;
+					if(convert[item]==DAPSelect && DAPMode==ALT) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==23 || item==43 || item==63) {
-			double dNew=atof(Data);
-			if(dNew>=0.002 && dNew<=1.0) {
-				DAPConfiguration[convert[item]].VERN_ROT_RATE=dNew;
-				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.002 && dNew<=1.0) {
+					DAPConfiguration[convert[item]].VERN_ROT_RATE=dNew;
+					if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==24 || item==44 || item==64) {
-			double dNew=atof(Data);
-			if(dNew>=0.01 && dNew<=40.0) {
-				DAPConfiguration[convert[item]].VERN_ATT_DB=dNew;
-				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.01 && dNew<=40.0) {
+					DAPConfiguration[convert[item]].VERN_ATT_DB=dNew;
+					if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==25 || item==45 || item==65) {
-			double dNew=atof(Data);
-			if(dNew>=0.01 && dNew<=0.5) {
-				DAPConfiguration[convert[item]].VERN_RATE_DB=dNew;
-				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.01 && dNew<=0.5) {
+					DAPConfiguration[convert[item]].VERN_RATE_DB=dNew;
+					if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==26 || item==46 || item==66) {
-			double dNew=atof(Data);
-			if(dNew>=0.001 && dNew<=0.5) {
-				DAPConfiguration[convert[item]].VERN_ROT_PLS=dNew;
-				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if(dNew>=0.001 && dNew<=0.5) {
+					DAPConfiguration[convert[item]].VERN_ROT_PLS=dNew;
+					if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==27 || item==47 || item==67) {
-			double dNew=atof(Data);
-			if(dNew>=0.0 && dNew<=0.999) {
-				DAPConfiguration[convert[item]].VERN_COMP=dNew;
-				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			double dNew;
+			if (GetDoubleUnsigned( Data, dNew ))
+			{
+				if (dNew<=0.999) {
+					DAPConfiguration[convert[item]].VERN_COMP=dNew;
+					if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		else if(item==28 || item==48 || item==68) {
-			int nNew=atoi(Data);
-			if(nNew>=0 && nNew<=9) {
-				DAPConfiguration[convert[item]].VERN_CNTL_ACC=nNew;
-				if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+			int nNew;
+			if (GetIntegerUnsigned( Data, nNew ))
+			{
+				if (nNew<=9) {
+					DAPConfiguration[convert[item]].VERN_CNTL_ACC=nNew;
+					if(convert[item]==DAPSelect && DAPMode==VERN) UpdateDAPParameters();
+				}
+				else IllegalEntry = true;
 			}
+			else IllegalEntry = true;
 		}
 		return true;
 	}
@@ -949,7 +1432,7 @@ bool OrbitDAP::OnPaint(int spec, vc::MDU* pMDU) const
 void OrbitDAP::PaintUNIVPTGDisplay(vc::MDU* pMDU) const
 {
 	char cbuf[255];
-	PrintCommonHeader("UNIV PTG", pMDU);
+	PrintCommonHeader("    UNIV PTG", pMDU);
 
 	double CUR_MNVR_COMPL[4];
 	if(DAPControlMode == INRTL || DAPControlMode == FREE) ConvertSecondsToDDHHMMSS(STS()->GetMET(), CUR_MNVR_COMPL);
@@ -960,33 +1443,103 @@ void OrbitDAP::PaintUNIVPTGDisplay(vc::MDU* pMDU) const
 	sprintf_s(cbuf, 255, "1 START TIME %.3d/%.2d:%.2d:%.2d", 
 		START_TIME[0], START_TIME[1], START_TIME[2], START_TIME[3]);
 	pMDU->mvprint(1, 2, cbuf);
+	pMDU->Underline( 14, 2 );
+	pMDU->Underline( 15, 2 );
+	pMDU->Underline( 16, 2 );
+	pMDU->Underline( 18, 2 );
+	pMDU->Underline( 19, 2 );
+	pMDU->Underline( 21, 2 );
+	pMDU->Underline( 22, 2 );
+	pMDU->Underline( 24, 2 );
+	pMDU->Underline( 25, 2 );
 
 	pMDU->mvprint(0, 4, "MNVR OPTION");
 	sprintf_s(cbuf, 255, "5 R %6.2f", MNVR_OPTION.data[ROLL]);
 	pMDU->mvprint(1, 5, cbuf);
+	pMDU->Underline( 5, 5 );
+	pMDU->Underline( 6, 5 );
+	pMDU->Underline( 7, 5 );
+	pMDU->Underline( 8, 5 );
+	pMDU->Underline( 9, 5 );
+	pMDU->Underline( 10, 5 );
 	sprintf_s(cbuf, 255, "6 P %6.2f", MNVR_OPTION.data[PITCH]);
 	pMDU->mvprint(1, 6, cbuf);
 	sprintf_s(cbuf, 255, "7 Y %6.2f", MNVR_OPTION.data[YAW]);
 	pMDU->mvprint(1, 7, cbuf);
 
 	pMDU->mvprint(0, 9, "TRK/ROT OPTIONS");
-	sprintf_s(cbuf, 255, "8 TGT ID %03d", TGT_ID);
+	sprintf_s(cbuf, 255, "8 TGT ID %3d", TGT_ID);
 	pMDU->mvprint(1, 10, cbuf);
+	pMDU->Underline( 10, 10 );
+	pMDU->Underline( 11, 10 );
+	pMDU->Underline( 12, 10 );
 
 	pMDU->mvprint(1, 12, "9  RA");
+	sprintf_s( cbuf, 255, "%07.3f", RA );
+	pMDU->mvprint( 9, 12, cbuf, RA_DEC_flash ? DEUATT_FLASHING : 0 );
+	pMDU->Underline( 9, 12 );
+	pMDU->Underline( 10, 12 );
+	pMDU->Underline( 11, 12 );
+	pMDU->Underline( 12, 12 );
+	pMDU->Underline( 13, 12 );
+	pMDU->Underline( 14, 12 );
+	pMDU->Underline( 15, 12 );
 	pMDU->mvprint(1, 13, "10 DEC");
+	pMDU->NumberSignBracket( 9, 13, DEC );// TODO should brackets flash with sign?
+	sprintf_s( cbuf, 255, "%06.3f", fabs( DEC ) );
+	pMDU->mvprint( 10, 13, cbuf, RA_DEC_flash ? DEUATT_FLASHING : 0 );
+	pMDU->Underline( 10, 13 );
+	pMDU->Underline( 11, 13 );
+	pMDU->Underline( 12, 13 );
+	pMDU->Underline( 13, 13 );
+	pMDU->Underline( 14, 13 );
+	pMDU->Underline( 15, 13 );
 	pMDU->mvprint(1, 14, "11 LAT");
+	pMDU->NumberSignBracket( 9, 14, LAT );// TODO should brackets flash with sign?
+	sprintf_s( cbuf, 255, "%06.3f", fabs( LAT ) );
+	pMDU->mvprint( 10, 14, cbuf, LAT_LON_ALT_flash ? DEUATT_FLASHING : 0 );
+	pMDU->Underline( 10, 14 );
+	pMDU->Underline( 11, 14 );
+	pMDU->Underline( 12, 14 );
+	pMDU->Underline( 13, 14 );
+	pMDU->Underline( 14, 14 );
+	pMDU->Underline( 15, 14 );
 	pMDU->mvprint(1, 15, "12 LON");
+	pMDU->NumberSignBracket( 8, 15, LON );// TODO should brackets flash with sign?
+	sprintf_s( cbuf, 255, "%07.3f", fabs( LON ) );
+	pMDU->mvprint( 9, 15, cbuf, LAT_LON_ALT_flash ? DEUATT_FLASHING : 0 );
+	pMDU->Underline( 9, 15 );
+	pMDU->Underline( 13, 15 );
+	pMDU->Underline( 14, 15 );
+	pMDU->Underline( 15, 15 );
 	pMDU->mvprint(1, 16, "13 ALT");
+	pMDU->NumberSignBracket( 8, 16, _ALT );// TODO should brackets flash with sign?
+	sprintf_s( cbuf, 255, "%07.1f", fabs( _ALT ) );
+	pMDU->mvprint( 9, 16, cbuf, LAT_LON_ALT_flash ? DEUATT_FLASHING : 0 );
+	pMDU->Underline( 9, 16 );
+	pMDU->Underline( 10, 16 );
+	pMDU->Underline( 11, 16 );
+	pMDU->Underline( 12, 16 );
+	pMDU->Underline( 13, 16 );
+	pMDU->Underline( 14, 16 );
+	pMDU->Underline( 15, 16 );
 
 	sprintf_s(cbuf, 255, "14 BODY VECT %d", BODY_VECT);
 	pMDU->mvprint(1, 18, cbuf);
-	sprintf_s(cbuf, 255, "15 P  %6.2f", P);
-	pMDU->mvprint(1, 20, cbuf);
-	sprintf_s(cbuf, 255, "16 Y  %6.2f", Y);
-	pMDU->mvprint(1, 21, cbuf);
+	pMDU->mvprint( 1, 20, "15 P" );
+	sprintf_s( cbuf, 255, "%06.2f", P );
+	pMDU->mvprint( 7, 20, cbuf, P_Y_flash ? DEUATT_FLASHING : 0 );
+	pMDU->Underline( 7, 20 );
+	pMDU->Underline( 8, 20 );
+	pMDU->Underline( 9, 20 );
+	pMDU->Underline( 10, 20 );
+	pMDU->Underline( 11, 20 );
+	pMDU->Underline( 12, 20 );
+	pMDU->mvprint( 1, 21, "16 Y" );
+	sprintf_s( cbuf, 255, "%06.2f", Y );
+	pMDU->mvprint( 7, 21, cbuf, P_Y_flash ? DEUATT_FLASHING : 0 );
 	if(OM>=0.0) {
-		sprintf_s(cbuf, 255, "17 OM %6.2f", OM);
+		sprintf_s(cbuf, 255, "17 OM %06.2f", OM);
 		pMDU->mvprint(1, 22, cbuf);
 	}
 	else pMDU->mvprint(1, 22, "17 OM");
@@ -1023,17 +1576,25 @@ void OrbitDAP::PaintUNIVPTGDisplay(vc::MDU* pMDU) const
 	pMDU->mvprint(19, 9, "ATT MON");
 	pMDU->mvprint(20, 10, "22 MON AXIS");
 	pMDU->mvprint(20, 11, "ERR TOT 23");
-	pMDU->mvprint(20, 11, "ERR DAP 24");
+	pMDU->mvprint(20, 12, "ERR DAP 24");
+	if (ERRTOT == true) pMDU->mvprint( 31, 11, "*" );// ERR TOT
+	else pMDU->mvprint( 31, 12, "*" );// ERR DAP
 
-	pMDU->mvprint(26, 14, "ROLL    PITCH    YAW");
+	pMDU->mvprint(26, 14, "ROLL   PITCH    YAW");
 	sprintf_s(cbuf, 255, "CUR   %6.2f  %6.2f  %6.2f", CUR_ATT.data[ROLL], CUR_ATT.data[PITCH], CUR_ATT.data[YAW]);
 	pMDU->mvprint(19, 15, cbuf);
 	sprintf_s(cbuf, 255, "REQD  %6.2f  %6.2f  %6.2f", REQD_ATT.data[ROLL], REQD_ATT.data[PITCH], REQD_ATT.data[YAW]);
 	pMDU->mvprint(19, 16, cbuf);
-	sprintf_s(cbuf, 255, "ERR  %+7.2f %+7.2f %+7.2f", ATT_ERR.data[ROLL], ATT_ERR.data[PITCH], ATT_ERR.data[YAW]);
+	sprintf_s(cbuf, 255, "ERR   %6.2f  %6.2f  %6.2f", fabs( ATT_ERR.data[ROLL] ), fabs( ATT_ERR.data[PITCH] ), fabs( ATT_ERR.data[YAW] ));
 	pMDU->mvprint(19, 17, cbuf);
-	sprintf_s(cbuf, 255, "RATE %+7.3f %+7.3f %+7.3f", degAngularVelocity.data[ROLL], degAngularVelocity.data[PITCH], degAngularVelocity.data[YAW]);
+	pMDU->NumberSign( 24, 17, ATT_ERR.data[ROLL] );
+	pMDU->NumberSign( 32, 17, ATT_ERR.data[PITCH] );
+	pMDU->NumberSign( 40, 17, ATT_ERR.data[YAW] );
+	sprintf_s(cbuf, 255, "RATE  %6.3f  %6.3f  %6.3f", fabs( degAngularVelocity.data[ROLL] ), fabs( degAngularVelocity.data[PITCH] ), fabs( degAngularVelocity.data[YAW] ));
 	pMDU->mvprint(19, 18, cbuf);
+	pMDU->NumberSign( 24, 18, degAngularVelocity.data[ROLL] );
+	pMDU->NumberSign( 32, 18, degAngularVelocity.data[PITCH] );
+	pMDU->NumberSign( 40, 18, degAngularVelocity.data[YAW] );
 }
 
 void OrbitDAP::PaintDAPCONFIGDisplay(vc::MDU* pMDU) const
@@ -1043,7 +1604,7 @@ void OrbitDAP::PaintDAPCONFIGDisplay(vc::MDU* pMDU) const
 	int lim[3]={3, 5, 5};
 	int i, n;
 
-	PrintCommonHeader("DAP CONFIG", pMDU);
+	PrintCommonHeader("   DAP CONFIG", pMDU);
 
 	pMDU->mvprint(4, 2, "PRI");
 	pMDU->mvprint(9, 2, "1 DAP A");
@@ -1075,108 +1636,233 @@ void OrbitDAP::PaintDAPCONFIGDisplay(vc::MDU* pMDU) const
 	pMDU->mvprint(0, 22, "COMP");
 	pMDU->mvprint(0, 23, "CNTL ACC");
 
+	pMDU->mvprint( 16, 2, "01" );
+	pMDU->Underline( 16, 2 );
+	pMDU->Underline( 17, 2 );
+	pMDU->mvprint( 27, 2, "02" );
+	pMDU->Underline( 27, 2 );
+	pMDU->Underline( 28, 2 );
+
 	int edit=2; //temporary
 	for(n=1, i=0;n<=lim[edit];n+=2, i++) {
 		sprintf_s(cbuf, 255, "%d %.4f", 10*n, DAPConfiguration[i].PRI_ROT_RATE);
 		pMDU->mvprint(9+11*i, 3, cbuf);
+		pMDU->Underline( 12 + 11 * i, 3 );
+		pMDU->Underline( 13 + 11 * i, 3 );
+		pMDU->Underline( 14 + 11 * i, 3 );
+		pMDU->Underline( 15 + 11 * i, 3 );
+		pMDU->Underline( 16 + 11 * i, 3 );
+		pMDU->Underline( 17 + 11 * i, 3 );
 		sprintf_s(cbuf, 255, "%d  %05.2f", 10*n+1, DAPConfiguration[i].PRI_ATT_DB);
 		pMDU->mvprint(9+11*i, 4, cbuf);
+		pMDU->Underline( 13 + 11 * i, 4 );
+		pMDU->Underline( 14 + 11 * i, 4 );
+		pMDU->Underline( 15 + 11 * i, 4 );
+		pMDU->Underline( 16 + 11 * i, 4 );
+		pMDU->Underline( 17 + 11 * i, 4 );
 		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+2, DAPConfiguration[i].PRI_RATE_DB);
 		pMDU->mvprint(9+11*i, 5, cbuf);
-		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+3, DAPConfiguration[i].PRI_ROT_PLS);
+		pMDU->Underline( 14 + 11 * i, 5 );
+		pMDU->Underline( 15 + 11 * i, 5 );
+		pMDU->Underline( 16 + 11 * i, 5 );
+		pMDU->Underline( 17 + 11 * i, 5 );
+		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+3, DAPConfiguration[i].PRI_ROT_PLS);
 		pMDU->mvprint(9+11*i, 6, cbuf);
+		pMDU->Underline( 13 + 11 * i, 6 );
+		pMDU->Underline( 14 + 11 * i, 6 );
+		pMDU->Underline( 15 + 11 * i, 6 );
+		pMDU->Underline( 16 + 11 * i, 6 );
+		pMDU->Underline( 17 + 11 * i, 6 );
 		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+4, DAPConfiguration[i].PRI_COMP);
 		pMDU->mvprint(9+11*i, 7, cbuf);
+		pMDU->mvprint( 13 + 11 * i, 7, " " );
+		pMDU->Underline( 14 + 11 * i, 7 );
+		pMDU->Underline( 15 + 11 * i, 7 );
+		pMDU->Underline( 16 + 11 * i, 7 );
+		pMDU->Underline( 17 + 11 * i, 7 );
 		sprintf_s(cbuf, 255, "%d   %s", 10*n+5, strings[DAPConfiguration[i].PRI_P_OPTION]);
 		pMDU->mvprint(9+11*i, 8, cbuf);
 		sprintf_s(cbuf, 255, "%d   %s", 10*n+6, strings[DAPConfiguration[i].PRI_Y_OPTION]);
 		pMDU->mvprint(9+11*i, 9, cbuf);
-		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+7, DAPConfiguration[i].PRI_TRAN_PLS);
+		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+7, DAPConfiguration[i].PRI_TRAN_PLS);
 		pMDU->mvprint(9+11*i, 10, cbuf);
+		pMDU->Underline( 13 + 11 * i, 10 );
+		pMDU->Underline( 14 + 11 * i, 10 );
+		pMDU->Underline( 15 + 11 * i, 10 );
+		pMDU->Underline( 16 + 11 * i, 10 );
+		pMDU->Underline( 17 + 11 * i, 10 );
 
-		sprintf(cbuf, "%d  %.3f", 10*n+8, DAPConfiguration[i].ALT_RATE_DB);
+		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+8, DAPConfiguration[i].ALT_RATE_DB);
 		pMDU->mvprint(9+11*i, 12, cbuf);
-		sprintf(cbuf, "%d   %s", 10*n+9, strings[DAPConfiguration[i].ALT_JET_OPT]);
+		pMDU->Underline( 13 + 11 * i, 12 );
+		pMDU->Underline( 14 + 11 * i, 12 );
+		pMDU->Underline( 15 + 11 * i, 12 );
+		pMDU->Underline( 16 + 11 * i, 12 );
+		pMDU->Underline( 17 + 11 * i, 12 );
+		sprintf_s(cbuf, 255, "%d   %s", 10*n+9, strings[DAPConfiguration[i].ALT_JET_OPT]);
 		pMDU->mvprint(9+11*i, 13, cbuf);
-		sprintf(cbuf, "%d      %d", 10*n+10, DAPConfiguration[i].ALT_JETS);
+		sprintf_s(cbuf, 255, "%d      %d", 10*n+10, DAPConfiguration[i].ALT_JETS);
 		pMDU->mvprint(9+11*i, 14, cbuf);
-		sprintf(cbuf, "%d   %.2f", 10*n+11, DAPConfiguration[i].ALT_ON_TIME);
+		pMDU->Underline( 17 + 11 * i, 14 );
+		sprintf_s(cbuf, 255, "%d   %.2f", 10*n+11, DAPConfiguration[i].ALT_ON_TIME);
 		pMDU->mvprint(9+11*i, 15, cbuf);
-		sprintf(cbuf, "%d   %.2f", 10*n+12, DAPConfiguration[i].ALT_DELAY);
+		pMDU->Underline( 14 + 11 * i, 15 );
+		pMDU->Underline( 15 + 11 * i, 15 );
+		pMDU->Underline( 16 + 11 * i, 15 );
+		pMDU->Underline( 17 + 11 * i, 15 );
+		sprintf_s(cbuf, 255, "%d  %05.2f", 10*n+12, DAPConfiguration[i].ALT_DELAY);
 		pMDU->mvprint(9+11*i, 16, cbuf);
+		pMDU->Underline( 13 + 11 * i, 16 );
+		pMDU->Underline( 14 + 11 * i, 16 );
+		pMDU->Underline( 15 + 11 * i, 16 );
+		pMDU->Underline( 16 + 11 * i, 16 );
+		pMDU->Underline( 17 + 11 * i, 16 );
 
-		sprintf(cbuf, "%d %.4f", 10*n+13, DAPConfiguration[i].VERN_ROT_RATE);
+		sprintf_s(cbuf, 255, "%d %.4f", 10*n+13, DAPConfiguration[i].VERN_ROT_RATE);
 		pMDU->mvprint(9+11*i, 18, cbuf);
-		sprintf(cbuf, "%d   %.2f", 10*n+14, DAPConfiguration[i].VERN_ATT_DB);
+		pMDU->Underline( 12 + 11 * i, 18 );
+		pMDU->Underline( 13 + 11 * i, 18 );
+		pMDU->Underline( 14 + 11 * i, 18 );
+		pMDU->Underline( 15 + 11 * i, 18 );
+		pMDU->Underline( 16 + 11 * i, 18 );
+		pMDU->Underline( 17 + 11 * i, 18 );
+		sprintf_s(cbuf, 255, "%d %06.3f", 10*n+14, DAPConfiguration[i].VERN_ATT_DB);
 		pMDU->mvprint(9+11*i, 19, cbuf);
-		sprintf(cbuf, "%d  %.3f", 10*n+15, DAPConfiguration[i].VERN_RATE_DB);
+		pMDU->Underline( 12 + 11 * i, 19 );
+		pMDU->Underline( 13 + 11 * i, 19 );
+		pMDU->Underline( 14 + 11 * i, 19 );
+		pMDU->Underline( 15 + 11 * i, 19 );
+		pMDU->Underline( 16 + 11 * i, 19 );
+		pMDU->Underline( 17 + 11 * i, 19 );
+		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+15, DAPConfiguration[i].VERN_RATE_DB);
 		pMDU->mvprint(9+11*i, 20, cbuf);
-		sprintf(cbuf, "%d   %.2f", 10*n+16, DAPConfiguration[i].VERN_ROT_PLS);
+		pMDU->mvprint( 13 + 11 * i, 20, " " );
+		pMDU->Underline( 14 + 11 * i, 20 );
+		pMDU->Underline( 15 + 11 * i, 20 );
+		pMDU->Underline( 16 + 11 * i, 20 );
+		pMDU->Underline( 17 + 11 * i, 20 );
+		sprintf_s(cbuf, 255, "%d  %05.3f", 10*n+16, DAPConfiguration[i].VERN_ROT_PLS);
 		pMDU->mvprint(9+11*i, 21, cbuf);
-		sprintf(cbuf, "%d  %.3f", 10*n+17, DAPConfiguration[i].VERN_COMP);
+		pMDU->Underline( 13 + 11 * i, 21 );
+		pMDU->Underline( 14 + 11 * i, 21 );
+		pMDU->Underline( 15 + 11 * i, 21 );
+		pMDU->Underline( 16 + 11 * i, 21 );
+		pMDU->Underline( 17 + 11 * i, 21 );
+		sprintf_s(cbuf, 255, "%d  %.3f", 10*n+17, DAPConfiguration[i].VERN_COMP);
 		pMDU->mvprint(9+11*i, 22, cbuf);
-		sprintf(cbuf, "%d      %d", 10*n+18, DAPConfiguration[i].VERN_CNTL_ACC);
+		pMDU->mvprint( 13 + 11 * i, 22, " " );
+		pMDU->Underline( 14 + 11 * i, 22 );
+		pMDU->Underline( 15 + 11 * i, 22 );
+		pMDU->Underline( 16 + 11 * i, 22 );
+		pMDU->Underline( 17 + 11 * i, 22 );
+		sprintf_s(cbuf, 255, "%d      %d", 10*n+18, DAPConfiguration[i].VERN_CNTL_ACC);
 		pMDU->mvprint(9+11*i, 23, cbuf);
+		pMDU->Underline( 17 + 11 * i, 23 );
 	}
+
+	pMDU->mvprint( 41, 2, "DAP EDIT" );
+	pMDU->mvprint( 41, 3, "3 DAP A" );
+	pMDU->mvprint( 41, 4, "4 DAP B" );
+	pMDU->mvprint( 41, 5, "5" );
+
+	pMDU->Line( 190, 28, 190, 336 );
+	pMDU->Line( 300, 28, 300, 336 );
+	pMDU->Line( 410, 112, 410, 336 );
+	pMDU->Line( 410, 112, 510, 112 );
+
+	pMDU->mvprint( 41, 9, "NOTCH FLTR" );
+	pMDU->mvprint( 43, 10, "ENA  6" );
+
+	pMDU->mvprint( 42, 12, "XJETS ROT" );
+	pMDU->mvprint( 44, 13, "ENA  7" );
+
+	pMDU->mvprint( 42, 15, "REBOOST" );
+	pMDU->mvprint( 43, 16, "8 CFG" );
+	pMDU->mvprint( 43, 17, "9 INTVL" );
 }
 
 bool OrbitDAP::OnParseLine(const char* keyword, const char* value)
 {
 	if(!_strnicmp(keyword, "TGT_ID", 6)) {
-		sscanf(value, "%d", &TGT_ID);
+		sscanf_s(value, "%d", &TGT_ID);
 		return true;
 	}
+	/*else if (!_strnicmp( keyword, "RA_ANGLE", 8 ))
+	{
+		sscanf_s( value, "%lf", &RA );
+		return true;
+	}
+	else if (!_strnicmp( keyword, "DEC_ANGLE", 9 ))
+	{
+		sscanf_s( value, "%lf", &DEC );
+		return true;
+	}
+	else if (!_strnicmp( keyword, "LAT_ANGLE", 9 ))
+	{
+		sscanf_s( value, "%lf", &LAT );
+		return true;
+	}
+	else if (!_strnicmp( keyword, "LON_ANGLE", 9 ))
+	{
+		sscanf_s( value, "%lf", &LON );
+		return true;
+	}
+	else if (!_strnicmp( keyword, "ALT_ANGLE", 9 ))
+	{
+		sscanf_s( value, "%lf", &_ALT );
+		return true;
+	}*/
 	else if(!_strnicmp(keyword, "BODY_VECT", 9)) {
-		sscanf(value, "%d", &BODY_VECT);
+		sscanf_s(value, "%d", &BODY_VECT);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "P_ANGLE", 7)) {
-		sscanf(value, "%lf", &P);
+		sscanf_s(value, "%lf", &P);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "Y_ANGLE", 7)) {
-		sscanf(value, "%lf", &Y);
+		sscanf_s(value, "%lf", &Y);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "OM_ANGLE", 8)) {
-		sscanf(value, "%lf", &OM);
+		sscanf_s(value, "%lf", &OM);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "ROLL", 4)) {
-		sscanf(value, "%lf", &MNVR_OPTION.data[ROLL]);
+		sscanf_s(value, "%lf", &MNVR_OPTION.data[ROLL]);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "PITCH", 5)) {
-		sscanf(value, "%lf", &MNVR_OPTION.data[PITCH]);
+		sscanf_s(value, "%lf", &MNVR_OPTION.data[PITCH]);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "YAW", 3)) {
-		sscanf(value, "%lf", &MNVR_OPTION.data[YAW]);
+		sscanf_s(value, "%lf", &MNVR_OPTION.data[YAW]);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "DAP_MODE", 8)) {
 		int nTemp1, nTemp2;
-		sscanf(value, "%d %d", &nTemp1, &nTemp2);
+		sscanf_s(value, "%d %d", &nTemp1, &nTemp2);
 		DAPSelect = static_cast<DAP_SELECT>(nTemp1);
 		DAPMode = static_cast<DAP_MODE>(nTemp2);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "ROT_MODE", 8)) {
 		int nTemp[3];
-		sscanf(value, "%d %d %d", &nTemp[0], &nTemp[1], &nTemp[2]);
+		sscanf_s(value, "%d %d %d", &nTemp[0], &nTemp[1], &nTemp[2]);
 		for(int i=0;i<3;i++) RotMode[i] = static_cast<ROT_MODE>(nTemp[i]);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "TRANS_MODE", 10)) {
 		int nTemp[3];
-		sscanf(value, "%d %d %d", &nTemp[0], &nTemp[1], &nTemp[2]);
+		sscanf_s(value, "%d %d %d", &nTemp[0], &nTemp[1], &nTemp[2]);
 		for(int i=0;i<3;i++) TransMode[i] = static_cast<TRANS_MODE>(nTemp[i]);
 		return true;
 	}
 	else if(!_strnicmp(keyword, "CONTROL_MODE", 12)) {
 		//sscanf(value, "%d", &ControlMode);
 		int nTemp;
-		sscanf(value, "%d", &nTemp);
+		sscanf_s(value, "%d", &nTemp);
 		if(nTemp==0) DAPControlMode=AUTO;
 		else if(nTemp==1) DAPControlMode=INRTL;
 		else if(nTemp==2) DAPControlMode=LVLH;
@@ -1198,7 +1884,7 @@ bool OrbitDAP::OnParseLine(const char* keyword, const char* value)
 		return true;
 	}
 	else if(!_strnicmp (keyword, "FUT_START_TIME", 14)) {
-		sscanf(value, "%lf", &FutMnvrStartTime);
+		sscanf_s(value, "%lf", &FutMnvrStartTime);
 		return true;
 	}
 
@@ -1213,6 +1899,11 @@ void OrbitDAP::OnSaveState(FILEHANDLE scn) const
 	oapiWriteScenario_float (scn, "ROLL", MNVR_OPTION.data[ROLL]);
 	oapiWriteScenario_float (scn, "PITCH", MNVR_OPTION.data[PITCH]);
 	oapiWriteScenario_float (scn, "YAW", MNVR_OPTION.data[YAW]);
+	/*oapiWriteScenario_float( scn, "RA_ANGLE", RA );
+	oapiWriteScenario_float( scn, "DEC_ANGLE", DEC );
+	oapiWriteScenario_float( scn, "LAT_ANGLE", LAT );
+	oapiWriteScenario_float( scn, "LON_ANGLE", LON );
+	oapiWriteScenario_float( scn, "ALT_ANGLE", _ALT );*/
 	oapiWriteScenario_float (scn, "P_ANGLE", P);
 	oapiWriteScenario_float (scn, "Y_ANGLE", Y);
 	oapiWriteScenario_float (scn, "OM_ANGLE", OM);
@@ -1248,8 +1939,6 @@ bool OrbitDAP::GetPBIState(int id) const
 		return DAPControlMode == FREE;
 	case 6: //PCT
 		return PCTActive;
-		//return (STS()->PostContactThrusting[1]);
-		break;
 	case 7: //LOW Z
 		break;
 	case 8: //HIGH Z
@@ -1317,17 +2006,8 @@ void OrbitDAP::ButtonPress(int id)
 			RotMode[i]=ROT_PULSE;
 			RotPulseInProg[i]=false;
 		}		
-		if(PCTActive) StopPCT();
-		//if(STS()->PostContactThrusting[1]) STS()->TogglePCT();
-		//InitializeControlMode();
 		break;
 	case 6: // PCT
-		if(PCTArmed && !PCTActive) {
-			StartPCT();
-		}
-		/*if(STS()->PostContactThrusting[0]) {
-			STS()->TogglePCT();
-		}*/
 		break;
 	case 9: // PRI
 		if(DAPMode != PRI) {
@@ -1428,18 +2108,37 @@ void OrbitDAP::ButtonPress(int id)
 	}
 }
 
+void OrbitDAP::ArmPCT( void )
+{
+	PCTArmed = true;
+	
+	// both SPD BK AUTO LTs on
+	CDR_SPDBK_THROT_AUTO_LT.SetLine();
+	PLT_SPDBK_THROT_AUTO_LT.SetLine();
+	return;
+}
+
+void OrbitDAP::DisarmPCT( void )
+{
+	PCTArmed = false;
+
+	// both SPD BK AUTO LTs off
+	CDR_SPDBK_THROT_AUTO_LT.ResetLine();
+	PLT_SPDBK_THROT_AUTO_LT.ResetLine();
+	return;
+}
+
 void OrbitDAP::StartPCT()
 {
 	PCTActive=true;
 	PCTStartTime=oapiGetSimTime();
-	DAPMode=PRI; //PRI
+	DAPMode=PRI;
 	DAPControlMode=FREE;
 
-	//set Body Flap PBIs
-	port_PCTActive[0].SetLine();
-	port_PCTActive[1].SetLine();
-	//BodyFlapAutoOut.SetLine();
-	//BodyFlapManOut.SetLine();
+	// CDR Body Flap and spare DAP LTs on
+	CDR_BodyFlap_AUTO_LT.SetLine();
+	CDR_BodyFlap_MAN_LT.SetLine();
+	// spare DAP done somewhere else
 }
 
 void OrbitDAP::StopPCT()
@@ -1452,11 +2151,10 @@ void OrbitDAP::StopPCT()
 	//stop firing RCS jets
 	//SetThrusterGroupLevel(thg_transup, 0.0);
 
-	//set Body Flap PBIs
-	port_PCTActive[0].ResetLine();
-	port_PCTActive[1].ResetLine();
-	//BodyFlapAutoOut.ResetLine();
-	//BodyFlapManOut.ResetLine();
+	// CDR Body Flap and spare DAP LTs off
+	CDR_BodyFlap_AUTO_LT.ResetLine();
+	CDR_BodyFlap_MAN_LT.ResetLine();
+	// spare DAP done somewhere else
 }
 
 void OrbitDAP::PCTControl(double SimT)
@@ -1519,7 +2217,6 @@ void OrbitDAP::UpdateDAPParameters()
 		Torque.data[YAW]=0.1*ORBITER_YAW_TORQUE;
 		Torque.data[ROLL]=0.1*ORBITER_ROLL_TORQUE;
 	}
-	sprintf_s(oapiDebugString(), 255, "Rate: %f AttDb %f RateDb: %f", degRotRate, degAttDeadband, degRateDeadband);
 }
 
 double OrbitDAP::CalcManeuverCompletionTime(const MATRIX3& curM50Matrix, const MATRIX3& tgtLVLHMatrix, const MATRIX3& curLVLHMatrix, double degOrbitalRate) const
@@ -1558,6 +2255,18 @@ MATRIX3 OrbitDAP::GetCurrentLVLHRefMatrix() const
 MATRIX3 OrbitDAP::GetCurrentLVLHAttMatrix() const
 {
 	return GetRotationErrorMatrix(GetCurrentLVLHRefMatrix(), curM50Matrix);
+}
+
+VECTOR3 OrbitDAP::GetAttitudeErrors( void ) const
+{
+	return ATT_ERR;
+}
+
+bool OrbitDAP::GetTimeToAttitude( double& time ) const
+{
+	if (ManeuverStatus != MNVR_IN_PROGRESS) return false;
+	time = max( mnvrCompletionMET - STS()->GetMET(), 0 );
+	return true;
 }
 
 };

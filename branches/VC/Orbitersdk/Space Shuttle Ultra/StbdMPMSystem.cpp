@@ -1,4 +1,5 @@
 #include "StbdMPMSystem.h"
+#include "Atlantis.h"
 #include "RMSSystem.h"
 #include <UltraMath.h>
 
@@ -36,6 +37,12 @@ void StbdMPMSystem::CreateAttachment()
 {
 	if(!hAttach)
 		hAttach=STS()->CreateAttachment(false, STS()->GetOrbiterCoGOffset()+OBSS_ATTACHMENT_POINT+MPM_MESH_OFFSET, _V(0,1,0), _V(0,0,1), "OBSS");
+}
+
+void StbdMPMSystem::UpdateAttachment( void )
+{
+	if (hAttach) STS()->SetAttachmentParams( hAttach, STS()->GetOrbiterCoGOffset() + obss_attach_point[0] + MPM_MESH_OFFSET, obss_attach_point[1] - obss_attach_point[0], _V( 0, 0, 1 ) );
+	return;
 }
 
 void StbdMPMSystem::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -131,10 +138,10 @@ int StbdMPMSystem::FindOBSS() const
 		VESSEL* v=oapiGetVesselInterface(vhOBSS[i]);
 		v->GetAttachmentParams (vhOBSSAttach[i], pos, dir, rot);
 		v->Local2Global (pos, gpos);
-		sprintf_s(oapiDebugString(), 255, "%s Dist: %f", v->GetName(), dist(gpos, gattach));
+		//sprintf_s(oapiDebugString(), 255, "%s Dist: %f", v->GetName(), dist(gpos, gattach));
 		if (dist (gpos, gattach) < MAX_ATTACHMENT_DIST) { 
 			v->GlobalRot(dir, gdir);
-			sprintf_s(oapiDebugString(), 255, "Attitude difference: %f", fabs(180-DEG*acos(dotp(gdir, gattachdir))));
+			//sprintf_s(oapiDebugString(), 255, "Attitude difference: %f", fabs(180-DEG*acos(dotp(gdir, gattachdir))));
 			if(fabs(PI-acos(range(-1.0, dotp(gdir, gattachdir), 1.0))) < MAX_ATTACHMENT_ANGLE) {  // found one!
 				return i;
 			}

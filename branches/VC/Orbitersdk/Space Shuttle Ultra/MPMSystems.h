@@ -86,6 +86,8 @@ private:
 
 	DiscInPort Release, Latch;
 	DiscInPort Deploy, Stow;
+
+	DiscInPort PLBayMECHPWRSYS_ON[2];
 };
 
 #endif //__MPMSUBSYSTEMS_H

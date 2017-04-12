@@ -27,6 +27,11 @@
 #include "AtlantisPanel.h"
 #include "MDU.h"
 #include "StandardSwitch.h"
+#include "Talkback.h"
+#include "PushButtonIndicator.h"
+#include "StandardSwitchCover.h"
+#include "StandardLight.h"
+
 
 namespace vc {
 
@@ -43,6 +48,17 @@ namespace vc {
 		StdSwitch3* pADIError;
 		StdSwitch3* pADIRate;
 		StdSwitch3* pAirData;
+
+		StandardTalkback3* pLandingGearTB[3];
+		
+		StandardSwitchCover* pLandingGearArmDeployCover[2];
+		PushButtonIndicatorSingleLight *pLandingGearArmDeploy[2];
+
+		StandardDoubleLight* pRCSCommand[3];
+		StandardDoubleLight* pRangeSafeArm;
+
+		PushButtonIndicatorSingleLight* pAbort;
+
 	public:
 		PanelF6(Atlantis* _sts);
 		virtual ~PanelF6();

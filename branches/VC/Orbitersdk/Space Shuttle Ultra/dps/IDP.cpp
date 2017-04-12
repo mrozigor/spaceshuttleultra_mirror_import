@@ -1,5 +1,14 @@
 #include "IDP.h"
+#include "..\Atlantis.h"
+#include "..\vc\MDU.h"
 #include "SimpleGPCSystem.h"
+#include "IO_Control.h"
+#include "SSME_Operations.h"
+#include "AscentDAP.h"
+#include "AerojetDAP.h"
+#include "Landing_SOP.h"
+#include "OMSBurnSoftware.h"
+
 
 namespace dps {
 
@@ -13,6 +22,8 @@ namespace dps {
 		usDISP=dps::MODE_UNDEFINED;
 		majfunc=GNC;
 		cScratchPadLine[0] = '\0';
+		cFaultMessageLine[0] = 0;
+		syntaxerr = false;
 
 		dk_channel.Init(this, this, "DK", 10);
 		fc_channel[0].Init(this, this, "FC1", 9+usIDPID);
@@ -23,8 +34,25 @@ namespace dps {
 
 	IDP::~IDP()
 	{
-		
-	}	
+	}
+
+	void IDP::Realize()
+	{
+		pIO_Control = static_cast<IO_Control*> (STS()->pSimpleGPC->FindSoftware( "IO_Control" ));
+		pSSME_Operations = static_cast<SSME_Operations*> (STS()->pSimpleGPC->FindSoftware( "SSME_Operations" ));
+		pAscentDAP = static_cast<AscentDAP*> (STS()->pSimpleGPC->FindSoftware( "AscentDAP" ));
+		pAerojetDAP = static_cast<AerojetDAP*> (STS()->pSimpleGPC->FindSoftware( "AerojetDAP" ));
+		pLanding_SOP = static_cast<Landing_SOP*> (STS()->pSimpleGPC->FindSoftware( "Landing_SOP" ));
+		pOMSBurnSoftware = static_cast<OMSBurnSoftware*> (STS()->pSimpleGPC->FindSoftware( "OMSBurnSoftware" ));
+
+		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle( "C2_R11_IDP", 14 );
+		Power.Connect( pBundle, usIDPID );
+		MajorFuncPL.Connect( pBundle, usIDPID + 3 );
+		MajorFuncGNC.Connect( pBundle, usIDPID + 7 );
+		KeybSelectA.Connect( pBundle, 12 );// not used by IDP4
+		KeybSelectB.Connect( pBundle, 13 );// not used by IDP4
+		return;
+	}
 
 	BUS_COMMAND_WORD IDP::busCommand(BusTerminal* biu, BUS_COMMAND_WORD cw, unsigned long num_data, word16* cdw)
 	{
@@ -95,22 +123,72 @@ namespace dps {
 		while(i < 120 && cScratchPadLine[i] != '\0') 
 			i++;
 		if(i>0) {
-			if(cScratchPadLine[i-1]==SSU_KEY_EXEC || cScratchPadLine[i-1]==SSU_KEY_PRO) return true;
+			if(cScratchPadLine[i-1]==SSU_KEY_EXEC || 
+				cScratchPadLine[i-1]==SSU_KEY_PRO || 
+				cScratchPadLine[i-1]==SSU_KEY_RESUME ||
+				cScratchPadLine[i-1]==SSU_KEY_SYSSUMM ||
+				cScratchPadLine[i-1]==SSU_KEY_FAULTSUMM) return true;
 		}
 		return false;
 	}
 
-	bool IDP::PutKey(unsigned short usKeyboardID, char cKey) {
-		
-		//TODO: Implement checking of active keyboard
+	int IDP::GetActiveKeyboard( void ) const
+	{
+		int kb = 0;
+
+		switch (usIDPID)
+		{
+			case 1:
+				if (KeybSelectA.IsSet()) kb = 1;
+				break;
+			case 2:
+				if (KeybSelectB.IsSet() == false) kb = 2;
+				break;
+			case 3:
+				if (KeybSelectA.IsSet() == false) kb = 1;
+				if (KeybSelectB.IsSet()) kb += 2;
+				break;
+		}
+		return kb;
+	}
+
+	bool IDP::IsKeyboardSelected( unsigned short usKeyboardID ) const
+	{
+		switch (usIDPID)
+		{
+			case 1:
+				if ((usKeyboardID == 1) && (KeybSelectA.IsSet())) return true;
+				else return false;
+			case 2:
+				if ((usKeyboardID == 2) && (KeybSelectB.IsSet() == false)) return true;
+				else return false;
+			case 3:
+				if ((usKeyboardID == 1) && (KeybSelectA.IsSet() == false)) return true;
+				else if ((usKeyboardID == 2) && (KeybSelectB.IsSet())) return true;
+				else return false;
+			case 4:
+				if (usKeyboardID == 3) return true;
+				else return false;
+			default:
+				return false;
+		}
+	}
+
+	bool IDP::PutKey(unsigned short usKeyboardID, char cKey)
+	{
+		if (IsKeyboardSelected( usKeyboardID ) == false) return false;
+
 		switch(cKey) {
 			case SSU_KEY_RESUME:
 				OnResume();
+				ClearScratchPadLine();
+				AppendScratchPadLine( cKey );
 				break;
 			case SSU_KEY_CLEAR:
 				OnClear();
 				break;
 			case SSU_KEY_EXEC:
+				if(IsCompleteLine()) ClearScratchPadLine();
 				OnExec();
 				AppendScratchPadLine(cKey);
 				break;
@@ -121,14 +199,29 @@ namespace dps {
 			case SSU_KEY_ITEM:
 			case SSU_KEY_SPEC:
 			case SSU_KEY_OPS:
+			case SSU_KEY_GPCCRT:
+			case SSU_KEY_IORESET:
 				if(IsCompleteLine()) ClearScratchPadLine();
+				AppendScratchPadLine(cKey);
+				break;
+			case SSU_KEY_SYSSUMM:
+				OnSysSummary();
+				ClearScratchPadLine();
+				AppendScratchPadLine( cKey );
+				break;
+			case SSU_KEY_FAULTSUMM:
+				OnFaultSummary( false );
+				ClearScratchPadLine();
+				AppendScratchPadLine( cKey );
+				break;
+			case SSU_KEY_MSGRESET:
+				OnMsgReset();
+				break;
 			default:
+				if(IsCompleteLine()) ClearScratchPadLine();
 				AppendScratchPadLine(cKey);
 				break;
 		}
-		/*sprintf_s(oapiDebugString(), 255, "IDP %d|PutKey(%d, %02X)| %s", 
-			usIDPID, usKeyboardID, cKey, 
-			this->GetScratchPadLineString());*/
 		return true;
 	}
 
@@ -149,6 +242,7 @@ namespace dps {
 
 	void IDP::ClearScratchPadLine() {
 		cScratchPadLine[0] = '\0';
+		syntaxerr = false;
 	}
 
 	void IDP::ConnectToMDU(vc::PMDU pMDU, bool bPrimary)
@@ -192,9 +286,10 @@ namespace dps {
 
 	void IDP::OnClear() {
 
-		if(IsCompleteLine()) {
+		if(IsCompleteLine() & !syntaxerr) {
 			ClearScratchPadLine();
 		} else {
+			syntaxerr = false;
 			DelFromScratchPadLine();
 		}
 		
@@ -203,74 +298,237 @@ namespace dps {
 	void IDP::OnExec() {
 		// check if EXEC was pressed without any ITEM input
 		if(cScratchPadLine[0]=='\0' || IsCompleteLine()) {
-			//STS()->Input(GetIDPID()-1, 10, NULL);
 			STS()->pSimpleGPC->ExecPressed(GetSpec());
 		}
 		else {
 			std::string scratchPad=GetScratchPadLineString();
 			int ITEM=scratchPad.find("ITEM ");
-			int OPS=scratchPad.find("OPS ");
-			int SPEC=scratchPad.find("SPEC ");
+			int IORESET = scratchPad.find( "I/O RESET" );
+			int GPCCRT = scratchPad.find( "GPC/CRT " );
 
-			if(ITEM!=string::npos) {
+			if(ITEM!=string::npos)
+			{
 				scratchPad=scratchPad.erase(ITEM, 5);
 
-				//parse entry
-				unsigned int i;
-				bool delim=false;
-				string Data="", Name="";
-				for(i=0;i<scratchPad.length();i++) {
-					if(scratchPad[i]=='+' || scratchPad[i]=='-') {
-						if(delim) break;
-						delim=true;
-					}
-					if(!delim) Name+=scratchPad[i];
-					else {
-						Data+=scratchPad[i];
-					}
-				}
-				//STS()->Input(GetIDPID(), 1, Name.c_str(), Data.c_str());
-				unsigned int item=atoi(Name.c_str());
-				STS()->pSimpleGPC->ItemInput(GetSpec(), item, Data.c_str());
-				Data=""; //clear string
-				while(i<scratchPad.length()) {
-					if(scratchPad[i]=='+' || scratchPad[i]=='-') {
-						if(Data.length()>0) {
-							item++;
-							STS()->pSimpleGPC->ItemInput(GetSpec(), item, Data.c_str());
+				// parse entry
+				vector<pair<int,string>> items;
+				string Data = "";
+				int item = 0;
+
+				// find item number
+				if (scratchPad.length() > 0)// must have something after ITEM
+				{
+					if ((scratchPad[0] >= '0') && (scratchPad[0] <= '9'))// first must be number
+					{
+						if (scratchPad.length() > 1)// check for 2-digit item, or data
+						{
+							if ((scratchPad[1] >= '0') && (scratchPad[1] <= '9'))// second must be number...
+							{
+								if (scratchPad.length() > 2)// check for data
+								{
+									if ((scratchPad[2] == '+') || (scratchPad[2] == '-'))
+									{
+										// 2-digit item, with data
+										item = ((scratchPad[0] - 48) * 10) + (scratchPad[1] - 48);
+										scratchPad.erase( 0, 2 );
+									}
+									else syntaxerr = true;
+								}
+								else
+								{
+									if ((scratchPad[0] != '0') || (scratchPad[1] != '0'))// can't be both 0
+									{
+										// 2-digit item, no data
+										items.push_back( make_pair( ((scratchPad[0] - 48) * 10) + (scratchPad[1] - 48), "" ) );
+									}
+									else syntaxerr = true;
+								}
+							}
+							else if ((scratchPad[1] == '+') || (scratchPad[1] == '-'))// ... or delimiter
+							{
+								// 1-digit item, with data
+								item = scratchPad[0] - 48;
+								scratchPad.erase( 0, 1 );
+							}
+							else syntaxerr = true;
 						}
-						Data=""; //clear string
+						else
+						{
+							if (scratchPad[0] != '0')// can't be 0
+							{
+								// 1-digit item, no data
+								items.push_back( make_pair( scratchPad[0] - 48, "" ) );
+							}
+							else syntaxerr = true;
+						}
 					}
-					Data+=scratchPad[i];
-					i++;
+					else syntaxerr = true;
 				}
-				if(Data.length()>0) {
-					item++;
-					STS()->pSimpleGPC->ItemInput(GetSpec(), item, Data.c_str());
+				else syntaxerr = true;
+
+				// find data
+				if ((item > 0) && (!syntaxerr))// if 0 the entry is only an item with no data
+				{
+					bool lastchardelimiter = false;
+					for (unsigned int i = 0; i < scratchPad.length(); i++)
+					{
+						if ((scratchPad[i] == '+') || (scratchPad[i] == '-'))// delimiter
+						{
+							if (i == 0)// first run
+							{
+								Data += scratchPad[i];
+							}
+							else
+							{
+								if (lastchardelimiter == false)// skip item if delimiter is repeated
+								{
+									items.push_back( make_pair( item, Data.c_str() ) );
+								}
+								item++;
+								Data = "";
+								Data += scratchPad[i];
+							}
+							lastchardelimiter = true;
+						}
+						else
+						{
+							lastchardelimiter = false;
+							Data += scratchPad[i];
+						}
+					}
+					if (lastchardelimiter)
+					{
+						syntaxerr = true;
+					}
+					else
+					{
+						items.push_back( make_pair( item, Data.c_str() ) );
+					}
+				}
+
+				// pass inputs to GPCs if no error
+				if (!syntaxerr)
+				{
+					for (unsigned int k = 0; k < items.size(); k++)
+					{
+						if (!STS()->pSimpleGPC->ItemInput( GetSpec(), items[k].first, items[k].second.c_str() ))
+							strcpy_s( cFaultMessageLine, "ILLEGAL ENTRY" );
+					}
 				}
 			}
+			else if (IORESET != string::npos)
+			{
+				scratchPad = scratchPad.erase( IORESET, 9 );
+				if (scratchPad.length() == 0)
+				{
+					// TODO
+				}
+				else syntaxerr = true;
+			}
+			else if (GPCCRT != string::npos)
+			{
+				scratchPad = scratchPad.erase( GPCCRT, 8 );
+				if (scratchPad.length() == 2)
+				{
+					if ((scratchPad[0] >= '0') && (scratchPad[0] <= '5'))// GPC between 0 and 5
+					{
+						if ((scratchPad[1] >= '1') && (scratchPad[1] <= '4'))// IDP between 1 and 4
+						{
+							// TODO
+						}
+						else syntaxerr = true;
+					}
+					else syntaxerr = true;
+				}
+				else syntaxerr = true;
+			}
+			else syntaxerr = true;
 		}
+		return;
 	}
 
 	void IDP::OnPro()
 	{
 		std::string scratchPad=GetScratchPadLineString();
-		int ITEM=scratchPad.find("ITEM ");
 		int OPS=scratchPad.find("OPS ");
 		int SPEC=scratchPad.find("SPEC ");
 
 		if(OPS != std::string::npos) { // OPS entered
-			//STS()->Input(GetIDPID()-1, 0, scratchPad.substr(OPS+4).c_str());
-			unsigned int newMM = static_cast<unsigned int>(atoi(scratchPad.substr(OPS+4).c_str()));
-			if(STS()->pSimpleGPC->IsValidMajorModeTransition(newMM)) {
-				STS()->pSimpleGPC->SetMajorMode(newMM);
+			scratchPad.erase( OPS, 4 );
+
+			if (scratchPad.length() == 3)
+			{
+				if ((scratchPad[0] >= '0') && (scratchPad[0] <= '9') && (scratchPad[1] >= '0') && (scratchPad[1] <= '9') && (scratchPad[2] >= '0') && (scratchPad[2] <= '9'))
+				{
+					unsigned int newMM = ((scratchPad[0] - 48) * 100) + ((scratchPad[1] - 48) * 10) + (scratchPad[2] - 48);
+					if(STS()->pSimpleGPC->IsValidMajorModeTransition(newMM)) {
+						// if OPS transition, clear SPEC and DISP displays
+						// HACK only clears the displays on this IDP
+						if ((int)(newMM / 100) != (int)(STS()->pSimpleGPC->GetMajorMode() / 100))
+						{
+							SetSpec( dps::MODE_UNDEFINED );
+							SetDisp( dps::MODE_UNDEFINED );
+						}
+						STS()->pSimpleGPC->SetMajorMode(newMM);
+					}
+					else
+					{
+						strcpy_s( cFaultMessageLine, "ILLEGAL ENTRY" );
+					}
+				}
+				else syntaxerr = true;
 			}
+			else syntaxerr = true;
 		}
 		else if(SPEC != std::string::npos) { // SPEC entered
-			//STS()->Input(GetIDPID()-1, 2, scratchPad.substr(SPEC+5).c_str());
-			int newSpec = atoi(scratchPad.substr(SPEC+5).c_str());
-			if(STS()->IsValidSPEC(0, newSpec)) SetSpec(static_cast<unsigned short>(newSpec));
+			scratchPad.erase( SPEC, 5 );
+
+			int newSpec;
+			if (scratchPad.length() > 0)
+			{
+				if ((scratchPad[0] >= '0') && (scratchPad[0] <= '9'))
+				{
+					newSpec = scratchPad[0] - 48;
+					if (scratchPad.length() > 1)
+					{
+						if ((scratchPad[1] >= '0') && (scratchPad[1] <= '9'))
+						{
+							newSpec = (newSpec * 10) + scratchPad[1] - 48;
+							if (scratchPad.length() > 2)
+							{
+								if ((scratchPad[2] >= '0') && (scratchPad[2] <= '9'))
+								{
+									newSpec = (newSpec * 10) + scratchPad[2] - 48;
+									if (scratchPad.length() > 3) syntaxerr = true;
+								}
+								else syntaxerr = true;
+							}
+						}
+						else syntaxerr = true;
+					}
+				}
+				else syntaxerr = true;
+			}
+			else syntaxerr = true;
+
+			if (!syntaxerr)
+			{
+				if(STS()->pSimpleGPC->IsValidSPEC( newSpec ))
+				{
+					// choose between DISP and SPEC
+					if (IsDisp( newSpec ) == true)
+					{
+						SetDisp( static_cast<unsigned short>(newSpec) );
+					}
+					else
+					{
+						SetSpec(static_cast<unsigned short>(newSpec));
+						SetDisp( dps::MODE_UNDEFINED );
+					}
+				}
+			}
 		}
+		else syntaxerr = true;
 	}
 
 	void IDP::OnResume()
@@ -283,7 +541,11 @@ namespace dps {
 		}
 	}
 
-	void IDP::OnFaultSummary() {
+	void IDP::OnFaultSummary( bool ClearList )
+	{
+		if (ClearList){} // TODO clear list
+		SetDisp( 99 );
+		return;
 	}
 
 
@@ -302,15 +564,29 @@ namespace dps {
 			return STS()->pSimpleGPC->OnPaint(GetDisp(), pMDU);
 		else
 			return STS()->pSimpleGPC->OnPaint(GetSpec(), pMDU);
-
-		return true;
 	}
 
-	void IDP::OnSysSummary() {
+	void IDP::OnSysSummary()
+	{
+		// TODO check here if DISP valid in current OPS?
+		if (GetMajfunc() == dps::GNC)
+		{
+			if (GetDisp() == 18) SetDisp( 19 );
+			else SetDisp( 18 );
+		}
+		else if (GetMajfunc() == dps::SM)
+		{
+			if (GetDisp() == 78) SetDisp( 79 );
+			else SetDisp( 78 );
+		}
+		return;
 	}
 
 
-	void IDP::OnMsgReset() {
+	void IDP::OnMsgReset( void )
+	{
+		cFaultMessageLine[0] = 0;
+		return;
 	}
 
 	
@@ -362,8 +638,8 @@ namespace dps {
 				case SSU_KEY_ITEM:
 					strcat_s(pszBuffer, "ITEM ");
 					break;
-				case SSU_KEY_GPCIDP:
-					strcat_s(pszBuffer, "GPC/IDP ");
+				case SSU_KEY_GPCCRT:
+					strcat_s(pszBuffer, "GPC/CRT ");
 					break;
 				case SSU_KEY_OPS:
 					strcat_s(pszBuffer, "OPS ");
@@ -440,6 +716,15 @@ namespace dps {
 				case SSU_KEY_IORESET:
 					strcat_s(pszBuffer, "I/O RESET");
 					break;
+				case SSU_KEY_RESUME:
+					strcat_s( pszBuffer, "RESUME" );
+					break;
+				case SSU_KEY_SYSSUMM:
+					strcat_s( pszBuffer, "SYS SUMM" );
+					break;
+				case SSU_KEY_FAULTSUMM:
+					strcat_s( pszBuffer, "FAULT SUMM" );
+					break;
 				default:
 					break;
 			}
@@ -447,5 +732,334 @@ namespace dps {
 		}
 
 		return pszBuffer;
+	}
+
+	const char* IDP::GetScratchPadLineString_B( void ) const
+	{
+		const char* cbufin = GetScratchPadLineString();
+		static char cbufout[250];
+		int len = strlen( cbufin );
+		int j = 0;
+		bool firstsign = false;
+		int item = 0;
+
+		for (int i = 0; i <= len; i++)
+		{
+			if ((cbufin[i] == '+') || (cbufin[i] == '-'))
+			{
+				if (firstsign == false)
+				{// first item number behind
+					firstsign = true;
+
+					if ((cbufout[j - 1] >= '0') && (cbufout[j - 1] <= '9'))
+					{
+						if ((cbufout[j - 2] >= '0') && (cbufout[j - 2] <= '9'))
+						{
+							// two-digit
+							item = (cbufout[j - 1] - 48) + ((cbufout[j - 2] - 48) * 10);
+
+							sprintf_s( cbufout + j - 2, 32, "(%d)", item );
+							j += 2;
+						}
+						else
+						{
+							// one-digit
+							item = cbufout[j - 1] - 48;
+
+							sprintf_s( cbufout + j - 1, 32, "(0%d)", item );
+							j += 3;
+						}
+					}
+				}
+				else
+				{// data behind... or sign
+
+					if ((cbufin[i - 1] == '+') || (cbufin[i - 1] == '-'))
+					{
+						//_(24)+
+						item++;
+						sprintf_s( cbufout + j - 4, 32, "%02d)", item );
+						j -= 1;
+					}
+					else
+					{
+						item++;
+						sprintf_s( cbufout + j, 32, " (%02d)", item );
+						j += 5;
+					}
+				}
+			}
+			cbufout[j++] = cbufin[i];
+		}
+
+		return cbufout;
+	}
+
+	void IDP::PrintScratchPadLine( vc::MDU* pMDU ) const
+	{
+		const char* str = GetScratchPadLineString_B();
+
+		int flashingentry = GetFlashingEntry();
+		if (flashingentry != 0)
+		{
+			char str2[16];
+			strncpy_s( str2, str, flashingentry );
+			pMDU->mvprint( 1, 25, str2, dps::DEUATT_FLASHING );
+		}
+		pMDU->mvprint( 1 + flashingentry, 25, str + flashingentry );
+
+		if (syntaxerr) pMDU->mvprint( strlen( str ) + 1, 25, " ERR", dps::DEUATT_FLASHING );
+		return;
+	}
+
+	int IDP::GetFlashingEntry( void ) const
+	{
+		if (IsCompleteLine()) return 0;
+		
+		switch (cScratchPadLine[0])
+		{
+			case SSU_KEY_OPS:
+				return 3;
+			case SSU_KEY_SPEC:
+			case SSU_KEY_ITEM:
+				return 4;
+			case SSU_KEY_GPCCRT:
+				return 7;
+			case SSU_KEY_IORESET:
+				return 9;
+			default:
+				return 0;
+		}
+	}
+
+	void IDP::PrintFaultMessageLine( vc::MDU* pMDU ) const
+	{
+		pMDU->mvprint( 1, 24, cFaultMessageLine, dps::DEUATT_FLASHING );
+		return;
+	}
+
+	bool IDP::IsDisp( int code ) const
+	{
+		switch (code)
+		{
+			case 6:
+			case 18:
+			case 19:
+			case 66:
+			case 67:
+			case 68:
+			case 69:
+			case 76:
+			case 77:
+			case 78:
+			case 79:
+			case 86:
+			case 87:
+			case 88:
+			case 89:
+			case 95:
+			case 96:
+			case 97:
+			case 99:
+			case 106:
+			case 167:
+			case 168:
+			case 169:
+			case 177:
+			case 179:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	int IDP::GetADIAttitude( void )
+	{
+		switch (usIDPID)
+		{
+			case 1:
+				return pIO_Control->GetSWPos( SW_ADI_ATTITUDE_F6 );
+			case 2:
+				return pIO_Control->GetSWPos( SW_ADI_ATTITUDE_F8 );
+			case 4:
+				return pIO_Control->GetSWPos( SW_ADI_ATTITUDE_A6U );
+			default:
+				return 1;// switch in LVLH
+		}
+	}
+
+	int IDP::GetADIError( void )
+	{
+		switch (usIDPID)
+		{
+			case 1:
+				return pIO_Control->GetSWPos( SW_ADI_ERROR_F6 );
+			case 2:
+				return pIO_Control->GetSWPos( SW_ADI_ERROR_F8 );
+			case 4:
+				return pIO_Control->GetSWPos( SW_ADI_ERROR_A6U );
+			default:
+				return 1;// switch in MED
+		}
+	}
+
+	int IDP::GetADIRate( void )
+	{
+		switch (usIDPID)
+		{
+			case 1:
+				return pIO_Control->GetSWPos( SW_ADI_RATE_F6 );
+			case 2:
+				return pIO_Control->GetSWPos( SW_ADI_RATE_F8 );
+			case 4:
+				return pIO_Control->GetSWPos( SW_ADI_RATE_A6U );
+			default:
+				return 1;// switch in MED
+		}
+	}
+
+	bool IDP::GetMECOConfirmedFlag( void ) const
+	{
+		return pSSME_Operations->GetMECOConfirmedFlag();
+	}
+
+	bool IDP::GetAutoThrottleState( void ) const
+	{
+		return pAscentDAP->GetAutoThrottleState();
+	}
+
+	VECTOR3 IDP::GetAttitudeErrors_AscentDAP( void ) const
+	{
+		return pAscentDAP->GetAttitudeErrors();
+	}
+
+	VECTOR3 IDP::GetAttitudeErrors_AerojetDAP( void ) const
+	{
+		return pAerojetDAP->GetAttitudeErrors();
+	}
+	
+	VECTOR3 IDP::GetAttitudeCommandErrors( void ) const
+	{
+		return pOMSBurnSoftware->GetAttitudeCommandErrors();
+	}
+
+	bool IDP::GetAutoPitchState( void ) const
+	{
+		return pAerojetDAP->GetAutoPitchState();
+	}
+
+	bool IDP::GetAutoRollYawState( void ) const
+	{
+		return pAerojetDAP->GetAutoRollYawState();
+	}
+
+	bool IDP::GetAutoSpeedbrakeState( void ) const
+	{
+		return pAerojetDAP->GetAutoSpeedbrakeState();
+	}
+
+	double IDP::GetAutoSpeedbrakeCommand( void ) const
+	{
+		return pAerojetDAP->GetAutoSpeedbrakeCommand();
+	}
+
+	bool IDP::GetWOW( void ) const
+	{
+		return pLanding_SOP->GetWOWLON();
+	}
+
+	double IDP::GetNZError( void ) const
+	{
+		return pAerojetDAP->GetNZError();
+	}
+
+	bool IDP::GetPrefinalState( void ) const
+	{
+		return pAerojetDAP->GetPrefinalState();
+	}
+
+	double IDP::GetYRunwayPositionError( void ) const
+	{
+		return pAerojetDAP->GetYRunwayPositionError();
+	}
+
+	bool IDP::GetOnHACState( void ) const
+	{
+		return pAerojetDAP->GetOnHACState();
+	}
+
+	double IDP::GetHACRadialError( void ) const
+	{
+		return pAerojetDAP->GetHACRadialError();
+	}
+
+	double IDP::GetTimeToHAC( void ) const
+	{
+		return pAerojetDAP->GetTimeToHAC();
+	}
+
+	double IDP::GetdeltaAZ( void ) const
+	{
+		return pAerojetDAP->GetdeltaAZ();
+	}
+
+	double IDP::GetDistanceToHACCenter( void ) const
+	{
+		return pAerojetDAP->GetDistanceToHACCenter();
+	}
+
+	const std::string& IDP::GetSelectedRunway( void ) const
+	{
+		return pAerojetDAP->GetSelectedRunway();
+	}
+
+	double IDP::GetRangeToRunway( void ) const
+	{
+		return pAerojetDAP->GetRangeToRunway();
+	}
+
+	bool IDP::GetApproachAndLandState( void ) const
+	{
+		return pAerojetDAP->GetApproachAndLandState();
+	}
+
+	double IDP::GetVacc( void ) const
+	{
+		return pAerojetDAP->GetVacc();
+	}
+
+	double IDP::GetHTA( void ) const
+	{
+		return pAerojetDAP->GetHTA();
+	}
+
+	double IDP::GetGlideSlopeDistance( void ) const
+	{
+		return pAerojetDAP->GetGlideSlopeDistance();
+	}
+
+	double IDP::GetNZ( void ) const
+	{
+		return pAerojetDAP->GetNZ();
+	}
+
+	double IDP::GetdeltaAZLimit( double mach ) const
+	{
+		return pAerojetDAP->GetdeltaAZLimit( mach );
+	}
+
+	double IDP::GetSelectedRunwayHeading( void ) const
+	{
+		return pAerojetDAP->GetSelectedRunwayHeading();
+	}
+
+	double IDP::GetTargetHeading( void ) const
+	{
+		return pAscentDAP->GetTargetHeading();
+	}
+
+	bool IDP::GetFCSmode( void ) const
+	{
+		return pAscentDAP->GetFCSmode();
 	}
 };

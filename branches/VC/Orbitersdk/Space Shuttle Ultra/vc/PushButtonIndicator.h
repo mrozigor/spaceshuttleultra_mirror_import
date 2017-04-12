@@ -26,74 +26,59 @@
 #define __PUSHBUTTONINDICATOR_H
 #pragma once
 
-#include "../Atlantis.h"
+
+#include "PushButton.h"
 #include "StandardLight.h"
 #include "DiscInPort.h"
 #include "DiscOutPort.h"
+#include <orbitersdk.h>
+
 
 namespace vc
 {
-	using class discsignals::DiscOutPort;
-	using class discsignals::DiscInPort;
+	using discsignals::DiscOutPort;
+	using discsignals::DiscInPort;
 
-	class PushButtonIndicator: public StandardLight
+	class PushButtonIndicatorSingleLight : public StandardSingleLight
 	{
-		UINT anim_pb;
-		UINT uiGroup;
-		MGROUP_TRANSLATE* pPushDown;
-		bool bAllowReset;
-		bool bSaveState;
-		bool bInitialState; // state loaded from scenario file
-	public:
-		PushButtonIndicator(Atlantis* _sts, const string& _ident, bool _saveState=false);
-		~PushButtonIndicator();
+			UINT anim_pb;
+			double motionlength;
+			MGROUP_TRANSLATE* pPushDown;
+		public:
+			PushButtonIndicatorSingleLight( Atlantis* _sts, const string& _ident );
+			~PushButtonIndicatorSingleLight();
 
-		//void DefineGroup(UINT _grpIndex);
-		//virtual void DefineVCAnimations(UINT vc_idx);
-		virtual bool OnMouseEvent(int _event, float x, float y);
-		virtual void OnPress();
-		virtual void OnRelease();
+			virtual void DefineVCAnimations( UINT vc_idx );
+			virtual bool OnMouseEvent( int _event, float x, float y );
+			virtual void OnPress();
+			virtual void OnRelease();
+			void ConnectPushButton( DiscreteBundle* pBundle, unsigned short usLine );
 
-		virtual void Realize();
-		virtual bool OnParseLine(const char* line);
-		virtual bool GetStateString(unsigned long ulBufferSize, char* pszBuffer);
+			void SetMotionLength( double _motionlength );
 
-		void ConnectAll(DiscreteBundle* pBundle, int line);
-		/**
-		 * If true, pressing PBI will set output line to opposite of input line (if input line is set, output line will be reset)
-		 * If false, output line will be set every time PBI is pushed
-		 */
-		void AllowReset(bool allow);
-
-		DiscOutPort output; //generally same as input port
+			DiscOutPort output;
 	};
 
-	/**
-	 * PBIs are normally in groups where only 1 DiscPort in the group is set
-	 * Monitors group of DiscPorts
-	 * If one DiscPort is set, resets all other ports in group
-	 */
-	class PBIDiscPortGroup
+
+
+	class PushButtonIndicatorDoubleLight : public StandardDoubleLight
 	{
-		const static int MAX_SIZE = 16;
-		DiscOutPort outPorts[MAX_SIZE];
-		DiscInPort inPorts[MAX_SIZE];
+			UINT anim_pb;
+			double motionlength;
+			MGROUP_TRANSLATE* pPushDown;
+		public:
+			PushButtonIndicatorDoubleLight( Atlantis* _sts, const string& _ident );
+			~PushButtonIndicatorDoubleLight();
 
-		bool oldValues[MAX_SIZE];
+			virtual void DefineVCAnimations( UINT vc_idx );
+			virtual bool OnMouseEvent( int _event, float x, float y );
+			virtual void OnPress();
+			virtual void OnRelease();
+			void ConnectPushButton( DiscreteBundle* pBundle, unsigned short usLine );
 
-		unsigned short usCount;
-	public:
-		PBIDiscPortGroup();
-		~PBIDiscPortGroup();
+			void SetMotionLength( double _motionlength );
 
-		/**
-		 * Add all ports from usStart to usEnd (inclusive) to group
-		 */
-		void AddPorts(DiscreteBundle* pBundle, unsigned short usStart, unsigned short usEnd);
-
-		void OnPreStep();
-	private:
-		void SetLine(unsigned short usIndex);
+			DiscOutPort output;
 	};
 };
 

@@ -1,16 +1,34 @@
 #include <cassert>
 #include "SimpleGPCSystem.h"
 #include "SimpleGPCSoftware.h"
-#include "AscentGuidance.h"
+#include "AscentDAP.h"
 #include "OrbitDAP.h"
 #include "OMSBurnSoftware.h"
 #include "StateVectorSoftware.h"
 #include "OrbitTgtSoftware.h"
 #include "AerojetDAP.h"
 #include "SSME_SOP.h"
+#include "SSME_Operations.h"
 #include "RSLS_old.h"
 #include "MPS_Dedicated_Display_Driver.h"
+#include "MPS_Dump.h"
 #include "MM801.h"
+#include "IO_Control.h"
+#include "TransitionDAP.h"
+#include "ETSepSequence.h"
+#include "SRBSepSequence.h"
+#include "ATVC_SOP.h"
+#include "GeneralDisplays.h"
+#include "MEC_SOP.h"
+#include "RHC_RM.h"
+#include "THC_RM.h"
+#include "RPTA_RM.h"
+#include "SBTC_RM.h"
+#include "RHC_SOP.h"
+#include "THC_SOP.h"
+#include "RPTA_SOP.h"
+#include "SBTC_SOP.h"
+#include "Landing_SOP.h"
 #include "../Atlantis.h"
 
 namespace dps
@@ -19,16 +37,35 @@ namespace dps
 SimpleGPCSystem::SimpleGPCSystem(AtlantisSubsystemDirector* _director)
 : AtlantisSubsystem(_director, "SimpleGPCSystem"), majorMode(101), newMajorMode(0)
 {
+	//TODO: Move this all to Partition model
+	vSoftware.push_back( new MPS_Dump( this ) );
 	vSoftware.push_back( new MPS_Dedicated_Display_Driver( this ) );
+	vSoftware.push_back( new SSME_Operations( this ) );
 	vSoftware.push_back( new SSME_SOP( this ) );
 	vSoftware.push_back( new RSLS_old( this ) );
-	vSoftware.push_back(new AscentGuidance(this));
+	vSoftware.push_back(new AscentDAP(this));
 	vSoftware.push_back(new OrbitDAP(this));
 	vSoftware.push_back(new StateVectorSoftware(this));
 	vSoftware.push_back(new OMSBurnSoftware(this));
 	vSoftware.push_back(new OrbitTgtSoftware(this));
 	vSoftware.push_back(new AerojetDAP(this));
 	vSoftware.push_back(new MM801(this));
+	vSoftware.push_back( new IO_Control( this ) );
+	vSoftware.push_back( new TransitionDAP( this ) );
+	vSoftware.push_back( new ETSepSequence( this ) );
+	vSoftware.push_back( new SRBSepSequence( this ) );
+	vSoftware.push_back( new ATVC_SOP( this ) );
+	vSoftware.push_back( new GeneralDisplays( this ) );
+	vSoftware.push_back( new MEC_SOP( this ) );
+	vSoftware.push_back( new RHC_RM( this ) );
+	vSoftware.push_back( new THC_RM( this ) );
+	vSoftware.push_back( new RPTA_RM( this ) );
+	vSoftware.push_back( new SBTC_RM( this ) );
+	vSoftware.push_back( new RHC_SOP( this ) );
+	vSoftware.push_back( new THC_SOP( this ) );
+	vSoftware.push_back( new RPTA_SOP( this ) );
+	vSoftware.push_back( new SBTC_SOP( this ) );
+	vSoftware.push_back( new Landing_SOP( this ) );
 }
 
 SimpleGPCSystem::~SimpleGPCSystem()
@@ -39,11 +76,13 @@ SimpleGPCSystem::~SimpleGPCSystem()
 
 void SimpleGPCSystem::SetMajorMode(unsigned int newMM)
 {
+	//TODO: Move to Memory Configuration and Redundant Set (Partition)
 	newMajorMode = newMM;
 }
 
 bool SimpleGPCSystem::IsValidMajorModeTransition(unsigned int newMajorMode) const
 {
+	//TODO: Replace by table in memory configuration
 	switch(newMajorMode) {
 	case 104:
 		return majorMode == 103;
@@ -67,9 +106,156 @@ bool SimpleGPCSystem::IsValidMajorModeTransition(unsigned int newMajorMode) cons
 		return majorMode == 304;
 	case 801:
 		return majorMode == 201;
+	case 901:
+		return majorMode == 101;
 	default:
 		return false;
 	}
+}
+
+bool SimpleGPCSystem::IsValidSPEC( int spec ) const
+{
+	switch (majorMode / 100)
+	{
+		case 0:
+			switch (spec)
+			{
+				case 1:
+				case 2:
+				case 6:
+				case 99:
+					return true;
+			}
+			break;
+		case 1:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 6:
+				case 18:
+				case 19:// HACK BFS only
+				case 23:
+				case 50:
+				case 51:
+				case 53:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+			break;
+		case 2:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 6:
+				case 18:
+				case 19:
+				case 20:
+				case 21:
+				case 22:
+				case 23:
+				case 25:
+				case 33:
+				case 34:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+			break;
+		case 3:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 6:
+				case 18:
+				case 19:// HACK BFS only
+				case 21:
+				case 22:
+				case 23:
+				case 50:
+				case 51:
+				case 53:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+			break;
+		case 6:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 6:
+				case 18:
+				case 19:// HACK BFS only
+				case 23:
+				case 50:
+				case 51:
+				case 53:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+			break;
+		case 8:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 6:
+				case 18:
+				case 19:
+				case 23:
+				case 40:
+				case 41:
+				case 42:
+				case 43:
+				case 44:
+				case 45:
+				case 55:
+				case 99:
+					return true;
+				default:
+					return false;
+			}
+		case 9:
+			switch (spec)
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 6:
+				case 55:
+				case 62:
+				case 99:
+				case 100:
+				case 101:
+				case 102:
+				case 104:
+				case 105:
+				case 106:
+				case 112:
+				case 113:
+					return true;
+				default:
+					return false;
+			}
+			break;
+	}
+	return false;
 }
 
 void SimpleGPCSystem::Realize()
@@ -158,6 +344,8 @@ void SimpleGPCSystem::OnSaveState(FILEHANDLE scn) const
 		vSoftware[i]->OnSaveState(scn);
 		oapiWriteScenario_string(scn, "@ENDSOFTWARE", "");
 	}*/
+	//TODO Save number of memory configuration
+
 	for(unsigned int i=0;i<vActiveSoftware.size();i++) {
 		oapiWriteScenario_string(scn, "@BEGINSOFTWARE", const_cast<char*>(vActiveSoftware[i]->GetIdentifier().c_str()));
 		vActiveSoftware[i]->OnSaveState(scn);
@@ -167,11 +355,12 @@ void SimpleGPCSystem::OnSaveState(FILEHANDLE scn) const
 
 bool SimpleGPCSystem::ItemInput(int spec, int item, const char* Data)
 {
+	bool illegalentry = false;
 	for(unsigned int i=0;i<vActiveSoftware.size();i++) {
-		if(vActiveSoftware[i]->ItemInput(spec, item, Data))
-			return true;
+		if(vActiveSoftware[i]->ItemInput(spec, item, Data, illegalentry ))
+			break;
 	}
-	return false;
+	return !illegalentry;
 }
 
 bool SimpleGPCSystem::ExecPressed(int spec)

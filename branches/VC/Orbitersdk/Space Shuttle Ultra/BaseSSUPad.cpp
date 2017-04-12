@@ -7,6 +7,8 @@ BaseSSUPad::BaseSSUPad(OBJHANDLE hVessel, int flightmodel)
 	bLightsOn = false;
 
 	fNextLightUpdate = -20.0;
+
+	oaa_mode = OAA_RATE_NORMAL;
 }
 
 BaseSSUPad::~BaseSSUPad()
@@ -34,17 +36,8 @@ void BaseSSUPad::CreateLights(VECTOR3* positions, unsigned int count)
 	ToggleLights(bLightsOn); // make sure lights initially have correct state
 }
 
-void BaseSSUPad::CreateStadiumLights(const VECTOR3* positions, const VECTOR3* dir, unsigned int count)
+void BaseSSUPad::CreateStadiumLights(const VECTOR3* positions, const VECTOR3* dir, unsigned int count, double range, double att0, double att1, double att2, double umbra, double penumbra, COLOUR4 diffuse, COLOUR4 specular, COLOUR4 ambient)
 {
-	const COLOUR4 STADIUM_LIGHT_DIFFUSE = {0.95f, 1.0f, 0.95f, 1.0f};//{0.95f, 1.0f, 0.95f, 1.0f};
-	const COLOUR4 STADIUM_LIGHT_SPECULAR = {0,0,0,0};
-	const COLOUR4 STADIUM_LIGHT_AMBIENT = {0.1f, 0.125f, 0.1f, 0.0f};
-	const double STADIUM_LIGHT_RANGE = 100.0;
-	const double STADIUM_LIGHT_ATT0 = 1e-3;
-	const double STADIUM_LIGHT_ATT1 = 0;
-	const double STADIUM_LIGHT_ATT2 = 1e-3;
-	static VECTOR3& light_color = _V(1, 1, 1);
-
 	phStadiumLights = CreatePropellantResource(1.0, 1.0);
 
 	// set size of vectors
@@ -53,9 +46,7 @@ void BaseSSUPad::CreateStadiumLights(const VECTOR3* positions, const VECTOR3* di
 	pStadiumLights.resize(count);
 
 	for(unsigned int i=0;i<count;i++) {
-		pStadiumLights[i] = AddSpotLight(positions[i], dir[i],
-			STADIUM_LIGHT_RANGE, STADIUM_LIGHT_ATT0, STADIUM_LIGHT_ATT1, STADIUM_LIGHT_ATT2, 45*RAD, 180*RAD,
-			STADIUM_LIGHT_DIFFUSE, STADIUM_LIGHT_SPECULAR, STADIUM_LIGHT_AMBIENT);
+		pStadiumLights[i] = AddSpotLight(positions[i], dir[i], range, att0, att1, att2, umbra, penumbra, diffuse, specular, ambient);
 		
 		// create fake thruster to simulate glare from lights
 		thStadiumLights[i] = CreateThruster(positions[i], dir[i], 0.0, phStadiumLights,
@@ -86,7 +77,7 @@ void BaseSSUPad::ToggleLights(bool enable)
 
 	for(unsigned int i=0;i<pStadiumLights.size();i++) {
 		pStadiumLights[i]->Activate(enable);
-		SetThrusterLevel(thStadiumLights[i], 1.0);
+		SetThrusterLevel(thStadiumLights[i], enable?1.0:0.0 );
 		//stadium_lights[i].active = enable;
 	}
 }
@@ -126,7 +117,7 @@ void BaseSSUPad::clbkPreStep(double simt, double simdt, double mjd)
 	}
 
 	if(AccessArmState.Moving()) {
-		AccessArmState.Move(simdt*orbiter_access_arm_rate);
+		AccessArmState.Move(simdt*orbiter_access_arm_rate[oaa_mode]);
 		SetAnimation(anim_AccessArm, AccessArmState.pos);
 	}
 
@@ -142,8 +133,6 @@ void BaseSSUPad::clbkPreStep(double simt, double simdt, double mjd)
 		SetAnimation(anim_VentArm, VentArmState.pos);
 		UpdateGOXVents();
 	}
-
-	//sprintf_s(oapiDebugString(), 255, "VentArm: %d %f VentHood: %d %f", VentArmState.action, VentArmState.pos, VentHoodState.action, VentHoodState.pos);
 
 	if(GH2VentlineState.Moving()) {
 		GH2VentlineState.Move(simdt*gh2_arm_rate);
@@ -163,7 +152,7 @@ int BaseSSUPad::clbkConsumeBufferedKey(DWORD key, bool down, char* keystate)
 	switch(key) {
 		case OAPI_KEY_K:
 			if(AccessArmState.Open() || AccessArmState.Opening()) RetractOrbiterAccessArm();
-			else ExtendOrbiterAccessArm();
+			else ExtendOrbiterAccessArm( OAA_RATE_NORMAL );
 			return 1;
 		case OAPI_KEY_G:
 			if(VentHoodState.Closed()) ExtendGOXArmAndHood();
@@ -200,9 +189,9 @@ MGROUP_SCALE* BaseSSUPad::DefineScale(UINT mesh, UINT* grp, UINT ngrp, const VEC
 	vpAnimations.push_back(mgrp);
 	return mgrp;
 }
-void BaseSSUPad::SetOrbiterAccessArmRate(double rate)
+void BaseSSUPad::SetOrbiterAccessArmRate(double rate, int mode)
 {
-	orbiter_access_arm_rate = rate;
+	orbiter_access_arm_rate[mode] = rate;
 }
 
 void BaseSSUPad::SetGOXVentArmRate(double rate)
@@ -225,13 +214,15 @@ void BaseSSUPad::SetIntertankAccessArmRate(double rate)
 	iaa_rate = rate;
 }
 
-void BaseSSUPad::ExtendOrbiterAccessArm()
+void BaseSSUPad::ExtendOrbiterAccessArm( int mode )
 {
+	oaa_mode = mode;
 	AccessArmState.action=AnimState::OPENING;
 }
 
 void BaseSSUPad::RetractOrbiterAccessArm()
 {
+	oaa_mode = OAA_RATE_NORMAL;
 	AccessArmState.action=AnimState::CLOSING;
 }
 
@@ -257,7 +248,7 @@ void BaseSSUPad::HaltGOXArm()
 
 void BaseSSUPad::AttachGH2Ventline()
 {
-	GH2VentlineState.action=AnimState::CLOSING;
+	if(IAAState.Open()) GH2VentlineState.action=AnimState::CLOSING;
 }
 
 void BaseSSUPad::DetachGH2Ventline()

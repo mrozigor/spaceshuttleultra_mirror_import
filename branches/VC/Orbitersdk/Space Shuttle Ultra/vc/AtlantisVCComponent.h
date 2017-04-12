@@ -40,7 +40,7 @@ class Atlantis;
 namespace vc {
 
 	using namespace std;
-	using class ::Atlantis;
+	using ::Atlantis;
 
 class AtlantisVCComponent : public BasicVCComponent<Atlantis>
 {

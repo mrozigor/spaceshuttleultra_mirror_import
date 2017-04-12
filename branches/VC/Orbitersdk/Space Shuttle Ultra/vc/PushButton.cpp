@@ -1,5 +1,7 @@
 #include "../Atlantis.h"
 #include "PushButton.h"
+#include <OrbiterSoundSDK40.h>
+#include <UltraMath.h>
 
 namespace vc {
 
@@ -9,10 +11,13 @@ namespace vc {
 		anim_pb = NULL;
 		pPushDown = NULL;
 		uiGroup = 0xFFFF;
+		motionlength = PUSH_LENGHT;
 	}
 
 
-	PushButton::~PushButton() {
+	PushButton::~PushButton()
+	{
+		if (pPushDown) delete pPushDown;
 	}
 
 	void PushButton::DefineGroup(UINT _grpIndex) {
@@ -30,7 +35,7 @@ namespace vc {
 			anim_pb = STS()->CreateAnimation(InitialAnimState());
 
 			pPushDown = new MGROUP_TRANSLATE(vc_idx, &uiGroup, 1, 
-				GetDirection());
+				Normalize( GetDirection() ) * motionlength );
 			STS()->AddAnimationComponent(anim_pb, 0.0, 1.0, pPushDown);
 
 			VerifyAnimations();
@@ -38,19 +43,7 @@ namespace vc {
 	}
 
 	bool PushButton::OnMouseEvent(int _event, float x, float y) {
-		/*switch(_event) {
-			case PANEL_MOUSE_LBDOWN:
-			case PANEL_MOUSE_LBPRESSED:
-				OnPress();
-				break;
-			case PANEL_MOUSE_LBUP:
-				OnDepress();
-				break;
-			default:
-				return false;
-		}
-		return true;*/
-		if((_event & PANEL_MOUSE_LBDOWN) || (_event & PANEL_MOUSE_LBPRESSED)) {
+		if(_event & PANEL_MOUSE_LBDOWN) {
 			OnPress();
 			return true;
 		}
@@ -71,6 +64,7 @@ namespace vc {
 			SetAnimation(anim_pb, 1.0);
 		}
 		output.SetLine();
+		PlayVesselWave( STS()->GetSoundID(), KEY_PRESS_SOUND );
 	}
 
 	void PushButton::OnDepress() {
@@ -81,4 +75,9 @@ namespace vc {
 		output.ResetLine();
 	}
 
+	void PushButton::SetMotionLength( double _motionlength )
+	{
+		motionlength = _motionlength;
+		return;
+	}
 };

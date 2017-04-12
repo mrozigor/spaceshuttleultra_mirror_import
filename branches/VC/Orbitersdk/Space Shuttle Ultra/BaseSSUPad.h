@@ -10,12 +10,15 @@
  * Base class for SSU pads (SLC-6 and LC-39)
  * Controls lights and animations common to both pads (OAA, GVA/Hood, IAA and GH2 ventline)
  */
+
+const int OAA_RATE_NORMAL = 0;
+const int OAA_RATE_EMERGENCY = 1;
+
 class BaseSSUPad : public VESSEL3, public ISSULaunchTower
 {
 	bool bLightsOn;
 	double fNextLightUpdate;
 
-	PROPELLANT_HANDLE phStadiumLights; // fake tank for lights
 	std::vector<BEACONLIGHTSPEC> lights;
 	//std::vector<BEACONLIGHTSPEC> stadium_lights; // TODO: debugging only
 	std::vector<THRUSTER_HANDLE> thStadiumLights;
@@ -23,7 +26,8 @@ class BaseSSUPad : public VESSEL3, public ISSULaunchTower
 
 	std::vector<MGROUP_TRANSFORM*> vpAnimations;
 
-	double orbiter_access_arm_rate;
+	int oaa_mode;
+	double orbiter_access_arm_rate[2];
 	double vent_hood_rate;
 	double vent_arm_rate;
 	double gh2_arm_rate;
@@ -31,6 +35,7 @@ class BaseSSUPad : public VESSEL3, public ISSULaunchTower
 	
 	//bool bFirstStep;
 protected:
+	PROPELLANT_HANDLE phStadiumLights; // fake tank for lights
 	// 0.0, CLOSED corresponds to state at T0
 	AnimState AccessArmState;
 	AnimState VentHoodState, VentArmState;
@@ -55,19 +60,20 @@ protected:
 	 * Creates stadium lights (beacons and spotlights) at specified positions
 	 * \param positions array of positions at which to create lights
 	 * \param count number of lights (size of positions array)
+	 * \param range,att0,att1,att2,umbra,penumbra,diffuse,specular,ambient Passed directly to VESSEL::AddSpotLight function
 	 */
-	void CreateStadiumLights(const VECTOR3* positions, const VECTOR3* dir, unsigned int count);
+	void CreateStadiumLights(const VECTOR3* positions, const VECTOR3* dir, unsigned int count, double range, double att0, double att1, double att2, double umbra, double penumbra, COLOUR4 diffuse, COLOUR4 specular, COLOUR4 ambient);
 	void ToggleLights(bool enable);
 	bool IsNight() const;
 	
-	void SetOrbiterAccessArmRate(double rate);
+	void SetOrbiterAccessArmRate(double rate, int mode);
 	void SetGOXVentArmRate(double rate);
 	void SetGOXVentHoodRate(double rate);
 	void SetGH2VentlineRate(double rate);
 	void SetIntertankAccessArmRate(double rate);
 	
 	// ISSULaunchTower
-	virtual void ExtendOrbiterAccessArm();
+	virtual void ExtendOrbiterAccessArm( int mode );
 	virtual void RetractOrbiterAccessArm();
 	virtual void HaltOrbiterAccessArm();
 

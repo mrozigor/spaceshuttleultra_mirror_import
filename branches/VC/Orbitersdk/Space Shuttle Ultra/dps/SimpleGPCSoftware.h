@@ -52,8 +52,9 @@ public:
 	 * @param spec spec currently displayed
 	 * @param item ITEM number
 	 * @param Data string containing data entered
+	 * @param IllegalEntry	if an data entry is illegal, this should be set to true
 	 */
-	virtual bool ItemInput(int spec, int item, const char* Data);
+	virtual bool ItemInput(int spec, int item, const char* Data, bool &IllegalEntry );
 	/**
 	 * Called when EXEC is pressed and no data has been entered.
 	 * Returns true if keypress was handled.
@@ -69,6 +70,38 @@ public:
 	SimpleGPCSoftware* FindSoftware(const std::string& identifier) const;
 protected:
 	void PrintCommonHeader(const char* header, vc::MDU* pMDU) const;
+	
+	/**
+	 * Converts a string into a signed integer, checking that the string is not empty, the number in the string is an integer and that no further chars exist.
+	 * @param data	string to process
+	 * @param num	variable where to save the number
+	 * @return	true if the string only contains an integer, false otherwise.
+	 */
+	bool GetIntegerSigned( const char *data, int &num ) const;
+
+	/**
+	 * Converts a string into an unsigned integer (by ignoring the sign), checking that the string is not empty, the number in the string is an integer and that no further chars exist.
+	 * @param data	string to process
+	 * @param num	variable where to save the number
+	 * @return	true if the string only contains an integer, false otherwise.
+	 */
+	bool GetIntegerUnsigned( const char *data, int &num ) const;
+
+	/**
+	 * Converts a string into a signed double, checking that the string is not empty, the number in the string is a double and that no further chars exist.
+	 * @param data	string to process
+	 * @param num	variable where to save the number
+	 * @return	true if the string only contains a double, false otherwise.
+	 */
+	bool GetDoubleSigned( const char *data, double &num ) const;
+
+	/**
+	 * Converts a string into an unsigned double (by ignoring the sign), checking that the string is not empty, the number in the string is a double and that no further chars exist.
+	 * @param data	string to process
+	 * @param num	variable where to save the number
+	 * @return	true if the string only contains a double, false otherwise.
+	 */
+	bool GetDoubleUnsigned( const char *data, double &num ) const;
 };
 
 };

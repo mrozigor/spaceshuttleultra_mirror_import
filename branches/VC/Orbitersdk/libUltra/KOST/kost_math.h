@@ -32,8 +32,8 @@ This header contains some extra math functions.
 extern "C" {
 #endif
 
-double acosh(double x);
-double asinh(double x);
+double Acosh(double x);
+double Asinh(double x);
 
 #ifdef __cplusplus
 }

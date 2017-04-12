@@ -37,9 +37,24 @@ const string& BasicSwitch::GetLabel(int iPosition) const {
 	return labels.at(iPosition);
 }
 
+bool BasicSwitch::IsFullySpringLoaded( void )
+{
+	bool one = false;
+	for (unsigned short i = 0; i < usNumPositions; i++)
+	{
+		if (!vbSpringLoaded.at( i ))
+		{
+			if (one) return false;
+			else one = true;
+		}
+	}
+	return true;
+}
+
 bool BasicSwitch::GetStateString(unsigned long ulBufferSize, char* pszBuffer) {
 
-	if(bSpringLoaded) return false; // no need to save state, position is always 1
+	if (IsFullySpringLoaded()) return false;// no need to save state if the switch only has one non-spring loaded position
+
 	try {
 		if(labels.at(usCurrentPosition).compare("")) {
 			sprintf_s(pszBuffer, ulBufferSize, "%s", 
@@ -75,7 +90,6 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionDown();
 			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionUp();
-				sprintf_s(oapiDebugString(), 255, "Moving %s up", GetIdentifier().c_str());
 			}
 			return true;
 		}
@@ -83,7 +97,6 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionUp();
 			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionDown();
-				sprintf_s(oapiDebugString(), 255, "Moving %s down", GetIdentifier().c_str());
 			}
 			return true;
 		}
@@ -93,7 +106,6 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionDown();
 			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionUp();
-				sprintf_s(oapiDebugString(), 255, "Moving %s up", GetIdentifier().c_str());
 			}
 			return true;
 		}
@@ -101,7 +113,6 @@ bool BasicSwitch::OnMouseEvent(int _event, float x, float y)
 			if(_event & PANEL_MOUSE_LBDOWN) OnPositionUp();
 			else if(vbSpringLoaded.at(usCurrentPosition)) {
 				OnPositionDown();
-				sprintf_s(oapiDebugString(), 255, "Moving %s down", GetIdentifier().c_str());
 			}
 			return true;
 		}
@@ -114,6 +125,8 @@ bool BasicSwitch::OnParseLine(const char* line) {
 	char pszBuffer[256];
 	sprintf_s(pszBuffer, 255, "\t\tSet switch \"%s\" to state \"%s\".",
 		GetQualifiedIdentifier().c_str(), line);
+	oapiWriteLog( pszBuffer );
+
 	if(line[0] == '[') {
 		usCurrentPosition = atoi(line+1);
 		OnPositionChange(usCurrentPosition);
@@ -186,7 +199,6 @@ void BasicSwitch::SetSpringLoaded(bool IsSpringLoaded, unsigned short usPos)
 void BasicSwitch::SetSpringLoaded(bool IsSpringLoaded)
 {
 	unsigned short usMidPosition = (usNumPositions - 1)/2;
-	//bSpringLoaded=IsSpringLoaded;
 	for(unsigned short i=0;i<usNumPositions;i++) {
 		SetSpringLoaded(IsSpringLoaded && (i!=usMidPosition), i);
 	}

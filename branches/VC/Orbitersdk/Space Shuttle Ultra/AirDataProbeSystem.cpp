@@ -123,9 +123,6 @@ void AirDataProbeSystem::OnPreStep(double fSimT, double fDeltaT, double fMJD)
 
 	if(Deploy[RIGHT] || DeployHeat[RIGHT]) right_mode[1] = ADPS_DEPLOY;
 	else if(StowEnable[RIGHT]) right_mode[1] = ADPS_STOW;
-
-//	sprintf(oapiDebugString(), "ADPS: %f  %d/%d %f %d/%d", left_deploy[0], left_state[0], left_mode[0], 
-//		right_deploy[0], right_state[0], right_mode[0]);
 }
 
 /*void AirDataProbeSystem::SetDeployMode(int side, DEPLOY_MODE mode)

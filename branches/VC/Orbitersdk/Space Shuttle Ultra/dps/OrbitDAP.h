@@ -10,9 +10,9 @@
 
 namespace dps
 {
-
-const double RHC_SOFT_STOP = 0.75;
-const double RHC_DETENT = 0.01;
+const unsigned int convert[69] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
 
 struct AttManeuver
 {
@@ -21,6 +21,44 @@ struct AttManeuver
 	MATRIX3 tgtMatrix; // target attitude (rotation matrix) in right-handed frame (LVLH or M50, as appropriate)
 	TYPE Type; // at the moment, ROT is not supported
 };
+
+struct DAPConfig
+{
+	double PRI_ROT_RATE, PRI_ATT_DB, PRI_RATE_DB, PRI_ROT_PLS, PRI_COMP, PRI_TRAN_PLS;
+	int PRI_P_OPTION, PRI_Y_OPTION; //0=ALL, 1=NOSE, 2=TAIL
+	double ALT_RATE_DB, ALT_ON_TIME, ALT_DELAY;
+	int ALT_JET_OPT, ALT_JETS;
+	double VERN_ROT_RATE, VERN_ATT_DB, VERN_RATE_DB, VERN_ROT_PLS, VERN_COMP;
+	int VERN_CNTL_ACC;
+
+	DAPConfig& operator = (const DAPConfig& rhs) {
+		// copy all values from other config into this one
+		PRI_ROT_RATE=rhs.PRI_ROT_RATE;
+		PRI_ATT_DB=rhs.PRI_ATT_DB;
+		PRI_RATE_DB=rhs.PRI_RATE_DB;
+		PRI_ROT_PLS=rhs.PRI_ROT_PLS;
+		PRI_COMP=rhs.PRI_COMP;
+		PRI_TRAN_PLS=rhs.PRI_TRAN_PLS;
+		PRI_P_OPTION=rhs.PRI_P_OPTION;
+		PRI_Y_OPTION=rhs.PRI_Y_OPTION;
+		ALT_RATE_DB=rhs.ALT_RATE_DB;
+		ALT_ON_TIME=rhs.ALT_ON_TIME;
+		ALT_DELAY=rhs.ALT_DELAY;
+		ALT_JET_OPT=rhs.ALT_JET_OPT;
+		ALT_JETS=rhs.ALT_JETS;
+		VERN_ROT_RATE=rhs.VERN_ROT_RATE;
+		VERN_ATT_DB=rhs.VERN_ATT_DB;
+		VERN_RATE_DB=rhs.VERN_RATE_DB;
+		VERN_ROT_PLS=rhs.VERN_ROT_PLS;
+		VERN_COMP=rhs.VERN_COMP;
+		VERN_CNTL_ACC=rhs.VERN_CNTL_ACC;
+
+		return *this;
+	}
+};
+
+class RHC_SOP;
+class THC_SOP;
 
 /**
  * Controls shuttle's attitude during orbital flight.
@@ -37,6 +75,18 @@ public:
 	typedef enum {DISC_RATE, ROT_PULSE} ROT_MODE;
 	typedef enum {NORM, TRANS_PULSE} TRANS_MODE;
 private:
+	class ContactSwitch
+	{
+			bool q;
+			bool s;
+		public:
+			ContactSwitch(){ q = false; s = false; }
+			~ContactSwitch(){};
+
+			void Set( bool i ){ s = i & !q; q = i; }
+			bool Get( void ){ return s; }
+	};
+
 	PIDControl OMSTVCControlP, OMSTVCControlY, OMSTVCControlR;
 	VECTOR3 OMSTrim;
 	CONTROL_MODE ControlMode;
@@ -46,6 +96,8 @@ private:
 	DAP_CONTROL_MODE DAPControlMode;
 	ROT_MODE RotMode[3];
 	TRANS_MODE TransMode[3]; // 0=X, 1=Y, 2=Z
+
+	bool ERRTOT;// attitude error output: true = "ERR TOT", false = "ERR DAP"
 
 	int editDAP; // -1=None, 0=A, 1=B
 	DAPConfig DAPConfiguration[3]; //0=A, 1=B, 2=Edit
@@ -88,33 +140,47 @@ private:
 	VECTOR3 MNVR_OPTION;
 	int TGT_ID, BODY_VECT;
 	double P, Y, OM;
+	double RA;
+	double DEC;
+	double LAT;
+	double LON;
+	double _ALT;
 
 	VECTOR3 CUR_ATT, REQD_ATT, ATT_ERR; // attitudes in degrees in M50 frame
 
 	//PCT
-	//bool PostContactThrusting[2]; //0=armed, 1=active
-	//bool PCTArmed, PCTActive;
+	bool PCTArmed;
 	bool PCTActive;
 	double PCTStartTime;
 
 	bool PBI_state[24];
 	DiscInPort PBI_input[24];
-	DiscOutPort PBI_output[24];
-	/*DiscInPort DAPSelect[2]; // A or B
-	DiscInPort DAPMode[3]; // PRI, ALT, VERN
-	DiscInPort DAPControlMode[4]; // AUTO, INRTL, LVLH, FREE*/
-	DiscInPort RHCInput[3];
-	DiscInPort THCInput[3];
+	DiscOutPort PBI_output_C3[24];
+	DiscOutPort PBI_output_A6[24];
 	DiscOutPort RotThrusterCommands[3];
 	DiscOutPort TransThrusterCommands[3]; // 0=X, 1=Y, 2=Z
 	DiscOutPort POMSGimbalCommand[2], YOMSGimbalCommand[2];
-	DiscInPort PCTArmed;
-	DiscInPort BodyFlapAuto; // used to trigger PCT
-	DiscOutPort port_PCTActive[2]; // PBIs indicating is PCT is in progress
-	//DiscOutPort port_PCTActive;
-	DiscOutPort PitchAuto, RollYawAuto, PitchCSS, RollYawCSS; // make sure these PBIs are all OFF
+	DiscInPort CDR_SPDBK_THROT;
+	DiscInPort PLT_SPDBK_THROT;
+	DiscInPort CDR_BodyFlap;
+
+	DiscOutPort CDR_SPDBK_THROT_AUTO_LT;
+	DiscOutPort PLT_SPDBK_THROT_AUTO_LT;
+	DiscOutPort CDR_BodyFlap_AUTO_LT;
+	DiscOutPort CDR_BodyFlap_MAN_LT;
+
+	ContactSwitch cdrspdbkthrot;
+	ContactSwitch pltspdbkthrot;
+	ContactSwitch cdrbodyflap;
+	ContactSwitch sparepbi;
+
+	bool RA_DEC_flash;
+	bool LAT_LON_ALT_flash;
+	bool P_Y_flash;
 	
 	StateVectorSoftware* pStateVector;
+	RHC_SOP *pRHC_SOP;
+	THC_SOP *pTHC_SOP;
 public:
 	OrbitDAP(SimpleGPCSystem* pGPC);
 	virtual ~OrbitDAP();
@@ -137,12 +203,15 @@ public:
 	virtual void OnPreStep(double SimT, double DeltaT, double MJD);
 
 	virtual bool OnMajorModeChange(unsigned int newMajorMode);
-	virtual bool ItemInput(int spec, int item, const char* Data);
+	virtual bool ItemInput(int spec, int item, const char* Data, bool &IllegalEntry );
 	//virtual bool ExecPressed(int spec);
 	virtual bool OnPaint(int spec, vc::MDU* pMDU) const;
 
 	virtual bool OnParseLine(const char* keyword, const char* value);
 	virtual void OnSaveState(FILEHANDLE scn) const;
+
+	VECTOR3 GetAttitudeErrors( void ) const;
+	bool GetTimeToAttitude( double& time ) const;
 private:
 	/**
 	 * Updates variables with current attitude data.
@@ -194,6 +263,8 @@ private:
 	 */
 	bool GimbalOMS(SIDE side, double pitch, double yaw);
 
+	void ArmPCT( void );
+	void DisarmPCT( void );
 	void StartPCT();
 	void StopPCT();
 	void PCTControl(double SimT);

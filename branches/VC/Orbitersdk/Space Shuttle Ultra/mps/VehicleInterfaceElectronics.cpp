@@ -1,5 +1,8 @@
 #include "VehicleInterfaceElectronics.h"
+#include "PowerSupplyElectronics.h"
+#include "ComputerInterfaceElectronics.h"
 #include "SSMEController.h"
+#include "DigitalComputerUnit.h"
 #include "MPSdefs.h"
 
 
@@ -17,7 +20,7 @@ namespace mps
 		Command[1] = 0;
 		Command[2] = 0;
 		WDTstate = true;
-		VehicleDataSwitch = false;// or false???
+		VehicleDataSwitch = false;
 
 		this->Controller = Controller;
 
@@ -35,90 +38,102 @@ namespace mps
 
 	void VehicleInterfaceElectronics::OnSaveState( FILEHANDLE scn ) const
 	{
-		//char cbuf[255];
+		int config = 1;
 
-		/*sprintf_s( cbuf, 255, "%d %d %d", Command[0], Command[1], Command[2] );
-		oapiWriteScenario_string( scn, "VehicleInterfaceElectronics_Command", cbuf );*/
+		if (WDTstate == true) config = 2;
 
-		oapiWriteScenario_int( scn, "VIE_WDTstate", WDTstate );
-
-		oapiWriteScenario_int( scn, "VIE_VehicleDataSwitch", VehicleDataSwitch );
-
+		oapiWriteScenario_int( scn, "VIE config", config );
+		
 		__OnSaveState( scn );// write derived class
 		return;
 	}
 
 	bool VehicleInterfaceElectronics::OnParseLine( const char* line )
 	{
-		int read_i1 = 0;
-		//int read_i2 = 0;
-		//int read_i3 = 0;
+		int read_i = 0;
 #ifdef _MPSDEBUG
 		char buffer[150];
 #endif// _MPSDEBUG
 
-		/*if (!_strnicmp( line, "VehicleInterfaceElectronics_Command", 35 ))
+		if (!_strnicmp( line, "VIE config", 10 ))
 		{
-			sscanf_s( line + 35, "%d %d %d", &read_i1, &read_i2, &read_i3 );
-			Command[0] = read_i1;
-			Command[1] = read_i2;
-			Command[2] = read_i3;
+			sscanf_s( line + 12, "%d", &read_i );
+
+			if (read_i == 1)
+			{
+				WDTstate = false;
+				VehicleDataSwitch = true;
+			}
+			else// 2
+			{
+				WDTstate = true;
+				VehicleDataSwitch = false;
+			}
 #ifdef _MPSDEBUG
-			sprintf_s( buffer, 150, " VehicleInterfaceElectronics::OnParseLine || VehicleInterfaceElectronics_Command:%d|%d|%d", Command[0], Command[1], Command[2] );
+			sprintf_s( buffer, 150, " VehicleInterfaceElectronics::OnParseLine || VehicleInterfaceElectronics_config:%d", read_i );
 			oapiWriteLog( buffer );
 #endif// _MPSDEBUG
 			return true;
 		}
-		else */if (!_strnicmp( line, "VIE_WDTstate", 12 ))
-		{
-			sscanf_s( line + 12, "%d", &read_i1 );
-			WDTstate = GetBoolFromInt( read_i1 );
-#ifdef _MPSDEBUG
-			sprintf_s( buffer, 150, " VehicleInterfaceElectronics::OnParseLine || VehicleInterfaceElectronics_WDTstate:%d", WDTstate );
-			oapiWriteLog( buffer );
-#endif// _MPSDEBUG
-			return true;
-		}
-		else if (!_strnicmp( line, "VIE_VehicleDataSwitch", 21 ))
-		{
-			sscanf_s( line + 21, "%d", &read_i1 );
-			VehicleDataSwitch = GetBoolFromInt( read_i1 );
-#ifdef _MPSDEBUG
-			sprintf_s( buffer, 150, " VehicleInterfaceElectronics::OnParseLine || VehicleInterfaceElectronics_VehicleDataSwitch:%d", VehicleDataSwitch );
-			oapiWriteLog( buffer );
-#endif// _MPSDEBUG
-			return true;
-		}
-		if (__OnParseLine( line )) return true;// check if derived class wants line
-		return false;
+		
+		return __OnParseLine( line );// check if derived class wants line
+	}
+
+	void VehicleInterfaceElectronics::Realize( void )
+	{
+		PSE[chA] = Controller->PSE[chA];
+		PSE[chB] = Controller->PSE[chB];
+		CIE[chA] = Controller->CIE[chA];
+		CIE[chB] = Controller->CIE[chB];
+		return;
 	}
 
 	void VehicleInterfaceElectronics::CommandDataConverter_write( int ch, unsigned short cmd )
 	{
-		// TODO check bounds
-		if (!Controller->PSE_Power( ch )) return;// check power bus is working
+		assert( (ch >= 0) && (ch <= 2) && "VehicleInterfaceElectronics::CommandDataConverter_write.ch" );
+
+		// check power bus is working
+		if (ch == chC)
+		{
+			if ((!PSE[chA]->Power()) && (!PSE[chB]->Power())) return;
+		}
+		else
+		{
+			if (!PSE[ch]->Power()) return;
+		}
 
 		// TODO check for errors and non 0 word
-		Command[ch - 1] = cmd;// TODO check bounds
+		Command[ch] = cmd;
+		CIE[chA]->Interrupt( INT_CMD_RCVD );
+		CIE[chB]->Interrupt( INT_CMD_RCVD );
 		return;
 	}
 
 	unsigned short VehicleInterfaceElectronics::CommandDataConverter_read( int ch ) const
 	{
-		// TODO check bounds
-		if (!Controller->PSE_Power( ch )) return 0;// check power bus is working
+		assert( (ch >= 0) && (ch <= 2) && "VehicleInterfaceElectronics::CommandDataConverter_read.ch" );
 
-		return Command[ch - 1];// TODO check bounds
+		// check power bus is working
+		if (ch == chC)
+		{
+			if ((!PSE[chA]->Power()) && (!PSE[chB]->Power())) return 0;
+		}
+		else
+		{
+			if (!PSE[ch]->Power()) return 0;
+		}
+
+		return Command[ch];
 	}
 
 	void VehicleInterfaceElectronics::RecorderDataConverter_chA( unsigned short* data, int ch )
 	{
-		if (!Controller->PSE_Power( chA )) return;// check power bus is working
+		if (!PSE[chA]->Power()) return;// check power bus is working
 
 		// send data to CIA 1
 
 		// vehicle data switch
-		if ((Controller->CIE_CheckWDTOwn( chA, 0 ) || Controller->CIE_CheckWDTOwn( chA, 1 )) != WDTstate)
+		if ((CIE[chA]->CheckWDTOwn( 0 ) || CIE[chA]->CheckWDTOwn( 1 )) != WDTstate)
 		{
 			VehicleDataSwitch = WDTstate;
 			WDTstate = !WDTstate;
@@ -139,12 +154,12 @@ namespace mps
 
 	void VehicleInterfaceElectronics::RecorderDataConverter_chB( unsigned short* data, int ch )
 	{
-		if (!Controller->PSE_Power( chB )) return;// check power bus is working
+		if (!PSE[chB]->Power()) return;// check power bus is working
 
 		// send data to CIA 2
 
 		// vehicle data switch
-		if ((Controller->CIE_CheckWDTOwn( chA, 0 ) || Controller->CIE_CheckWDTOwn( chA, 1 )) != WDTstate)
+		if ((CIE[chA]->CheckWDTOwn( 0 ) || CIE[chA]->CheckWDTOwn( 1 )) != WDTstate)
 		{
 			VehicleDataSwitch = WDTstate;
 			WDTstate = !WDTstate;

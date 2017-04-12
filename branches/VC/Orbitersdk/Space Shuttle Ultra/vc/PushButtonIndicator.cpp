@@ -1,170 +1,148 @@
 #include "PushButtonIndicator.h"
+#include "..\Atlantis.h"
+#include <OrbiterSoundSDK40.h>
+#include <UltraMath.h>
+
 
 namespace vc
 {
-	PushButtonIndicator::PushButtonIndicator(Atlantis* _sts, const string& _ident, bool _saveState)
-		: StandardLight(_sts, _ident), bSaveState(_saveState), bInitialState(false)
+	PushButtonIndicatorSingleLight::PushButtonIndicatorSingleLight( Atlantis* _sts, const string& _ident ):StandardSingleLight( _sts, _ident )
 	{
 		anim_pb = NULL;
 		pPushDown = NULL;
-		uiGroup = 0xFFFF;
-		bAllowReset=false;
+		motionlength = PUSH_LENGHT;
 	}
 
-	PushButtonIndicator::~PushButtonIndicator()
+	PushButtonIndicatorSingleLight::~PushButtonIndicatorSingleLight()
 	{
+		if (pPushDown) delete pPushDown;
 	}
 
-	/*void PushButtonIndicator::DefineGroup(UINT _grpIndex) {
-		uiGroup = _grpIndex;
-	}
-
-	void PushButtonIndicator::DefineVCAnimations(UINT vc_idx) {
+	void PushButtonIndicatorSingleLight::DefineVCAnimations( UINT vc_idx )
+	{
 		char pszBuffer[256];
-		if(bHasDirection && !bHasAnimations) {
+		if (bHasDirection && !bHasAnimations)
+		{
+			sprintf_s( pszBuffer, 255, "PUSH BUTTON INDICATOR[%s]:\tDefine VC Animations()", GetQualifiedIdentifier().c_str() );
+			oapiWriteLog( pszBuffer );
 
-			/*sprintf_s(pszBuffer, 255, "PUSH BUTTON[%s]:\tDefine VC Animations()", 
-				GetQualifiedIdentifier().c_str());
-			oapiWriteLog(pszBuffer);
+			anim_pb = STS()->CreateAnimation( InitialAnimState() );
 
-			anim_pb = STS()->CreateAnimation(InitialAnimState());
-
-			pPushDown = new MGROUP_TRANSLATE(vc_idx, &uiGroup, 1, 
-				GetDirection());
-			STS()->AddAnimationComponent(anim_pb, 0.0, 1.0, pPushDown);
+			pPushDown = new MGROUP_TRANSLATE( vc_idx, &grpIndex, 1, Normalize( GetDirection() ) * motionlength );
+			STS()->AddAnimationComponent( anim_pb, 0.0, 1.0, pPushDown );
 
 			VerifyAnimations();
 		}
-	}*/
-
-	void PushButtonIndicator::ConnectAll(DiscreteBundle *pBundle, int line)
-	{
-		input.Connect(pBundle, line);
-		output.Connect(pBundle, line);
-		test.Connect(pBundle, line);
 	}
 
-	void PushButtonIndicator::AllowReset(bool allow)
+	bool PushButtonIndicatorSingleLight::OnMouseEvent( int _event, float x, float y )
 	{
-		bAllowReset=allow;
-	}
-
-	bool PushButtonIndicator::OnMouseEvent(int _event, float x, float y) {
-		/*switch(_event) {
-			case PANEL_MOUSE_LBDOWN:
-				OnPress();
-				break;
-			case PANEL_MOUSE_LBUP:
-				OnRelease();
-				break;
-			default:
-				return false;
-		}
-		return true;*/
-		if(_event & PANEL_MOUSE_LBDOWN) {
+		if (_event & PANEL_MOUSE_LBDOWN)
+		{
 			OnPress();
 			return true;
 		}
-		else if(_event & PANEL_MOUSE_LBUP) {
+		else if (_event & PANEL_MOUSE_LBUP)
+		{
 			OnRelease();
 			return true;
 		}
 		return false;
 	}
 
-	void PushButtonIndicator::OnPress()
+	void PushButtonIndicatorSingleLight::OnPress()
 	{
-		if(bHasAnimations)
+		if (bHasAnimations) SetAnimation( anim_pb, 1.0 );
+		output.SetLine();
+		PlayVesselWave( STS()->GetSoundID(), KEY_PRESS_SOUND );
+	}
+
+	void PushButtonIndicatorSingleLight::OnRelease()
+	{
+		if (bHasAnimations) SetAnimation( anim_pb, 0.0 );
+		output.ResetLine();
+	}
+
+	void PushButtonIndicatorSingleLight::ConnectPushButton( DiscreteBundle* pBundle, unsigned short usLine )
+	{
+		output.Connect( pBundle, usLine );
+		return;
+	}
+
+	void PushButtonIndicatorSingleLight::SetMotionLength( double _motionlength )
+	{
+		motionlength = _motionlength;
+		return;
+	}
+
+
+
+	PushButtonIndicatorDoubleLight::PushButtonIndicatorDoubleLight( Atlantis* _sts, const string& _ident ):StandardDoubleLight( _sts, _ident )
+	{
+		anim_pb = NULL;
+		pPushDown = NULL;
+		motionlength = PUSH_LENGHT;
+	}
+
+	PushButtonIndicatorDoubleLight::~PushButtonIndicatorDoubleLight()
+	{
+		if (pPushDown) delete pPushDown;
+	}
+
+	void PushButtonIndicatorDoubleLight::DefineVCAnimations( UINT vc_idx )
+	{
+		char pszBuffer[256];
+		if (bHasDirection && !bHasAnimations)
 		{
-			SetAnimation(anim_pb, 1.0);
+			sprintf_s( pszBuffer, 255, "PUSH BUTTON INDICATOR[%s]:\tDefine VC Animations()", GetQualifiedIdentifier().c_str() );
+			oapiWriteLog( pszBuffer );
+
+			anim_pb = STS()->CreateAnimation( InitialAnimState() );
+
+			pPushDown = new MGROUP_TRANSLATE( vc_idx, &grpIndex, 1, Normalize( GetDirection() ) * motionlength );
+			STS()->AddAnimationComponent( anim_pb, 0.0, 1.0, pPushDown );
+
+			VerifyAnimations();
 		}
-		if(bAllowReset && input) output.ResetLine();
-		else output.SetLine();
 	}
 
-	void PushButtonIndicator::OnRelease()
+	bool PushButtonIndicatorDoubleLight::OnMouseEvent( int _event, float x, float y )
 	{
-		if(bHasAnimations)
+		if (_event & PANEL_MOUSE_LBDOWN)
 		{
-			SetAnimation(anim_pb, 0.0);
+			OnPress();
+			return true;
 		}
-	}
-
-	void PushButtonIndicator::Realize()
-	{
-		if(bSaveState) {
-			if(bInitialState) output.SetLine();
-			else output.ResetLine();
-		}
-	}
-
-	bool PushButtonIndicator::OnParseLine(const char* line)
-	{
-		if(bSaveState) {
-			int result = atoi(line);
-			if(result == 0) bInitialState = false;
-			else bInitialState = true;
+		else if (_event & PANEL_MOUSE_LBUP)
+		{
+			OnRelease();
 			return true;
 		}
 		return false;
 	}
 
-	bool PushButtonIndicator::GetStateString(unsigned long ulBufferSize, char* pszBuffer)
+	void PushButtonIndicatorDoubleLight::OnPress()
 	{
-		if(!bSaveState) return false; // no need to save state
-		
-		if(input) strcpy_s(pszBuffer, ulBufferSize, "1");
-		else strcpy_s(pszBuffer, ulBufferSize, "0");
-		return true;
+		if (bHasAnimations) SetAnimation( anim_pb, 1.0 );
+		output.SetLine();
+		PlayVesselWave( STS()->GetSoundID(), KEY_PRESS_SOUND );
 	}
 
-	PBIDiscPortGroup::PBIDiscPortGroup()
-		: usCount(0)
+	void PushButtonIndicatorDoubleLight::OnRelease()
 	{
-		for(int i=0;i<MAX_SIZE;i++) oldValues[i] = false;
+		if (bHasAnimations) SetAnimation( anim_pb, 0.0 );
+		output.ResetLine();
 	}
 
-	PBIDiscPortGroup::~PBIDiscPortGroup()
+	void PushButtonIndicatorDoubleLight::ConnectPushButton( DiscreteBundle* pBundle, unsigned short usLine )
 	{
+		output.Connect( pBundle, usLine );
+		return;
 	}
 
-	void PBIDiscPortGroup::AddPorts(DiscreteBundle* pBundle, unsigned short usStart, unsigned short usEnd)
+	void PushButtonIndicatorDoubleLight::SetMotionLength( double _motionlength )
 	{
-		if(usEnd < usStart) return;
-
-		unsigned short index = usCount;
-		for(unsigned short i=usStart;(i<=usEnd && index<MAX_SIZE);i++, index++)
-		{
-			inPorts[index].Connect(pBundle, i);
-			outPorts[index].Connect(pBundle, i);
-		}
-		usCount = (usEnd-usStart) + 1;
-	}
-
-	void PBIDiscPortGroup::OnPreStep()
-	{
-		for(unsigned short i=0;i<usCount;i++) {
-			// loop through ports until we find one that has just been set
-			if(!oldValues[i] && inPorts[i]) {
-				// make sure that this line is the only line set
-				SetLine(i);
-				return;
-			}
-			//else oldValues[i] = inPorts[i];
-		}
-	}
-
-	void PBIDiscPortGroup::SetLine(unsigned short usIndex)
-	{
-		if(usIndex>=usCount) return;
-
-		for(unsigned short i=0;i<usCount;i++) {
-			if(i!=usIndex) {
-				outPorts[i].ResetLine();
-				oldValues[i] = false;
-			}
-		}
-		outPorts[usIndex].SetLine();
-		oldValues[usIndex] = true;
+		motionlength = _motionlength;
+		return;
 	}
 };

@@ -30,26 +30,11 @@
 
 
 namespace mps
-{
-	// number of flight data sensors
-	// HACK should this be here?
-	const int FLIGHTDATASENSORS_P = 2;
-	const int FLIGHTDATASENSORS_T = 0;
-	const int FLIGHTDATASENSORS_F = 0;
-	const int FLIGHTDATASENSORS_S = 0;
-
-	// sensor num per channel
-	const int S_PRESS_num = 15;
-	const int S_TEMP_num = 8;
-	const int S_SPEED_num = 3;
-	const int S_FLOW_num = 4;
-
-	class SSME;
-
+{	
 	class InputElectronics_BLOCK_II:public InputElectronics
 	{
 		public:
-			InputElectronics_BLOCK_II( int ch, SSME* eng, SSMEController* Controller );
+			InputElectronics_BLOCK_II( int ch, SSMEController* Controller );
 			~InputElectronics_BLOCK_II( void );
 
 			void __OnSaveState( FILEHANDLE scn ) const;

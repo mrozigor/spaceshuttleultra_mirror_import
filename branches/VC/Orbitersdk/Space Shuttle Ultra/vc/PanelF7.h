@@ -28,6 +28,9 @@
 #include "MDU.h"
 #include "StandardSwitch.h"
 #include "StandardLight.h"
+#include "7SegDisp_EventTime.h"
+#include "discsignals.h"
+
 
 namespace vc {
 
@@ -40,22 +43,23 @@ namespace vc {
 		MDU* pMFD1;
 		MDU* pMFD2;
 
-		short sTimerSeconds;
-		short sTimerMinutes;
+		_7SegDisp_EventTime* pEventTime;
 
-		StandardLight* pMainEngStatusR[3];
-		StandardLight* pMainEngStatusY[3];
+		StandardSingleLight* pCWLight[38];
+		StandardDoubleLight* pMainEngStatus[3];
+		StandardSingleLight* pSMAlert;
 
-		//Event timer class
-		//C&W warning lights
+		DiscInPort lighttestleft[2];
+		DiscInPort lighttestright[2];
+		DiscInPort lightcmd[38];
+		DiscOutPort lightoutput[38];
+
 	public:
 		PanelF7(Atlantis* _sts);
 		virtual ~PanelF7();
 		virtual void DefineVC();
 		virtual void RegisterVC();
 		virtual void Realize();
-
-		virtual void OnPostStep (double fSimT, double fDeltaT, double fMJD);
-		virtual bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);
+		virtual void OnPostStep( double SimT, double DeltaT, double MJD );
 	};
 };

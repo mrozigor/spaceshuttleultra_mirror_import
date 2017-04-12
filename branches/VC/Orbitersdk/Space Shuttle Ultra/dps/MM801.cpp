@@ -1,4 +1,6 @@
 #include "MM801.h"
+#include "IDP.h"
+#include "..\vc\MDU.h"
 #include "../Atlantis.h"
 #include <UltraMath.h>
 
@@ -16,6 +18,7 @@ namespace dps
 	  ElevonTarget(0.0), RudderTarget(0.0), SpeedbrakeTarget(0.0)
 	{
 		bFCSTestActive = false;
+		ModeLT = false;
 	}
 
 	MM801::~MM801()
@@ -25,23 +28,64 @@ namespace dps
 
 	void MM801::Realize()
 	{
-		DiscreteBundle* pBundle = STS()->BundleManager()->CreateBundle("AEROSURFACE_CMD",16);
+		DiscreteBundle* pBundle = BundleManager()->CreateBundle("AEROSURFACE_CMD",16);
 		ElevonCommand.Connect(pBundle,0);
 		AileronCommand.Connect(pBundle,1);
+		RudderCommand.Connect(pBundle,2);
 		ElevonCommandRead.Connect(pBundle,0);
 		//AileronCommandRead.Connect(pBundle,1);
+
+		pBundle = BundleManager()->CreateBundle( "ACA1_2", 16 );
+		CDRBodyFlapManLT.Connect( pBundle, 4 );
+		CDRPitchAutoLT.Connect( pBundle, 8 );
+		CDRPitchCSSLT.Connect( pBundle, 12 );
+
+		pBundle = BundleManager()->CreateBundle( "ACA1_3", 16 );
+		CDRRollYawAutoLT.Connect( pBundle, 4 );
+		CDRRollYawCSSLT.Connect( pBundle, 8 );
+
+		pBundle = BundleManager()->CreateBundle( "ACA1_4", 16 );
+		CDRSbdbkThrotAutoLT.Connect( pBundle, 0 );
+		CDRSbdbkThrotManLT.Connect( pBundle, 4 );
+		CDRBodyFlapAutoLT.Connect( pBundle, 8 );
+
+		pBundle = BundleManager()->CreateBundle( "ACA2_2", 16 );
+		PLTPitchAutoLT.Connect( pBundle, 10 );
+		PLTPitchCSSLT.Connect( pBundle, 14 );
+
+		pBundle = BundleManager()->CreateBundle( "ACA2_3", 16 );
+		PLTRollYawAutoLT.Connect( pBundle, 6 );
+		PLTRollYawCSSLT.Connect( pBundle, 10 );
+
+		pBundle = BundleManager()->CreateBundle( "ACA2_4", 16 );
+		PLTSbdbkThrotAutoLT.Connect( pBundle, 2 );
+		PLTSbdbkThrotManLT.Connect( pBundle, 6 );
+		PLTBodyFlapAutoLT.Connect( pBundle, 10 );
+
+		pBundle = BundleManager()->CreateBundle( "ACA2_5", 16 );
+		PLTBodyFlapManLT.Connect( pBundle, 2 );
 	}
 
 	bool MM801::OnMajorModeChange(unsigned int newMajorMode)
 	{
-		if(newMajorMode == 801)
+		if (newMajorMode == 801)
+		{
+			// if entering MM801, turn lights off
+			ModeLT_Off();
 			return true;
-		else return false;
+		}
+		else
+		{
+			if (GetMajorMode() == 801) ModeLT_Off();// if leaving MM801, turn lights off
+			return false;
+		}
 	}
 
 	bool MM801::OnPaint(int spec, vc::MDU* pMDU) const
 	{
-		PrintCommonHeader("FCS/DED DIS C/O",pMDU);
+		if (spec != dps::MODE_UNDEFINED) return false;
+
+		PrintCommonHeader(" FCS/DED DIS C/O",pMDU);
 
 		//DED DIS SECTION
 		pMDU->mvprint(2,4,"DED DIS");
@@ -132,6 +176,9 @@ namespace dps
 		}
 
 		
+		// MODE LT
+		if (ModeLT == true) pMDU->mvprint( 26, 5, "*" );
+		else pMDU->mvprint( 26, 6, "*" );
 		
 		
 		//FCS COMMAND
@@ -152,7 +199,7 @@ namespace dps
 		PrintElevonPos(STS()->aerosurfaces.rightElevon, buff);
 		pMDU->mvprint(35,15,buff);
 		pMDU->mvprint(35,16,buff);
-		PrintRudderPos(STS()->GetControlSurfaceLevel(AIRCTRL_RUDDER)*27.1, buff);
+		PrintRudderPos(STS()->aerosurfaces.rudder, buff);
 		pMDU->mvprint(35,17,buff);
 		PrintSpeedbrakePos(STS()->GetActSpeedbrakePosition()*100.0, buff);
 		pMDU->mvprint(35,18,buff);
@@ -160,28 +207,59 @@ namespace dps
 		return true;
 	}
 
-	bool MM801::ItemInput(int spec, int item, const char* Data)
+	bool MM801::ItemInput(int spec, int item, const char* Data, bool &IllegalEntry )
 	{
-		if(item == 10 && STS()->HydraulicsOK())
-		{
-			bFCSTestActive = true;
-			bFCSTestEnding = false;
-			ElevonTargetIdx = FV1;
-			RudderTargetIdx = FV1;
-			SpeedbrakeTargetIdx = FV1;
+		if (spec != dps::MODE_UNDEFINED) return false;
 
-			ElevonTarget = ElevonCommandRead.GetVoltage()*33.0;
-			RudderTarget = STS()->GetControlSurfaceLevel(AIRCTRL_RUDDER)*27.1;
-			SpeedbrakeTarget = STS()->GetActSpeedbrakePosition()*100.0;
+		if (item == 7)
+		{
+			if (strlen( Data ) == 0)
+			{
+				ModeLT = true;
+				ModeLT_On();
+			}
+			else IllegalEntry = true;
+			return true;
+		}
+		if (item == 8)
+		{
+			if (strlen( Data ) == 0)
+			{
+				ModeLT = false;
+				ModeLT_Off();
+			}
+			else IllegalEntry = true;
+			return true;
+		}
+		
+		if (item == 10)
+		{
+			if (strlen( Data ) == 0)
+			{
+				bFCSTestActive = true;
+				bFCSTestEnding = false;
+				ElevonTargetIdx = FV1;
+				RudderTargetIdx = FV1;
+				SpeedbrakeTargetIdx = FV1;
+
+				ElevonTarget = ElevonCommandRead.GetVoltage()*33.0;
+				RudderTarget = STS()->aerosurfaces.rudder;
+				SpeedbrakeTarget = STS()->GetActSpeedbrakePosition()*100.0;
+			}
+			else IllegalEntry = true;
 			return true;
 		}
 
 		if(item == 11)
 		{
-			bFCSTestEnding = true;
-			ElevonTargetIdx = FV3;
-			RudderTargetIdx = FV3;
-			SpeedbrakeTargetIdx = FV3;
+			if (strlen( Data ) == 0)
+			{
+				bFCSTestEnding = true;
+				ElevonTargetIdx = FV3;
+				RudderTargetIdx = FV3;
+				SpeedbrakeTargetIdx = FV3;
+			}
+			else IllegalEntry = true;
 			return true;
 		}
 		return false;
@@ -199,7 +277,7 @@ namespace dps
 			ElevonCommand.SetLine(static_cast<float>(ElevonTarget/33.0));
 
 			RudderTarget = GetAerosurfaceCommand(RudderTarget, DeltaT, RudderTargetIdx, RUDDER_RATE, RUDDER_POSITIONS);
-			STS()->SetControlSurfaceLevel(AIRCTRL_RUDDER, RudderTarget/27.1);
+			RudderCommand.SetLine(static_cast<float>(RudderTarget/27.1));
 			
 			SpeedbrakeTarget = GetAerosurfaceCommand(SpeedbrakeTarget, DeltaT, SpeedbrakeTargetIdx, SPEEDBRAKE_RATE, SPEEDBRAKE_POSITIONS);
 			STS()->SetSpeedbrake(SpeedbrakeTarget/100.0);
@@ -209,7 +287,7 @@ namespace dps
 			// if all aerosurfaces have reached their final position, set test state to inactive
 			if(bFCSTestEnding) {
 				double elevonPos = STS()->aerosurfaces.leftElevon;
-				double rudderPos = STS()->GetControlSurfaceLevel(AIRCTRL_RUDDER)*27.1;
+				double rudderPos = STS()->aerosurfaces.rudder;
 				double speedbrakePos = STS()->GetActSpeedbrakePosition()*100.0;
 				if(Eq(elevonPos, ELEVON_POSITIONS[FV3], 0.01) && Eq(rudderPos, RUDDER_POSITIONS[FV3], 0.01) && Eq(speedbrakePos, SPEEDBRAKE_POSITIONS[FV3], 0.001)) {
 					bFCSTestActive = false;
@@ -233,18 +311,82 @@ namespace dps
 
 	void MM801::PrintElevonPos(double pos, char* buff) const
 	{
-		if(pos >= 0) sprintf(buff,"D%04.1f",pos);
-		else sprintf(buff,"U%04.1f",-pos);
+		if(pos >= 0) sprintf_s(buff, 6, "D%04.1f",pos);
+		else sprintf_s(buff, 6, "U%04.1f",-pos);
 	}
 
 	void MM801::PrintRudderPos(double pos, char* buff) const
 	{
-		if(pos >= 0) sprintf(buff,"R%04.1f",pos);
-		else sprintf(buff,"L%04.1f",-pos);
+		if(pos >= 0) sprintf_s(buff, 6, "R%04.1f",pos);
+		else sprintf_s(buff, 6, "L%04.1f",-pos);
 	}
 
 	void MM801::PrintSpeedbrakePos(double pos, char* buff) const
 	{
-		sprintf(buff, "%05.1f", pos);
+		sprintf_s(buff, 6, "%05.1f", pos);
+	}
+
+	bool MM801::OnParseLine( const char* keyword, const char* value )
+	{
+		if(!_strnicmp( keyword, "SURF_DR", 7 ))
+		{
+			if (!_strnicmp( value, "ACTIVE", 6 ))
+			{
+				bFCSTestActive = true;
+				ElevonTargetIdx = FV1;
+				RudderTargetIdx = FV1;
+				SpeedbrakeTargetIdx = FV1;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void MM801::OnSaveState( FILEHANDLE scn ) const
+	{
+		if (bFCSTestActive == true) oapiWriteScenario_string( scn, "SURF_DR", "ACTIVE" );
+		else  oapiWriteScenario_string( scn, "SURF_DR", "INACTIVE" );
+	}
+
+	void MM801::ModeLT_On( void )
+	{
+		CDRPitchAutoLT.SetLine();
+		CDRPitchCSSLT.SetLine();
+		CDRRollYawAutoLT.SetLine();
+		CDRRollYawCSSLT.SetLine();
+		PLTPitchAutoLT.SetLine();
+		PLTPitchCSSLT.SetLine();
+		PLTRollYawAutoLT.SetLine();
+		PLTRollYawCSSLT.SetLine();
+		CDRSbdbkThrotAutoLT.SetLine();
+		CDRSbdbkThrotManLT.SetLine();
+		PLTSbdbkThrotAutoLT.SetLine();
+		PLTSbdbkThrotManLT.SetLine();
+		CDRBodyFlapAutoLT.SetLine();
+		CDRBodyFlapManLT.SetLine();
+		PLTBodyFlapAutoLT.SetLine();
+		PLTBodyFlapManLT.SetLine();
+		return;
+	}
+
+	void MM801::ModeLT_Off( void )
+	{
+		CDRPitchAutoLT.ResetLine();
+		CDRPitchCSSLT.ResetLine();
+		CDRRollYawAutoLT.ResetLine();
+		CDRRollYawCSSLT.ResetLine();
+		PLTPitchAutoLT.ResetLine();
+		PLTPitchCSSLT.ResetLine();
+		PLTRollYawAutoLT.ResetLine();
+		PLTRollYawCSSLT.ResetLine();
+		CDRSbdbkThrotAutoLT.ResetLine();
+		CDRSbdbkThrotManLT.ResetLine();
+		PLTSbdbkThrotAutoLT.ResetLine();
+		PLTSbdbkThrotManLT.ResetLine();
+		CDRBodyFlapAutoLT.ResetLine();
+		CDRBodyFlapManLT.ResetLine();
+		PLTBodyFlapAutoLT.ResetLine();
+		PLTBodyFlapManLT.ResetLine();
+		return;
 	}
 };

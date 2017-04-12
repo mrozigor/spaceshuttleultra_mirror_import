@@ -163,6 +163,8 @@ public:
 	 */
 	virtual const string& GetIdentifier() const;
 	virtual bool OnFail(const string& strFailureCode);
+
+	virtual void VisualCreated();
 };
 
 template <class TVessel>
@@ -425,7 +427,7 @@ bool BasicVCComponent<TVessel>::SetAnimation(UINT anim, double fState)
 {
 	if(bHasAnimations)
 	{
-		sprintf_s(oapiDebugString(), 255, "SET ANIMATION");
+		//sprintf_s(oapiDebugString(), 255, "SET ANIMATION");
 		V()->SetAnimation(anim, fState);
 		return true;
 	}
@@ -496,6 +498,11 @@ template <class TVessel>
 bool BasicVCComponent<TVessel>::WriteScenarioVector(FILEHANDLE scn, const std::string &key, const VECTOR3 &vector) const
 {
 	return false;
+}
+
+template <class TVessel>
+void BasicVCComponent<TVessel>::VisualCreated()
+{
 }
 
 };
