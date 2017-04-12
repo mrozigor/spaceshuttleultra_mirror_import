@@ -37,17 +37,31 @@ namespace vc
 	class PanelC3 : public AtlantisPanel
 	{
 	public:
-		PanelC3(Atlantis* _sts);
+		PanelC3( Atlantis* _sts, const std::string &orbiter );
 		virtual ~PanelC3();
 
+		virtual void AddMeshes( const VECTOR3& ofs );
+		virtual void SetMeshVisibility( bool visible );
+		virtual UINT GetVCMeshIndex( void ) const;
 		virtual void DefineVC();
 		virtual void RegisterVC();
+		virtual void DefineVCAnimations( UINT vcidx );
 		virtual void Realize();
+		virtual void VisualCreated( void );
+
 	private:
+		MESHHANDLE hPanelMesh;
+		UINT mesh_index;
+
+		bool OV102;
+
 		//DAP PBIs
-		PushButtonIndicator* pPBIs[24];
+		PushButtonIndicatorSingleLight* pPBIs[24];
 
 		LockableLever3* pOMSArm[2];
+
+		StdSwitch2* pBFCCRTDisplay;
+		StdSwitch3* pBFCCRTSelect;
 
 		StdSwitch2* pAirDataProbeStowEnable[2];
 		LockableLever3* pAirDataProbeDeploy[2];
@@ -56,6 +70,14 @@ namespace vc
 
 		StandardSwitchCover* pSSMESDPBCover[3];
 		PushButton* pSSMESDPB[3];
+
+		StdSwitch2* pSRBSEPSW;
+		StandardSwitchCover* pSRBSEPCover;
+		PushButton* pSRBSEPPB;
+
+		LockableLever2* pETSEPSW;
+		StandardSwitchCover* pETSEPCover;
+		PushButton* pETSEPPB;
 	};
 };
 

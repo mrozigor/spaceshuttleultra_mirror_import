@@ -29,6 +29,8 @@
 
 #include "AtlantisPanel.h"
 #include "MDU.h"
+#include "StandardSwitch.h"
+#include "Keyboard.h"
 
 namespace vc
 {
@@ -36,11 +38,17 @@ namespace vc
 	{
 	private:
 		MDU* pCRT4;
+
+		Keyboard* pKeyboardAft;
+
+		StdSwitch2* pIDPCRTPower;
+		StdSwitch3* pIDPCRTMajFunc;
 	public:
 		PanelR11(Atlantis* _sts);
 		virtual ~PanelR11();
 		virtual void DefineVC();
 		virtual void RegisterVC();
+		virtual void Realize();
 	};
 };
 

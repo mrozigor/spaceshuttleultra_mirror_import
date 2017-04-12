@@ -31,8 +31,6 @@
 class Atlantis;
 class AtlantisSubsystem;
 
-//using class discsignals::DiscreteBundleManager;
-//using class dps::ShuttleBusManager;
 
 class AtlantisSubsystemDirector : public SubsystemDirector<Atlantis>
 {

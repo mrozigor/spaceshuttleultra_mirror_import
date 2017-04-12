@@ -37,7 +37,7 @@ using namespace std;
 template <class TVessel>
 class Subsystem;
 
-using class discsignals::DiscreteBundleManager;
+using discsignals::DiscreteBundleManager;
 //using class dps::ShuttleBusManager;
 
 template <class TVessel>
@@ -54,6 +54,8 @@ public:
 	Subsystem<TVessel>* ReplaceSubsystem(Subsystem<TVessel>* pCurrentSubsys, Subsystem<TVessel>* pBySubsys);
 	bool ExistsSubsystem(const std::string& name) const;
 	Subsystem<TVessel>* GetSubsystemByName(const std::string& name) const;
+
+	double GetTotalSubsystemMass() const;
 
 	void SetClassCaps(FILEHANDLE cfg);
 	bool ParseScenarioLine(FILEHANDLE scn, char* line);
@@ -133,7 +135,7 @@ bool SubsystemDirector<TVessel>::ExistsSubsystem(const std::string& name) const
 		if((*iter)->GetIdentifier() == name) {
 			return true;
 		}
-		iter++;
+		++iter;
 	}
 	return false;
 }
@@ -147,9 +149,22 @@ Subsystem<TVessel>* SubsystemDirector<TVessel>::GetSubsystemByName(const std::st
 		if((*iter)->GetIdentifier() == name) {
 			return (*iter);
 		}
-		iter++;
+		++iter;
 	}
 	return NULL;
+}
+
+template <class TVessel>
+double SubsystemDirector<TVessel>::GetTotalSubsystemMass() const
+{
+	double mass = 0.0;
+	std::vector< Subsystem<TVessel>* >::const_iterator iter = subsystems.begin();
+	while(iter != subsystems.end())
+	{
+		mass += (*iter)->GetSubsystemEmptyMass();
+		++iter;
+	}
+	return mass;
 }
 
 template <class TVessel>
@@ -252,7 +267,6 @@ bool SubsystemDirector<TVessel>::PostStep(double fSimT, double fDeltaT, double f
 	unsigned long i;
 	//const double SUBSAMPLING_DELTAT = 0.0005;	//0.5 ms
 	const double SUBSAMPLING_DELTAT = 0.04;	//40 ms
-	double tsf = 0.0;
 	
 
 	//Subsampling pass

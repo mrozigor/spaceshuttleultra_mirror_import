@@ -34,20 +34,27 @@ namespace vc {
 
 	class PanelO6 : public AtlantisPanel {
 	private:
+		MESHHANDLE hPanelMesh;
+		UINT mesh_index;
+		
 		StdSwitch3* pLGlareShieldFlood;
-		Std2SegTalkback* pSTYDoorPosition;
-		Std2SegTalkback* pSTZDoorPosition;
+		StandardTalkback3* pSTYDoorPosition;
+		StandardTalkback3* pSTZDoorPosition;
 		StdSwitch3* pSTRKDoorControlSys1;
 		StdSwitch3* pSTRKDoorControlSys2;
+		StandardSwitchCover* pSTRKDoorControlSys1Cover;
+		StandardSwitchCover* pSTRKDoorControlSys2Cover;
 		StdSwitch2* pSTRKPowerNY;
 		StdSwitch2* pSTRKPowerNZ;
 		StdSwitch3* pLeftSeatCenterFlood;
 		StdSwitch2* pUHFXmitFreq;
 		StdSwitch2* pUHFSPLXPowerAmp;
 		StdSwitch2* pUHFSquelch;
+
 		StdSwitch3* pAnnunciatorLampTest;
-		StdSwitch3* pBusSelectACA1;
-		StdSwitch3* pBusSelectACA23;
+		StdSwitch3* pAnnunciatorBusSelectACA1;
+		StdSwitch3* pAnnunciatorBusSelectACA23;
+
 		StdSwitch2* pAnnunciatorIntensitySel;
 		StdSwitch3* pMTU;
 		StdSwitch2* pIDP1;
@@ -74,7 +81,7 @@ namespace vc {
 		StdSwitch2* pGPC4Pwr;
 		StdSwitch2* pGPC5Pwr;
 
-		StandardTalkback* pGPCOutput[5];
+		StandardTalkback2* pGPCOutput[5];
 
 		StandardSwitchCover* pGPCOutputCover[5];
 
@@ -91,18 +98,23 @@ namespace vc {
 		PushButton* pIPL4;
 		PushButton* pIPL5;
 
-		Std2SegTalkback* pGPCMode[5];
+		StandardTalkback3* pGPCMode[5];
 
-		StdSwitch3* pGPC1Mode;
-		StdSwitch3* pGPC2Mode;
-		StdSwitch3* pGPC3Mode;
-		StdSwitch3* pGPC4Mode;
-		StdSwitch3* pGPC5Mode;
+		LockableLever3* pGPC1Mode;
+		LockableLever3* pGPC2Mode;
+		LockableLever3* pGPC3Mode;
+		LockableLever3* pGPC4Mode;
+		LockableLever3* pGPC5Mode;
 	public:
 		PanelO6(Atlantis* psts);
 		virtual ~PanelO6();
+
+		virtual void AddMeshes( const VECTOR3& ofs );
+		virtual void SetMeshVisibility( bool visible );
+		virtual UINT GetVCMeshIndex( void ) const;
 		virtual void DefineVC();
 		virtual void RegisterVC();
+		virtual void DefineVCAnimations( UINT vcidx );
 		virtual void Realize();
 
 	};

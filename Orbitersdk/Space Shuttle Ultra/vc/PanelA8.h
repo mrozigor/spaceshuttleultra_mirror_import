@@ -31,6 +31,10 @@
 #include "StandardSwitchCover.h"
 #include "StandardRotarySwitch.h"
 #include "Talkback.h"
+#include "StandardLight.h"
+#include "PushButtonIndicator.h"
+#include "7SegDisp_RMS.h"
+
 
 namespace vc
 {
@@ -43,41 +47,53 @@ namespace vc
 		StdSwitch3* pPortMPM;
 		StdSwitch3* pStbdMPM;
 		StdSwitch3* pRMSSelect;
-		StdSwitch3* pShoulderBrace;
+		LockableLever3* pShoulderBrace;
 		StdSwitch3* pSingleDirectDrive;
 
 		StandardSwitchCover* pPortMPMCover;
 		StandardSwitchCover* pStbdMPMCover;
 
-		StandardTalkback* pPortMRLTb;
-		StandardTalkback* pStbdMRLTb;
-		StandardTalkback* pPortMPMTb;
-		StandardTalkback* pStbdMPMTb;
+		StandardTalkback3* pPortMRLTb;
+		StandardTalkback3* pStbdMRLTb;
+		StandardTalkback3* pPortMPMTb;
+		StandardTalkback3* pStbdMPMTb;
 
-		Std2SegTalkback* pPortMRL_RTL[3];
-		Std2SegTalkback* pStbdMRL_RTL[3];
-		Std2SegTalkback* pEECapture;
-		Std2SegTalkback* pEEExtend;
-		Std2SegTalkback* pEEClose;
-		Std2SegTalkback* pEEOpen;
-		Std2SegTalkback* pEERigid;
-		Std2SegTalkback* pEEDerigid;
-		Std2SegTalkback* pShoulderBraceTb;
+		StandardTalkback2* pPortMRL_RTL[3];
+		StandardTalkback2* pStbdMRL_RTL[3];
+		StandardTalkback2* pEECapture;
+		StandardTalkback2* pEEExtend;
+		StandardTalkback2* pEEClose;
+		StandardTalkback2* pEEOpen;
+		StandardTalkback2* pEERigid;
+		StandardTalkback2* pEEDerigid;
+		StandardTalkback2* pShoulderBraceTb;
+		StandardTalkback2* pSoftStopTB;
 
 		RotaryDemuxSwitch* pLEDParameter;
 		RotaryDemuxSwitch* pLEDJoint;
 		RotaryDemuxSwitch* pRMSMode;
+
+		StandardSingleLight* pModeLights[12];
+		StandardSingleLight* pCWLights[11];
+		StandardSingleLight* pSequenceLights[2];
+
+		PushButtonIndicatorSingleLight* pMasterAlarm;
+
+		_7SegDisp_RMS* pRMS;
+
+		DiscInPort lighttest;
+		DiscInPort lightcmd[26];
+		DiscOutPort lightoutput[26];
+
 	public:
 		PanelA8(Atlantis* _sts);
 		virtual ~PanelA8();
-
-		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
-		virtual bool OnVCRedrawEvent(int id, int _event, SURFHANDLE surf);
 
 		virtual void RegisterVC();
 		virtual void DefineVC();
 		virtual void DefineVCAnimations(UINT vcidx);
 		virtual void Realize();
+		virtual void OnPostStep( double SimT, double DeltaT, double MJD );
 
 		virtual void AddMeshes(const VECTOR3& ofs);
 		virtual void SetMeshVisibility(bool visible);
@@ -85,11 +101,6 @@ namespace vc
 	private:
 		MESHHANDLE hPanelMesh;
 		UINT mesh_index;
-
-		DiscInPort RMSJointAngles[6], EEPosition[3], EEAttitude[3];
-		DiscInPort LED_JointSelect[8], LED_ParameterSelect[8];
-
-		double LEDValues[3];
 	};
 };
 

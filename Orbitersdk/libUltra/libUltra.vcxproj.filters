@@ -48,9 +48,6 @@
     <ClCompile Include="src\UltraMath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ValveTypeBool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\MMUTapeImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -85,6 +82,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\PIDControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SolenoidValve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PressureActuatedValve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sensor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HydraulicActuatedValve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ValveManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -134,9 +146,6 @@
     <ClInclude Include="include\UltraMath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\ValveTypeBool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\MMUTapeImage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -171,6 +180,27 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\PIDControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SolenoidValve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PressureActuatedValve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PressureSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Sensor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\HydraulicActuatedValve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UltraUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ValveManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

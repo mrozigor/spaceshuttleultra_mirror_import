@@ -24,23 +24,16 @@
 #include "SSUOptions.h"
 #include "Atlantis_vc_defs.h"
 #include <OrbiterSoundSDK40.h>
-#include "PlBayOp.h"
-#include "Keyboard.h"
-#include "DlgCtrl.h"
 #include "meshres.h"
 #include "meshres_vc.h"
-#include "meshres_RMS.h"
 #include "meshres_KU.h"
-#include "meshres_vc_additions.h"
 #include "resource.h"
 #include "AtlantisSubsystemDirector.h"
-#include "dps/AerojetDAP.h"
 #include "dps/AP101S.h"
 #include "dps/IDP.h"
 #include "dps/MasterTimingUnit.h"
 #include "dps/MDM.h"
 #include "dps/RSLS.h"
-#include "dps/RSLS_old.h"
 #include "dps/ShuttleBus.h"
 #include "dps/SimpleGPCSystem.h"
 #include "eva_docking/ODS.h"
@@ -51,28 +44,66 @@
 #include "Latch.h"
 #include "RMSSystem.h"
 #include "StbdMPMSystem.h"
+#include "ASE_IUS.h"
+#include "CISS.h"
 #include "MechActuator.h"
-#include "mps/BLOCK_II.h"
-#include "PanelA4.h"
-#include "PanelC2.h"
-#include "PanelO3.h"
+#include "PayloadBay.h"
+#include "mps/SSME.h"
+#include "mps/SSME_BLOCK_II.h"
 #include "vc/PanelA7A8ODS.h"
 #include "vc/PanelF2.h"
+#include "vc/PanelF3.h"
 #include "vc/PanelF4.h"
 #include "vc/PanelF6.h"
 #include "vc/PanelF7.h"
 #include "vc/PanelF8.h"
+#include "vc/PanelF9.h"
+#include "vc/PanelO1.h"
+#include "vc/PanelO2.h"
+#include "vc/PanelO3.h"
+#include "vc/PanelO5.h"
 #include "vc/PanelO6.h"
+#include "vc/PanelO7.h"
+#include "vc/PanelO8.h"
+#include "vc/PanelO9.h"
+#include "vc/PanelO13.h"
 #include "vc/PanelO17.h"
-#include "vc/PanelA6.h"
+#include "vc/PanelA1U.h"
+#include "vc/PanelA2.h"
+#include "vc/PanelA4.h"
+#include "vc/PanelA6U.h"
 #include "vc/PanelA8.h"
 #include "vc/PanelA7U.h"
+#include "vc/PanelR1.h"
 #include "vc/PanelR2.h"
+#include "vc/PanelR4.h"
+#include "vc/PanelR10.h"
 #include "vc/PanelR11.h"
+#include "vc/PanelR13U.h"
+#include "vc/PanelR13L.h"
 #include "vc/AftMDU.h"
+#include "vc/PanelC2.h"
 #include "vc/PanelC3.h"
+#include "vc/PanelL1.h"
+#include "vc/PanelL2.h"
+#include "vc/PanelL4.h"
+#include "vc/PanelL9.h"
+#include "vc/PanelL10_IUS.h"
+#include "vc/PanelL12U_IUS.h"
+#include "vc/PanelL12U_Centaur.h"
+#include "comm\GCIL.h"
+#include "comm\DeployedAssembly.h"
+#include "comm\ElectronicsAssembly1.h"
+#include "comm\ElectronicsAssembly2.h"
+#include "MasterEventsController.h"
+#include "gnc\RA.h"
+#include "DragChute.h"
+#include "eps\PRSD.h"
+#include "AnnunciatorControlAssembly.h"
+#include "VideoControlUnit.h"
 #include <UltraMath.h>
 #include <cassert>
+#include "gcAPI.h"
 
 
 
@@ -91,8 +122,8 @@
 #include "util/StopWatch.h"
 
 #ifdef _DEBUG
-    // D. Beachy: for BoundsChecker debugging
-    extern int GrowStack();
+// D. Beachy: for BoundsChecker debugging
+extern int GrowStack();
 #endif
 
 #define LOADBMP(id) (LoadBitmap (g_Param.hDLL, MAKEINTRESOURCE (id)))
@@ -101,15 +132,6 @@
 // Global (class-wide) parameters
 
 GDIParams g_Param;
-
-char *ActionString[5] = {"STOPPED", "ISCLOSED", "ISOPEN", "CLOSE", "OPEN"};
-
-HELPCONTEXT g_hc = {
-  "html/vessels/Atlantis.chm",
-  0,
-  "html/vessels/Atlantis.chm::/Atlantis.hhc",
-  "html/vessels/Atlantis.chm::/Atlantis.hhk"
-};
 
 std::ofstream animlog;
 
@@ -122,145 +144,105 @@ inline void BeginLoggingAnims(void)
 VECTOR3 CalcOMSThrustDir(unsigned int side, double pitch, double yaw)
 {
 	VECTOR3 dir;
-	if(side==0) dir=L_OMS_DIR;
-	else dir=R_OMS_DIR;
+	if (side == 0) dir = L_OMS_DIR;
+	else dir = R_OMS_DIR;
 
-	dir=RotateVectorX(dir, pitch); //positive OMS gimbal directs thrust upwards
-	dir=RotateVectorY(dir, -yaw); //positive yaw gimbal directs thrust to right
+	dir = RotateVectorX(dir, pitch); //positive OMS gimbal directs thrust upwards
+	dir = RotateVectorY(dir, -yaw); //positive yaw gimbal directs thrust to right
 	return dir;
 }
 
 inline void LogAnim(const std::string& name, UINT anim)
 {
 
-	animlog << name << "\t" << std::dec << anim << " ( 0x"<<std::hex << anim << ")" << std::endl;
+	animlog << name << "\t" << std::dec << anim << " ( 0x" << std::hex << anim << ")" << std::endl;
 }
 
 inline void EndLoggingAnims(void)
 {
-	
+
 	animlog.close();
+}
+
+
+inline void ssuAssert(bool expression, const char* context)
+{
+	static char buf[200];
+	if (!expression)
+	{
+		sprintf_s(buf, 200, "[SpaceShuttleUltra] ERROR assertion failed : %s", context);
+		oapiWriteLog(buf);
+	}
+
+}
+
+/**
+ * Computes mass and CoG of vessel, including attached payload
+ * Return mass and CoG in local reference frame of vessel
+ */
+double GetMassAndCoG(VESSEL* v, VECTOR3& CoG)
+{
+	double mass = v->GetMass();
+	CoG = _V(0, 0, 0);
+	// iterate over attached children
+	DWORD ahCount = v->AttachmentCount(false);
+	for (DWORD i = 0; i < ahCount; i++) {
+		ATTACHMENTHANDLE ah = v->GetAttachmentHandle(false, i);
+		OBJHANDLE hV = v->GetAttachmentStatus(ah);
+		if (hV) {
+			VESSEL* pV = oapiGetVesselInterface(hV);
+			VECTOR3 childCoG;
+			double childMass = GetMassAndCoG(pV, childCoG);
+			// convert child CoG to CoG in frame of this vessel
+			VECTOR3 rpos;
+			pV->GetRelativePos(v->GetHandle(), rpos);
+			MATRIX3 LocalToGlob, ChildToGlob;
+			v->GetRotationMatrix(LocalToGlob);
+			pV->GetRotationMatrix(ChildToGlob);
+			childCoG = tmul(LocalToGlob, mul(ChildToGlob, childCoG) + rpos);
+			// calculate CoG of payload relative to center of Orbiter mesh
+			CoG += childCoG*childMass;
+			mass += childMass;
+
+			/*char cbuf[255];
+			sprintf_s(cbuf, 255, "Parent: %s Child: %s dist: %f", v->GetName(), pV->GetName(), length(childCoG));
+			oapiWriteLog(cbuf);*/
+		}
+	}
+	CoG = CoG / mass;
+	return mass;
 }
 
 // ==============================================================
 // Local prototypes
 
-extern void GetSRB_State (double met, double &thrust_level, double &prop_level);
+extern void GetSRB_State(double met, double &thrust_level, double &prop_level);
 
-// ==============================================================
-// Airfoil coefficient functions
-// Return lift, moment and zero-lift drag coefficients as a
-// function of angle of attack (alpha or beta)
-// ==============================================================
-
-// 1. vertical lift component (wings and body)
-
-const double RollOff=10*47.880259;
-const double PitchOff=40*47.880259;
-const double YawOff=1.0;
-
-const int n_mach=21;
-const double mach[n_mach]={0.25,0.4,0.6,0.8,0.85,0.9,0.92,0.95,0.98,1.05,1.1,1.2,1.3,1.5,2,2.5,3,4,5,8,10};
-const int n_aoa1=19;
-const double aoa1[n_aoa1]={-10,-5,-2.5,0,2.5,5,7.5,10,12.5,15,17.5,20,22.5,25,30,35,40,45,50};
-const double clBase[n_aoa1][n_mach]={{-0.50280,-0.51097,-0.52957,-0.58454,-0.59773,-0.61005,-0.62831,-0.65514,-0.65616,-0.64808,-0.64225,-0.61158,-0.57681,-0.48844,-0.36885,-0.31514,-0.29383,-0.22874,-0.19854,-0.18641,-0.18641},
-{-0.25906,-0.27397,-0.28670,-0.32761,-0.33790,-0.34601,-0.35039,-0.35897,-0.36172,-0.36027,-0.35685,-0.33449,-0.30454,-0.25188,-0.19695,-0.16705,-0.16922,-0.13893,-0.12424,-0.12402,-0.12402},
-{-0.15202,-0.16199,-0.17186,-0.19155,-0.19632,-0.20588,-0.21553,-0.21485,-0.19888,-0.20310,-0.19292,-0.18275,-0.16776,-0.12989,-0.09888,-0.10456,-0.10514,-0.10050,-0.09081,-0.08913,-0.08913},
-{-0.05000,-0.05000,-0.05500,-0.06500,-0.06200,-0.06000,-0.06000,-0.06000,-0.05500,-0.04700,-0.03600,-0.02500,-0.02300,-0.01500,-0.01700,-0.04290,-0.03700,-0.04430,-0.04724,-0.05540,-0.05540},
-{0.06214,0.06212,0.07201,0.06176,0.06652,0.07101,0.07563,0.08498,0.09414,0.10315,0.10796,0.10460,0.10295,0.09317,0.08416,0.02995,0.02048,0.01111,0.00642,-0.02023,-0.02023},
-{0.17453,0.17448,0.17928,0.18859,0.19295,0.20356,0.21579,0.23947,0.24762,0.25552,0.25513,0.25014,0.24043,0.21606,0.16125,0.10468,0.08600,0.06174,0.04301,0.01774,0.01774},
-{0.29705,0.29691,0.30657,0.31963,0.31838,0.32413,0.34997,0.38783,0.38955,0.39173,0.39121,0.38627,0.37178,0.32805,0.24173,0.18906,0.15609,0.11881,0.09656,0.05965,0.05965},
-{0.40448,0.40924,0.41674,0.44384,0.44172,0.44572,0.47690,0.51887,0.52899,0.53602,0.53054,0.51767,0.49146,0.42874,0.33103,0.27135,0.22528,0.18185,0.15220,0.10604,0.10604},
-{0.51599,0.52757,0.54905,0.56480,0.56566,0.56794,0.58585,0.64660,0.66026,0.66393,0.66357,0.63927,0.61835,0.54671,0.41958,0.35229,0.29513,0.24730,0.21351,0.16115,0.16115},
-{0.63581,0.65002,0.67426,0.68162,0.67309,0.68323,0.70567,0.76535,0.77783,0.78377,0.77863,0.75952,0.72567,0.64381,0.50777,0.43483,0.36604,0.31897,0.27892,0.22632,0.22632},
-{0.77676,0.78385,0.79709,0.79087,0.77995,0.79401,0.81577,0.86501,0.89069,0.89596,0.89086,0.85608,0.83073,0.74311,0.60244,0.52033,0.44227,0.39229,0.35079,0.29998,0.29998},
-{0.91657,0.92529,0.92851,0.89578,0.87690,0.89485,0.91619,0.96428,0.99805,1.00286,1.00255,0.95636,0.92538,0.83834,0.68871,0.60168,0.52215,0.46559,0.42351,0.36492,0.35587},
-{1.00634,1.01512,1.01007,0.93184,0.91266,0.92074,0.95994,1.00227,1.04837,1.06699,1.06660,1.03541,1.00114,0.91858,0.76904,0.67886,0.60751,0.53159,0.49654,0.44356,0.43474},
-{1.08364,1.08846,1.04489,0.92283,0.90795,0.93837,0.96751,1.02232,1.07579,1.10328,1.11188,1.09985,1.07176,0.99205,0.84561,0.76551,0.68386,0.61884,0.57019,0.51805,0.50936},
-{1.30045,1.30623,1.25395,1.10747,1.08961,1.12612,1.16109,1.22686,1.29103,1.32402,1.33434,1.31990,1.28619,1.19054,0.99835,0.91867,0.84307,0.76946,0.72044,0.66845,0.64465},
-{1.51313,1.51986,1.45902,1.28858,1.26781,1.31028,1.35097,1.42751,1.50217,1.54055,1.55256,1.53576,1.49654,1.38524,1.16162,1.06891,0.97219,0.89530,0.84607,0.79881,0.78382},
-{1.69584,1.70339,1.63520,1.44418,1.42090,1.46850,1.51411,1.59988,1.68356,1.72658,1.74004,1.72121,1.67725,1.55251,1.30189,1.19799,1.07919,1.00341,0.96129,0.91017,0.88400},
-{1.82367,1.83178,1.75845,1.55304,1.52800,1.57919,1.62823,1.72047,1.81045,1.85672,1.87119,1.85095,1.80367,1.66953,1.40002,1.28828,1.15575,1.07904,1.03683,0.98747,0.96803},
-{1.91170,1.92021,1.84334,1.62801,1.60176,1.65542,1.70683,1.80353,1.89785,1.94635,1.96152,1.94030,1.89074,1.75012,1.46761,1.35047,1.21154,1.13113,1.08629,1.03514,1.02007}};
-
-const double cdBase[n_aoa1][n_mach]={{0.11485,0.11975,0.13521,0.16897,0.18654,0.19703,0.20867,0.22925,0.25227,0.26933,0.27358,0.27477,0.27037,0.25326,0.21167,0.18859,0.17640,0.15782,0.14843,0.14122,0.14122},
-{0.07985,0.08119,0.08489,0.09953,0.10785,0.11831,0.12552,0.14223,0.16817,0.18470,0.18942,0.19259,0.19067,0.18445,0.15837,0.14100,0.13105,0.11936,0.11165,0.10501,0.10501},
-{0.07170,0.07263,0.07517,0.08323,0.08675,0.09887,0.10710,0.12269,0.14461,0.16251,0.16647,0.17013,0.16958,0.16572,0.14245,0.12598,0.11599,0.10538,0.09795,0.09067,0.09067},
-{0.06740,0.06610,0.07020,0.07630,0.08000,0.09070,0.09900,0.11450,0.13460,0.15410,0.15840,0.16140,0.16110,0.15770,0.13490,0.11860,0.10680,0.09430,0.08760,0.08000,0.08000},
-{0.06687,0.05747,0.07011,0.07557,0.08048,0.09309,0.10180,0.11702,0.13644,0.16935,0.16376,0.16502,0.16395,0.15852,0.13500,0.11632,0.10399,0.08937,0.08226,0.07359,0.07359},
-{0.07038,0.07096,0.07350,0.08175,0.08916,0.10574,0.11515,0.13127,0.15286,0.17724,0.18173,0.18139,0.17763,0.16938,0.14189,0.12068,0.10700,0.09063,0.08096,0.07142,0.07140},
-{0.08056,0.06145,0.08464,0.10038,0.10990,0.12750,0.13806,0.15696,0.18221,0.20398,0.20794,0.20709,0.20226,0.18364,0.15579,0.13301,0.11677,0.09815,0.08634,0.07402,0.07348},
-{0.09599,0.09775,0.10146,0.13088,0.14389,0.16155,0.17477,0.19588,0.22487,0.24256,0.24485,0.24298,0.23613,0.21755,0.17850,0.15244,0.13324,0.11238,0.09853,0.08216,0.08059},
-{0.10625,0.12444,0.13381,0.17827,0.19090,0.21031,0.22196,0.24823,0.27902,0.29479,0.29645,0.29055,0.28325,0.25989,0.20958,0.17951,0.15649,0.13380,0.11760,0.09780,0.09544},
-{0.15784,0.16278,0.18832,0.23803,0.25555,0.27066,0.28350,0.31191,0.34859,0.35909,0.35895,0.35301,0.34037,0.30958,0.24932,0.21476,0.18711,0.16342,0.14482,0.12245,0.11931},
-{0.21346,0.21758,0.26637,0.30939,0.31973,0.34168,0.35577,0.38252,0.41746,0.43401,0.43355,0.42081,0.40809,0.37008,0.30079,0.25990,0.22679,0.20107,0.18106,0.15697,0.15302},
-{0.26859,0.29389,0.35519,0.38857,0.39759,0.42137,0.43584,0.46452,0.50331,0.51932,0.52016,0.50090,0.48367,0.43922,0.35911,0.31286,0.27582,0.24672,0.22523,0.19614,0.19178},
-{0.36651,0.37144,0.43592,0.45493,0.46003,0.48172,0.50467,0.53313,0.57864,0.59902,0.59994,0.58377,0.56200,0.51308,0.42462,0.37380,0.33639,0.29758,0.27765,0.24878,0.24394},
-{0.45537,0.45790,0.50401,0.50538,0.51675,0.54316,0.56348,0.59974,0.65071,0.67457,0.67979,0.67010,0.64751,0.59368,0.49836,0.44700,0.40275,0.36614,0.33893,0.30876,0.30372},
-{0.62879,0.63228,0.69595,0.69784,0.71354,0.75001,0.77807,0.82814,0.89852,0.93146,0.93867,0.92529,0.89410,0.81977,0.67501,0.61723,0.56977,0.52265,0.49216,0.45821,0.44343},
-{0.85388,0.85863,0.94509,0.94766,0.96898,1.01850,1.05660,1.12460,1.22017,1.26491,1.27470,1.25653,1.21417,1.11323,0.91665,0.83819,0.76478,0.70975,0.67287,0.63575,0.62404},
-{1.11596,1.12216,1.23516,1.23852,1.26638,1.33111,1.38090,1.46976,1.59467,1.65315,1.66594,1.64219,1.58683,1.45491,1.19800,1.09545,0.99301,0.92759,0.89082,0.84440,0.82113},
-{1.40622,1.41403,1.55642,1.56065,1.59576,1.67732,1.74007,1.85204,2.00944,2.08312,2.09924,2.06932,1.99956,1.83333,1.50959,1.38037,1.24741,1.16885,1.12550,1.07445,1.05430},
-{1.74092,1.75059,1.92688,1.93211,1.97558,2.07655,2.15424,2.29286,2.48772,2.57894,2.59890,2.56185,2.47549,2.26969,1.86890,1.70892,1.54432,1.44706,1.38996,1.33019,1.31104}};
-
-const double cmBase[n_aoa1][n_mach]={{0.03200,0.03400,0.04000,0.05900,0.06800,0.09000,0.10100,0.12600,0.14000,0.15800,0.16250,0.16200,0.14800,0.01300,0.04200,0.00450,-0.01800,-0.02940,-0.03370,-0.03500,-0.03500},
-{0.03000,0.03200,0.03650,0.04900,0.05400,0.06100,0.06700,0.08200,0.09800,0.11400,0.11800,0.11200,0.09200,0.06000,0.01750,-0.00800,-0.01800,-0.02700,-0.03070,-0.03280,-0.03280},
-{0.02900,0.03050,0.03470,0.04450,0.04700,0.04500,0.05300,0.06200,0.07800,0.08400,0.08200,0.07200,0.05800,0.03700,0.00800,-0.01144,-0.01850,-0.02550,-0.02800,-0.03000,-0.03000},
-{0.02800,0.29000,0.03300,0.04000,0.04000,0.03500,0.03800,0.04200,0.05500,0.05500,0.04700,0.03400,0.02500,0.01400,-0.01300,-0.01480,-0.01900,-0.02310,-0.02400,-0.02700,-0.02700},
-{0.02700,0.02750,0.03050,0.03600,0.03800,0.03500,0.02200,0.02000,0.03100,0.02400,0.01500,0.00600,-0.00100,-0.00700,-0.01300,-0.01940,-0.01970,-0.02100,-0.02200,-0.02350,-0.02350},
-{0.02600,0.02600,0.02800,0.03150,0.03200,0.02250,0.01600,0.00000,0.00500,-0.00300,-0.01050,-0.02000,-0.02350,-0.02500,-0.02380,-0.02300,-0.02050,-0.01880,-0.02000,-0.01900,-0.01900},
-{0.02400,0.02400,0.02400,0.02250,0.02200,0.02000,0.01200,-0.01600,-0.01500,-0.02200,-0.02900,-0.04000,-0.04400,-0.04100,-0.03360,-0.02480,-0.02150,-0.01820,-0.01810,-0.01560,-0.01550},
-{0.02300,0.02200,0.02050,0.01800,0.01700,0.01500,0.00400,-0.02700,-0.03000,-0.03400,-0.04000,-0.05400,-0.06000,-0.05500,-0.03850,-0.02740,-0.02250,-0.01830,-0.01660,-0.01250,-0.01200},
-{0.02300,0.02250,0.02100,0.01700,0.01200,0.00750,-0.00600,-0.04000,-0.04200,-0.04500,-0.04900,-0.06100,-0.07200,-0.07000,-0.04300,-0.03100,-0.02400,-0.01910,-0.01560,-0.00990,-0.00970},
-{0.02400,0.02200,0.01600,0.00600,0.00050,-0.00250,-0.01800,-0.05000,-0.05200,-0.05800,-0.06200,-0.07200,-0.08300,-0.08200,-0.04720,-0.03510,-0.02700,-0.02010,-0.01520,-0.00725,-0.00780},
-{0.01900,0.01600,0.00900,-0.00600,-0.01100,-0.01000,-0.02800,-0.05650,-0.06300,-0.07000,-0.07400,-0.08200,-0.09000,-0.09100,-0.05160,-0.03950,-0.03000,-0.02150,-0.01510,-0.00493,-0.00600},
-{0.01400,0.00800,-0.00400,-0.00500,-0.01000,-0.00300,-0.03000,-0.06000,-0.07200,-0.07700,-0.08100,-0.08800,-0.09300,-0.09700,-0.05810,-0.04400,-0.03400,-0.02310,-0.01550,-0.00300,-0.00600},
-{0.01050,0.01000,0.00600,0.00260,0.02000,0.02000,-0.01200,-0.03500,-0.04700,-0.06100,-0.06800,-0.08000,-0.09100,-0.09500,-0.06150,-0.05000,-0.03700,-0.02350,-0.01700,-0.00400,-0.00620},
-{0.10000,0.01200,0.03300,0.08000,0.09000,0.09000,0.08700,0.07000,0.02000,-0.02300,-0.04200,-0.06400,-0.07700,-0.08200,-0.06490,-0.05530,-0.04200,-0.02780,-0.01840,-0.00590,-0.00800},
-{0.12007,0.01441,0.03962,0.09606,0.10807,0.10807,0.10446,0.08405,0.02401,-0.02762,-0.05043,-0.07685,-0.09246,-0.09846,-0.05180,-0.06640,-0.05400,-0.03720,-0.02700,-0.01350,-0.01500},
-{0.15655,0.01879,0.05166,0.12524,0.14089,0.14089,0.13619,0.10958,0.03131,-0.03601,-0.06575,-0.10019,-0.12054,-0.12837,-0.06753,-0.08657,-0.06600,-0.04850,-0.03940,-0.02570,-0.02600},
-{0.19818,0.02378,0.06540,0.15855,0.17837,0.17837,0.17242,0.13873,0.03964,-0.04558,-0.08324,-0.12684,-0.15260,-0.16251,-0.08550,-0.10960,-0.08300,-0.06140,-0.05300,-0.04290,-0.04100},
-{0.24466,0.02936,0.08074,0.19573,0.22020,0.22020,0.21286,0.17126,0.04893,-0.05627,-0.10276,-0.15658,-0.18839,-0.20062,-0.10555,-0.13530,-0.10000,-0.07580,-0.06750,-0.06150,-0.06100},
-{0.32582,0.03910,0.10752,0.26066,0.29324,0.29324,0.28346,0.22807,0.06516,-0.07494,-0.13684,-0.20852,-0.25088,-0.26717,-0.14056,-0.18018,-0.13317,-0.10094,-0.08330,-0.08190,-0.08200}};
-
-const int n_trimExt=3;
-const double trimExt[n_trimExt]={-11.7,0,22.5};
-const double cmTrim[n_trimExt][n_mach]={{0.0158,0.016,0.0179,0.0204,0.020165,0.01993,0.020866,0.02149,0.01803,0.01574,0.0136,0.0148,0.01141,0.00981,0.00578,0.004215,0.00265,0.00603,0.00791,0.012,0.015},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{-0.0424,-0.0442,-0.0488,-0.05562,-0.0559,-0.05618,-0.058004,-0.05922,-0.05222,-0.05241,-0.04894,-0.04195,-0.03722,-0.02979,-0.02112,-0.016505,-0.01189,-0.0328,-0.0442,-0.061,-0.065}};
-
-//const double OrbiterS=2690*0.3048*0.3048;
-//const double Orbiterb=78.056*0.3048; //Turns out span is not used...
-//const double Orbiterc=39.56*0.3048; //...but chord is
-//const double OrbiterA=Orbiterb*Orbiterb/OrbiterS; //Has to be passed, doesn't have to be correct
-void FlatPlateCoeff (double aoa, double *cl, double *cm, double *cd) {
-  *cl=1.2*sin(aoa*2);
-  *cd=2*sin(aoa);
-  *cm=0;
-}
 
 // initialized in InitModule
 Aerodynamics::ThreeDLookup elevonVerticalLookup;
 Aerodynamics::ThreeDLookup verticalLookup;
 Aerodynamics::ThreeDLookup bodyFlapVerticalLookup;
+Aerodynamics::ThreeDLookup groundEffectLookup;
+Aerodynamics::ThreeDLookup groundEffectBodyFlapLookup;
 Aerodynamics::FourDLookup horizontalLookup;
 Aerodynamics::ThreeDLookup aileronHorizontalLookup;
 //const Aerodynamics::SpeedbrakeVerticalLookup speedbrakeVerticalLookup;
 
-void AscentLiftCoeff (double aoa, double M, double Re, double *cl, double *cm, double *cd)
+void AscentLiftCoeff(double aoa, double M, double Re, double *cl, double *cm, double *cd)
 {
 	// we don't have data for first stage aerodynamics
 	// use entry model and modify coefficients to get realistic first stage performance
 	AerosurfacePositions aero;
 	aero.leftElevon = aero.rightElevon = aero.bodyFlap = aero.speedbrake = aero.rudder = 0.0;
-	GetShuttleVerticalAeroCoefficients(M, aoa*DEG, &aero, cl, cm, cd);
+	GetShuttleVerticalAeroCoefficients(M, aoa*DEG, 1e3, &aero, cl, cm, cd); // hardcode altitude to value large enough that shuttle is out of ground effect
 	// scale coefficients to get accurate first stage performance
 	*cl = 0.8*(*cl);
 	*cm = 0.5*(*cm);
 	*cd = 2.5*(*cd);
 }
 
-void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *cl, double *cm, double *cd)
+void VLiftCoeff(VESSEL *v, double aoa, double M, double Re, void* lv, double *cl, double *cm, double *cd)
 {
 	/*double basicLift, basicDrag, basicMoment;
 	double elevonLift, elevonDrag, elevonMoment;
@@ -280,12 +262,11 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
 	*cd = basicDrag+elevonDrag;
 	*cm = basicMoment+elevonMoment;*/
 
-	//sprintf_s(oapiDebugString(), 255, "Drag: %f Lift: %f", (*cd)*OrbiterS*v->GetDynPressure(), (*cl)*OrbiterS*v->GetDynPressure());
-	//sprint
+	if (v->GetAltitude() < 150e3) { // if we are above 150km, ignore aerodynamic forces (lookup tables don't give good model)
+		if (abs(aoa) > 90.0*RAD) aoa = 0.0; // handle Orbitersim bug which results in very large AOA at first timestep
 
-	if(v->GetAltitude() < 150e3) { // if we are above 150km, ignore aerodynamic forces (lookup tables don't give good model)
 		AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
-		GetShuttleVerticalAeroCoefficients(M, aoa*DEG, aerosurfaces, cl, cm, cd);
+		GetShuttleVerticalAeroCoefficients(M, aoa*DEG, v->GetAltitude( ALTMODE_GROUND ), aerosurfaces, cl, cm, cd);
 	}
 	else {
 		*cl = 0.0;
@@ -294,19 +275,21 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
 	}
 }
 
-void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *cl, double *cm, double *cd)
+void HLiftCoeff(VESSEL *v, double beta, double M, double Re, void* lv, double *cl, double *cm, double *cd)
 {
 	//static const double step = RAD*22.5;
 	//static const double istep = 1.0/step;
 	//static const int nabsc = 17;
 	//static const double CL[nabsc] = {0, 0.2, 0.3, 0.2, 0, -0.2, -0.3, -0.2, 0, 0.2, 0.3, 0.2, 0, -0.2, -0.3, -0.2, 0};
 
-	if(v->GetAltitude() < 150e3) { // if we are above 150km, ignore aerodynamic forces (lookup tables don't give good model)
+	if (v->GetAltitude() < 150e3) { // if we are above 150km, ignore aerodynamic forces (lookup tables don't give good model)
+		if (abs(beta) > 90.0*RAD) beta = 0.0; // handle Orbitersim bug which results in very large beta at first timestep
+
 		double aoa = v->GetAOA()*DEG;
 		AerosurfacePositions* aerosurfaces = static_cast<AerosurfacePositions*>(lv);
-		double elevonPos = (aerosurfaces->leftElevon+aerosurfaces->rightElevon)/2.0;
+		double elevonPos = (aerosurfaces->leftElevon + aerosurfaces->rightElevon) / 2.0;
 		//double aileronPos = (aerosurfaces->leftElevon-aerosurfaces->rightElevon)/2.0;
-		double aileronPos = aerosurfaces->rightElevon-aerosurfaces->leftElevon;
+		double aileronPos = aerosurfaces->rightElevon - aerosurfaces->leftElevon;
 
 		double sideForce, yawMoment, rollMoment;
 		horizontalLookup.GetValues(M, aoa, abs(beta)*DEG, aerosurfaces->speedbrake, sideForce, yawMoment, rollMoment);
@@ -322,7 +305,7 @@ void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *
 		sideForce += ailSideForce*aileronPos;
 		yawMoment += ailYawMoment*aileronPos;
 		rollMoment += ailRollMoment*aileronPos;
-	
+
 		// split side force into 'lift' and 'drag' components
 		VECTOR3 sideForceVec = _V(sideForce, 0.0, 0.0);
 		VECTOR3 ld = RotateVectorZ(sideForceVec, beta*DEG);
@@ -343,132 +326,44 @@ void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void* lv, double *
 		*cd = 0.0;
 	}
 }
-void GetShuttleVerticalAeroCoefficients(double mach, double degAOA, const AerosurfacePositions* aerosurfaces, double * cl, double * cm, double * cd)
+void GetShuttleVerticalAeroCoefficients(double mach, double degAOA, double altitude, const AerosurfacePositions* aerosurfaces, double * cl, double * cm, double * cd)
 {
 	double basicLift, basicDrag, basicMoment;
 	double elevonLift, elevonDrag, elevonMoment;
 	double bodyFlapLift, bodyFlapDrag, bodyFlapMoment;
+	double groundEffectLift, groundEffectDrag, groundEffectMoment;
+	double groundEffectLift_BF, groundEffectDrag_BF, groundEffectMoment_BF;
 
-	double elevonPos = (aerosurfaces->leftElevon+aerosurfaces->rightElevon)/2.0;
+	double elevonPos = (aerosurfaces->leftElevon + aerosurfaces->rightElevon) / 2.0;
 	verticalLookup.GetValues(mach, degAOA, aerosurfaces->speedbrake, basicLift, basicDrag, basicMoment);
 	elevonVerticalLookup.GetValues(mach, degAOA, elevonPos, elevonLift, elevonDrag, elevonMoment);
 	bodyFlapVerticalLookup.GetValues(mach, degAOA, aerosurfaces->bodyFlap, bodyFlapLift, bodyFlapDrag, bodyFlapMoment);
 
-	*cl = basicLift+elevonLift;
-	*cd = basicDrag+elevonDrag;
-	*cm = basicMoment+elevonMoment;
+	const VECTOR3 GROUND_EFFECT_REF = _V(0.0, -3.926, -14.043336); // location of reference point for computing altitude (for ground effect calculations)
+	VECTOR3 groundEffectOffset = RotateVectorX(GROUND_EFFECT_REF, degAOA);
+	double groundEffectHeight = altitude + groundEffectOffset.y;
+	double heightOverSpan = groundEffectHeight / ORBITER_SPAN;
+	//groundEffectLookup.GetValues(heightOverSpan, degAOA, elevonPos, groundEffectLift, groundEffectDrag, groundEffectMoment);
+	if (heightOverSpan < 1.5) {
+		// because of how ground effect tables are set up in NASA data, ground effect lookup tables are slightly different from other lookup tables
+		// h/b (height over span) replaces aerosurface deflection, and aerosurface deflection replaces mach (ground effect is not mach-dependent)
+		heightOverSpan = max(0.0, heightOverSpan);
+		groundEffectLookup.GetValues(elevonPos, degAOA, heightOverSpan, groundEffectLift, groundEffectDrag, groundEffectMoment);
+		groundEffectBodyFlapLookup.GetValues(aerosurfaces->bodyFlap, degAOA, heightOverSpan, groundEffectLift_BF, groundEffectDrag_BF, groundEffectMoment_BF);
+	}
+	else {
+		groundEffectLift = 0.0;
+		groundEffectDrag = 0.0;
+		groundEffectMoment = 0.0;
+		groundEffectLift_BF = 0.0;
+		groundEffectDrag_BF = 0.0;
+		groundEffectMoment_BF = 0.0;
+	}
+
+	*cl = basicLift + elevonLift + groundEffectLift + groundEffectLift_BF;
+	*cd = basicDrag + elevonDrag + groundEffectDrag + groundEffectDrag_BF;
+	*cm = basicMoment + elevonMoment + groundEffectMoment + groundEffectMoment_BF;
 }
-
-/*
-void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *cl, double *cm, double *cd) {
-  if(M<mach[0])M=mach[0];
-  if(M>mach[n_mach-1])M=mach[n_mach-1];
-  static const int nabsc=11;
-  static const double cmAoA[nabsc]={    -75.0,  -60.0,  -45.0,  -30.0,  -15.0,   0.0,   15.0,      30.0,     45.0,  60.0,  75.0 };
-  static const double CM[nabsc] = {    0,     0,  0.002,  0.004, 0.0025,0.0012,      0,-0.0012,-0.0007,    0,    0};
-  double bfDeploy=-22.5*v->GetControlSurfaceLevel(AIRCTRL_ELEVATORTRIM); //In data book, aft end of body flap up
-                                                                         //"up trim" is negative. In Orbiter, this is positive.
-  if(aoa*180.0/PI<aoa1[0] || aoa*180.0/PI>aoa1[n_aoa1-1]) {
-    FlatPlateCoeff(aoa,cl,cm,cd);
-    sprintf(oapiDebugString(),"FlatPlate AoA: %f Cl: %f Cd: %f Cm: %f",aoa*180.0/PI,*cl,*cd,*cm);
-  } else {
-    *cl=tableterp(&clBase[0][0], aoa1, n_aoa1, mach, n_mach, aoa*180.0/PI,M);
-    *cd=tableterp(&cdBase[0][0], aoa1, n_aoa1, mach, n_mach, aoa*180.0/PI,M);
-  *cm=listerp(cmAoA,CM,nabsc,aoa);
-//    *cm=tableterp(&cmBase[0][0], aoa1, n_aoa1, mach, n_mach, aoa*180.0/PI,M);
-//  *cm+=tableterp(&cmTrim[0][0], trimExt, n_trimExt, mach, n_mach, bfDeploy,M);
-  sprintf(oapiDebugString(),"TableM: %f TableAoA: %f Cl: %f Cd: %f Cm: %f bf: %f",M,aoa*180.0/PI,*cl,*cd,*cm,bfDeploy);
-  }
-}
-*/
-/*void VLiftCoeff (VESSEL* vv, double aoa, double M, double Re, void* stuff, double *cl, double *cm, double *cd){
-  Atlantis* v=(Atlantis*)vv;
-    if(M<mach[0])M=mach[0];
-    if(M>mach[n_mach-1])M=mach[n_mach-1];
-    double Tablecl=tableterp(&clBase[0][0], aoa1, n_aoa1, mach, n_mach, aoa*180.0/PI,M);
-    double Tablecd=tableterp(&cdBase[0][0], aoa1, n_aoa1, mach, n_mach, aoa*180.0/PI,M);
-  static const double step = RAD*15.0;
-  static const double istep = 1.0/step;
-  static const int nabsc = 25;
-  //                              -180 -165  -150 -135  -120 -105 -90 -75.0  -60.0  -45.0  -30.0  -15.0   0.0   15.0      30.0     45.0  60.0  75.0  90.0 105.0  120.0  135.0  150.0  165.0 180.0
-  static const double CL[nabsc] = {0.1, 0.17, 0.2, 0.2, 0.17, 0.1, 0, -0.11, -0.24, -0.38,  -0.5,  -0.5, -0.02, 0.6355,    0.63,   0.46, 0.28, 0.13, 0.0, -0.16, -0.26, -0.29, -0.24, -0.1, 0.1};
-  static const double CM[nabsc] = {  0,    0,   0,   0,    0,   0, 0,     0,     0,  0.002,  0.004, 0.0025,0.0012,      0,-0.0012,-0.0007,    0,    0,   0,     0,     0,     0,     0,    0,   0};
-  // lift and moment coefficients from -180 to 180 in 15 degree steps.
-  // This uses a documented lift slope of 0.0437/deg, everything else is rather ad-hoc
-
-  // change for drag increase at high Mach:
-  // Subsonic Equivalents
-
-  double Cl0, Cl1, Cd0, Cd1, Cd2;
-  if(M>=5.0) {
-    Cl0 = -0.207040;
-    Cl1 =  1.675600;
-    Cd0 =  0.078540;
-//    Cd1 = -0.352900;
-//    Cd2 =  2.039960;
-
-// at 40 deg Alpha, Cd = .078540 - .24637 + .994252 = .826422 Cl = .96275
-// want to reduce it 15%
-// at 25 deg, it's ok (Cd = .3129)
-// then, Cd1p = (.1142-.1904*(Cd40p - Cd0))/.0798
-// Cd2p = (.2344-.4363*Cd1p)/.1904
-// Cl1p = (Cl40p-.5241)/.2618
-// Cl0p = .5241 - Cl1p*.4363
-
-// Cd40p = .7025 (Baseline -15%)
-
-    Cd1 = -0.05767;
-    Cd2 =  1.3632;
-
-// add 5% (Cd40p = .86774)
-
-//    Cd1 = -0.4519;
-//    Cd2 = 2.2666;
-
-    *cl = Cl0 + Cl1*aoa;
-    *cd = Cd0 + Cd1*aoa + Cd2*aoa* aoa;
-
-  }
-  int idx = max (0, min (23, (int)((aoa+PI)*istep)));
-  double d = (aoa+PI)*istep - idx;
-  *cm = (CM[idx] + (CM[idx+1]-CM[idx])*d);
-  if(M<1.25) {
-    *cl = CL[idx] + (CL[idx+1]-CL[idx])*d;
-//    *cd = 0.05 + oapiGetInducedDrag (*cl, 2.266, 0.75);
-    *cd = 0.05 + oapiGetInducedDrag (*cl, 2.266, 0.75);
-  }
-  /*else if(M<5.0) {
-    *cl = CL[idx] + (CL[idx+1]-CL[idx])*d;
-//    *cd = 0.09 + oapiGetInducedDrag (*cl, 2.266, 0.5);
-    *cd = 0.09 + oapiGetInducedDrag (*cl, 2.266, 0.75);
-
-  }*
-//  sprintf(oapiDebugString(),"P%d Y%d R%d TableM: %f TableAoA: %f Table Cl: %f AFCS Cl: %f Table Cd: %f AFCS Cd: %f",v->PitchActive,v->YawActive,v->RollActive,M,aoa*180.0/PI,Tablecl,*cl,Tablecd,*cd);
-  else {
-	*cl=Tablecl;
-	*cd=Tablecd;
-  }
-//    *cm=tableterp(&cmBase[0][0], aoa1, n_aoa1, mach, n_mach, aoa*180.0/PI,M);
-//  *cm+=tableterp(&cmTrim[0][0], trimExt, n_trimExt, mach, n_mach, bfDeploy,M);
-}*/
-
-// 2. horizontal lift component (vertical stabiliser and body)
-
-/*void HLiftCoeff (double beta, double M, double Re, double *cl, double *cm, double *cd)
-{
-  static const double step = RAD*22.5;
-  static const double istep = 1.0/step;
-  static const int nabsc = 17;
-  static const double CL[nabsc] = {0, 0.2, 0.3, 0.2, 0, -0.2, -0.3, -0.2, 0, 0.2, 0.3, 0.2, 0, -0.2, -0.3, -0.2, 0};
-
-  beta += PI;
-  int idx = max (0, min (15, (int)(beta*istep)));
-  double d = beta*istep - idx;
-  *cl = CL[idx] + (CL[idx+1]-CL[idx])*d;
-  *cm = 0.0;
-  //*cd = 0.02 + oapiGetInducedDrag (*cl, 1.5, 0.6);
-  *cd = 0.0;
-}*/
 
 // ==============================================================
 // Specialised vessel class Atlantis
@@ -477,671 +372,560 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void* lv, double *c
 // --------------------------------------------------------------
 // Constructor
 // --------------------------------------------------------------
-Atlantis::Atlantis (OBJHANDLE hObj, int fmodel)
-: VESSEL3 (hObj, fmodel),
-BodyFlap(0.5, 0.25, 0.1, -1.0, 1.0, -1.0, 1.0),
-ElevonPitch(0.25, 0.10, 0.01, -1.0, 1.0, -50.0, 50.0), //NOTE: may be better to reduce integral limits and increase i gain
-PitchControl(0.25, 0.001, 0.10, -1.0, 1.0, -5.0, 5.0),
-pActiveLatches(3, NULL)
+Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
+	: VESSEL4(hObj, fmodel),
+	pActiveLatches(3, NULL)
 {
 #ifdef _DEBUG
-        // D. Beachy: for BoundsChecker debugging
-        GrowStack();
+	// D. Beachy: for BoundsChecker debugging
+	GrowStack();
 #endif
-  int i;
-  
-  //----------------------------------------------------
-  // Make these first, for avoiding CTDs
-  //----------------------------------------------------
-  pMission = ssuGetDefaultMission();			//No mission selected
-  options = new SSUOptions();
-  bundleManager = new DiscreteBundleManager();
-  busManager = new dps::ShuttleBusManager();
-  pCommModeHandler= new CommModeHandler(this);
-  
-  // initialize mdu pointers to NULL, otherwise we may get CTDs
-  for(i=0;i<11;i++) mdus[i] = NULL;
+	int i;
 
-  plop            = new PayloadBayOp (this);
-  //gop             = new GearOp (this);
-  panela4		  = new PanelA4(this);
-  //panela8		  = new PanelA8(this);
-  //panelc3         = new PanelC3(this);
-  //panelr2       = new PanelR2(this);
-  panelc2		  = new PanelC2(this);
-  //panelf7		  = new PanelF7(this);
+	// init D3D9
+	gcInitialize();
 
-  //rsls			= new dps::RSLS_old(this);
-  //rsls = NULL;
-  //gncsoftware	= new dps::GNCSoftware("GNCSoftware);
-  
+	//----------------------------------------------------
+	// Make these first, for avoiding CTDs
+	//----------------------------------------------------
+	InitMissionManagementMemory();
+	pMission = ssuGetDefaultMission();			//No mission selected
+	options = new SSUOptions();
+	bundleManager = new DiscreteBundleManager();
+	busManager = new dps::ShuttleBusManager();
+	pCommModeHandler = new CommModeHandler(this);
 
-  pgForward.AddPanel(new vc::PanelF2(this));
-  pgForward.AddPanel(new vc::PanelF4(this));
-  pgForward.AddPanel(new vc::PanelF6(this));
-  pgForward.AddPanel(new vc::PanelF7(this));
-  pgForward.AddPanel(new vc::PanelF8(this));
+	// initialize mdu pointers to NULL, otherwise we may get CTDs
+	for (i = 0; i < 11; i++) mdus[i] = NULL;
 
-  pgCenter.AddPanel(new vc::PanelC3(this));
+	pgForward.AddPanel(new vc::PanelF2(this));
+	pgForward.AddPanel(new vc::PanelF3(this));
+	pgForward.AddPanel(new vc::PanelF4(this));
+	pgForward.AddPanel(new vc::PanelF6(this));
+	pgForward.AddPanel(new vc::PanelF7(this));
+	pgForward.AddPanel(new vc::PanelF8(this));
 
-  pgRight.AddPanel(panelr2 = new vc::PanelR2(this));
-
-  pgOverhead.AddPanel(new vc::PanelO6(this));
-
-  pgOverheadAft.AddPanel(new vc::PanelO17(this));
-
-  pgAft.AddPanel(new vc::PanelA6(this));
-  pgAft.AddPanel(new vc::AftMDU(this));
-  pgAft.AddPanel(new vc::PanelA7U(this));
-
-  pgAftStbd.AddPanel(new vc::PanelR11(this));
-  
-
-  panelo3		  = new PanelO3(this);
-  CDRKeyboard     = new Keyboard(this, 0);
-  PLTKeyboard     = new Keyboard(this, 1);
-
-  pPanelA8 = NULL;
-  pExtAirlock = NULL;
-  hODSDock = NULL;
+	pgCenter.AddPanel(new vc::PanelC2(this));
 	
+	pgAft.AddPanel( new vc::PanelA1U( this ) );
+	pgAft.AddPanel(new vc::AftMDU(this));
+	
+	pgAftStbd.AddPanel(new vc::PanelR11(this));
+	
+	pExtAirlock = NULL;
 
-  psubsystems	  = new AtlantisSubsystemDirector(this);
+	psubsystems = new AtlantisSubsystemDirector(this);
 
-  psubsystems->AddSubsystem(pSSME[0] = new mps::SSME_BLOCK_II(psubsystems, "MPS_C", 1, 2, "AD08"));
-  psubsystems->AddSubsystem(pSSME[1] = new mps::SSME_BLOCK_II(psubsystems, "MPS_L", 2, 2, "AD08"));
-  psubsystems->AddSubsystem(pSSME[2] = new mps::SSME_BLOCK_II(psubsystems, "MPS_R", 3, 2, "AD08"));
+	psubsystems->AddSubsystem(pHeEng[0] = new mps::HeSysEng(psubsystems, "HeEng_C", 1));
+	psubsystems->AddSubsystem(pHeEng[1] = new mps::HeSysEng(psubsystems, "HeEng_L", 2));
+	psubsystems->AddSubsystem(pHeEng[2] = new mps::HeSysEng(psubsystems, "HeEng_R", 3));
+	psubsystems->AddSubsystem(pHePneu = new mps::HeSysPneu(psubsystems, "HePneu"));
 
-  psubsystems->AddSubsystem(pFMC1 = new MCA(psubsystems, "FMC1"));
-  psubsystems->AddSubsystem(pFMC2 = new MCA(psubsystems, "FMC2"));
-  psubsystems->AddSubsystem(pFMC3 = new MCA(psubsystems, "FMC3"));
-  psubsystems->AddSubsystem(pMMC1 = new MCA(psubsystems, "MMC1"));
-  psubsystems->AddSubsystem(pMMC2 = new MCA(psubsystems, "MMC2"));
-  psubsystems->AddSubsystem(pMMC3 = new MCA(psubsystems, "MMC3"));
-  psubsystems->AddSubsystem(pMMC4 = new MCA(psubsystems, "MMC4"));
-  psubsystems->AddSubsystem(pAMC1 = new MCA(psubsystems, "AMC1"));
-  psubsystems->AddSubsystem(pAMC2 = new MCA(psubsystems, "AMC2"));
-  psubsystems->AddSubsystem(pAMC3 = new MCA(psubsystems, "AMC3"));
+	psubsystems->AddSubsystem(pMPS = new mps::MPS(psubsystems, pHePneu));
 
-  psubsystems->AddSubsystem(pFF[0] = new MDM(psubsystems, "FF1", 10, 10));
-  psubsystems->AddSubsystem(pFF[1] = new MDM(psubsystems, "FF2", 11, 11));
-  psubsystems->AddSubsystem(pFF[2] = new MDM(psubsystems, "FF3", 12, 12));
-  psubsystems->AddSubsystem(pFF[3] = new MDM(psubsystems, "FF4", 13, 13));
-  
-  psubsystems->AddSubsystem(pFA[0] = new MDM(psubsystems, "FA1", 14, 14));
-  psubsystems->AddSubsystem(pFA[1] = new MDM(psubsystems, "FA2", 15, 15));
-  psubsystems->AddSubsystem(pFA[2] = new MDM(psubsystems, "FA3", 16, 16));
-  psubsystems->AddSubsystem(pFA[3] = new MDM(psubsystems, "FA4", 17, 17));
+	mps::SSME* pSSME[3];
+	psubsystems->AddSubsystem(pSSME[0] = new mps::SSME_BLOCK_II(psubsystems, "MPS_C", 1, 2, "AD08", pHeEng[0]));
+	psubsystems->AddSubsystem(pSSME[1] = new mps::SSME_BLOCK_II(psubsystems, "MPS_L", 2, 2, "AD08", pHeEng[1]));
+	psubsystems->AddSubsystem(pSSME[2] = new mps::SSME_BLOCK_II(psubsystems, "MPS_R", 3, 2, "AD08", pHeEng[2]));
 
-  psubsystems->AddSubsystem(pPL[0] = new MDM(psubsystems, "PL1", 20, 20));
-  psubsystems->AddSubsystem(pPL[1] = new MDM(psubsystems, "PL2", 21, 21));
-  
-  psubsystems->AddSubsystem(pLF1 = new MDM(psubsystems, "LF1", 22, 22));
-  psubsystems->AddSubsystem(pLM1 = new MDM(psubsystems, "LM1", 24, 24));
-  psubsystems->AddSubsystem(pLA1 = new MDM(psubsystems, "LA1", 23, 23));
+	psubsystems->AddSubsystem(pFMC1 = new MCA(psubsystems, "FMC1"));
+	psubsystems->AddSubsystem(pFMC2 = new MCA(psubsystems, "FMC2"));
+	psubsystems->AddSubsystem(pFMC3 = new MCA(psubsystems, "FMC3"));
+	psubsystems->AddSubsystem(pMMC1 = new MCA(psubsystems, "MMC1"));
+	psubsystems->AddSubsystem(pMMC2 = new MCA(psubsystems, "MMC2"));
+	psubsystems->AddSubsystem(pMMC3 = new MCA(psubsystems, "MMC3"));
+	psubsystems->AddSubsystem(pMMC4 = new MCA(psubsystems, "MMC4"));
+	psubsystems->AddSubsystem(pAMC1 = new MCA(psubsystems, "AMC1"));
+	psubsystems->AddSubsystem(pAMC2 = new MCA(psubsystems, "AMC2"));
+	psubsystems->AddSubsystem(pAMC3 = new MCA(psubsystems, "AMC3"));
 
-  psubsystems->AddSubsystem(pOF[0] = new MDM(psubsystems, "OF1", 1, 1));
-  psubsystems->AddSubsystem(pOF[1] = new MDM(psubsystems, "OF2", 2, 2));
-  psubsystems->AddSubsystem(pOF[2] = new MDM(psubsystems, "OF3", 3, 3));
-  psubsystems->AddSubsystem(pOF[3] = new MDM(psubsystems, "OF4", 4, 4));
-  
-  psubsystems->AddSubsystem(pOA[0] = new MDM(psubsystems, "OA1", 5, 5));
-  psubsystems->AddSubsystem(pOA[1] = new MDM(psubsystems, "OA2", 6, 6));
-  psubsystems->AddSubsystem(pOA[2] = new MDM(psubsystems, "OA3", 7, 7));  
+	psubsystems->AddSubsystem(pFF[0] = new dps::MDM(psubsystems, "FF1", 10, 10));
+	psubsystems->AddSubsystem(pFF[1] = new dps::MDM(psubsystems, "FF2", 11, 11));
+	psubsystems->AddSubsystem(pFF[2] = new dps::MDM(psubsystems, "FF3", 12, 12));
+	psubsystems->AddSubsystem(pFF[3] = new dps::MDM(psubsystems, "FF4", 13, 13));
 
-  psubsystems->AddSubsystem(pLL[0] = new MDM(psubsystems, "LL1", 25, 25));
-  psubsystems->AddSubsystem(pLL[1] = new MDM(psubsystems, "LL2", 26, 26));
-  
-  psubsystems->AddSubsystem(pLR[0] = new MDM(psubsystems, "LR1", 27, 27));
-  psubsystems->AddSubsystem(pLR[1] = new MDM(psubsystems, "LR2", 28, 28));
-  
-  //Flexible MDMs
-  //There are no flexible MDMs supported yet
-  pFMDM[0] = pFMDM[1] = NULL;	
+	psubsystems->AddSubsystem(pFA[0] = new dps::MDM(psubsystems, "FA1", 14, 14));
+	psubsystems->AddSubsystem(pFA[1] = new dps::MDM(psubsystems, "FA2", 15, 15));
+	psubsystems->AddSubsystem(pFA[2] = new dps::MDM(psubsystems, "FA3", 16, 16));
+	psubsystems->AddSubsystem(pFA[3] = new dps::MDM(psubsystems, "FA4", 17, 17));
 
-  for(int i = 0; i<4; i++)
-  {
-	  pFF[i]->LoadPROM("FF.rom");
-	  pFA[i]->LoadPROM("FA.rom");
-	  pOF[i]->LoadPROM("OF.rom");
-  }
+	psubsystems->AddSubsystem(pPL[0] = new dps::MDM(psubsystems, "PL1", 20, 20));
+	psubsystems->AddSubsystem(pPL[1] = new dps::MDM(psubsystems, "PL2", 21, 21));
 
-  for(int i = 0; i<3; i++)
-  {
-		pOA[i]->LoadPROM("OF.rom");
-  }
+	psubsystems->AddSubsystem(pLF1 = new dps::MDM(psubsystems, "LF1", 22, 22));
+	psubsystems->AddSubsystem(pLM1 = new dps::MDM(psubsystems, "LM1", 24, 24));
+	psubsystems->AddSubsystem(pLA1 = new dps::MDM(psubsystems, "LA1", 23, 23));
 
-  for(int i = 0; i<2; i++)
-  {
-		pPL[i]->LoadPROM("PL.rom");
-		pLL[i]->LoadPROM("LL.rom");
-		pLR[i]->LoadPROM("LR.rom");
-  }
+	psubsystems->AddSubsystem(pOF[0] = new dps::MDM(psubsystems, "OF1", 1, 1));
+	psubsystems->AddSubsystem(pOF[1] = new dps::MDM(psubsystems, "OF2", 2, 2));
+	psubsystems->AddSubsystem(pOF[2] = new dps::MDM(psubsystems, "OF3", 3, 3));
+	psubsystems->AddSubsystem(pOF[3] = new dps::MDM(psubsystems, "OF4", 4, 4));
 
-  pLF1->LoadPROM("LF1.rom");
-  pLM1->LoadPROM("LM1.rom");
-  pLA1->LoadPROM("LA1.rom");
-  
-  
-  psubsystems->AddSubsystem(pEIU[0] = new mps::EIU(psubsystems, "EIU1", 1, pSSME[0]));
-  psubsystems->AddSubsystem(pEIU[1] = new mps::EIU(psubsystems, "EIU2", 2, pSSME[1]));
-  psubsystems->AddSubsystem(pEIU[2] = new mps::EIU(psubsystems, "EIU3", 3, pSSME[2]));
-  
-  psubsystems->AddSubsystem(pMTU = new dps::MasterTimingUnit(psubsystems));
+	psubsystems->AddSubsystem(pOA[0] = new dps::MDM(psubsystems, "OA1", 5, 5));
+	psubsystems->AddSubsystem(pOA[1] = new dps::MDM(psubsystems, "OA2", 6, 6));
+	psubsystems->AddSubsystem(pOA[2] = new dps::MDM(psubsystems, "OA3", 7, 7));
 
-  psubsystems->AddSubsystem(pIDP[0] = new dps::IDP(psubsystems, "IDP1", 1));
-  psubsystems->AddSubsystem(pIDP[1] = new dps::IDP(psubsystems, "IDP2", 2));
-  psubsystems->AddSubsystem(pIDP[2] = new dps::IDP(psubsystems, "IDP3", 3));
-  psubsystems->AddSubsystem(pIDP[3] = new dps::IDP(psubsystems, "IDP4", 4));
+	psubsystems->AddSubsystem(pLL[0] = new dps::MDM(psubsystems, "LL1", 25, 25));
+	psubsystems->AddSubsystem(pLL[1] = new dps::MDM(psubsystems, "LL2", 26, 26));
 
-  psubsystems->AddSubsystem(pIMU[0] = new gnc::IMU(psubsystems, "IMU1", 5));
-  psubsystems->AddSubsystem(pIMU[1] = new gnc::IMU(psubsystems, "IMU2", 5));
-  psubsystems->AddSubsystem(pIMU[2] = new gnc::IMU(psubsystems, "IMU3", 5));
+	psubsystems->AddSubsystem(pLR[0] = new dps::MDM(psubsystems, "LR1", 27, 27));
+	psubsystems->AddSubsystem(pLR[1] = new dps::MDM(psubsystems, "LR2", 28, 28));
 
-  psubsystems->AddSubsystem(pGPC[0] = new dps::AP101S(psubsystems, "GPC1", 1));
-  psubsystems->AddSubsystem(pGPC[1] = new dps::AP101S(psubsystems, "GPC2", 2));
-  psubsystems->AddSubsystem(pGPC[2] = new dps::AP101S(psubsystems, "GPC3", 3));
-  psubsystems->AddSubsystem(pGPC[3] = new dps::AP101S(psubsystems, "GPC4", 4));
-  psubsystems->AddSubsystem(pGPC[4] = new dps::AP101S(psubsystems, "GPC5", 5));
-  //Create Mass Memory Units
-  psubsystems->AddSubsystem(pMMU[0] = new dps::MMU(psubsystems, "MMU1"));
-  psubsystems->AddSubsystem(pMMU[1] = new dps::MMU(psubsystems, "MMU2"));
+	//Flexible MDMs
+	//There are no flexible MDMs supported yet
+	pFMDM[0] = pFMDM[1] = NULL;
 
-  pMMU[0]->SetTapeImage("Data/SSU/MMU1_TEST.dat");
-  pMMU[1]->SetTapeImage("Data/SSU/MMU2_TEST.dat");
 
-  psubsystems->AddSubsystem(pSimpleGPC = new dps::SimpleGPCSystem(psubsystems));
+	psubsystems->AddSubsystem(pEIU[0] = new mps::EIU(psubsystems, "EIU1", 1, pSSME[0]));
+	psubsystems->AddSubsystem(pEIU[1] = new mps::EIU(psubsystems, "EIU2", 2, pSSME[1]));
+	psubsystems->AddSubsystem(pEIU[2] = new mps::EIU(psubsystems, "EIU3", 3, pSSME[2]));
 
-  psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
+	psubsystems->AddSubsystem(pMTU = new dps::MasterTimingUnit(psubsystems));
 
-  psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
+	psubsystems->AddSubsystem(pIDP[0] = new dps::IDP(psubsystems, "IDP1", 1));
+	psubsystems->AddSubsystem(pIDP[1] = new dps::IDP(psubsystems, "IDP2", 2));
+	psubsystems->AddSubsystem(pIDP[2] = new dps::IDP(psubsystems, "IDP3", 3));
+	psubsystems->AddSubsystem(pIDP[3] = new dps::IDP(psubsystems, "IDP4", 4));
 
-  psubsystems->AddSubsystem(new ETUmbDoorSystem(psubsystems));
-  
-  psubsystems->AddSubsystem(pSTYDoorMotor = new MechActuator(psubsystems, "-YStarTrackerDoorMotor", 8.0));
-  psubsystems->AddSubsystem(pSTZDoorMotor = new MechActuator(psubsystems, "-ZStarTrackerDoorMotor", 8.0));
+	psubsystems->AddSubsystem(pIMU[0] = new gnc::IMU(psubsystems, "IMU1", 5));
+	psubsystems->AddSubsystem(pIMU[1] = new gnc::IMU(psubsystems, "IMU2", 5));
+	psubsystems->AddSubsystem(pIMU[2] = new gnc::IMU(psubsystems, "IMU3", 5));
 
-  psubsystems->AddSubsystem(pACBusSystem = new eps::ACBusSystem(psubsystems));
-  psubsystems->AddSubsystem(pInverter[0] = new eps::Inverter(psubsystems, "INVERTER1"));
-  psubsystems->AddSubsystem(pInverter[1] = new eps::Inverter(psubsystems, "INVERTER2"));
-  psubsystems->AddSubsystem(pInverter[2] = new eps::Inverter(psubsystems, "INVERTER3"));
+	psubsystems->AddSubsystem(pGPC[0] = new dps::AP101S(psubsystems, "GPC1", 1));
+	psubsystems->AddSubsystem(pGPC[1] = new dps::AP101S(psubsystems, "GPC2", 2));
+	psubsystems->AddSubsystem(pGPC[2] = new dps::AP101S(psubsystems, "GPC3", 3));
+	psubsystems->AddSubsystem(pGPC[3] = new dps::AP101S(psubsystems, "GPC4", 4));
+	psubsystems->AddSubsystem(pGPC[4] = new dps::AP101S(psubsystems, "GPC5", 5));
+	//Create Mass Memory Units
+	psubsystems->AddSubsystem(pMMU[0] = new dps::MMU(psubsystems, "MMU1"));
+	psubsystems->AddSubsystem(pMMU[1] = new dps::MMU(psubsystems, "MMU2"));
 
-  //psubsystems->AddSubsystem(new dps::AerojetDAP(psubsystems));
+	pMMU[0]->SetTapeImage("Data/SSU/MMU1_TEST.dat");
+	pMMU[1]->SetTapeImage("Data/SSU/MMU2_TEST.dat");
 
-  pRMS=NULL; //don't create RMS unless it is used on the shuttle
-  pMPMs=NULL;
-  
-  pSSME_SOP = NULL;
+	psubsystems->AddSubsystem(pSimpleGPC = new dps::SimpleGPCSystem(psubsystems));
+	pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware("RSLS_old"));
+	pATVC_SOP = static_cast<dps::ATVC_SOP*>(pSimpleGPC->FindSoftware("ATVC_SOP"));
+	pSSME_SOP = static_cast<dps::SSME_SOP*>(pSimpleGPC->FindSoftware("SSME_SOP"));
+	pASE_IUS = NULL;
+	pCISS = NULL;
+
+	psubsystems->AddSubsystem(pADPS = new AirDataProbeSystem(psubsystems));
+
+	psubsystems->AddSubsystem(new ETUmbDoorSystem(psubsystems));
+
+	psubsystems->AddSubsystem(pSTYDoorMotor = new MechActuator(psubsystems, "-YStarTrackerDoorMotor", 8.0));
+	psubsystems->AddSubsystem(pSTZDoorMotor = new MechActuator(psubsystems, "-ZStarTrackerDoorMotor", 8.0));
+
+	psubsystems->AddSubsystem(pACBusSystem = new eps::ACBusSystem(psubsystems));
+	psubsystems->AddSubsystem(pInverter[0] = new eps::Inverter(psubsystems, "INVERTER1"));
+	psubsystems->AddSubsystem(pInverter[1] = new eps::Inverter(psubsystems, "INVERTER2"));
+	psubsystems->AddSubsystem(pInverter[2] = new eps::Inverter(psubsystems, "INVERTER3"));
+
+	psubsystems->AddSubsystem( new comm::GCIL( psubsystems ) );
+
+	psubsystems->AddSubsystem(pATVC = new gnc::ATVC(psubsystems, "ATVC", 1));// HACK should be 4 of this
+
+	psubsystems->AddSubsystem( new MasterEventsController( psubsystems, "MEC1", 1 ) );
+	psubsystems->AddSubsystem( new MasterEventsController( psubsystems, "MEC2", 2 ) );
+
+	psubsystems->AddSubsystem( new gnc::RadarAltimeter( psubsystems, "RA1", 1 ) );
+	psubsystems->AddSubsystem( new gnc::RadarAltimeter( psubsystems, "RA2", 2 ) );
+
+	psubsystems->AddSubsystem(pPayloadBay = new PayloadBay(psubsystems));
+
+	pDeployedAssembly = NULL;
+
+	pRMS = NULL; //don't create RMS unless it is used on the shuttle
+	pMPMs = NULL;
+
+	pTAA = NULL;
+
+	pDragChute = NULL;
 
 	RealizeSubsystemConnections();
 
 
 #ifdef INCLUDE_OMS_CODE
-  psubsystems->AddSubsystem(pOMS = new OMSSubsystem(psubsystems));
+	psubsystems->AddSubsystem(pOMS = new OMSSubsystem(psubsystems));
 #else
-  pOMS = NULL;
+	pOMS = NULL;
 #endif
 
-  //pA7A8Panel = new vc::PanelA7A8ODS(this);
-
-  pgAft.AddPanel(pA7A8Panel = new vc::PanelA7A8ODS(this));
-
-  //connect CRT MDUs to IDPs
-  mdus[vc::MDUID_CDR1]->SetPrimaryIDP(pIDP[2]);
-  mdus[vc::MDUID_CDR2]->SetPrimaryIDP(pIDP[0]);
-  mdus[vc::MDUID_CRT1]->SetPrimaryIDP(pIDP[0]);
-  mdus[vc::MDUID_CRT2]->SetPrimaryIDP(pIDP[1]);
-  mdus[vc::MDUID_CRT3]->SetPrimaryIDP(pIDP[2]);
-  mdus[vc::MDUID_CRT4]->SetPrimaryIDP(pIDP[3]);
-  mdus[vc::MDUID_MFD1]->SetPrimaryIDP(pIDP[1]);
-  mdus[vc::MDUID_MFD2]->SetPrimaryIDP(pIDP[0]);
-  mdus[vc::MDUID_PLT1]->SetPrimaryIDP(pIDP[1]);
-  mdus[vc::MDUID_PLT2]->SetPrimaryIDP(pIDP[2]);
-  mdus[vc::MDUID_AFD]->SetPrimaryIDP(pIDP[3]);
-  /*for (i=0;i<3;i++) {
-	  //pIDP[i]->ConnectToMDU(mdus[i+vc::MDUID_CRT1]);
-	  if(mdus[i+vc::MDUID_CRT1]) mdus[i+vc::MDUID_CRT1]->SetPrimaryIDP(pIDP[i]);
-  }*/
-
-  for(int i = 0; i<16; i++)
-  {
-	fPayloadZPos[i] = DEFAULT_PAYLOAD_ZPOS[i];
-	fPayloadMass[i] = 0.0;
-	usPayloadType[i] = 0;
-  }
-
-  met = 0.0;
-
-  status          = STATE_ORBITER;
-  ldoor_drag      = rdoor_drag = 0.0;
-  spdb_status     = AnimState::CLOSED;
-  spdb_proc       = 0.0;
-  spdb_tgt		  = 0.0;
-  mesh_orbiter    = MESH_UNDEFINED;
-  mesh_cockpit    = MESH_UNDEFINED;
-  mesh_vc         = MESH_UNDEFINED;
-  mesh_middeck    = MESH_UNDEFINED;
-  //mesh_tank       = MESH_UNDEFINED;
-  //mesh_srb[0] = mesh_srb[1] = MESH_UNDEFINED;
-  mesh_kuband	  = MESH_UNDEFINED;
-  mesh_extal	  = MESH_UNDEFINED;
-  mesh_ods		  = MESH_UNDEFINED;
-  mesh_cargo_static = MESH_UNDEFINED;
-  mesh_panela8	  = MESH_UNDEFINED;
-  mesh_dragchute  = MESH_UNDEFINED;
-  mesh_heatshield = MESH_UNDEFINED;
-
-  vis             = NULL;
-
-  reset_mmu       = false;
-  reset_sat       = false;
-  jettison_time   = 0.0;
-  render_cockpit  = false;
-  bSRBCutoffFlag  = false;
-  bLiftOff		  = false;
-  bHasKUBand	  = true;
-  bUseRealRCS	  = true;
-  bEnableMCADebug = false;
-
-  vcDeckMode = VCM_FLIGHTDECK;
-
-  ___iCurrentManifold = 0;
-
-  //SRB slag effects
-  slag1 = 0.0;
-  slag2 = 0.0;
-  slag3 = 0.0;
-
-  pshSlag1[0] = pshSlag1[1] = NULL;
-  pshSlag2[0] = pshSlag2[1] = NULL;
-  pshSlag3[0] = pshSlag3[1] = NULL;
-
-  /*
-  int mfdgrp[10] = {
-    GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
-    GRP_MFD1_VC, GRP_MFD2_VC, GRP_MFD3_VC, GRP_MFD4_VC, GRP_MFD5_VC,
-    GRP_MFD_aft_VC};
-  */
-
-  int mfdgrp[11] = {
-    GRP_CDR1_VC,GRP_CDR2_VC,GRP_PLT1_VC,GRP_PLT2_VC,
-    GRP_MFD1_VC, GRP_MFD4_VC, GRP_MFD3_VC, GRP_MFD_AFT_VC, GRP_MFD2_VC, GRP_MFD5_VC,
-	NULL
-    };
-
-  for (i = 0; i < 11; i++) {
-    /*mfds[i].ngroup   = mfdgrp[i];
-    mfds[i].flag     = MFD_SHOWMODELABELS;
-    mfds[i].nbt1     = 5;
-    mfds[i].nbt2     = 0;
-    mfds[i].bt_yofs  = 256/6;
-    mfds[i].bt_ydist = 256/7;*/
-
-	mfds[i]=-1;
-  }
-  for (i = 0; i < 11; i++)
-    mfdbright[i] =  1.0;
-  huds.ngroup       = GRP_VIRTUALHUD_VC;
-  huds.size         = 0.176558;
-
-  // propellant resources
-  ph_oms          = NULL;
-  ph_frcs		  = NULL;
-  ph_lrcs		  = NULL;
-  ph_rrcs		  = NULL;
-  ph_controller	  = NULL;
-  ph_tank         = NULL;
-  ph_srb          = NULL;
-  thg_main        = NULL;
-  thg_retro		  = NULL;
-  thg_srb         = NULL;
+	//connect CRT MDUs to IDPs
+	mdus[vc::MDUID_CDR1]->SetPrimaryIDP(pIDP[2]);
+	mdus[vc::MDUID_CDR1]->SetSecondaryIDP(pIDP[0]);
+	mdus[vc::MDUID_CDR2]->SetPrimaryIDP(pIDP[0]);
+	mdus[vc::MDUID_CDR2]->SetSecondaryIDP(pIDP[1]);
+	mdus[vc::MDUID_CRT1]->SetPrimaryIDP(pIDP[0]);
+	mdus[vc::MDUID_CRT2]->SetPrimaryIDP(pIDP[1]);
+	mdus[vc::MDUID_CRT3]->SetPrimaryIDP(pIDP[2]);
+	mdus[vc::MDUID_CRT4]->SetPrimaryIDP(pIDP[3]);
+	mdus[vc::MDUID_MFD1]->SetPrimaryIDP(pIDP[1]);
+	mdus[vc::MDUID_MFD1]->SetSecondaryIDP(pIDP[2]);
+	mdus[vc::MDUID_MFD2]->SetPrimaryIDP(pIDP[0]);
+	mdus[vc::MDUID_MFD2]->SetSecondaryIDP(pIDP[2]);
+	mdus[vc::MDUID_PLT1]->SetPrimaryIDP(pIDP[1]);
+	mdus[vc::MDUID_PLT1]->SetSecondaryIDP(pIDP[0]);
+	mdus[vc::MDUID_PLT2]->SetPrimaryIDP(pIDP[2]);
+	mdus[vc::MDUID_PLT2]->SetSecondaryIDP(pIDP[1]);
+	mdus[vc::MDUID_AFD1]->SetPrimaryIDP(pIDP[3]);
+	mdus[vc::MDUID_AFD1]->SetSecondaryIDP(pIDP[1]);
 
 
-  for(i=0;i<4;i++)
-  {
-	thManFRCS1[i] = NULL;
-	thManFRCS2[i] = NULL;
-	thManFRCS3[i] = NULL;
-  }
+	met = 0.0;
 
-  thManFRCS4[0] = thManFRCS4[1] = NULL;
-  thManFRCS5[0] = thManFRCS5[1] = NULL;
+	status = STATE_ORBITER;
+	ldoor_drag = rdoor_drag = 0.0;
+	spdb_status = AnimState::CLOSED;
+	spdb_proc = 0.0;
+	spdb_tgt = 0.0;
+	mesh_orbiter = MESH_UNDEFINED;
+	mesh_cockpit = MESH_UNDEFINED;
+	mesh_vc = MESH_UNDEFINED;
+	mesh_middeck = MESH_UNDEFINED;
+	mesh_kuband = MESH_UNDEFINED;
+	mesh_cargo_static = MESH_UNDEFINED;
+	mesh_heatshield = MESH_UNDEFINED;
 
-  th_oms[0] = th_oms[1] = NULL;
+	vis = NULL;
 
-  for(i=0;i<3;i++)
-  {
-	th_main[i] = NULL;
-	th_ssme_gox[i] = NULL;
-	th_ssme_loxdump[i] = NULL;
-	thManLRCS1[i] = NULL;
-	thManLRCS2[i] = NULL;
-	thManLRCS3[i] = NULL;
-	thManLRCS4[i] = NULL;
-	thManRRCS1[i] = NULL;
-	thManRRCS2[i] = NULL;
-	thManRRCS3[i] = NULL;
-	thManRRCS4[i] = NULL;
-  }
-  th_srb[0] = th_srb[1] = NULL;
-  thManLRCS5[0] = thManLRCS5[1] = NULL;
-  thManRRCS5[0] = thManRRCS5[1] = NULL;
+	hOVTexture = NULL;
+	hLOMSTexture = NULL;
+	hROMSTexture = NULL;
 
-  thg_pitchup=thg_pitchdown = NULL;
-  thg_yawleft=thg_yawright = NULL;
-  thg_rollleft=thg_rollright = NULL;
-  thg_transfwd=thg_transaft=NULL;
-  thg_transleft=thg_transright=NULL;
-  thg_transup=thg_transdown=NULL;
+	bLiftOff = false;
+	bHasKUBand = true;
+	bUseRealRCS = true;
+	bEnableMCADebug = false;
 
-  bSSMEsDefined = false;
-  bOMSDefined = false;
-  bRCSDefined = false;
-  bControllerThrustersDefined = false;
+	___iCurrentManifold = 0;
 
-  oms_helium_tank[0] = NULL;
-  oms_helium_tank[1] = NULL;
-  for(i=0;i<3;i++) {
-	  mps_helium_tank[i] = NULL;
-	  ex_main[i] = NULL;
-  }
+	//SRB slag effects
+	slag1 = 0.0;
+	slag2 = 0.0;
+	slag3 = 0.0;
 
-  hStackAirfoil = NULL;
-  //Control Surfaces
-  hrudder	= NULL;
-  hbodyflap	= NULL;
-  helevator	= NULL;
-  hlaileron	= NULL;
-  hraileron	= NULL;
+	pshSlag1[0] = pshSlag1[1] = NULL;
+	pshSlag2[0] = pshSlag2[1] = NULL;
+	pshSlag3[0] = pshSlag3[1] = NULL;
 
-  orbiter_ofs = _V(0, 0, 0);
-  currentCoG = _V(0.0, 0.0, 0.0);
-  
-  // preload meshes
-  hOrbiterMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ORBITER);
-  hOrbiterCockpitMesh	= oapiLoadMeshGlobal (DEFAULT_MESHNAME_COCKPIT);
-  hOrbiterVCMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_VC);
-  hMidDeckMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_MIDDECK);
-  hKUBandMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_KU);
-  hExtALMesh			= oapiLoadMeshGlobal (DEFAULT_MESHNAME_EXTAL);
-  hODSMesh				= oapiLoadMeshGlobal (DEFAULT_MESHNAME_ODS);
-  hDragChuteMesh		= oapiLoadMeshGlobal (DEFAULT_MESHNAME_CHUTE);
-  hHeatShieldMesh       = oapiLoadMeshGlobal ("SSU/SSU_entry");
-  hDevOrbiterMesh = NULL;
-  hDevHeatShieldMesh = NULL;
+	huds.ngroup = GRP_VIRTUALHUD_VC;
+	huds.size = 0.13372;
+	
+	scnVCMode = 0;
+
+	// propellant resources
+	ph_oms = NULL;
+	ph_frcs = NULL;
+	ph_lrcs = NULL;
+	ph_rrcs = NULL;
+	ph_controller = NULL;
+	ph_mps = NULL;
+	ph_srb = NULL;
+
+	LOXmass = 0;
+	LH2mass = 0;
 
 
-  ControlSurfacesEnabled = false;
-  bIlluminated=false;
+	for (i = 0; i < 16; i++)
+	{
+		thFRCS[i] = NULL;
+	}
 
-   /*texScorchedET = oapiLoadTexture(DEFAULT_SCORCHED_ET_TEXTURE);
-   
-   if(texScorchedET == NULL) {
-	   oapiWriteLog("[SpaceShuttleUltra]Failed loading scorched ET texture.");
-   }
-   texNormalET = oapiLoadTexture(DEFAULT_NORMAL_ET_TEXTURE);
-   if(texNormalET == NULL) {
-	   oapiWriteLog("[SpaceShuttleUltra]Failed loading normal ET texture.");
-   }*/
-   
-  
-  //hSRBMesh            = oapiLoadMeshGlobal ("Atlantis_srb");
+	for (i = 0; i < 14; i++)
+	{
+		thLRCS[i] = NULL;
+	}
 
-  strcpy(WingName,"Atlantis");
+	for (i = 0; i < 14; i++)
+	{
+		thRRCS[i] = NULL;
+	}
 
-  //DefineAnimations();
-  //center_arm      = false;
-  //arm_moved       = false;
-  //mpm_moved		  = false;
-  bManualSeparate = false;
-  //ofs_sts_sat     = _V(0,0,0);
-  do_eva          = false;
-  do_plat         = false;
-  do_cargostatic  = false;
-  vis             = NULL;
-  ahHDP			= NULL;
-  ahTow			= NULL;
-  //ahRMS			= NULL;
-  //ahOBSS		= NULL;
-  ahDockAux		= NULL;
-  ahMMU[0]		= NULL;
-  ahMMU[1]		= NULL;
-  ahExtAL[0]    = NULL;
-  ahExtAL[1]    = NULL;
+	th_oms[0] = th_oms[1] = NULL;
 
-  for(int i = 0; i<3; i++)
-  {
-	ahCenterActive[i] = NULL;
-  }
-  for(int i = 0; i<4; i++)
-  {
-	ahCenterPassive[i] = NULL;
-	ahPortPL[i] = NULL;
-	ahStbdPL[i] = NULL;
-  }
-  //080415, DaveS add: Added temporary OBSS MPM attachment point
-  //obss_attach     = NULL;
-  
-  cargo_static_ofs   =_V(0,0,0);
+	for (i = 0; i < 3; i++)
+	{
+		th_main[i] = NULL;
+		th_ssme_gox[i] = NULL;
+	}
+	thMPSDump[0] = NULL;
+	thMPSDump[1] = NULL;
+	thMPSDump[2] = NULL;
+	thMPSDump[3] = NULL;
+	thMPSDump[4] = NULL;
+	thMPSDump[5] = NULL;
+	thMPSDump[6] = NULL;
+	thMPSDump[7] = NULL;
+	th_srb[0] = th_srb[1] = NULL;
 
-  // default arm status: deployed
-  STBDMPM=false;
-  RMS=false;
+	thg_pitchup = thg_pitchdown = NULL;
+	thg_yawleft = thg_yawright = NULL;
+	thg_rollleft = thg_rollright = NULL;
+	thg_transfwd = thg_transaft = NULL;
+	thg_transleft = thg_transright = NULL;
+	thg_transup = thg_transdown = NULL;
 
-  gear_status.Set(AnimState::CLOSED, 0.0);
-  gear_armed=false;
-  DragChuteDeploying=false;
-  DragChuteState=STOWED;
-  DragChuteSize=0.0;
-  DragChuteSpin.Set(AnimState::OPENING, 0.0);
+	bSSMEGOXVent = true;
+	bSSMEsDefined = false;
+	bOMSDefined = false;
+	bRCSDefined = false;
+	bControllerThrustersDefined = false;
 
-  // default camera positions
-  for(int i=0;i<4;i++) {
-	  camYaw[i] = 0;
-	  camPitch[i] = 0;
-  }
+	phLOXdump = NULL;
+	phLH2dump = NULL;
 
-  cameraLowRate = false;
-  cameraMoved = false;
-  cameraControl = 0;
+	oms_helium_tank[0] = NULL;
+	oms_helium_tank[1] = NULL;
+	for (i = 0; i < 3; i++) {
+		ex_main[i] = NULL;
+	}
 
-  bLastCamInternal = false;
+	hStackAirfoil = NULL;
+	//Control Surfaces
+	hrudder = NULL;
+	hbodyflap = NULL;
+	helevator = NULL;
+	hlaileron = NULL;
+	hraileron = NULL;
 
-  pl_mass=0.0;
+	orbiter_ofs = _V(0, 0, 0);
+	currentCoG = _V(0.0, 0.0, 0.0);
 
-  newmfd=NULL;
+	payloadMass = 0.0;
+	payloadCoG = _V(0, 0, 0);
 
-  bEngineFail=false;
-
-  // gpc
-  SMOps=201;
-  //ops=101;
-  last_mfd=0;
-  firstStep=true;
-
-  //Displays
-  CRT_SEL[0]=2; //CRT3
-  CRT_SEL[1]=1; //CRT2
-  //MNVR
-  /*MNVRLOAD=false;
-  MnvrExecute=false;
-  MnvrToBurnAtt=false;
-  TIG[0]=TIG[1]=TIG[2]=TIG[3]=0.0;
-  OMSGimbal[0][0]=OMSGimbal[0][1]=0;
-  OMSGimbal[1][0]=OMSGimbal[1][1]=0;
-  OMS = 0;
-  TV_ROLL=0.0;
-  BurnInProg=false;
-  BurnCompleted=false;*/
-  
-  RHCInput = _V(0, 0, 0);
-  THCInput = _V(0, 0, 0);
-  AltKybdInput = _V(0, 0, 0);
-
-  ReqdRates = _V(0, 0, 0);
-  for(i=0; i<3; i++) {
-	  lastRotCommand[i] = 0;
-	  lastTransCommand[i] = 0;
-	  //MNVR
-	  //PEG7.data[i]=0.0;
-	  //UNIV PTG
-	  //MNVR_OPTION.data[i]=0.0;
-	  //TRKROT_OPTION.data[i]=0.0;
-	  //REQD_ATT.data[i]=0.0;
-	  //RotationAxis.data[i]=0.0;
-	  //TargetAttOrbiter.data[i]=0.0;
-	  //TargetAttM50.data[i]=0.0;
-	  //Initialize Keyboard Input
-	  DataInput[i].OPS=false;
-	  DataInput[i].ITEM=false;
-	  DataInput[i].SPEC=false;
-	  DataInput[i].PRO=false;
-	  DataInput[i].EXEC=false;
-	  DataInput[i].NewEntry=false;
-	  //DataInput[i].input="";
-	  sprintf(DataInput[i].input, "");
-	  DataInput[i].InputSize=0;
-	  //Display[i]=NULL;
-	  RotationCommand.data[i]=0.0;
-	  TranslationCommand.data[i]=0.0; 
-	  TransForce[0].data[i]=TransForce[1].data[i]=0.0001; //small number to avoid divide by zero
-  }
-
-  aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;
-  aerosurfaces.speedbrake = 0.0;
-  aerosurfaces.bodyFlap = 0.0;
-  aerosurfaces.rudder = 0.0;
-
-  ControlRMS=false;
-  lastRMSSJCommand=0;
-
-  //I-loads
-  //stage1guidance_size=0;
-
-  pCommModeHandler->DefineAnnotations();
-
-  fTimeCameraLabel = 0.0;
-  nhCameraLabel = oapiCreateAnnotation(true, 1.0, _V(1.0, 1.0, 1.0));
-  oapiAnnotationSetPos(nhCameraLabel, 0.4, 0.05, 0.6, 0.15);
-
-  SoundID=-1;
-  fSSMEHandleErrorFlag = false;
-
-  psubsystems->AddSubsystem(pAPU[0] = new APU(psubsystems, "APU1", 1));
-  psubsystems->AddSubsystem(pAPU[1] = new APU(psubsystems, "APU2", 2));
-  psubsystems->AddSubsystem(pAPU[2] = new APU(psubsystems, "APU3", 3));
-
-  psubsystems->AddSubsystem(new WSB(psubsystems, "WSB1", 1));
-  psubsystems->AddSubsystem(new WSB(psubsystems, "WSB2", 2));
-  psubsystems->AddSubsystem(new WSB(psubsystems, "WSB3", 3));
-
-  // latch instances need to be created before scenario is loaded
-  // latch positions are set in DefineAttachments() function
-  VECTOR3 vPayloadPos=_V(0.0, PL_ATTACH_CENTER_Y, 0.0);
-  psubsystems->AddSubsystem(pActiveLatches[0] = new ActiveLatchGroup(psubsystems, "LATCH0", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
-  psubsystems->AddSubsystem(pActiveLatches[1] = new ActiveLatchGroup(psubsystems, "LATCH1", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
-  psubsystems->AddSubsystem(pActiveLatches[2] = new ActiveLatchGroup(psubsystems, "LATCH2", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
-
-  for(unsigned short i=0;i<5;i++) {
-	  bPLBDCamPanLeft[i] = false;
-	  bPLBDCamPanRight[i] = false;
-	  bPLBDCamTiltUp[i] = false;
-	  bPLBDCamTiltDown[i] = false;
-  }
-
-  curOMSPitch[0] = curOMSPitch[RIGHT] = 0.0;
-  curOMSYaw[0] = curOMSYaw[RIGHT] = 0.0;
-
-  for(int i=0;i<3;i++) SSMENullDirection[i] = _V(0.0, 0.0, 1.0);
-  for(int i=0;i<2;i++) SRBNullDirection[i] = _V(0.0, 0.0, 1.0);
+	// preload meshes
+	hOrbiterMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_ORBITER);
+	hOrbiterCockpitMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_COCKPIT);
+	hOrbiterVCMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_VC);
+	hMidDeckMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_MIDDECK);
+	hKUBandMesh = oapiLoadMeshGlobal(DEFAULT_MESHNAME_KU);
+	hHeatShieldMesh = oapiLoadMeshGlobal("SSU/SSU_entry");
+	hDevOrbiterMesh = NULL;
+	hDevHeatShieldMesh = NULL;
 
 
+	ControlSurfacesEnabled = false;
+
+	do_cargostatic = false;
+	vis = NULL;
+	ahHDP = NULL;
+	ahTow = NULL;
+
+	/*for (int i = 0; i < 3; i++)
+	{
+		ahCenterActive[i] = NULL;
+	}*/
+	for (int i = 0; i < 4; i++)
+	{
+		ahCenterPassive[i] = NULL;
+		ahPortPL[i] = NULL;
+		ahStbdPL[i] = NULL;
+	}
+
+	cargo_static_ofs = _V(0, 0, 0);
+
+	// default arm status: deployed
+	STBDMPM = false;
+	RMS = false;
+
+	gear_status.Set(AnimState::CLOSED, 0.0);
+	gear_armed = false;
+
+	// default camera positions
+	for (int i = 0; i < 4; i++) {
+		camYaw[i] = 0;
+		camPitch[i] = 0;
+	}
+
+	cameraLowRate = false;
+	cameraMoved = false;
+	cameraControl = 0;
+
+	bLastCamInternal = false;
+
+	pl_mass = 0.0;
+
+	// gpc
+	firstStep = true;
+
+	AltKybdInput = _V(0, 0, 0);
+	RPTAinput = 0.0;
+	SBTCTOinput = false;
+	SBTCinput = 0.0;
+	LeftRHCpitch = 0.0;
+	LeftRHCroll = 0.0;
+	LeftRHCyaw = 0.0;
+	RightRHCpitch = 0.0;
+	RightRHCroll = 0.0;
+	RightRHCyaw = 0.0;
+	AftRHCpitch = 0.0;
+	AftRHCroll = 0.0;
+	AftRHCyaw = 0.0;
+	RPTApos = 0.0;
+	LeftSBTCpos = 1.0;// default is full forward
+	RightSBTCpos = 1.0;// default is full forward
+
+	for (i = 0; i < 3; i++) {
+		lastRotCommand[i] = 0;
+		lastTransCommand[i] = 0;
+		RotationCommand.data[i] = 0.0;
+		TranslationCommand.data[i] = 0.0;
+		TransForce[0].data[i] = TransForce[1].data[i] = 0.0001; //small number to avoid divide by zero
+	}
+
+	aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;
+	aerosurfaces.speedbrake = 0.0;
+	aerosurfaces.bodyFlap = 0.0;
+	aerosurfaces.rudder = 0.0;
+
+	ControlRMS = false;
+	lastRMSSJCommand = 0;
+
+	SERCstop = true;
+
+	LO2LowLevelSensor[0] = Sensor(65, 80);
+	LO2LowLevelSensor[1] = Sensor(65, 80);
+	LO2LowLevelSensor[2] = Sensor(65, 80);
+	LO2LowLevelSensor[3] = Sensor(65, 80);
+
+	pCommModeHandler->DefineAnnotations();
+
+	fTimeCameraLabel = 0.0;
+	nhCameraLabel = oapiCreateAnnotation(true, 1.0, _V(1.0, 1.0, 1.0));
+	oapiAnnotationSetPos(nhCameraLabel, 0.4, 0.05, 0.6, 0.15);
+
+	SoundID = -1;
+	fSSMEHandleErrorFlag = false;
+
+	psubsystems->AddSubsystem(pAPU[0] = new APU(psubsystems, "APU1", 1));
+	psubsystems->AddSubsystem(pAPU[1] = new APU(psubsystems, "APU2", 2));
+	psubsystems->AddSubsystem(pAPU[2] = new APU(psubsystems, "APU3", 3));
+
+	psubsystems->AddSubsystem(new WSB(psubsystems, "WSB1", 1));
+	psubsystems->AddSubsystem(new WSB(psubsystems, "WSB2", 2));
+	psubsystems->AddSubsystem(new WSB(psubsystems, "WSB3", 3));
+
+	// latch instances need to be created before scenario is loaded
+	// latch positions are set in DefineAttachments() function
+	VECTOR3 vPayloadPos = _V(0.0, PL_ATTACH_CENTER_Y, 0.0);
+	psubsystems->AddSubsystem(pActiveLatches[0] = new ActiveLatchGroup(psubsystems, "LATCH0", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
+	psubsystems->AddSubsystem(pActiveLatches[1] = new ActiveLatchGroup(psubsystems, "LATCH1", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
+	psubsystems->AddSubsystem(pActiveLatches[2] = new ActiveLatchGroup(psubsystems, "LATCH2", vPayloadPos, DIR_CENTERPL, ROT_CENTERPL));
+
+	bPLBCamPanLeft_Man = false;
+	bPLBCamPanRight_Man = false;
+	bPLBCamTiltUp_Man = false;
+	bPLBCamTiltDown_Man = false;
+
+	curOMSPitch[0] = curOMSPitch[RIGHT] = 0.0;
+	curOMSYaw[0] = curOMSYaw[RIGHT] = 0.0;
+
+	SSMEInstalledNullPos[0] = SSMET_INSTALLED_NULL_POS;
+	SSMEInstalledNullPos[1] = SSMEL_INSTALLED_NULL_POS;
+	SSMEInstalledNullPos[2] = SSMER_INSTALLED_NULL_POS;
+	SSMECurrentPos[0] = SSMET_INSTALLED_NULL_POS;
+	SSMECurrentPos[1] = SSMEL_INSTALLED_NULL_POS;
+	SSMECurrentPos[2] = SSMER_INSTALLED_NULL_POS;
+
+	for (int i = 0; i < 2; i++) SRBNullDirection[i] = _V(0.0, 0.0, 1.0);
 
 
-  //PLB LIGHTS
-  PLBLightPosition[0] = _V(1.4, -3.05, 5.49); //forward stbd
-  PLBLightPosition[1] = _V(-1.4,-3.05, 5.49); //forward port
-  PLBLightPosition[2] = _V(1.4, -3.05, -0.21);//mid stbd
-  PLBLightPosition[3] = _V(-1.4, -3.05, -0.21);//mid port
-  PLBLightPosition[4] = _V(1.4, -3.05, -4.26);//aft stbd
-  PLBLightPosition[5] = _V(-1.4, -3.05, -4.26);//aft port
-  FwdBulkheadLightPos = _V(0.0, 0.763, 9.652);//fwd bulkhead
-  DockingLightPos = _V(0.0, 0.947, 9.652);//docking light
+	plbCamPos[0] = CAM_A_POS;
+	plbCamPos[1] = CAM_B_POS;
+	plbCamPos[2] = CAM_C_POS;
+	plbCamPos[3] = CAM_D_POS;
+
+	//PLB LIGHTS
+	PLBLightPosition[0] = _V(1.6380, -2.1207, 5.5686); //forward stbd
+	PLBLightPosition[1] = _V(-1.5549, -2.1732, 5.1957); //forward port
+	PLBLightPosition[2] = _V(1.6380, -2.1207, -0.2724);//mid stbd
+	PLBLightPosition[3] = _V(-1.6380, -2.1207, -0.2724);//mid port
+	PLBLightPosition[4] = _V(1.6380, -2.1207, -4.3755);//aft stbd
+	PLBLightPosition[5] = _V(-1.6380, -2.1207, -4.3755);//aft port
+	FwdBulkheadLightPos = _V(0.0, 1.7550, 9.6065);//fwd bulkhead
+	DockingLightPos = _V(0.0, 2.0162, 9.6057);//docking light
 
 	//CREATE LIGHTS
-	for(int i=0; i<6; ++i)
+	for (int i = 0; i < 6; ++i)
 	{
 		VECTOR3 dir = _V(-sign(PLBLightPosition[i].x), 0, 0);
 		PLBLight[i] = AddPayloadBayLight(PLBLightPosition[i], dir, 135.0, PLB_bspec[i]);
 	}
 	FwdBulkheadLight = AddPayloadBayLight(FwdBulkheadLightPos, _V(0, 0, -1), 120.0, FwdBulkhead_bspec);
-	for (int i=0;i<2;i++) {
+	for (int i = 0; i < 2; i++) {
 		DockingLight[i] = AddPayloadBayLight(DockingLightPos, _V(0, 1, 0), 120.0, Docking_bspec[i]); // create two copies of docking light to simulate DIM and BRIGHT settings
 	}
 
 	// light for engines during launch
-	COLOUR4 col_diff = {1,1,1,0};
-	COLOUR4 col_zero = {0,0,0,0};
-	COLOUR4 col_ambient = {0.5,0.5,0.5,0};
-	SRBLight = AddPointLight (_V(0,LSRB_OFFSET.y,LSRB_OFFSET.z-21.8), 300, 2e-3, 0, 3e-2, col_diff, col_zero, col_ambient);
-	SSMELight = AddPointLight (_V(0,SSMEL_REF.y,SSMEL_REF.z), 300, 5e-3, 0, 5e-2, col_diff, col_zero, col_ambient);
+	//SSME light
+	COLOUR4 col_diff_SSME = { 1.0, 1.0, 1.0, 0 };
+	COLOUR4 col_zero_SSME = { 0, 0, 0, 0 };
+	COLOUR4 col_ambient_SSME = { 0.5, 0.5, 0.5, 0 };
+	//SRB light
+	COLOUR4 col_diff_SRB = { 1.0, 0.733f, 0.196f, 0 };
+	COLOUR4 col_zero_SRB = { 0, 0, 0, 0 };
+	COLOUR4 col_ambient_SRB = { 0.5, 0.5, 0.5, 0 };
+	SRBLight[0] = AddPointLight(_V(LSRB_OFFSET.x, LSRB_OFFSET.y, LSRB_OFFSET.z - 25.8), 300, 1e-3, 0, 0.0025, col_diff_SRB, col_zero_SRB, col_ambient_SRB);
+	SRBLight[1] = AddPointLight(_V(RSRB_OFFSET.x, RSRB_OFFSET.y, RSRB_OFFSET.z - 25.8), 300, 1e-3, 0, 0.0025, col_diff_SRB, col_zero_SRB, col_ambient_SRB);
+	SSMELight = AddPointLight(_V(0, (SSMET_REF.y + SSMEL_REF.y) / 2, SSMEL_REF.z - 2.9348), 300, 5e-3, 0, 5e-2, col_diff_SSME, col_zero_SSME, col_ambient_SSME);
 
 	// RCS exhaust
-	RCS_Exhaust_tex = oapiRegisterExhaustTexture ("SSU\\Exhaust_atrcs");
+	RCS_Exhaust_tex = oapiRegisterExhaustTexture("SSU\\Exhaust_atrcs");
 	SURFHANDLE RCS_tex = oapiRegisterParticleTexture("SSU\\ps-rcs2");
-	RCS_PSSpec.srcsize=0.1;
-	RCS_PSSpec.srcrate=800;
-	RCS_PSSpec.v0=60;//100
-	RCS_PSSpec.srcspread=0;
-	RCS_PSSpec.lifetime=0.2;
-	RCS_PSSpec.growthrate=20;
-	RCS_PSSpec.atmslowdown=5;
-	RCS_PSSpec.ltype=PARTICLESTREAMSPEC::EMISSIVE;
-	RCS_PSSpec.levelmap=PARTICLESTREAMSPEC::LVL_FLAT;
-	RCS_PSSpec.lmin=1;
-	RCS_PSSpec.atmsmap=PARTICLESTREAMSPEC::ATM_FLAT;
-	RCS_PSSpec.amin=1;
-	RCS_PSSpec.tex=RCS_tex;
-	
-	reentry_flames = NULL;
+	RCS_PSSpec.srcsize = 0.1;//0.1
+	RCS_PSSpec.srcrate = 3000;//3000
+	RCS_PSSpec.v0 = 50;//10
+	RCS_PSSpec.srcspread = 0;//0
+	RCS_PSSpec.lifetime = 0.2;//0.2
+	RCS_PSSpec.growthrate = 25;//3.5
+	RCS_PSSpec.atmslowdown = 5.0;//0.5
+	RCS_PSSpec.ltype = PARTICLESTREAMSPEC::DIFFUSE;//EMSSIVE
+	RCS_PSSpec.levelmap = PARTICLESTREAMSPEC::LVL_PLIN;//LVL_FLAT
+	RCS_PSSpec.lmin = 0.1;//0.25
+	RCS_PSSpec.lmax = 0.5;//0.25
+	RCS_PSSpec.atmsmap = PARTICLESTREAMSPEC::ATM_FLAT;//ATM_FLAT
+	RCS_PSSpec.amin = 1;//1
+	RCS_PSSpec.tex = RCS_tex;
 
 
+	SSMEGH2burn[0] = NULL;
+	SSMEGH2burn[1] = NULL;
+	SSMEGH2burn[2] = NULL;
 
+	hasCISS = false;
+
+	static char *name = "CRT";
+	MFDMODESPECEX spec;
+	spec.name = name;
+	spec.key = OAPI_KEY_T;
+	spec.context = NULL;
+	spec.msgproc = CRT::MsgProc;
+	mfdID = RegisterMFDMode( spec );
 }
 
 // --------------------------------------------------------------
 // Destructor
 // --------------------------------------------------------------
-Atlantis::~Atlantis () {
-	//int i;
-
+Atlantis::~Atlantis() {
 	delete psubsystems;
 	delete pCommModeHandler;
 
-	delete plop;
-	delete panela4;
-	delete panelo3;
-	delete panelc2;
-	delete CDRKeyboard;
-	delete PLTKeyboard;
-	//delete rsls;
-
-	for(unsigned int i=0;i<vpAnimations.size();i++) delete vpAnimations.at(i);
-	  
-	delete CameraFLYaw;
-	delete CameraFLPitch;
-	delete CameraFRYaw;
-	delete CameraFRPitch;
-	delete CameraBLYaw;
-	delete CameraBLPitch;
-	delete CameraBRYaw;
-	delete CameraBRPitch;
+	for (unsigned int i = 0; i < vpAnimations.size(); i++) delete vpAnimations.at(i);
 
 	delete busManager;
 	delete bundleManager;
+	delete options;
 
-	//delete [] stage1guidance[0];
-	//delete [] stage1guidance[1];
+	ClearMissionManagementMemory();
+
+	UnregisterMFDMode( mfdID );
+
+	if (hOVTexture) oapiReleaseTexture( hOVTexture );
+	if (hLOMSTexture) oapiReleaseTexture( hLOMSTexture );
+	if (hROMSTexture) oapiReleaseTexture( hROMSTexture );
 }
 
 DiscreteBundleManager* Atlantis::BundleManager() const
@@ -1149,7 +933,7 @@ DiscreteBundleManager* Atlantis::BundleManager() const
 	return bundleManager;
 }
 
-ShuttleBusManager* Atlantis::BusManager() const {
+dps::ShuttleBusManager* Atlantis::BusManager() const {
 	return busManager;
 }
 
@@ -1158,7 +942,7 @@ mission::Mission* Atlantis::GetMissionData() const
 	return pMission;
 }
 
-const VECTOR3& Atlantis::GetOrbiterCoGOffset() const 
+const VECTOR3& Atlantis::GetOrbiterCoGOffset() const
 {
 	return orbiter_ofs;
 }
@@ -1166,561 +950,673 @@ const VECTOR3& Atlantis::GetOrbiterCoGOffset() const
 // --------------------------------------------------------------
 // launch configuration setup (orbiter + tank + SRB)
 // --------------------------------------------------------------
-void Atlantis::SetLaunchConfiguration (void)
+void Atlantis::SetLaunchConfiguration(void)
 {
-  int i;
-  extern PARTICLESTREAMSPEC srb_contrail, srb_exhaust, srb_slag1, srb_slag2, srb_slag3;
+	int i;
+	extern PARTICLESTREAMSPEC srb_contrail, srb_exhaust, srb_slag1, srb_slag2, srb_slag3;
 
-  // *********************** physical parameters *********************************
+	// *********************** physical parameters *********************************
 
-  SetSize (30.0);
-  //SetEmptyMass (ORBITER_EMPTY_MASS + TANK_EMPTY_MASS + 2*SRB_EMPTY_MASS + pl_mass);
-  SetCW (0.2, 0.5, 1.5, 1.5);
-  SetCrossSections (_V(668.94,676.94,258.97));
-  SetRotDrag (_V(0.7,0.1,0.3));
-  SetPMI (_V(249.62,239.97,67.43));
-  SetTrimScale (0.05);
-  SetLiftCoeffFunc (0); // simplification: we assume no lift during launch phase
-  SetTouchdownPoints (_V(0,-10,-55.8), _V(-7,7,-55.8), _V(7,7,-55.8));
-  UpdateMass();
-  SetGravityGradientDamping(0.05);
-  //SetEmptyMass(GetEmptyMass()+ 2*SRB_EMPTY_MASS);
+	SetSize(30.0);
+	//SetEmptyMass (ORBITER_EMPTY_MASS + TANK_EMPTY_MASS + 2*SRB_EMPTY_MASS + pl_mass);
+	SetCW(0.2, 0.5, 1.5, 1.5);
+	SetCrossSections(_V(668.94, 676.94, 258.97));
+	SetRotDrag(_V(0.7, 0.1, 0.3));
+	SetPMI(_V(249.62, 239.97, 67.43));
+	SetTrimScale(0.05);
+	SetLiftCoeffFunc(0); // simplification: we assume no lift during launch phase
 
-  // ************************* propellant specs **********************************
+	DefineTouchdownPoints();
+	
+	SetGravityGradientDamping(0.05);
+	//SetEmptyMass(GetEmptyMass()+ 2*SRB_EMPTY_MASS);
 
-  
-  if (!ph_tank) ph_tank = CreatePropellantResource (TANK_MAX_PROPELLANT_MASS);    // main tank
-  if (!ph_srb)  ph_srb  = CreatePropellantResource (SRB_MAX_PROPELLANT_MASS*2.0); // SRB's
-  
-  CreateOrbiterTanks();
-  
-  SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
+	// ************************* propellant specs **********************************
 
-  // *********************** thruster definitions ********************************
 
-  // The main and SRB thrusters are defined so as to minimise the angular momentum
-  // when engaged at maximum thrust. Dynamic gimbaling is not required until the SRBs
-  // start to lose power since the centre of gravity is assumed static.
-  // However the resulting linear force vector has a component in +y ("up") direction
+	if (!ph_mps) ph_mps = CreatePropellantResource(MPS_MANIFOLD_MASS_TOTAL);    // mps manifold
+	LOXmass = MPS_MANIFOLD_MASS_LOX;
+	LH2mass = MPS_MANIFOLD_MASS_LH2;
+	if (!ph_srb)  ph_srb = CreatePropellantResource(SRB_MAX_PROPELLANT_MASS*2.0); // SRB's
 
-  ClearThrusterDefinitions();
-  
-  CreateSSMEs(OFS_ZERO);  
+	CreateOrbiterTanks();
 
-  // SRBs
-  th_srb[0] = CreateThruster (LSRB_OFFSET+_V(0.0,0.0,-21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
-  th_srb[1] = CreateThruster (RSRB_OFFSET+_V(0.0,0.0,-21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
-  thg_srb = CreateThrusterGroup (th_srb, 2, THGROUP_USER);
-  SURFHANDLE tex = oapiRegisterExhaustTexture ("Exhaust2");
-  srb_exhaust.tex = oapiRegisterParticleTexture ("SSU\\SRB_exhaust");
-  srb_contrail.tex = oapiRegisterParticleTexture ("SSU\\SRB_contrail");
-  for (i = 0; i < 2; i++) AddExhaust (th_srb[i], 16.0, 2.0, tex);
-  AddExhaustStream (th_srb[0], &srb_exhaust); 
-  AddExhaustStream (th_srb[1], &srb_exhaust);
-  AddExhaustStream (th_srb[0], RSRB_OFFSET+_V(0,0,-135), &srb_contrail);
-  AddExhaustStream (th_srb[1], LSRB_OFFSET+_V(0,0,-135), &srb_contrail);
+	// *********************** thruster definitions ********************************
 
-  //Add slag effect streams
-  for(i=0;i<2;i++) {
-	  pshSlag1[i] = AddExhaustStream(th_srb[i], &srb_slag1);
-	  pshSlag2[i] = AddExhaustStream(th_srb[i], &srb_slag2);
-	  pshSlag3[i] = AddExhaustStream(th_srb[i], &srb_slag3);
-  }
+	// The main and SRB thrusters are defined so as to minimise the angular momentum
+	// when engaged at maximum thrust. Dynamic gimbaling is not required until the SRBs
+	// start to lose power since the centre of gravity is assumed static.
+	// However the resulting linear force vector has a component in +y ("up") direction
 
-  /*if(pshSlag1[0] == NULL) {
-	pshSlag1[0] = AddParticleStream(&srb_slag1, RSRB_OFFSET+_V(-0.5,1,-23), SLAG_DIR, &slag1);
-  }
-  if(pshSlag1[1] == NULL)
-  {
-	pshSlag1[1] = AddParticleStream(&srb_slag1, LSRB_OFFSET+_V(0.5,1,-23),  SLAG_DIR, &slag1);
-  }
+	ClearThrusterDefinitions();
 
-  //Add slag effect streams
-  if(pshSlag2[0] == NULL) {
-	pshSlag2[0] = AddParticleStream(&srb_slag2, RSRB_OFFSET+_V(-0.5,1,-23), SLAG_DIR, &slag2);
-  }
-  if(pshSlag2[1] == NULL)
-  {
-	pshSlag2[1] = AddParticleStream(&srb_slag2, LSRB_OFFSET+_V(0.5,1,-23),  SLAG_DIR, &slag2);
-  }
+	CreateSSMEs(OFS_ZERO);
 
-  
-  //Add slag effect streams
-  if(pshSlag3[0] == NULL) {
-	pshSlag3[0] = AddParticleStream(&srb_slag3, RSRB_OFFSET+_V(-0.5,1,-23), SLAG_DIR, &slag3);
-  }
-  if(pshSlag3[1] == NULL)
-  {
-	pshSlag3[1] = AddParticleStream(&srb_slag3, LSRB_OFFSET+_V(0.5,1,-23),  SLAG_DIR, &slag3);
-  }*/
+	// SRBs
+	th_srb[0] = CreateThruster(LSRB_OFFSET + _V(0.0, 0.0, -21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
+	th_srb[1] = CreateThruster(RSRB_OFFSET + _V(0.0, 0.0, -21.8), SRB_THRUST_DIR, SRB_THRUST, ph_srb, SRB_ISP0, SRB_ISP1);
+	SURFHANDLE tex = oapiRegisterExhaustTexture("Exhaust2");
+	srb_exhaust.tex = oapiRegisterParticleTexture("SSU\\SRB_exhaust");
+	srb_contrail.tex = oapiRegisterParticleTexture("SSU\\SRB_contrail");
+	AddExhaustStream(th_srb[0], RSRB_OFFSET + _V(0, 0, -135), &srb_contrail);
+	AddExhaustStream(th_srb[1], LSRB_OFFSET + _V(0, 0, -135), &srb_contrail);
+	for (i = 0; i < 2; i++) AddExhaust(th_srb[i], 16.0, 2.0, tex);
+	AddExhaustStream(th_srb[0], &srb_exhaust);
+	AddExhaustStream(th_srb[1], &srb_exhaust);
 
-  //OMS
-  // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
-  if(!bOMSDefined) {
-	  th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	  th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	  bOMSDefined = true;
-	  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
-	  for(i=0;i<2;i++) {
-		  AddExhaust (th_oms[i], 0, 1.5, 1.25, tex_oms);
-		  //panelc3->EngControl(i);
-		  OMSEngControl(i);
-	  }
-  }
+	//Add slag effect streams
+	for (i = 0; i < 2; i++) {
+		pshSlag1[i] = AddExhaustStream(th_srb[i], &srb_slag1);
+		pshSlag2[i] = AddExhaustStream(th_srb[i], &srb_slag2);
+		pshSlag3[i] = AddExhaustStream(th_srb[i], &srb_slag3);
+	}
 
-  // attitude
-  CreateAttControls_RCS(OFS_ZERO);
-  CreateDummyThrusters();
+	//OMS
+	// DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
+	if (!bOMSDefined) {
+		th_oms[0] = CreateThruster(L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+		th_oms[1] = CreateThruster(R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+		bOMSDefined = true;
+		SURFHANDLE tex_oms = oapiRegisterExhaustTexture("SSU\\OMSExhaust");
+		for (i = 0; i < 2; i++) {
+			AddExhaust(th_oms[i], 0, 1.5, 1.25, tex_oms);
+			OMSEngControl(i);
+		}
+	}
 
-  // ************************* aerodynamics **************************************
+	// attitude
+	CreateAttControls_RCS(OFS_ZERO);
+	CreateDummyThrusters();
 
-  hStackAirfoil = CreateAirfoil2(LIFT_VERTICAL, _V(0, 0, 0), AscentLiftCoeff, ORBITER_CHORD_LENGTH, ORBITER_WING_AREA, ORBITER_WING_ASPECT_RATIO);
-  ClearVariableDragElements ();
-  CreateVariableDragElement (&spdb_proc, 5, _V(0, 7.5, -14)); // speedbrake drag
-  //CreateVariableDragElement (&(gop->gear_proc), 2, OFS_LAUNCH_ORBITER+_V(0,-3,0));      // landing gear drag
-  CreateVariableDragElement (&(gear_status.pos), 2, _V(0,-3,0));      // landing gear drag
-  CreateVariableDragElement (&rdoor_drag, 7, _V(2.9,0,10));   // right cargo door drag
-  CreateVariableDragElement (&ldoor_drag, 7, _V(-2.9,0,10));  // right cargo door drag
+	// ************************* aerodynamics **************************************
 
-  // ************************ visual parameters **********************************
+	hStackAirfoil = CreateAirfoil2(LIFT_VERTICAL, _V(0, 0, 0), AscentLiftCoeff, ORBITER_CHORD_LENGTH, ORBITER_WING_AREA, ORBITER_WING_ASPECT_RATIO);
+	ClearVariableDragElements();
+	CreateVariableDragElement(&spdb_proc, 5, _V(0, 7.5, -14)); // speedbrake drag
+	CreateVariableDragElement(&(gear_status.pos), 2, _V(0, -3, 0));      // landing gear drag
+	CreateVariableDragElement(&rdoor_drag, 7, _V(2.9, 0, 10));   // right cargo door drag
+	CreateVariableDragElement(&ldoor_drag, 7, _V(-2.9, 0, 10));  // right cargo door drag
 
-  AddOrbiterVisual();
-  //AddTankVisual    (OFS_LAUNCH_TANK);
-  //AddSRBVisual     (0, OFS_LAUNCH_RIGHTSRB);
-  //AddSRBVisual     (1, OFS_LAUNCH_LEFTSRB);
+	// ************************ visual parameters **********************************
 
-  status = STATE_PRELAUNCH;
-  
+	AddOrbiterVisual();
+
+	phLOXdump = ph_mps;
+	phLH2dump = ph_mps;
+	CreateMPSDumpVents();// must be after the AddOrbiterVisual call as it uses orbiter_ofs and it not initialized before the 1º run, feel free to "fix" if needed
+
+	status = STATE_PRELAUNCH;
+
 }
 
 // --------------------------------------------------------------
 // Configuration after launch, before SRB separation
 // --------------------------------------------------------------
-void Atlantis::SetPostLaunchConfiguration (double met)
+void Atlantis::SetPostLaunchConfiguration(double met)
 {
-  SetLaunchConfiguration();
-  t0 = -met; // reference time (liftoff)
-  status = STATE_STAGE1;
+	SetLaunchConfiguration();
+	t0 = -met; // reference time (liftoff)
+	status = STATE_STAGE1;
 }
 
 // --------------------------------------------------------------
 // Configuration after booster separation (orbiter + tank)
 // --------------------------------------------------------------
-void Atlantis::SetOrbiterTankConfiguration (void)
+void Atlantis::SetOrbiterTankConfiguration(void)
 {
-  // *********************** physical parameters *********************************
+	// *********************** physical parameters *********************************
 
-  SetSize (28.8);
-  //SetEmptyMass (ORBITER_EMPTY_MASS + TANK_EMPTY_MASS + pl_mass);
-  SetCW (0.2, 0.5, 1.5, 1.5);
-  SetCrossSections (_V(303.91,422.33,153.51));
-  SetRotDrag (_V(0.7,0.1,0.3));
-  SetPMI (_V(131.82,131.49,59.28));
-  SetTrimScale (0.05);
-  SetLiftCoeffFunc (0); // simplification: we assume no lift during launch phase
-  SetTouchdownPoints (_V(0,-5,30), _V(-10,-10,-30), _V(10,0,-30));
-  UpdateMass();
+	SetSize(28.8);
+	//SetEmptyMass (ORBITER_EMPTY_MASS + TANK_EMPTY_MASS + pl_mass);
+	SetCW(0.2, 0.5, 1.5, 1.5);
+	SetCrossSections(_V(303.91, 422.33, 153.51));
+	SetRotDrag(_V(0.7, 0.1, 0.3));
+	SetPMI(_V(131.82, 131.49, 59.28));
+	SetTrimScale(0.05);
+	SetLiftCoeffFunc(0); // simplification: we assume no lift during launch phase
+	SetTouchdownPoints(_V(0, -5, 30), _V(-10, -10, -30), _V(10, 0, -30));
 
-  // ************************* propellant specs **********************************
+	// ************************* propellant specs **********************************
 
-  if (!ph_tank) ph_tank = CreatePropellantResource (TANK_MAX_PROPELLANT_MASS);    // main tank
+	if (!ph_mps) ph_mps = CreatePropellantResource(MPS_MANIFOLD_MASS_TOTAL);    // mps manifold
+	LOXmass = MPS_MANIFOLD_MASS_LOX;
+	LH2mass = MPS_MANIFOLD_MASS_LH2;
 
-  CreateOrbiterTanks();
+	CreateOrbiterTanks();
 
-  SetDefaultPropellantResource (ph_tank); // display main tank level in generic HUD
+	// *********************** thruster definitions ********************************
 
-  // *********************** thruster definitions ********************************
+	// Orbiter main engines
+	CreateSSMEs(OFS_ZERO);
 
-  // Orbiter main engines
-  // The thruster directions are adjusted so as to generate no angular moment
-  // i.e. sum_{i=1}^3 thrusterpos_i x thrusterdir_i = 0
-  // This assumes that all 3 main engines generate the same amount of thrust at
-  // all times
+	phLOXdump = ph_mps;
+	phLH2dump = ph_mps;
+	CreateMPSDumpVents();
 
-  CreateSSMEs(OFS_ZERO);
+	// DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
+	if (!bOMSDefined) {
+		th_oms[0] = CreateThruster(L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+		th_oms[1] = CreateThruster(R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+		bOMSDefined = true;
+		SURFHANDLE tex_oms = oapiRegisterExhaustTexture("SSU\\OMSExhaust");
+		for (int i = 0; i < 2; i++) {
+			AddExhaust(th_oms[i], 0, 1.5, 1.25, tex_oms);
+			OMSEngControl(i);
+		}
+	}
 
-  // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
-  if(!bOMSDefined) {
-	  th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	  th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	  bOMSDefined = true;
-	  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
-	  for(int i=0;i<2;i++) {
-		  AddExhaust (th_oms[i], 0, 1.5, 1.25, tex_oms);
-		  //panelc3->EngControl(i);
-		  OMSEngControl(i);
-	  }
-  }
-
-  //if (!ThrusterGroupDefined (THGROUP_ATT_PITCHUP))
-    CreateAttControls_RCS(OFS_ZERO);
+	CreateAttControls_RCS(OFS_ZERO);
 	CreateDummyThrusters();
 
-  // ************************* aerodynamics **************************************
+	// ************************* aerodynamics **************************************
 
-  ClearAirfoilDefinitions();
-  hStackAirfoil = NULL;
-  ClearVariableDragElements ();
-  CreateVariableDragElement (&spdb_proc, 5, _V(0, 7.5, -14)); // speedbrake drag
-  //CreateVariableDragElement (&(gop->gear_proc), 2, ofs+_V(0,-3,0));      // landing gear drag
-  CreateVariableDragElement (&(gear_status.pos), 2, _V(0,-3,0));      // landing gear drag
-  CreateVariableDragElement (&rdoor_drag, 7, _V(2.9,0,10));   // right cargo door drag
-  CreateVariableDragElement (&ldoor_drag, 7, _V(-2.9,0,10));  // right cargo door drag
+	ClearAirfoilDefinitions();
+	hStackAirfoil = NULL;
+	ClearVariableDragElements();
+	CreateVariableDragElement(&spdb_proc, 5, _V(0, 7.5, -14)); // speedbrake drag
+	CreateVariableDragElement(&(gear_status.pos), 2, _V(0, -3, 0));      // landing gear drag
+	CreateVariableDragElement(&rdoor_drag, 7, _V(2.9, 0, 10));   // right cargo door drag
+	CreateVariableDragElement(&ldoor_drag, 7, _V(-2.9, 0, 10));  // right cargo door drag
 
-  // ************************ visual parameters **********************************
+	// ************************ visual parameters **********************************
 
-  // status has to be updated before AddTankVisual is called to update ET texture
-  status = STATE_STAGE2;
+	// status has to be updated before AddTankVisual is called to update ET texture
+	status = STATE_STAGE2;
 
-  AddOrbiterVisual();
-  //AddTankVisual    (OFS_WITHTANK_TANK);
-
-  //status = STATE_STAGE2;
+	AddOrbiterVisual();
 }
 
 // --------------------------------------------------------------
 // Configuration after tank separation (orbiter only)
 // --------------------------------------------------------------
-void Atlantis::SetOrbiterConfiguration (void)
+void Atlantis::SetOrbiterConfiguration(void)
 {
-  int i;
+	int i;
 
-  // *********************** physical parameters *********************************
+	// *********************** physical parameters *********************************
 
-  SetSize (19.6);
-  //SetEmptyMass (ORBITER_EMPTY_MASS + pl_mass);
-  VECTOR3 r[2] = {{0,0,10},{0,0,-8}};
-  SetPMI (_V(120.2,108.8,13.497));
-  SetGravityGradientDamping (20.0);
-  SetTrimScale (0.05);
-  SetCW (ORBITER_CW[0], ORBITER_CW[1], ORBITER_CW[2], ORBITER_CW[3]);
-  SetCrossSections (ORBITER_CS);
-  //gop->SetGearParameters(gop->gear_proc);
-  DefineTouchdownPoints();
-  SetMaxWheelbrakeForce(250000/2);
-  UpdateMass();
+	SetSize(19.6);
+	SetPMI(_V(120.2, 108.8, 13.497));
+	SetGravityGradientDamping(20.0);
+	SetTrimScale(0.05);
+	SetCW(ORBITER_CW[0], ORBITER_CW[1], ORBITER_CW[2], ORBITER_CW[3]);
+	SetCrossSections(ORBITER_CS);
+	DefineTouchdownPoints();
+	SetMaxWheelbrakeForce(250000 / 2);
 
-  // ************************* aerodynamics **************************************
+	// ************************* aerodynamics **************************************
 
-  ClearAirfoilDefinitions();
-  hStackAirfoil = NULL;
-  SetRotDrag (_V(0.43,0.43,0.29)); // angular drag
-  CreateAirfoil3 (LIFT_VERTICAL,   _V(0.0, 0.0, 0.0), VLiftCoeff, &aerosurfaces,ORBITER_CHORD_LENGTH, ORBITER_WING_AREA, ORBITER_WING_ASPECT_RATIO);
-  CreateAirfoil3 (LIFT_HORIZONTAL, _V(0.0, 0.0, 0.0), HLiftCoeff, &aerosurfaces, 20,  50, 1.5);
+	ClearAirfoilDefinitions();
+	hStackAirfoil = NULL;
+	SetRotDrag(_V(0.43, 0.43, 0.29)); // angular drag
+	CreateAirfoil3(LIFT_VERTICAL, _V(0.0, 0.0, 0.0), VLiftCoeff, &aerosurfaces, ORBITER_CHORD_LENGTH, ORBITER_WING_AREA, ORBITER_WING_ASPECT_RATIO);
+	CreateAirfoil3(LIFT_HORIZONTAL, _V(0.0, 0.0, 0.0), HLiftCoeff, &aerosurfaces, 20, 50, 1.5);
 
-  /*helevator = CreateControlSurface2 (AIRCTRL_ELEVATOR, 5, 1.5, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, anim_elev);
-  hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 5, 1.75, _V( 0, 0,  -17), AIRCTRL_AXIS_XPOS, anim_bf);
-  hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
-  hraileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
-  hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
-  ControlSurfacesEnabled=true;*/
+	/*helevator = CreateControlSurface2 (AIRCTRL_ELEVATOR, 5, 1.5, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, anim_elev);
+	hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 5, 1.75, _V( 0, 0,  -17), AIRCTRL_AXIS_XPOS, anim_bf);
+	hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
+	hraileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
+	hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
+	ControlSurfacesEnabled=true;*/
 
-  ClearVariableDragElements ();
-  //CreateVariableDragElement (&spdb_proc, 9, _V(0, 7.5, -14)); // speedbrake drag
-  //CreateVariableDragElement (&(gop->gear_proc), 2, _V(0,-3,0));      // landing gear drag
-  CreateVariableDragElement (&(gear_status.pos), 2, _V(0,-3,0));      // landing gear drag
-  CreateVariableDragElement (&rdoor_drag, 7, _V(2.9,0,10));   // right cargo door drag
-  CreateVariableDragElement (&ldoor_drag, 7, _V(-2.9,0,10));  // right cargo door drag
-  CreateVariableDragElement (&DragChuteSize, 22.5, _V(0, 4.6, -12.03));
+	ClearVariableDragElements();
+	//CreateVariableDragElement (&spdb_proc, 9, _V(0, 7.5, -14)); // speedbrake drag
+	CreateVariableDragElement(&(gear_status.pos), 2, _V(0, -3, 0));      // landing gear drag
+	CreateVariableDragElement(&rdoor_drag, 7, _V(2.9, 0, 10));   // right cargo door drag
+	CreateVariableDragElement(&ldoor_drag, 7, _V(-2.9, 0, 10));  // right cargo door drag
+	if (pDragChute) pDragChute->AddAero();
 
-  SetADCtrlMode (7);
+	SetADCtrlMode(7);
 
-  // ************************* particle streams **********************************
+	// ************************* particle streams **********************************
 
-  PARTICLESTREAMSPEC rps = {
-    0, 20, 20, 0, 0.03, 0.5, 100, 3, PARTICLESTREAMSPEC::DIFFUSE,
-    PARTICLESTREAMSPEC::LVL_FLAT, 1, 1, PARTICLESTREAMSPEC::ATM_PLIN, 6e7, 12e7
-  };
-  AddReentryStream (&rps);
+	PARTICLESTREAMSPEC rps = {
+		0, 20, 20, 0, 0.03, 0.5, 100, 3, PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1, PARTICLESTREAMSPEC::ATM_PLIN, 6e7, 12e7
+	};
+	AddReentryStream(&rps);
 
-  // ************************* propellant specs **********************************
+	// ************************* propellant specs **********************************
 
-  CreateOrbiterTanks();
+	CreateOrbiterTanks();
 
-  // *********************** thruster definitions ********************************
-  // OMS (Orbital Manouevering System)
-  // DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
-  //VECTOR3 OMS_POS=_V(0,3.55,-13.04);
-  if(!bOMSDefined) {
-	  //th_oms[0] = CreateThruster (OMS_POS-_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	  //th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	  th_oms[0] = CreateThruster (L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	  th_oms[1] = CreateThruster (R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
-	  bOMSDefined = true;
-	  //thg_main = CreateThrusterGroup (th_oms, 2, THGROUP_MAIN);
-	  SURFHANDLE tex_oms = oapiRegisterExhaustTexture ("SSU\\OMSExhaust");
-	  for(i=0;i<2;i++) {
-		  AddExhaust (th_oms[i], 0, 1.5, 1.25, tex_oms);
-		  //panelc3->EngControl(i);
-		  OMSEngControl(i);
-	  }
-  }
+	// *********************** thruster definitions ********************************
+	// OMS (Orbital Manouevering System)
+	// DaveS edit: Fixed OMS position to line up with OMS nozzles on the scaled down orbiter mesh
+	//VECTOR3 OMS_POS=_V(0,3.55,-13.04);
+	if (!bOMSDefined) {
+		//th_oms[0] = CreateThruster (OMS_POS-_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+		//th_oms[1] = CreateThruster (OMS_POS+_V(2.313,0,0), -OMS_POS/length(OMS_POS), ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+		th_oms[0] = CreateThruster(L_OMS_REF, L_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+		th_oms[1] = CreateThruster(R_OMS_REF, R_OMS_DIR, ORBITER_OMS_THRUST, ph_oms, ORBITER_OMS_ISP0, ORBITER_OMS_ISP1);
+		bOMSDefined = true;
 
-  CreateMPSGOXVents(_V(0.0, 0.0, 0.0));
+		SURFHANDLE tex_oms = oapiRegisterExhaustTexture("SSU\\OMSExhaust");
+		for (i = 0; i < 2; i++) {
+			AddExhaust(th_oms[i], 0, 1.5, 1.25, tex_oms);
+			OMSEngControl(i);
+		}
+	}
 
-  // RCS (Reaction Control System)
-  CreateAttControls_RCS (_V(0,0,0));
-  CreateDummyThrusters();
-  //EnableAllRCS();
+	CreateMPSGOXVents(_V(0.0, 0.0, 0.0));
 
-  discsignals::DiscreteBundle* pBundle = bundleManager->CreateBundle("C2_TO_IDP1", 16);
-  pBundle = bundleManager->CreateBundle("C2_TO_IDP2", 16);
-  pBundle = bundleManager->CreateBundle("C2_TO_IDP3", 16);
+	// RCS (Reaction Control System)
+	CreateAttControls_RCS(orbiter_ofs);
+	CreateDummyThrusters();
 
-  // ************************ visual parameters **********************************
+	// ************************ visual parameters **********************************
+	AddOrbiterVisual();
 
-  AddOrbiterVisual();
-  
+	status = 3;
+}
 
-  status = 3;
+
+void assertValidHandles(const char* context, THRUSTER_HANDLE *thx, int count)
+{
+	static char buf[200];
+	for (int i = 0; i < count; i++) {
+		if (thx[i] == NULL) {
+			sprintf_s(buf, 200, "[SpaceShuttleUltra] ERROR %s : Thruster handle is NULL (at index %d)", context, i);
+			oapiWriteLog(buf);
+		}
+	}
 }
 
 // --------------------------------------------------------------
 // Attitude controls (RCS) during orbital phase
 // --------------------------------------------------------------
 void Atlantis::CreateAttControls_RCS(VECTOR3 center) {
-  //if(bRCSDefined) return;
+	//if(bRCSDefined) return;
 
-  THRUSTER_HANDLE thTmp[10];
-  /*PitchActive=true;
-  YawActive=true;
-  RollActive=true;*/
+	THRUSTER_HANDLE thTmp[16];
 
-  if(bUseRealRCS)
-  {
-	  CreateFRCS(center);
-	  CreateLeftARCS(center);
-	  CreateRightARCS(center);
+	// delete existing exhaust definitions and update positions
+	// we only need to define the thruster positions once; after that ShiftCG should set up positions
+	while (!vExRCS.empty()) {
+		DelExhaust(vExRCS.back());
+		vExRCS.pop_back();
+	}
+	while (!vExStreamRCS.empty()) {
+		DelExhaustStream(vExStreamRCS.back());
+		vExStreamRCS.pop_back();
+	}
 
-	  
-	  thTmp[0] = thManFRCS1[RCS_F1D];
-	  thTmp[1] = thManFRCS1[RCS_F2D];
-	  thTmp[2] = thManFRCS1[RCS_F3D];
-	  thTmp[3] = thManFRCS1[RCS_F4D];
-	  CreateThrusterGroup(thTmp, 4, THGROUP_ATT_PITCHUP);
+	if (bUseRealRCS)
+	{
+		CreateFRCS(center);
+		CreateLeftARCS(center);
+		CreateRightARCS(center);
 
-	  bRCSDefined = true;
+		/* RCS GROUPS:
+		G-1 : F2F, F3F, F1F : -x
+		G-2 : F1L, F3L : + yaw, +y
+		G-3 : F2R, F4R : - yaw, -y
+		G-4 : F2U, F3U, F1U : +z
+		G-5 : F5R, F2D, F4D : -roll, +pitch, -z
+		G-6 : F5L, F1D, F3D : +roll, +pitch, -z
+		G-7 : R3A, R1A : +x
+		G-8 : L1A, L3A : +x
+		G-9 : L4L, L2L, L3L, L1L : -yaw, +y
+		G-10: R1R, R3R, R2R, R4R : +yaw, -y
+		G-11: L1U, L2U, L4U : -roll, +pitch, +z
+		G-12: R1U, R2U, R4U : +roll, +pitch, +z
+		G-13: L3D, L2D, L4D : +roll, -pitch, -z
+		G-14: R3D, R2D, R4D : -roll, -pitch, -z
 
-	  return;
-  }
+		+Pitch : G-5, G-6, G-11, G-12
+		-Pitch : G-13, G14
+		-yaw : G-3, G-9
 
-  // delete existing exhaust definitions and update positions
-  // we only need to define the thruster positions once; after that ShiftCG should set up positions
-  while(!vExRCS.empty()) {
-	  DelExhaust(vExRCS.back());
-	  vExRCS.pop_back();
-  }
-  while(!vExStreamRCS.empty()) {
-	  DelExhaustStream(vExStreamRCS.back());
-	  vExStreamRCS.pop_back();
-  }
+		*/
 
-  // set of attitude thrusters (idealised). The arrangement is such that no angular
-  // momentum is created in linear mode, and no linear momentum is created in rotational mode.
-  if(!bRCSDefined) {
-	  th_att_rcs[0] = CreateThruster (_V(0,0, 15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[1] = CreateThruster (_V(0,0,-15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[2] = CreateThruster (_V(0,0, 15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[3] = CreateThruster (_V(0,0,-15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 
-	  th_att_lin[0] = CreateThruster (_V(0,0, 15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_lin[3] = CreateThruster (_V(0,0,-15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_lin[2] = CreateThruster (_V(0,0, 15.5), _V(0,-1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_lin[1] = CreateThruster (_V(0,0,-15.5), _V(0, 1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  thg_transup = CreateThrusterGroup (th_att_lin,   2, THGROUP_USER);
-	  thg_transdown = CreateThrusterGroup (th_att_lin+2, 2, THGROUP_USER);
-  }
-  else { // update thruster positions
-	  SetThrusterRef(th_att_rcs[0], _V(0,0, 15.5));
-	  SetThrusterRef(th_att_rcs[1], _V(0,0,-15.5));
-	  SetThrusterRef(th_att_rcs[2], _V(0,0, 15.5));
-	  SetThrusterRef(th_att_rcs[3], _V(0,0,-15.5));
 
-	  SetThrusterRef(th_att_lin[0], _V(0,0, 15.5));
-	  SetThrusterRef(th_att_lin[3], _V(0,0,-15.5));
-	  SetThrusterRef(th_att_lin[2], _V(0,0, 15.5));
-	  SetThrusterRef(th_att_lin[1], _V(0,0,-15.5));
-  }
+		thTmp[0] = thFRCS[RCS_F2D];
+		thTmp[1] = thFRCS[RCS_F4D];
+		thTmp[2] = thFRCS[RCS_F1D];
+		thTmp[3] = thFRCS[RCS_F3D];
+		thTmp[4] = thLRCS[RCS_L1U];
+		thTmp[5] = thLRCS[RCS_L2U];
+		thTmp[6] = thLRCS[RCS_L4U];
+		thTmp[7] = thRRCS[RCS_R1U];
+		thTmp[8] = thRRCS[RCS_R2U];
+		thTmp[9] = thRRCS[RCS_R4U];
 
-  AddRCSExhaust (th_att_rcs[0], center+_V( 1.453,-2.129, 15.87), _V( 0.4339,-0.8830,-0.1793));//F2D
-  AddRCSExhaust (th_att_rcs[0], center+_V( 1.537,-2.099, 15.505), _V( 0.4339,-0.8830,-0.1793));//F4D
-  AddRCSExhaust (th_att_rcs[0], center+_V(-1.453,-2.129, 15.87), _V(-0.4339,-0.8830,-0.1793));//F1D
-  AddRCSExhaust (th_att_rcs[0], center+_V(-1.537,-2.099, 15.505), _V(-0.4339,-0.8830,-0.1793));//F3D
+		assertValidHandles("Create pitch up group", thTmp, 10);
+		thg_pitchup = CreateThrusterGroup(thTmp, 10, THGROUP_USER);
 
-  AddRCSExhaust (th_att_rcs[1], center+LOMS_OFFSET+_V(-1.248, 0.25, -1.771), _V(0, 1,0));//L4U
-  AddRCSExhaust (th_att_rcs[1], center+LOMS_OFFSET+_V(-1.248, 0.25, -2.11), _V(0, 1,0));//L2U
-  AddRCSExhaust (th_att_rcs[1], center+LOMS_OFFSET+_V(-1.248, 0.25, -2.439), _V(0, 1,0));//L1U
+		thTmp[0] = thLRCS[RCS_L2D];
+		thTmp[1] = thLRCS[RCS_L3D];
+		thTmp[2] = thLRCS[RCS_L4D];
+		thTmp[3] = thRRCS[RCS_R2D];
+		thTmp[4] = thRRCS[RCS_R3D];
+		thTmp[5] = thRRCS[RCS_R4D];
+		thTmp[6] = thFRCS[RCS_F2U];
+		thTmp[7] = thFRCS[RCS_F3U];
+		thTmp[8] = thFRCS[RCS_F1U];
 
-  AddRCSExhaust (th_att_rcs[1], center+ROMS_OFFSET+_V(1.248, 0.25, -1.771), _V(0, 1,0));//R4U
-  AddRCSExhaust (th_att_rcs[1], center+ROMS_OFFSET+_V(1.248, 0.25, -2.11), _V(0, 1,0));//R2U
-  AddRCSExhaust (th_att_rcs[1], center+ROMS_OFFSET+_V(1.248, 0.25, -2.439), _V(0, 1,0));//R1U
+		assertValidHandles("Create pitch down group", thTmp, 9);
+		thg_pitchdown = CreateThrusterGroup(thTmp, 9, THGROUP_USER);
 
-  AddRCSExhaust (th_att_rcs[2], center+_V(-0.341, -0.877, 15.36), _V(0, 1,0));//F1U
-  AddRCSExhaust (th_att_rcs[2], center+_V( 0.0  , -0.877, 15.36), _V(0, 1,0));//F3U
-  AddRCSExhaust (th_att_rcs[2], center+_V( 0.341, -0.877, 15.36), _V(0, 1,0));//F2U
+		thTmp[0] = thLRCS[RCS_L1L];
+		thTmp[1] = thLRCS[RCS_L2L];
+		thTmp[2] = thLRCS[RCS_L3L];
+		thTmp[3] = thLRCS[RCS_L4L];
+		thTmp[4] = thFRCS[RCS_F2R];
+		thTmp[5] = thFRCS[RCS_F4R];
 
-  AddRCSExhaust (th_att_rcs[3], center+LOMS_OFFSET+_V(-0.867, -1.467, -1.802), _V(-0.2844,-0.9481,-0.1422));//L4D
-  AddRCSExhaust (th_att_rcs[3], center+LOMS_OFFSET+_V(-0.867, -1.415, -2.157), _V(-0.2844,-0.9481,-0.1422));//L2D
-  AddRCSExhaust (th_att_rcs[3], center+LOMS_OFFSET+_V(-0.867, -1.352, -2.491), _V(-0.2844,-0.9481,-0.1422));//L3D
+		assertValidHandles("Create yaw left group", thTmp, 6);
+		thg_yawleft = CreateThrusterGroup(thTmp, 6, THGROUP_USER);
 
-  AddRCSExhaust (th_att_rcs[3], center+ROMS_OFFSET+_V(0.867, -1.467, -1.802), _V(0.2844,-0.9481,-0.1422));//R4D
-  AddRCSExhaust (th_att_rcs[3], center+ROMS_OFFSET+_V(0.867, -1.415, -2.157), _V(0.2844,-0.9481,-0.1422));//R2D
-  AddRCSExhaust (th_att_rcs[3], center+ROMS_OFFSET+_V(0.867, -1.352, -2.491), _V(0.2844,-0.9481,-0.1422));//R3D
+		thTmp[0] = thRRCS[RCS_R1R];
+		thTmp[1] = thRRCS[RCS_R2R];
+		thTmp[2] = thRRCS[RCS_R3R];
+		thTmp[3] = thRRCS[RCS_R4R];
+		thTmp[4] = thFRCS[RCS_F1L];
+		thTmp[5] = thFRCS[RCS_F3L];
 
-  AddRCSExhaust (th_att_lin[0], center+_V( 1.453,-2.129, 15.87), _V( 0.4339,-0.8830,-0.1793));//F2D
-  AddRCSExhaust (th_att_lin[0], center+_V( 1.537,-2.099, 15.505), _V( 0.4339,-0.8830,-0.1793));//F4D
-  AddRCSExhaust (th_att_lin[0], center+_V(-1.453,-2.129, 15.87), _V(-0.4339,-0.8830,-0.1793));//F1D
-  AddRCSExhaust (th_att_lin[0], center+_V(-1.537,-2.099, 15.505), _V(-0.4339,-0.8830,-0.1793));//F3D
+		assertValidHandles("Create yaw right group", thTmp, 6);
+		thg_yawright = CreateThrusterGroup(thTmp, 6, THGROUP_USER);
 
-  AddRCSExhaust (th_att_lin[3], center+LOMS_OFFSET+_V(-1.248, 0.25, -1.771), _V(0, 1,0));//L4U
-  AddRCSExhaust (th_att_lin[3], center+LOMS_OFFSET+_V(-1.248, 0.25, -2.11), _V(0, 1,0));//L2U
-  AddRCSExhaust (th_att_lin[3], center+LOMS_OFFSET+_V(-1.248, 0.25, -2.439), _V(0, 1,0));//L1U
+		//G-11: L1U, L2U, L4U : -roll, +pitch, +z
+		thTmp[0] = thLRCS[RCS_L1U];
+		thTmp[1] = thLRCS[RCS_L2U];
+		thTmp[2] = thLRCS[RCS_L4U];
+		thTmp[3] = thRRCS[RCS_R2D];
+		thTmp[4] = thRRCS[RCS_R3D];
+		thTmp[5] = thRRCS[RCS_R4D];
+		thTmp[6] = thFRCS[RCS_F2D];
+		thTmp[7] = thFRCS[RCS_F4D];
 
-  AddRCSExhaust (th_att_lin[3], center+ROMS_OFFSET+_V(1.248, 0.25, -1.771), _V(0, 1,0));//R4U
-  AddRCSExhaust (th_att_lin[3], center+ROMS_OFFSET+_V(1.248, 0.25, -2.11), _V(0, 1,0));//R2U
-  AddRCSExhaust (th_att_lin[3], center+ROMS_OFFSET+_V(1.248, 0.25, -2.439), _V(0, 1,0));//R1U
+		assertValidHandles("Create bank left group", thTmp, 8);
+		thg_rollleft = CreateThrusterGroup(thTmp, 8, THGROUP_USER);
 
-  AddRCSExhaust (th_att_lin[2], center+_V(-0.341, -0.877, 15.36), _V(0, 1,0));//F1U
-  AddRCSExhaust (th_att_lin[2], center+_V( 0.0  , -0.877, 15.36), _V(0, 1,0));//F3U
-  AddRCSExhaust (th_att_lin[2], center+_V( 0.341, -0.877, 15.36), _V(0, 1,0));//F2U
+		thTmp[0] = thRRCS[RCS_R1U];
+		thTmp[1] = thRRCS[RCS_R2U];
+		thTmp[2] = thRRCS[RCS_R4U];
+		thTmp[3] = thLRCS[RCS_L2D];
+		thTmp[4] = thLRCS[RCS_L3D];
+		thTmp[5] = thLRCS[RCS_L4D];
+		thTmp[6] = thFRCS[RCS_F3D];
+		thTmp[7] = thFRCS[RCS_F1D];
 
-  AddRCSExhaust (th_att_lin[1], center+LOMS_OFFSET+_V(-0.867, -1.467, -1.802), _V(-0.2844,-0.9481,-0.1422));//L4D
-  AddRCSExhaust (th_att_lin[1], center+LOMS_OFFSET+_V(-0.867, -1.415, -2.157), _V(-0.2844,-0.9481,-0.1422));//L2D
-  AddRCSExhaust (th_att_lin[1], center+LOMS_OFFSET+_V(-0.867, -1.352, -2.491), _V(-0.2844,-0.9481,-0.1422));//L3D
+		assertValidHandles("Create bank right group", thTmp, 8);
+		thg_rollright = CreateThrusterGroup(thTmp, 8, THGROUP_USER);
 
-  AddRCSExhaust (th_att_lin[1], center+ROMS_OFFSET+_V(0.867, -1.467, -1.802), _V(0.2844,-0.9481,-0.1422));//R4D
-  AddRCSExhaust (th_att_lin[1], center+ROMS_OFFSET+_V(0.867, -1.415, -2.157), _V(0.2844,-0.9481,-0.1422));//R2D
-  AddRCSExhaust (th_att_lin[1], center+ROMS_OFFSET+_V(0.867, -1.352, -2.491), _V(0.2844,-0.9481,-0.1422));//R3D
+		thTmp[0] = thRRCS[RCS_R1A];
+		thTmp[1] = thRRCS[RCS_R3A];
+		thTmp[2] = thLRCS[RCS_L1A];
+		thTmp[3] = thLRCS[RCS_L3A];
 
-  if(!bRCSDefined) {
-	  th_att_rcs[4] = CreateThruster (_V(0,0, 15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[5] = CreateThruster (_V(0,0,-15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[6] = CreateThruster (_V(0,0, 15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[7] = CreateThruster (_V(0,0,-15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		assertValidHandles("Create translate +X group", thTmp, 4);
+		thg_transfwd = CreateThrusterGroup(thTmp, 4, THGROUP_USER);
 
-	  th_att_lin[4] = CreateThruster (_V(0,0, 15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_lin[7] = CreateThruster (_V(0,0,-15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_lin[6] = CreateThruster (_V(0,0, 15.5), _V( 1,0,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_lin[5] = CreateThruster (_V(0,0,-15.5), _V(-1,0,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  thg_transleft = CreateThrusterGroup (th_att_lin+4,   2, THGROUP_USER);
-	  thg_transright = CreateThrusterGroup (th_att_lin+6, 2, THGROUP_USER);
-  }
-  else { // update thruster positions
-	  SetThrusterRef(th_att_rcs[4], _V(0,0, 15.5));
-	  SetThrusterRef(th_att_rcs[5], _V(0,0,-15.5));
-	  SetThrusterRef(th_att_rcs[6], _V(0,0, 15.5));
-	  SetThrusterRef(th_att_rcs[7], _V(0,0,-15.5));
+		thTmp[0] = thFRCS[RCS_F1F];
+		thTmp[1] = thFRCS[RCS_F3F];
+		thTmp[2] = thFRCS[RCS_F2F];
 
-	  SetThrusterRef(th_att_lin[4], _V(0,0, 15.5));
-	  SetThrusterRef(th_att_lin[7], _V(0,0,-15.5));
-	  SetThrusterRef(th_att_lin[6], _V(0,0, 15.5));
-	  SetThrusterRef(th_att_lin[5], _V(0,0,-15.5));
-  }
 
-  AddRCSExhaust (th_att_rcs[4], center+_V( 1.554,-1.96, 15.14 ), _V( 1,0,0));//F2R
-  AddRCSExhaust (th_att_rcs[4], center+_V( 1.614,-2.32, 15.091), _V( 1,0,0));//F4R
-  AddRCSExhaust (th_att_rcs[6], center+_V(-1.554,-1.96, 15.14 ), _V(-1,0,0));//F1L
-  AddRCSExhaust (th_att_rcs[6], center+_V(-1.614,-2.32, 15.091), _V(-1,0,0));//F3L
+		assertValidHandles("Create translate -X group", thTmp, 3);
+		thg_transaft = CreateThrusterGroup(thTmp, 3, THGROUP_USER);
 
-  AddRCSExhaust (th_att_rcs[5], center+LOMS_OFFSET+_V(-1.663, -0.614, -1.849), _V(-1,0,0));//L4L
-  AddRCSExhaust (th_att_rcs[5], center+LOMS_OFFSET+_V(-1.663, -0.614, -2.167), _V(-1,0,0));//L2L
-  AddRCSExhaust (th_att_rcs[5], center+LOMS_OFFSET+_V(-1.663, -0.614, -2.494), _V(-1,0,0));//L3L
-  AddRCSExhaust (th_att_rcs[5], center+LOMS_OFFSET+_V(-1.663, -0.614, -2.804), _V(-1,0,0));//L1L
 
-  AddRCSExhaust (th_att_rcs[7], center+ROMS_OFFSET+_V(1.663, -0.614, -1.849), _V(1,0,0));//R4R
-  AddRCSExhaust (th_att_rcs[7], center+ROMS_OFFSET+_V(1.663, -0.614, -2.167), _V(1,0,0));//R2R
-  AddRCSExhaust (th_att_rcs[7], center+ROMS_OFFSET+_V(1.663, -0.614, -2.494), _V(1,0,0));//R3R
-  AddRCSExhaust (th_att_rcs[7], center+ROMS_OFFSET+_V(1.663, -0.614, -2.804), _V(1,0,0));//R1R
+		thTmp[0] = thLRCS[RCS_L1L];
+		thTmp[1] = thLRCS[RCS_L2L];
+		thTmp[2] = thLRCS[RCS_L3L];
+		thTmp[3] = thLRCS[RCS_L4L];
+		thTmp[4] = thFRCS[RCS_F1L];
+		thTmp[5] = thFRCS[RCS_F3L];
 
-  AddRCSExhaust (th_att_lin[4], center+_V( 1.554,-1.96, 15.14 ), _V( 1,0,0));//F2R
-  AddRCSExhaust (th_att_lin[4], center+_V( 1.614,-2.32, 15.091), _V( 1,0,0));//F4R
-  AddRCSExhaust (th_att_lin[6], center+_V(-1.554,-1.96, 15.14 ), _V(-1,0,0));//F1L
-  AddRCSExhaust (th_att_lin[6], center+_V(-1.614,-2.32, 15.091), _V(-1,0,0));//F3L
+		assertValidHandles("Create translate +Y group", thTmp, 6);
+		thg_transright = CreateThrusterGroup(thTmp, 6, THGROUP_USER);
 
-  AddRCSExhaust (th_att_lin[7], center+LOMS_OFFSET+_V(-1.663, -0.614, -1.849), _V(-1,0,0));//L4L
-  AddRCSExhaust (th_att_lin[7], center+LOMS_OFFSET+_V(-1.663, -0.614, -2.167), _V(-1,0,0));//L2L
-  AddRCSExhaust (th_att_lin[7], center+LOMS_OFFSET+_V(-1.663, -0.614, -2.494), _V(-1,0,0));//L3L
-  AddRCSExhaust (th_att_lin[7], center+LOMS_OFFSET+_V(-1.663, -0.614, -2.804), _V(-1,0,0));//L1L
+		thTmp[0] = thRRCS[RCS_R1R];
+		thTmp[1] = thRRCS[RCS_R2R];
+		thTmp[2] = thRRCS[RCS_R3R];
+		thTmp[3] = thRRCS[RCS_R4R];
+		thTmp[4] = thFRCS[RCS_F2R];
+		thTmp[5] = thFRCS[RCS_F4R];
 
-  AddRCSExhaust (th_att_lin[5], center+ROMS_OFFSET+_V(1.663, -0.614, -1.849), _V(1,0,0));//R4R
-  AddRCSExhaust (th_att_lin[5], center+ROMS_OFFSET+_V(1.663, -0.614, -2.167), _V(1,0,0));//R2R
-  AddRCSExhaust (th_att_lin[5], center+ROMS_OFFSET+_V(1.663, -0.614, -2.494), _V(1,0,0));//R3R
-  AddRCSExhaust (th_att_lin[5], center+ROMS_OFFSET+_V(1.663, -0.614, -2.804), _V(1,0,0));//R1R
+		assertValidHandles("Create translate -Y group", thTmp, 6);
+		thg_transleft = CreateThrusterGroup(thTmp, 6, THGROUP_USER);
 
-  if(!bRCSDefined) {
-	  th_att_rcs[8] = CreateThruster (_V( 2.7,0,0), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[9] = CreateThruster (_V(-2.7,0,0), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[10] = CreateThruster (_V(-2.7,0,0), _V(0, 1,0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[11] = CreateThruster (_V( 2.7,0,0), _V(0,-1,0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  //The virtual thrusters
-	  th_att_rcs[12] = CreateThruster (_V(0,0,0), _V(0,-1,0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[13] = CreateThruster (_V(0,0,0), _V(0,-1,0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[14] = CreateThruster (_V(0,0,0), _V(0,-1,0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[15] = CreateThruster (_V(0,0,0), _V(0,-1,0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[16] = CreateThruster (_V(0,0,0), _V(0,-1,0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_rcs[17] = CreateThruster (_V(0,0,0), _V(0,-1,0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-  }
-  else { // update thruster positions
-	  SetThrusterRef(th_att_rcs[8], _V( 2.7,0,0));
-	  SetThrusterRef(th_att_rcs[9], _V(-2.7,0,0));
-	  SetThrusterRef(th_att_rcs[10], _V(-2.7,0,0));
-	  SetThrusterRef(th_att_rcs[11], _V( 2.7,0,0));
-  }
+		thTmp[0] = thRRCS[RCS_R1U];
+		thTmp[1] = thRRCS[RCS_R2U];
+		thTmp[2] = thRRCS[RCS_R4U];
+		thTmp[3] = thLRCS[RCS_L1U];
+		thTmp[4] = thLRCS[RCS_L2U];
+		thTmp[5] = thLRCS[RCS_L4U];
+		thTmp[6] = thFRCS[RCS_F1U];
+		thTmp[7] = thFRCS[RCS_F2U];
+		thTmp[8] = thFRCS[RCS_F3U];
 
-  AddRCSExhaust (th_att_rcs[8], center+_V( 1.453,-2.129, 15.87), _V( 0.4339,-0.8830,-0.1793));//F2D
-  AddRCSExhaust (th_att_rcs[8], center+_V( 1.537,-2.099, 15.505), _V( 0.4339,-0.8830,-0.1793));//F4D
-  AddRCSExhaust (th_att_rcs[10], center+_V(-1.453,-2.129, 15.87), _V(-0.4339,-0.8830,-0.1793));//F1D
-  AddRCSExhaust (th_att_rcs[10], center+_V(-1.537,-2.099, 15.505), _V(-0.4339,-0.8830,-0.1793));//F3D
+		assertValidHandles("Create translate +Z group", thTmp, 9);
+		thg_transdown = CreateThrusterGroup(thTmp, 9, THGROUP_USER);
 
-  AddRCSExhaust (th_att_rcs[9], center+LOMS_OFFSET+_V(-1.248, 0.25, -1.771), _V(0, 1,0));//L4U
-  AddRCSExhaust (th_att_rcs[9], center+LOMS_OFFSET+_V(-1.248, 0.25, -2.11), _V(0, 1,0));//L2U
-  AddRCSExhaust (th_att_rcs[9], center+LOMS_OFFSET+_V(-1.248, 0.25, -2.439), _V(0, 1,0));//L1U
+		thTmp[0] = thRRCS[RCS_R3D];
+		thTmp[1] = thRRCS[RCS_R2D];
+		thTmp[2] = thRRCS[RCS_R4D];
+		thTmp[3] = thLRCS[RCS_L3D];
+		thTmp[4] = thLRCS[RCS_L2D];
+		thTmp[5] = thLRCS[RCS_L4D];
+		thTmp[6] = thFRCS[RCS_F1D];
+		thTmp[7] = thFRCS[RCS_F2D];
+		thTmp[8] = thFRCS[RCS_F3D];
+		thTmp[9] = thFRCS[RCS_F4D];
 
-  AddRCSExhaust (th_att_rcs[11], center+ROMS_OFFSET+_V(1.248, 0.25, -1.771), _V(0, 1,0));//R4U
-  AddRCSExhaust (th_att_rcs[11], center+ROMS_OFFSET+_V(1.248, 0.25, -2.11), _V(0, 1,0));//R2U
-  AddRCSExhaust (th_att_rcs[11], center+ROMS_OFFSET+_V(1.248, 0.25, -2.439), _V(0, 1,0));//R1U
+		assertValidHandles("Create translate -Z group", thTmp, 10);
+		thg_transup = CreateThrusterGroup(thTmp, 10, THGROUP_USER);
 
-  AddRCSExhaust (th_att_rcs[10], center+LOMS_OFFSET+_V(-0.867, -1.467, -1.802), _V(-0.2844,-0.9481,-0.1422));//L4D
-  AddRCSExhaust (th_att_rcs[10], center+LOMS_OFFSET+_V(-0.867, -1.415, -2.157), _V(-0.2844,-0.9481,-0.1422));//L2D
-  AddRCSExhaust (th_att_rcs[10], center+LOMS_OFFSET+_V(-0.867, -1.352, -2.491), _V(-0.2844,-0.9481,-0.1422));//L3D
+		bRCSDefined = true;
 
-  AddRCSExhaust (th_att_rcs[8], center+ROMS_OFFSET+_V(0.867, -1.467, -1.802), _V(0.2844,-0.9481,-0.1422));//R4D
-  AddRCSExhaust (th_att_rcs[8], center+ROMS_OFFSET+_V(0.867, -1.415, -2.157), _V(0.2844,-0.9481,-0.1422));//R2D
-  AddRCSExhaust (th_att_rcs[8], center+ROMS_OFFSET+_V(0.867, -1.352, -2.491), _V(0.2844,-0.9481,-0.1422));//R3D
+		return;
+	}
 
-  if(!bRCSDefined) {
-	  th_att_lin[8] = CreateThruster (_V(0,0,-16), _V(0,0, 1), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  th_att_lin[9] = CreateThruster (_V(0,0, 16), _V(0,0,-1), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
-	  thg_transfwd = CreateThrusterGroup (th_att_lin+8, 1, THGROUP_USER);
-	  thg_transaft = CreateThrusterGroup (th_att_lin+9, 1, THGROUP_USER);
-  }
-  else { // update thruster positions
-	  SetThrusterRef(th_att_lin[8], _V(0,0,-16));
-	  SetThrusterRef(th_att_lin[9], _V(0,0, 16));
-  }
+	// set of attitude thrusters (idealised). The arrangement is such that no angular
+	// momentum is created in linear mode, and no linear momentum is created in rotational mode.
+	if (!bRCSDefined) {
+		th_att_rcs[0] = CreateThruster(_V(0, 0, 15.5), _V(0, 1, 0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_rcs[1] = CreateThruster(_V(0, 0, -15.5), _V(0, -1, 0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_rcs[2] = CreateThruster(_V(0, 0, 15.5), _V(0, -1, 0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_rcs[3] = CreateThruster(_V(0, 0, -15.5), _V(0, 1, 0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 
-  AddRCSExhaust (th_att_lin[8], center+LOMS_OFFSET+_V(-1.112, -0.215, -3.07), _V(0,0,-1));//L1A
-  AddRCSExhaust (th_att_lin[8], center+LOMS_OFFSET+_V(-1.391, -0.215, -3.07), _V(0,0,-1));//L3A
-  AddRCSExhaust (th_att_lin[8], center+ROMS_OFFSET+_V( 1.112, -0.215, -3.07), _V(0,0,-1));//R1A
-  AddRCSExhaust (th_att_lin[8], center+ROMS_OFFSET+_V( 1.391, -0.215, -3.07), _V(0,0,-1));//R3A
+		th_att_lin[0] = CreateThruster(_V(0, 0, 15.5), _V(0, 1, 0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_lin[3] = CreateThruster(_V(0, 0, -15.5), _V(0, -1, 0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_lin[2] = CreateThruster(_V(0, 0, 15.5), _V(0, -1, 0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_lin[1] = CreateThruster(_V(0, 0, -15.5), _V(0, 1, 0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		thg_transup = CreateThrusterGroup(th_att_lin, 2, THGROUP_USER);
+		thg_transdown = CreateThrusterGroup(th_att_lin + 2, 2, THGROUP_USER);
+	}
+	else { // update thruster positions
+		SetThrusterRef(th_att_rcs[0], _V(0, 0, 15.5));
+		SetThrusterRef(th_att_rcs[1], _V(0, 0, -15.5));
+		SetThrusterRef(th_att_rcs[2], _V(0, 0, 15.5));
+		SetThrusterRef(th_att_rcs[3], _V(0, 0, -15.5));
 
-  AddRCSExhaust (th_att_lin[9], center+_V( 0.0  , -1.353, 16.139), _V(0, 0.0499, 0.9988));//F3F
-  AddRCSExhaust (th_att_lin[9], center+_V(-0.417, -1.375, 16.139), _V(0, 0.0499, 0.9988));//F1F
-  AddRCSExhaust (th_att_lin[9], center+_V( 0.417, -1.375, 16.139), _V(0, 0.0499, 0.9988));//F2F
+		SetThrusterRef(th_att_lin[0], _V(0, 0, 15.5));
+		SetThrusterRef(th_att_lin[3], _V(0, 0, -15.5));
+		SetThrusterRef(th_att_lin[2], _V(0, 0, 15.5));
+		SetThrusterRef(th_att_lin[1], _V(0, 0, -15.5));
+	}
 
-  //RCSEnabled=true;
-  if(!bRCSDefined) {
-	  thg_pitchup = CreateThrusterGroup (th_att_rcs, 2, THGROUP_USER);
-	  thg_pitchdown = CreateThrusterGroup (th_att_rcs+2, 2, THGROUP_USER);
-	  thg_yawleft = CreateThrusterGroup (th_att_rcs+4, 2, THGROUP_USER);
-	  thg_yawright = CreateThrusterGroup (th_att_rcs+6, 2, THGROUP_USER);
-	  thg_rollleft = CreateThrusterGroup (th_att_rcs+8, 2, THGROUP_USER);
-	  thg_rollright = CreateThrusterGroup (th_att_rcs+10, 2, THGROUP_USER);
-  }
-  
-  UpdateTranslationForces();
+	AddRCSExhaust(th_att_rcs[0], center + _V(1.561, -1.249, 15.992), _V(0.4339, -0.8830, -0.1793));//F2D
+	AddRCSExhaust(th_att_rcs[0], center + _V(1.647, -1.228, 15.647), _V(0.4339, -0.8830, -0.1793));//F4D
+	AddRCSExhaust(th_att_rcs[0], center + _V(-1.561, -1.249, 15.992), _V(-0.4339, -0.8830, -0.1793));//F1D
+	AddRCSExhaust(th_att_rcs[0], center + _V(-1.647, -1.228, 15.647), _V(-0.4339, -0.8830, -0.1793));//F3D
 
-  bRCSDefined = true;
+	AddRCSExhaust(th_att_rcs[1], center + _V(-3.395, 1.893, -14.167), _V(0, 1, 0));//L4U
+	AddRCSExhaust(th_att_rcs[1], center + _V(-3.395, 1.893, -14.487), _V(0, 1, 0));//L2U
+	AddRCSExhaust(th_att_rcs[1], center + _V(-3.395, 1.893, -14.806), _V(0, 1, 0));//L1U
+
+	AddRCSExhaust(th_att_rcs[1], center + _V(3.395, 1.893, -14.167), _V(0, 1, 0));//R4U
+	AddRCSExhaust(th_att_rcs[1], center + _V(3.395, 1.893, -14.487), _V(0, 1, 0));//R2U
+	AddRCSExhaust(th_att_rcs[1], center + _V(3.395, 1.893, -14.806), _V(0, 1, 0));//R1U
+
+	AddRCSExhaust(th_att_rcs[2], center + _V(-0.367, -0.006, 15.51), _V(0, 1, 0));//F1U
+	AddRCSExhaust(th_att_rcs[2], center + _V(0.0, -0.006, 15.51), _V(0, 1, 0));//F3U
+	AddRCSExhaust(th_att_rcs[2], center + _V(0.367, -0.006, 15.51), _V(0, 1, 0));//F2U
+
+	AddRCSExhaust(th_att_rcs[3], center + _V(-3.112, 0.236, -14.244), _V(-0.2844, -0.9481, -0.1422));//L4D
+	AddRCSExhaust(th_att_rcs[3], center + _V(-3.097, 0.303, -14.573), _V(-0.2844, -0.9481, -0.1422));//L2D
+	AddRCSExhaust(th_att_rcs[3], center + _V(-3.081, 0.369, -14.909), _V(-0.2844, -0.9481, -0.1422));//L3D
+
+	AddRCSExhaust(th_att_rcs[3], center + _V(2.839, 0.236, -14.244), _V(0.2844, -0.9481, -0.1422));//R4D
+	AddRCSExhaust(th_att_rcs[3], center + _V(2.839, 0.303, -14.573), _V(0.2844, -0.9481, -0.1422));//R2D
+	AddRCSExhaust(th_att_rcs[3], center + _V(2.839, 0.369, -14.909), _V(0.2844, -0.9481, -0.1422));//R3D
+
+	AddRCSExhaust(th_att_lin[0], center + _V(1.561, -1.249, 15.992), _V(0.4339, -0.8830, -0.1793));//F2D
+	AddRCSExhaust(th_att_lin[0], center + _V(1.647, -1.228, 15.647), _V(0.4339, -0.8830, -0.1793));//F4D
+	AddRCSExhaust(th_att_lin[0], center + _V(-1.561, -1.249, 15.992), _V(-0.4339, -0.8830, -0.1793));//F1D
+	AddRCSExhaust(th_att_lin[0], center + _V(-1.647, -1.228, 15.647), _V(-0.4339, -0.8830, -0.1793));//F3D
+
+	AddRCSExhaust(th_att_lin[3], center + _V(-3.395, 1.893, -14.167), _V(0, 1, 0));//L4U
+	AddRCSExhaust(th_att_lin[3], center + _V(-3.395, 1.893, -14.487), _V(0, 1, 0));//L2U
+	AddRCSExhaust(th_att_lin[3], center + _V(-3.395, 1.893, -14.806), _V(0, 1, 0));//L1U
+
+	AddRCSExhaust(th_att_lin[3], center + _V(3.395, 1.893, -14.167), _V(0, 1, 0));//R4U
+	AddRCSExhaust(th_att_lin[3], center + _V(3.395, 1.893, -14.487), _V(0, 1, 0));//R2U
+	AddRCSExhaust(th_att_lin[3], center + _V(3.395, 1.893, -14.806), _V(0, 1, 0));//R1U
+
+	AddRCSExhaust(th_att_lin[2], center + _V(-0.367, -0.006, 15.51), _V(0, 1, 0));//F1U
+	AddRCSExhaust(th_att_lin[2], center + _V(0.0, -0.006, 15.51), _V(0, 1, 0));//F3U
+	AddRCSExhaust(th_att_lin[2], center + _V(0.367, -0.006, 15.51), _V(0, 1, 0));//F2U
+
+	AddRCSExhaust(th_att_lin[1], center + _V(-2.839, 0.236, -14.244), _V(-0.2844, -0.9481, -0.1422));//L4D
+	AddRCSExhaust(th_att_lin[1], center + _V(-2.839, 0.303, -14.573), _V(-0.2844, -0.9481, -0.1422));//L2D
+	AddRCSExhaust(th_att_lin[1], center + _V(-2.839, 0.369, -14.909), _V(-0.2844, -0.9481, -0.1422));//L3D
+
+	AddRCSExhaust(th_att_lin[1], center + _V(2.839, 0.236, -14.244), _V(0.2844, -0.9481, -0.1422));//R4D
+	AddRCSExhaust(th_att_lin[1], center + _V(2.839, 0.303, -14.573), _V(0.2844, -0.9481, -0.1422));//R2D
+	AddRCSExhaust(th_att_lin[1], center + _V(2.839, 0.369, -14.909), _V(0.2844, -0.9481, -0.1422));//R3D
+
+	if (!bRCSDefined) {
+		th_att_rcs[4] = CreateThruster(_V(0, 0, 15.5), _V(-1, 0, 0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_rcs[5] = CreateThruster(_V(0, 0, -15.5), _V(1, 0, 0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_rcs[6] = CreateThruster(_V(0, 0, 15.5), _V(1, 0, 0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_rcs[7] = CreateThruster(_V(0, 0, -15.5), _V(-1, 0, 0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+
+		th_att_lin[4] = CreateThruster(_V(0, 0, 15.5), _V(-1, 0, 0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_lin[7] = CreateThruster(_V(0, 0, -15.5), _V(1, 0, 0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_lin[6] = CreateThruster(_V(0, 0, 15.5), _V(1, 0, 0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_lin[5] = CreateThruster(_V(0, 0, -15.5), _V(-1, 0, 0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		thg_transleft = CreateThrusterGroup(th_att_lin + 4, 2, THGROUP_USER);
+		thg_transright = CreateThrusterGroup(th_att_lin + 6, 2, THGROUP_USER);
+	}
+	else { // update thruster positions
+		SetThrusterRef(th_att_rcs[4], _V(0, 0, 15.5));
+		SetThrusterRef(th_att_rcs[5], _V(0, 0, -15.5));
+		SetThrusterRef(th_att_rcs[6], _V(0, 0, 15.5));
+		SetThrusterRef(th_att_rcs[7], _V(0, 0, -15.5));
+
+		SetThrusterRef(th_att_lin[4], _V(0, 0, 15.5));
+		SetThrusterRef(th_att_lin[7], _V(0, 0, -15.5));
+		SetThrusterRef(th_att_lin[6], _V(0, 0, 15.5));
+		SetThrusterRef(th_att_lin[5], _V(0, 0, -15.5));
+	}
+
+	AddRCSExhaust(th_att_rcs[4], center + _V(1.733, -1.084, 15.266), _V(1, 0, 0));//F2R
+	AddRCSExhaust(th_att_rcs[4], center + _V(1.740, -1.451, 15.222), _V(1, 0, 0));//F4R
+	AddRCSExhaust(th_att_rcs[6], center + _V(-1.733, -1.084, 15.266), _V(-1, 0, 0));//F1L
+	AddRCSExhaust(th_att_rcs[6], center + _V(-1.740, -1.451, 15.222), _V(-1, 0, 0));//F3L
+
+	AddRCSExhaust(th_att_rcs[5], center + _V(-3.688, 1.051, -14.254), _V(-1, 0, 0));//L4L
+	AddRCSExhaust(th_att_rcs[5], center + _V(-3.698, 1.051, -14.563), _V(-1, 0, 0));//L2L
+	AddRCSExhaust(th_att_rcs[5], center + _V(-3.704, 1.051, -14.876), _V(-1, 0, 0));//L3L
+	AddRCSExhaust(th_att_rcs[5], center + _V(-3.711, 1.051, -15.179), _V(-1, 0, 0));//L1L
+
+	AddRCSExhaust(th_att_rcs[7], center + _V(3.688, 1.051, -14.254), _V(1, 0, 0));//R4R
+	AddRCSExhaust(th_att_rcs[7], center + _V(3.698, 1.051, -14.563), _V(1, 0, 0));//R2R
+	AddRCSExhaust(th_att_rcs[7], center + _V(3.704, 1.051, -14.876), _V(1, 0, 0));//R3R
+	AddRCSExhaust(th_att_rcs[7], center + _V(3.711, 1.051, -15.179), _V(1, 0, 0));//R1R
+
+	AddRCSExhaust(th_att_lin[4], center + _V(1.733, -1.084, 15.266), _V(1, 0, 0));//F2R
+	AddRCSExhaust(th_att_lin[4], center + _V(1.740, -1.451, 15.222), _V(1, 0, 0));//F4R
+	AddRCSExhaust(th_att_lin[6], center + _V(-1.733, -1.084, 15.266), _V(-1, 0, 0));//F1L
+	AddRCSExhaust(th_att_lin[6], center + _V(-1.740, -1.451, 15.222), _V(-1, 0, 0));//F3L
+
+	AddRCSExhaust(th_att_lin[7], center + _V(-3.688, 1.051, -14.254), _V(-1, 0, 0));//L4L
+	AddRCSExhaust(th_att_lin[7], center + _V(-3.698, 1.051, -14.563), _V(-1, 0, 0));//L2L
+	AddRCSExhaust(th_att_lin[7], center + _V(-3.704, 1.051, -14.876), _V(-1, 0, 0));//L3L
+	AddRCSExhaust(th_att_lin[7], center + _V(-3.711, 1.051, -15.179), _V(-1, 0, 0));//L1L
+
+	AddRCSExhaust(th_att_lin[5], center + _V(3.688, 1.051, -14.254), _V(1, 0, 0));//R4R
+	AddRCSExhaust(th_att_lin[5], center + _V(3.698, 1.051, -14.563), _V(1, 0, 0));//R2R
+	AddRCSExhaust(th_att_lin[5], center + _V(3.704, 1.051, -14.876), _V(1, 0, 0));//R3R
+	AddRCSExhaust(th_att_lin[5], center + _V(3.711, 1.051, -15.179), _V(1, 0, 0));//R1R
+
+	if (!bRCSDefined) {
+		th_att_rcs[8] = CreateThruster(_V(2.7, 0, 0), _V(0, 1, 0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_rcs[9] = CreateThruster(_V(-2.7, 0, 0), _V(0, -1, 0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_rcs[10] = CreateThruster(_V(-2.7, 0, 0), _V(0, 1, 0), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_rcs[11] = CreateThruster(_V(2.7, 0, 0), _V(0, -1, 0), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		//The virtual thrusters
+		th_att_rcs[12] = CreateThruster(_V(0, 0, 0), _V(0, -1, 0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_rcs[13] = CreateThruster(_V(0, 0, 0), _V(0, -1, 0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_rcs[14] = CreateThruster(_V(0, 0, 0), _V(0, -1, 0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_rcs[15] = CreateThruster(_V(0, 0, 0), _V(0, -1, 0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_rcs[16] = CreateThruster(_V(0, 0, 0), _V(0, -1, 0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_rcs[17] = CreateThruster(_V(0, 0, 0), _V(0, -1, 0), 0, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	}
+	else { // update thruster positions
+		SetThrusterRef(th_att_rcs[8], _V(2.7, 0, 0));
+		SetThrusterRef(th_att_rcs[9], _V(-2.7, 0, 0));
+		SetThrusterRef(th_att_rcs[10], _V(-2.7, 0, 0));
+		SetThrusterRef(th_att_rcs[11], _V(2.7, 0, 0));
+	}
+
+	AddRCSExhaust(th_att_rcs[8], center + _V(1.561, -1.249, 15.992), _V(0.4339, -0.8830, -0.1793));//F2D
+	AddRCSExhaust(th_att_rcs[8], center + _V(1.647, -1.228, 15.647), _V(0.4339, -0.8830, -0.1793));//F4D
+	AddRCSExhaust(th_att_rcs[10], center + _V(-1.561, -1.249, 15.992), _V(-0.4339, -0.8830, -0.1793));//F1D
+	AddRCSExhaust(th_att_rcs[10], center + _V(-1.647, -1.228, 15.647), _V(-0.4339, -0.8830, -0.1793));//F3D
+
+	AddRCSExhaust(th_att_rcs[9], center + _V(-3.395, 1.893, -14.167), _V(0, 1, 0));//L4U
+	AddRCSExhaust(th_att_rcs[9], center + _V(-3.395, 1.893, -14.487), _V(0, 1, 0));//L2U
+	AddRCSExhaust(th_att_rcs[9], center + _V(-3.395, 1.893, -14.806), _V(0, 1, 0));//L1U
+
+	AddRCSExhaust(th_att_rcs[11], center + _V(3.395, 1.893, -14.167), _V(0, 1, 0));//R4U
+	AddRCSExhaust(th_att_rcs[11], center + _V(3.395, 1.893, -14.487), _V(0, 1, 0));//R2U
+	AddRCSExhaust(th_att_rcs[11], center + _V(3.395, 1.893, -14.806), _V(0, 1, 0));//R1U
+
+	AddRCSExhaust(th_att_rcs[10], center + _V(-2.839, 0.236, -14.244), _V(-0.2844, -0.9481, -0.1422));//L4D
+	AddRCSExhaust(th_att_rcs[10], center + _V(-2.839, 0.303, -14.573), _V(-0.2844, -0.9481, -0.1422));//L2D
+	AddRCSExhaust(th_att_rcs[10], center + _V(-2.839, 0.369, -14.909), _V(-0.2844, -0.9481, -0.1422));//L3D
+
+	AddRCSExhaust(th_att_rcs[8], center + _V(2.839, 0.236, -14.244), _V(0.2844, -0.9481, -0.1422));//R4D
+	AddRCSExhaust(th_att_rcs[8], center + _V(2.839, 0.303, -14.573), _V(0.2844, -0.9481, -0.1422));//R2D
+	AddRCSExhaust(th_att_rcs[8], center + _V(2.839, 0.369, -14.909), _V(0.2844, -0.9481, -0.1422));//R3D
+
+	if (!bRCSDefined) {
+		th_att_lin[8] = CreateThruster(_V(0, 0, -16), _V(0, 0, 1), ORBITER_RCS_THRUST, ph_oms, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		th_att_lin[9] = CreateThruster(_V(0, 0, 16), _V(0, 0, -1), ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+		thg_transfwd = CreateThrusterGroup(th_att_lin + 8, 1, THGROUP_USER);
+		thg_transaft = CreateThrusterGroup(th_att_lin + 9, 1, THGROUP_USER);
+	}
+	else { // update thruster positions
+		SetThrusterRef(th_att_lin[8], _V(0, 0, -16));
+		SetThrusterRef(th_att_lin[9], _V(0, 0, 16));
+	}
+
+	AddRCSExhaust(th_att_lin[8], center + _V(-3.212, 1.501, -15.475), _V(0, 0, -1));//L1A
+	AddRCSExhaust(th_att_lin[8], center + _V(-3.505, 1.501, -15.475), _V(0, 0, -1));//L3A
+	AddRCSExhaust(th_att_lin[8], center + _V(3.212, 1.501, -15.475), _V(0, 0, -1));//R1A
+	AddRCSExhaust(th_att_lin[8], center + _V(3.505, 1.501, -15.475), _V(0, 0, -1));//R3A
+
+	AddRCSExhaust(th_att_lin[9], center + _V(0.0, -0.487, 16.286), _V(0, 0.0499, 0.9988));//F3F
+	AddRCSExhaust(th_att_lin[9], center + _V(-0.446, -0.487, 16.286), _V(0, 0.0499, 0.9988));//F1F
+	AddRCSExhaust(th_att_lin[9], center + _V(0.446, -0.487, 16.286), _V(0, 0.0499, 0.9988));//F2F
+
+	if (!bRCSDefined) {
+		thg_pitchup = CreateThrusterGroup(th_att_rcs, 2, THGROUP_USER);
+		thg_pitchdown = CreateThrusterGroup(th_att_rcs + 2, 2, THGROUP_USER);
+		thg_yawleft = CreateThrusterGroup(th_att_rcs + 4, 2, THGROUP_USER);
+		thg_yawright = CreateThrusterGroup(th_att_rcs + 6, 2, THGROUP_USER);
+		thg_rollleft = CreateThrusterGroup(th_att_rcs + 8, 2, THGROUP_USER);
+		thg_rollright = CreateThrusterGroup(th_att_rcs + 10, 2, THGROUP_USER);
+	}
+
+	UpdateTranslationForces();
+
+	bRCSDefined = true;
 }
 
 void Atlantis::AddRCSExhaust(THRUSTER_HANDLE thX, const VECTOR3& pos, const VECTOR3& dir)
@@ -1731,1133 +1627,878 @@ void Atlantis::AddRCSExhaust(THRUSTER_HANDLE thX, const VECTOR3& pos, const VECT
 	vExStreamRCS.push_back(AddExhaustStream(thX, pos, &RCS_PSSpec));
 }
 
+void Atlantis::AddVRCSExhaust(THRUSTER_HANDLE thX, const VECTOR3& pos, const VECTOR3& dir)
+{
+	const double eh = 0.5754;             // exhaust length scale
+	const double ew1 = 0.1; // exhaust width scales
+	vExRCS.push_back(AddExhaust(thX, eh, ew1, pos, dir, RCS_Exhaust_tex));
+	vExStreamRCS.push_back(AddExhaustStream(thX, pos, &RCS_PSSpec));
+}
+
 void Atlantis::CreateDummyThrusters()
 {
-	if(bControllerThrustersDefined) return;
+	if (bControllerThrustersDefined) return;
 	THRUSTER_HANDLE thTmp;
 	//rotation
-	thTmp=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_PITCHUP);
-	thTmp=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_PITCHDOWN);
-	thTmp=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_YAWLEFT);
-	thTmp=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_YAWRIGHT);
-	thTmp=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_BANKLEFT);
-	thTmp=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_BANKRIGHT);
 	//translation
-	thTmp=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_FORWARD);
-	thTmp=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_BACK);
-	thTmp=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_UP);
-	thTmp=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_DOWN);
-	thTmp=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_LEFT);
-	thTmp=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
+	thTmp = CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
 	CreateThrusterGroup(&thTmp, 1, THGROUP_ATT_RIGHT);
-	// SPDBK/THROT
-	thTmp=CreateThruster(_V(0, 0, 0), _V(1, 0, 0), 0, ph_controller);
-	CreateThrusterGroup(&thTmp, 1, THGROUP_MAIN);
 
 	bControllerThrustersDefined = true;
 }
 
-bool Atlantis::CreateDockingPort(const VECTOR3& pos)
-{
-	if(hODSDock == NULL)
-	{
-		//return true;
-	}
-	else {
-
-	}
-	return false;
-}
-
-/*void Atlantis::DisableAllRCS() {
-  return;
-  if(bUseRealRCS)
-		return;
-
-  if(!RCSEnabled) return;
-  DelThrusterGroup(THGROUP_ATT_PITCHDOWN);
-  DelThrusterGroup(THGROUP_ATT_PITCHUP);
-  DelThrusterGroup(THGROUP_ATT_YAWLEFT);
-  DelThrusterGroup(THGROUP_ATT_YAWRIGHT);
-  DelThrusterGroup(THGROUP_ATT_BANKLEFT);
-  DelThrusterGroup(THGROUP_ATT_BANKRIGHT);
-  CreateThrusterGroup (th_att_rcs+12,   1, THGROUP_ATT_PITCHUP);
-  CreateThrusterGroup (th_att_rcs+13,   1, THGROUP_ATT_PITCHDOWN);
-  CreateThrusterGroup (th_att_rcs+14,   1, THGROUP_ATT_YAWLEFT);
-  CreateThrusterGroup (th_att_rcs+15,   1, THGROUP_ATT_YAWRIGHT);
-  CreateThrusterGroup (th_att_rcs+16,   1, THGROUP_ATT_BANKLEFT);
-  CreateThrusterGroup (th_att_rcs+17,   1, THGROUP_ATT_BANKRIGHT);
-  RCSEnabled=false;
-}
-
-void Atlantis::EnableAllRCS() {
-  return;
-  if(bUseRealRCS)
-		return;
-
-  if(RCSEnabled) return;
-  DelThrusterGroup(THGROUP_ATT_PITCHDOWN);
-  DelThrusterGroup(THGROUP_ATT_PITCHUP);
-  DelThrusterGroup(THGROUP_ATT_YAWLEFT);
-  DelThrusterGroup(THGROUP_ATT_YAWRIGHT);
-  DelThrusterGroup(THGROUP_ATT_BANKLEFT);
-  DelThrusterGroup(THGROUP_ATT_BANKRIGHT);
-  CreateThrusterGroup (th_att_rcs,   2, THGROUP_ATT_PITCHUP);
-  CreateThrusterGroup (th_att_rcs+2, 2, THGROUP_ATT_PITCHDOWN);
-  CreateThrusterGroup (th_att_rcs+4,   2, THGROUP_ATT_YAWLEFT);
-  CreateThrusterGroup (th_att_rcs+6, 2, THGROUP_ATT_YAWRIGHT);
-  CreateThrusterGroup (th_att_rcs+8,   2, THGROUP_ATT_BANKLEFT);
-  CreateThrusterGroup (th_att_rcs+10, 2, THGROUP_ATT_BANKRIGHT);
-  RCSEnabled=true;
-  }*/
-
-void Atlantis::PaintMarkings (SURFHANDLE tex) {
-	HDC hDC = oapiGetDC (tex);
-	HFONT hFont = CreateFont(47, 0, 1800, 1800, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
-	HFONT pFont = (HFONT)SelectObject (hDC, hFont);
-	SetTextColor (hDC, 0x202020);
-	SetBkMode (hDC, TRANSPARENT);
-	char cbuf[256];
-//	strncpy (cbuf, "Kwan's Excellent Space Shuttle Adventure", 256);
-	//strncpy (cbuf, this->GetName(), 256);
-	//
-	strncpy (cbuf, WingName, 256);
-	int len = strlen(cbuf);
-	TextOut (hDC, 570, 290, cbuf, len); //080604, DaveS edit: Fixed incorret location of wing name marking(again!)
-	SelectObject (hDC, pFont);
-	DeleteObject (hFont);
-	hFont = CreateFont(26, 0, 900, 900, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
-	pFont = (HFONT)SelectObject (hDC, hFont);
-	SetTextAlign (hDC, TA_CENTER);
-	TextOut (hDC, 1795, 493, cbuf, len);
-	SelectObject (hDC, pFont);
-	DeleteObject (hFont);
-	hFont = CreateFont(26, 0, 2700, 2700, 700, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
-	pFont = (HFONT)SelectObject (hDC, hFont);
-	TextOut (hDC, 1405, 493, cbuf, len);
-	SelectObject (hDC, pFont);
-	DeleteObject (hFont);
-	oapiReleaseDC (tex, hDC);
-}
-
-
-
 void Atlantis::DisableControlSurfaces()
 {
-	if(!ControlSurfacesEnabled) return;
+	if (!ControlSurfacesEnabled) return;
 	ClearControlSurfaceDefinitions();
-	hrudder		= NULL;
-	hbodyflap	= NULL;
-	helevator	= NULL;
-	hlaileron	= NULL;
-	hraileron	= NULL;
-	ControlSurfacesEnabled=false;
+	hrudder = NULL;
+	hbodyflap = NULL;
+	helevator = NULL;
+	hlaileron = NULL;
+	hraileron = NULL;
+	ControlSurfacesEnabled = false;
 }
 
 void Atlantis::EnableControlSurfaces()
 {
-	if(ControlSurfacesEnabled) return;
-	helevator = CreateControlSurface3 (AIRCTRL_ELEVATOR, 0.0, 0.0, _V( 0, 0,  -15), AIRCTRL_AXIS_XPOS, 5.0);
-    hbodyflap = CreateControlSurface2 (AIRCTRL_ELEVATORTRIM, 0.0, 0.0, _V( 0, 0,  -17), AIRCTRL_AXIS_XPOS, anim_bf);
-	hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
+	if (ControlSurfacesEnabled) return;
+	helevator = CreateControlSurface3(AIRCTRL_ELEVATOR, 0.0, 0.0, _V(0, 0, -15), AIRCTRL_AXIS_XPOS, 5.0);
+	hbodyflap = CreateControlSurface2(AIRCTRL_ELEVATORTRIM, 0.0, 0.0, _V(0, 0, -17), AIRCTRL_AXIS_XPOS, anim_bf);
+	//hrudder = CreateControlSurface2 (AIRCTRL_RUDDER,   2, 1.5, _V( 0, 3,  -16), AIRCTRL_AXIS_YPOS, anim_rudder);
+	hrudder = CreateControlSurface2(AIRCTRL_RUDDERTRIM, 2, 1.5, _V(0, 3, -16), AIRCTRL_AXIS_YPOS, anim_rudder);
 	//hraileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
 	//hlaileron = CreateControlSurface2 (AIRCTRL_AILERON,  3, 1.5, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
 	//hraileron = CreateControlSurface2 (AIRCTRL_AILERON, 0.0, 0.0, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, anim_raileron);
 	//hlaileron = CreateControlSurface2 (AIRCTRL_AILERON, 0.0, 0.0, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, anim_laileron);
-	hraileron = CreateControlSurface3 (AIRCTRL_AILERON, 0.0, 0.0, _V( 7,-0.5,-15), AIRCTRL_AXIS_XPOS, 1.0);
-	hlaileron = CreateControlSurface3 (AIRCTRL_AILERON, 0.0, 0.0, _V(-7,-0.5,-15), AIRCTRL_AXIS_XNEG, 1.0);
-	ControlSurfacesEnabled=true;
+	hraileron = CreateControlSurface3(AIRCTRL_AILERON, 0.0, 0.0, _V(7, -0.5, -15), AIRCTRL_AXIS_XPOS, 1.0);
+	hlaileron = CreateControlSurface3(AIRCTRL_AILERON, 0.0, 0.0, _V(-7, -0.5, -15), AIRCTRL_AXIS_XNEG, 1.0);
+	ControlSurfacesEnabled = true;
 }
 
 // --------------------------------------------------------------
 // Define animation sequences for moving parts
 // --------------------------------------------------------------
-void Atlantis::DefineAnimations (void)
+void Atlantis::DefineAnimations(void)
 {
-  UINT midx = mesh_orbiter; // mesh index for all external animations
-  UINT vidx = mesh_vc; // mesh index for all VC animations
-  //UINT ridx = mesh_rms; // mesh index for all RMS animations
-  //UINT sidx = mesh_mpm; // mesh index for STBD MPM animations
+	UINT midx = mesh_orbiter; // mesh index for all external animations
 
-  ANIMATIONCOMPONENT_HANDLE parent;
-  BeginLoggingAnims();
+	ANIMATIONCOMPONENT_HANDLE parent;
+	BeginLoggingAnims();
 
-  // ***** 1. Cargo door and radiator animations *****
-  // DaveS edit: Updated animations to work with the new scaled down orbiter mesh
+	// ***** 1. Payload bay door and radiator animations *****
+	static UINT PLBD_PORT_Grp[4] = {GRP_LEFT_PLBD_EXT, GRP_PORT_PLBD_INTERIOR, GRP_PORT_PLB_RADIATOR_3, GRP_PORT_PLB_RADIATOR_4};
+	MGROUP_ROTATE* PLBD_PORT = new MGROUP_ROTATE( midx, PLBD_PORT_Grp, 4, PLBD_PORT_P3, -PLBD_PORT_AXIS, (float)(360 * RAD) );
+	anim_door_port = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_port", anim_door_port );
+	parent = AddManagedAnimationComponent( anim_door_port, 0.0, 1.0, PLBD_PORT );
 
-  static UINT RCargoDoorGrp[4] = {GRP_STBD_PLBD_EXTERIOR, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4,};
-  MGROUP_ROTATE* pRCargoDoor  = new MGROUP_ROTATE(midx, RCargoDoorGrp, 4,
-    _V(2.62, -0.8, 0), _V(0, 0, 1), (float)(-175.5*RAD));
-  static UINT LCargoDoorGrp[4] = {GRP_LEFT_PLBD_EXT, GRP_PORT_PLBD_INTERIOR, GRP_PORT_PLB_RADIATOR_3, GRP_PORT_PLB_RADIATOR_4};
-  MGROUP_ROTATE* pLCargoDoor  = new MGROUP_ROTATE(midx, LCargoDoorGrp, 4,
-    _V(-2.62, -0.8, 0), _V(0, 0, 1), (float)(175.5*RAD)); 
+	static UINT PLB_RAD_PORT_Grp[3] = {GRP_PORT_PLB_RADIATOR_1, GRP_PORT_PLB_RADIATOR_2, GRP_PORT_FWD_RADIATOR_COOLANT_LINES};
+	MGROUP_ROTATE* PLB_RAD_PORT = new MGROUP_ROTATE( midx, PLB_RAD_PORT_Grp, 3, _V( -2.587, 0.348, 0.0 ), _V( 0, 0, 1 ), (float)(-31.6 * RAD) );
+	anim_rad[0] = CreateAnimation( 0.0 );
+	LogAnim( "anim_rad[0]", anim_rad[0] );
+	AddManagedAnimationComponent( anim_rad[0], 0.0, 1.0, PLB_RAD_PORT, parent );
 
-  static UINT RRadiatorGrp[3] = {GRP_STBD_PLB_RADIATOR_1, GRP_STBD_PLB_RADIATOR_2, GRP_STBD_FWD_RADIATOR_COOLANT_LINES};
-  MGROUP_ROTATE* pRRadiator = new MGROUP_ROTATE(midx, RRadiatorGrp, 3,
-    _V(2.54, -0.75, 0), _V(0, 0, 1), (float)(35.5*RAD));
-  static UINT LRadiatorGrp[3] = {GRP_PORT_PLB_RADIATOR_1, GRP_PORT_PLB_RADIATOR_2, GRP_PORT_FWD_RADIATOR_COOLANT_LINES};
-  MGROUP_ROTATE* pLRadiator = new MGROUP_ROTATE(midx, LRadiatorGrp, 3,
-    _V(-2.54, -0.75, 0), _V(0, 0, 1), (float)(-35.5*RAD));
+	static UINT PLBD_PULLROD_PORT_Grp[1] = {GRP_PORTDOOR_PULL};
+	MGROUP_ROTATE* PLBD_PULLROD_PORT = new MGROUP_ROTATE( midx, PLBD_PULLROD_PORT_Grp, 1, PLBD_PORT_P2, PLBD_PORT_AXIS, (float)(360 * RAD) );
+	anim_door_port_pullrod = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_port_pullrod", anim_door_port_pullrod );
+	AddManagedAnimationComponent( anim_door_port_pullrod, 0.0, 1.0, PLBD_PULLROD_PORT, parent );
 
-  //080922, DaveS add: Added the pushrod animations to each door.
-  static UINT PORTPUSH_RODGrp[1] = {GRP_PORTPUSH_ROD};
-  MGROUP_TRANSLATE* pPORTRod = new MGROUP_TRANSLATE(midx, PORTPUSH_RODGrp, 1,
-	  _V(0,0.1,0));
+	static UINT PLBD_CLAMP_PORT_Grp[1] = {GRP_PORT_CLAMP};
+	MGROUP_ROTATE* PLBD_CLAMP_PORT = new MGROUP_ROTATE( midx, PLBD_CLAMP_PORT_Grp, 1, PLBD_PORT_P4, PLBD_PORT_AXIS, (float)(360 * RAD) );
+	anim_door_port_clamp = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_port_clamp", anim_door_port_clamp );
+	parent = AddManagedAnimationComponent( anim_door_port_clamp, 0.0, 1.0, PLBD_CLAMP_PORT );
+	
+	static UINT PLBD_PUSHROD_PORT_Grp[1] = {GRP_PORTPUSH_ROD};
+	MGROUP_ROTATE* PLBD_PUSH_ROD_PORT = new MGROUP_ROTATE( midx, PLBD_PUSHROD_PORT_Grp, 1, PLBD_PORT_P5, PLBD_PORT_AXIS, static_cast<float>(360 * RAD) );
+	anim_door_port_pushrod = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_port_pushrod", anim_door_port_pushrod );
+	AddManagedAnimationComponent( anim_door_port_pushrod, 0.0, 1.0, PLBD_PUSH_ROD_PORT, parent );
 
-  //080922, DaveS add: Added the pushrod animations to each door.
-  static UINT PORT_CLAMPGrp[1] = {GRP_PORT_CLAMP};
-  MGROUP_ROTATE* pPORT_CLAMP1 = new MGROUP_ROTATE(midx, PORT_CLAMPGrp, 1,
-	  _V(-2.573, -0.872, 0), _V(0,0,1), (float)(13 * RAD));
-  MGROUP_ROTATE* pPORT_CLAMP2 = new MGROUP_ROTATE(midx, PORT_CLAMPGrp, 1,
-	  _V(-2.573, -0.872, 0), _V(0,0,1), (float)(67.5 * RAD));
 
-  static UINT PORT_PullRodGrp[1] = {GRP_PORTDOOR_PULL};
-  MGROUP_ROTATE* pPORTPullRod1 = new MGROUP_ROTATE(midx, PORT_PullRodGrp, 1,
-	  _V(-2.394, -0.762, 0), _V(0, 0, 1), (float)(-13.3*RAD));
-  MGROUP_ROTATE* pPORTPullRod2 = new MGROUP_ROTATE(midx, PORT_PullRodGrp, 1,
-	  _V(-2.394, -0.762, 0), _V(0, 0, 1), (float)(16.5*RAD));
-  
-  //080922, DaveS add: Added the pushrod animations to each door.
-  static UINT STBDPUSH_RODGrp[1] = {GRP_STBDPUSH_ROD};
-  MGROUP_TRANSLATE* pSTBDRod = new MGROUP_TRANSLATE(midx, STBDPUSH_RODGrp, 1,
-	  _V(0,0.1,0));
+	static UINT PLBD_STBD_Grp[4] = {GRP_RIGHT_PLBD_EXT, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4};
+	MGROUP_ROTATE* PLBD_STBD = new MGROUP_ROTATE( midx, PLBD_STBD_Grp, 4, PLBD_STBD_P3, -PLBD_STBD_AXIS, (float)(360 * RAD) );
+	anim_door_stbd = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_stbd", anim_door_stbd );
+	parent = AddManagedAnimationComponent( anim_door_stbd, 0.0, 1.0, PLBD_STBD );
 
-  //080922, DaveS add: Added the pushrod animations to each door.
-  static UINT STBD_CLAMPGrp[1] = {GRP_STBD_CLAMP};
-  MGROUP_ROTATE* pSTBD_CLAMP1 = new MGROUP_ROTATE(midx, STBD_CLAMPGrp, 1,
-	  _V(2.573, -0.872, 0), _V(0,0,-1), (float)(13 * RAD));
-  MGROUP_ROTATE* pSTBD_CLAMP2 = new MGROUP_ROTATE(midx, STBD_CLAMPGrp, 1,
-	  _V(2.573, -0.872, 0), _V(0,0,-1), (float)(67.5 * RAD));
+	static UINT PLB_RAD_STBD_Grp[3] = {GRP_STBD_PLB_RADIATOR_1, GRP_STBD_PLB_RADIATOR_2, GRP_STBD_FWD_RADIATOR_COOLANT_LINES};
+	MGROUP_ROTATE* PLB_RAD_STBD = new MGROUP_ROTATE( midx, PLB_RAD_STBD_Grp, 3, _V( 2.587, 0.348, 0.0 ), _V( 0, 0, 1 ), (float)(31.6 * RAD) );
+	anim_rad[1] = CreateAnimation( 0.0 );
+	LogAnim( "anim_rad[1]", anim_rad[1] );
+	AddManagedAnimationComponent( anim_rad[1], 0.0, 1.0, PLB_RAD_STBD, parent );
 
-  static UINT STBD_PullRodGrp[1] = {GRP_STBDDOOR_PULL};
-  MGROUP_ROTATE* pSTBDPullRod1 = new MGROUP_ROTATE(midx, STBD_PullRodGrp, 1,
-	  _V(2.394, -0.762, 0), _V(0, 0, 1), (float)(13.3*RAD));
-  MGROUP_ROTATE* pSTBDPullRod2 = new MGROUP_ROTATE(midx, STBD_PullRodGrp, 1,
-	  _V(2.394, -0.762, 0), _V(0, 0, 1), (float)(-16.5*RAD));
+	static UINT CLatch1_4Grp[1] = {GRP_FWD_HOOKS};
+	static MGROUP_ROTATE CLatch1_4( midx, CLatch1_4Grp, 1, _V( 0.0234, 2.1905, 0.0 ), _V( 0, 0, 1 ), (float)(90 * RAD) );
+	anim_clatch[0] = CreateAnimation( 0.0 );
+	AddAnimationComponent( anim_clatch[0], 0.0, 1.0, &CLatch1_4, parent );
 
-  //latches
-  static UINT CLatch1_4Grp[1] = {GRP_FWD_HOOKS};
-  static MGROUP_ROTATE CLatch1_4 (midx, CLatch1_4Grp, 1,
-	  _V(0.02,1.11,0.0), _V(0,0,1), (float)(90 * RAD));
+	static UINT CLatch5_8Grp[1] = {GRP_MID_FWD_HOOKS};
+	static MGROUP_ROTATE CLatch5_8( midx, CLatch5_8Grp, 1, _V( 0.0234, 2.1905, 0.0 ), _V( 0, 0, 1 ), (float)(90 * RAD) );
+	anim_clatch[1] = CreateAnimation( 0.0 );
+	AddAnimationComponent( anim_clatch[1], 0.0, 1.0, &CLatch5_8, parent );
 
-  static UINT CLatch5_8Grp[1] = {GRP_MID_FWD_HOOKS};
-  static MGROUP_ROTATE CLatch5_8 (midx, CLatch5_8Grp, 1,
-	  _V(0.02,1.11,0.0), _V(0,0,1), (float)(90 * RAD));
+	static UINT CLatch9_12Grp[1] = {GRP_MID_AFT_HOOKS};
+	static MGROUP_ROTATE CLatch9_12( midx, CLatch9_12Grp, 1, _V( 0.0234, 2.1905, 0.0 ), _V( 0, 0, 1 ), (float)(90 * RAD) );
+	anim_clatch[2] = CreateAnimation( 0.0 );
+	AddAnimationComponent( anim_clatch[2], 0.0, 1.0, &CLatch9_12, parent );
 
-  static UINT CLatch9_12Grp[1] = {GRP_MID_AFT_HOOKS};
-  static MGROUP_ROTATE CLatch9_12 (midx, CLatch9_12Grp, 1,
-	  _V(0.02,1.11,0.0), _V(0,0,1), (float)(90 * RAD));
+	static UINT CLatch13_16Grp[1] = {GRP_AFT_HOOKS};
+	static MGROUP_ROTATE CLatch13_16( midx, CLatch13_16Grp, 1, _V( 0.0234, 2.1905, 0.0 ), _V( 0, 0, 1 ), (float)(90 * RAD) );
+	anim_clatch[3] = CreateAnimation( 0.0 );
+	AddAnimationComponent( anim_clatch[3], 0.0, 1.0, &CLatch13_16, parent );
 
-  static UINT CLatch13_16Grp[1] = {GRP_AFT_HOOKS};
-  static MGROUP_ROTATE CLatch13_16 (midx, CLatch13_16Grp, 1,
-	  _V(0.02,1.11,0.0), _V(0,0,1), (float)(90 * RAD));
+	static UINT PLBD_PULLROD_STBD_Grp[1] = {GRP_STBDDOOR_PULL};
+	MGROUP_ROTATE* PLBD_PULLROD_STBD = new MGROUP_ROTATE( midx, PLBD_PULLROD_STBD_Grp, 1, PLBD_STBD_P2, PLBD_STBD_AXIS, (float)(360 * RAD));
+	anim_door_stbd_pullrod = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_stbd_pullrod", anim_door_stbd_pullrod );
+	AddManagedAnimationComponent( anim_door_stbd_pullrod, 0.0, 1.0, PLBD_PULLROD_STBD, parent );
 
-  anim_door = CreateAnimation (0);
-  LogAnim("anim_door", anim_door);
-  anim_rad = CreateAnimation (0);
-  LogAnim("anim_rad", anim_rad);
-  anim_clatch[0] = CreateAnimation(0);
-  anim_clatch[1] = CreateAnimation(0);
-  anim_clatch[2] = CreateAnimation(0);
-  anim_clatch[3] = CreateAnimation(0);
-  // **************************************************************************************
-  //right (starboard) side
-  // **************************************************************************************
-  parent = AddManagedAnimationComponent (anim_door, 0.0, 0.4632, pRCargoDoor);
-  AddManagedAnimationComponent (anim_rad, 0, 1, pRRadiator, parent);
-  //latches
-  AddAnimationComponent (anim_clatch[0], 0, 1, &CLatch1_4, parent);
-  AddAnimationComponent (anim_clatch[1], 0, 1, &CLatch5_8, parent);
-  AddAnimationComponent (anim_clatch[2], 0, 1, &CLatch9_12, parent);
-  AddAnimationComponent (anim_clatch[3], 0, 1, &CLatch13_16, parent);
-  //right push/pull rods
-  AddManagedAnimationComponent (anim_door, 0, 0.4632, pSTBDRod);
-  parent = AddManagedAnimationComponent (anim_door, 0, 0.1181, pSTBD_CLAMP1);
-  AddManagedAnimationComponent (anim_door, 0, 0.1200, pSTBDPullRod1, parent);
-  parent = AddManagedAnimationComponent (anim_door, 0.1181, 0.4632, pSTBD_CLAMP2, parent);
-  AddManagedAnimationComponent (anim_door, 0.31, 0.4632, pSTBDPullRod2, parent);
-  // **************************************************************************************
-  //left(port) side
-  // **************************************************************************************
-  parent = AddManagedAnimationComponent (anim_door, 0.5368, 1.0, pLCargoDoor);
-  AddManagedAnimationComponent (anim_rad, 0, 1, pLRadiator, parent);
-  //left push/pull rods
-  AddManagedAnimationComponent (anim_door, 0.5368, 1.0, pPORTRod);
-  parent = AddManagedAnimationComponent (anim_door, 0.5368, 0.6549, pPORT_CLAMP1);
-  AddManagedAnimationComponent (anim_door, 0.5368, 0.6568, pPORTPullRod1, parent);
-  parent = AddManagedAnimationComponent (anim_door, 0.6549, 1.0, pPORT_CLAMP2, parent);
-  AddManagedAnimationComponent (anim_door, 0.8055, 1.0, pPORTPullRod2, parent);
+	static UINT PLBD_CLAMP_STBD_Grp[1] = {GRP_STBD_CLAMP};
+	MGROUP_ROTATE* PLBD_CLAMP_STBD = new MGROUP_ROTATE( midx, PLBD_CLAMP_STBD_Grp, 1, PLBD_STBD_P4, PLBD_STBD_AXIS, (float)(360 * RAD));
+	anim_door_stbd_clamp = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_stbd_clamp", anim_door_stbd_clamp );
+	parent = AddManagedAnimationComponent( anim_door_stbd_clamp, 0.0, 1.0, PLBD_CLAMP_STBD );
 
-  // ***** 2. Landing gear animation *****
-  //gop->DefineAnimations();
-  static UINT LNosewheelDoorGrp[1] = {GRP_LEFT_NLG_DOOR};
-  static MGROUP_ROTATE LNosewheelDoor (midx, LNosewheelDoorGrp, 1,
-    _V(-0.651575,-3.71,15.85), _V(-0.00552807, 0.209956, 0.977695), (float)(-60.0*RAD));
-  static UINT RNosewheelDoorGrp[1] = {GRP_RIGHT_NLG_DOOR};
-  static MGROUP_ROTATE RNosewheelDoor (midx, RNosewheelDoorGrp, 1,
-    _V(0.651575,-3.71,15.85), _V(-0.00552807, 0.209956, 0.977695), (float)(60.0*RAD));
-  static UINT NosewheelGrp[5] = {GRP_NLG_WHEELS,GRP_NLG_STRUT, GRP_NLG_UPPER_TORQUE_ARM, GRP_NLG_LOWER_TORQUE_ARM, GRP_NLG_SHOCK_STRUT};
-  static MGROUP_ROTATE Nosewheel (midx, NosewheelGrp, 5,
-    _V(0,-3.81,14.8), _V(1, 0, 0), (float)(110*RAD));
-  static UINT RGearDoorGrp[1] = {GRP_RIGHT_MLG_DOOR};
-  static MGROUP_ROTATE RGearDoor (midx, RGearDoorGrp, 1,
-    _V(4.338, -4.456, -3.65), _V(-0.00356587, 0.0401574, 0.999187), (float)(83.8*RAD));
-  static UINT LGearDoorGrp[1] = {GRP_LEFT_MLG_DOOR};
-  static MGROUP_ROTATE LGearDoor (midx, LGearDoorGrp, 1,
-    _V(-4.338, -4.456, -3.65), _V(-0.00356587, 0.0401574, 0.999187), (float)(-83.8*RAD));
-  static UINT MainGearGrp[6] = {GRP_RIGHT_MLG_WHEELS,GRP_RIGHT_MLG_STRUT,GRP_RIGHT_MLG_SHOCK_STRUT,GRP_LEFT_MLG_WHEELS,GRP_LEFT_MLG_STRUT,GRP_LEFT_MLG_SHOCK_STRUT};
-  static MGROUP_ROTATE MainGear (midx, MainGearGrp, 6,
-    _V(0, -4.08, -5.51), _V(1, 0, 0), (float)(94.5*RAD));
+	static UINT PLBD_PUSHROD_STBD_Grp[1] = {GRP_STBDPUSH_ROD};
+	MGROUP_ROTATE* PLBD_PUSH_ROD_STBD = new MGROUP_ROTATE( midx, PLBD_PUSHROD_STBD_Grp, 1, PLBD_STBD_P5, PLBD_STBD_AXIS, static_cast<float>(360 * RAD));
+	anim_door_stbd_pushrod = CreateAnimation( 0.0 );
+	LogAnim( "anim_door_stbd_pushrod", anim_door_stbd_pushrod );
+	AddManagedAnimationComponent( anim_door_stbd_pushrod, 0.0, 1.0, PLBD_PUSH_ROD_STBD, parent );
 
-  anim_gear = CreateAnimation (0);
-  LogAnim("anim_gear", anim_gear);
-  AddAnimationComponent (anim_gear, 0,   0.5, &LNosewheelDoor);
-  AddAnimationComponent (anim_gear, 0,   0.5, &RNosewheelDoor);
-  AddAnimationComponent (anim_gear, 0.4, 1.0, &Nosewheel);
-  AddAnimationComponent (anim_gear, 0,   0.5, &RGearDoor);
-  AddAnimationComponent (anim_gear, 0,   0.5, &LGearDoor);
-  AddAnimationComponent (anim_gear, 0.4, 1.0, &MainGear);
+	// ***** 2. Landing gear animation *****
+	static UINT LNosewheelDoorGrp[1] = { GRP_LEFT_NLG_DOOR };
+	static MGROUP_ROTATE LNosewheelDoor(midx, LNosewheelDoorGrp, 1,
+		_V(-0.712, -2.905, 16.082), _V(0, -0.209789, -0.977747), (float)(65.3*RAD));
+	static UINT RNosewheelDoorGrp[1] = { GRP_RIGHT_NLG_DOOR };
+	static MGROUP_ROTATE RNosewheelDoor(midx, RNosewheelDoorGrp, 1,
+		_V(0.712, -2.905, 16.082), _V(0, -0.209789, -0.977747), (float)(-65.3*RAD));
+	static UINT NosewheelGrp[5] = { GRP_NOSE_WHEELS, GRP_NLG_STRUT, GRP_NLG_UPPER_TORQUE_ARM, GRP_NLG_LOWER_TORQUE_ARM, GRP_NLG_SHOCK_STRUT };
+	static MGROUP_ROTATE Nosewheel(midx, NosewheelGrp, 5,
+		_V(0, -3.038, 14.888), _V(1, 0, 0), (float)(114.5*RAD));
+	static UINT RGearDoorGrp[1] = { GRP_RIGHT_MLG_DOOR };
+	static MGROUP_ROTATE RGearDoor(midx, RGearDoorGrp, 1,
+		_V(4.6598, -3.5055, -3.9442), _V(-0.00301632, -0.0253688, -0.999674), (float)(-84.2*RAD));
+	static UINT LGearDoorGrp[1] = { GRP_LEFT_MLG_DOOR };
+	static MGROUP_ROTATE LGearDoor(midx, LGearDoorGrp, 1,
+		_V(-4.6598, -3.5055, -3.9442), _V(0.00301632, -0.0253688, -0.999674), (float)(84.2*RAD));
+	static UINT MainGearGrp[6] = { GRP_RIGHT_MN_WHEELS, GRP_RIGHT_MLG_STRUT, GRP_RIGHT_MLG_SHOCK_STRUT, GRP_LEFT_MN_WHEELS, GRP_LEFT_MLG_STRUT, GRP_LEFT_MLG_SHOCK_STRUT };
+	static MGROUP_ROTATE MainGear(midx, MainGearGrp, 6,
+		_V(0, -3.24, -5.546), _V(1, 0, 0), (float)(94.5*RAD));
 
-  if(bHasKUBand)
+	anim_gear = CreateAnimation(0);
+	LogAnim("anim_gear", anim_gear);
+	AddAnimationComponent(anim_gear, 0, 0.5, &LNosewheelDoor);
+	AddAnimationComponent(anim_gear, 0, 0.5, &RNosewheelDoor);
+	AddAnimationComponent(anim_gear, 0.4, 1.0, &Nosewheel);
+	AddAnimationComponent(anim_gear, 0, 0.5, &RGearDoor);
+	AddAnimationComponent(anim_gear, 0, 0.5, &LGearDoor);
+	AddAnimationComponent(anim_gear, 0.4, 1.0, &MainGear);
+
+	if (bHasKUBand)
 		DefineKUBandAnimations();
 
-  //drag chute
-  static UINT ChuteCords[1] = {0};
-  static MGROUP_SCALE ScaleCords(mesh_dragchute, ChuteCords, 1, _V(0.0, 0.0, -11.53), _V(0.5, 0.5, 1.1));
-  static UINT Chute[3] = {1, 2, 3};
-  static MGROUP_SCALE ScaleChute(mesh_dragchute, Chute, 3, _V(0.0, 0.0, -29.03), _V(0.5, 0.5, 1.2));
-  static UINT DragChute[4] = {0, 1, 2, 3};
-  static MGROUP_SCALE ScaleAll(mesh_dragchute, DragChute, 4, _V(0.0, 0.0, 0.0), _V(0.01, 0.01, 0.01));
-  anim_chute_deploy = CreateAnimation(0.0);
-  LogAnim("anim_chute_deploy", anim_chute_deploy);
-  AddAnimationComponent(anim_chute_deploy, 0.0, 0.6, &ScaleCords);
-  AddAnimationComponent(anim_chute_deploy, 0.0, 0.6, &ScaleChute);
-  parent=AddAnimationComponent(anim_chute_deploy, 0.6, 0.9, &ScaleAll);
-  anim_chute_spin = CreateAnimation(0.0);
-  LogAnim("anim_chute_spin", anim_chute_spin);
-  static MGROUP_ROTATE SpinChute1(mesh_dragchute, DragChute, 4,
-	  _V(0, 0, 0), _V(0.00609621, -0.0146035, -0.999875), (float)(400.0*RAD));
-  AddAnimationComponent(anim_chute_spin, 0.0, 0.5, &SpinChute1, parent);
-  static MGROUP_ROTATE SpinChute2(mesh_dragchute, DragChute, 4,
-	  _V(0, 0, 0), _V(-0.00965286, -0.00698363, -0.999929), (float)(400.0*RAD));
-  AddAnimationComponent(anim_chute_spin, 0.5, 1.0, &SpinChute2, parent);
-  
-  // ***** 4. Elevator animation of elevons *****
+	// ***** 4. Elevator animation of elevons *****
 
-  // ***** 4A. Upward animation of elevons *****
-  static UINT LElevGrp[2] = {GRP_LEFT_INBOARD_ELEVON,GRP_LEFT_OUTBOARD_ELEVON};
-  static UINT RElevGrp[2] = {GRP_RIGHT_INBOARD_ELEVON,GRP_RIGHT_OUTBOARD_ELEVON};
-  static UINT LElevDoorGrp[2] = {GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL,GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL};
-  static UINT RElevDoorGrp[2] = {GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL,GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL};
-  static MGROUP_ROTATE LElevator_up (midx, LElevGrp, 2,
-	_V(-3.09922,-4.59415,-10.42953), _V(-0.995235179322522, 0.097503527315007, 0.0), (float)(34.0*RAD));
-  static MGROUP_ROTATE RElevator_up (midx, RElevGrp, 2,
-	_V(3.09922,-4.59415,-10.42953), _V(0.995235179322522, 0.097503527315007, 0.0), (float)(-34.0*RAD));
-  static MGROUP_ROTATE LElevatorDoor_up (midx, LElevDoorGrp, 2,
-    _V(-11.664,-3.382752,-10.0212), _V(-0.998913, 0.0465805, 0.00183875), (float)(22.0*RAD));
-  static MGROUP_ROTATE RElevatorDoor_up (midx, RElevDoorGrp, 2,
-    _V(11.664,-3.382752,-10.0212), _V(0.998913, 0.0465805, 0.00183875), (float)(-22.0*RAD));
- 
-  // ***** 4B. Downward animation of elevons *****
-  static MGROUP_ROTATE LElevator_down (midx, LElevGrp, 2,
-    _V(-3.09922,-4.59415,-10.42953), _V(-0.995235179322522, 0.097503527315007, 0.0), (float)(18.0*RAD));
-  static MGROUP_ROTATE RElevator_down (midx, RElevGrp, 2,
-    _V(+3.09922,-4.59415,-10.42953), _V(0.995235179322522, 0.097503527315007, 0.0), (float)(-18.0*RAD));
-  static MGROUP_ROTATE LElevatorDoor_down (midx, LElevDoorGrp, 2,
-    _V(-11.664,-3.382752,-10.0212), _V(-0.998913, 0.0465805, 0.00183875), (float)(5*RAD));
-  static MGROUP_ROTATE RElevatorDoor_down (midx, RElevDoorGrp, 2,
-    _V(11.664,-3.382752,-10.0212), _V(0.998913, 0.0465805, 0.00183875), (float)(-5*RAD));
-  anim_lelevon = CreateAnimation (0.5);
-  anim_relevon = CreateAnimation (0.5);
-  LogAnim("anim_lelevon", anim_lelevon);
-  LogAnim("anim_relevon", anim_relevon);
-  AddAnimationComponent (anim_lelevon, 0.5, 1, &LElevator_down);
-  AddAnimationComponent (anim_lelevon, 0, 0.5, &LElevator_up);
-  AddAnimationComponent (anim_lelevon, 0.5, 1, &LElevatorDoor_down);
-  AddAnimationComponent (anim_lelevon, 0, 0.5, &LElevatorDoor_up);
-  AddAnimationComponent (anim_relevon, 0.5, 1, &RElevator_down);
-  AddAnimationComponent (anim_relevon, 0, 0.5, &RElevator_up);
-  AddAnimationComponent (anim_relevon, 0.5, 1, &RElevatorDoor_down);
-  AddAnimationComponent (anim_relevon, 0, 0.5, &RElevatorDoor_up);
+	// ***** 4A. Upward animation of elevons *****
+	static UINT LElevGrp[2] = { GRP_LEFT_INBOARD_ELEVON, GRP_LEFT_OUTBOARD_ELEVON };
+	static UINT RElevGrp[2] = { GRP_RIGHT_INBOARD_ELEVON, GRP_RIGHT_OUTBOARD_ELEVON };
+	static UINT LElevDoorGrp[2] = { GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL, GRP_LEFT_OUTBOARD_ELEVON_SEAL_PANEL };
+	static UINT RElevDoorGrp[2] = { GRP_RIGHT_INBOARD_ELEVON_SEAL_PANEL, GRP_RIGHT_OUTBOARD_ELEVON_SEAL_PANEL };
+	static MGROUP_ROTATE LElevator_up(midx, LElevGrp, 2,
+		_V(-7.9247, -3.3091, -10.7498), _V(-0.995971, 0.0896784, 0), (float)(34.0*RAD));
+	static MGROUP_ROTATE RElevator_up(midx, RElevGrp, 2,
+		_V(7.9247, -3.3091, -10.7498), _V(0.995971, 0.0896784, 0), (float)(-34.0*RAD));
+	static MGROUP_ROTATE LElevatorDoor_up(midx, LElevDoorGrp, 2,
+		_V(-7.837, -2.697, -10.329), _V(-0.999228, 0.0392895, 0.000550051), (float)(22.0*RAD));
+	static MGROUP_ROTATE RElevatorDoor_up(midx, RElevDoorGrp, 2,
+		_V(7.837, -2.697, -10.329), _V(0.999228, 0.0392895, 0.000550051), (float)(-22.0*RAD));
 
-  // ***** 5. Bodyflap animation *****
-  static UINT bfGrp[1] = {GRP_BODYFLAP};
-  static MGROUP_ROTATE BodyFlap (midx, bfGrp, 1,
-    _V(0,-4.19,-14.19), _V(1,0,0), (float)(22.5*RAD));
-  anim_bf = CreateAnimation (0.5);
-  LogAnim("anim_bf", anim_bf);
-  AddAnimationComponent (anim_bf, 0, 1, &BodyFlap);
+	// ***** 4B. Downward animation of elevons *****
+	static MGROUP_ROTATE LElevator_down(midx, LElevGrp, 2,
+		_V(-7.9247, -3.3091, -10.7498), _V(-0.995971, 0.0896784, 0), (float)(18.0*RAD));
+	static MGROUP_ROTATE RElevator_down(midx, RElevGrp, 2,
+		_V(7.9247, -3.3091, -10.7498), _V(0.995971, 0.0896784, 0), (float)(-18.0*RAD));
+	static MGROUP_ROTATE LElevatorDoor_down(midx, LElevDoorGrp, 2,
+		_V(-7.837, -2.697, -10.329), _V(-0.999228, 0.0392895, -0.000550051), (float)(5 * RAD));
+	static MGROUP_ROTATE RElevatorDoor_down(midx, RElevDoorGrp, 2,
+		_V(7.837, -2.697, -10.329), _V(0.999228, 0.0392895, -0.000550051), (float)(-5 * RAD));
+	anim_lelevon = CreateAnimation(0.5);
+	anim_relevon = CreateAnimation(0.5);
+	LogAnim("anim_lelevon", anim_lelevon);
+	LogAnim("anim_relevon", anim_relevon);
+	AddAnimationComponent(anim_lelevon, 0.5, 1, &LElevator_down);
+	AddAnimationComponent(anim_lelevon, 0, 0.5, &LElevator_up);
+	AddAnimationComponent(anim_lelevon, 0.5, 1, &LElevatorDoor_down);
+	AddAnimationComponent(anim_lelevon, 0, 0.5, &LElevatorDoor_up);
+	AddAnimationComponent(anim_relevon, 0.5, 1, &RElevator_down);
+	AddAnimationComponent(anim_relevon, 0, 0.5, &RElevator_up);
+	AddAnimationComponent(anim_relevon, 0.5, 1, &RElevatorDoor_down);
+	AddAnimationComponent(anim_relevon, 0, 0.5, &RElevatorDoor_up);
 
-  // ***** 6. Rudder animation *****
+	// ***** 5. Bodyflap animation *****
+	static UINT bfGrp[1] = { GRP_BODYFLAP };
+	static MGROUP_ROTATE BodyFlap(midx, bfGrp, 1,
+		_V(0, -3.3191, -14.5522), _V(1, 0, 0), (float)(22.5*RAD));
+	anim_bf = CreateAnimation(0.5);
+	LogAnim("anim_bf", anim_bf);
+	AddAnimationComponent(anim_bf, 0, 1, &BodyFlap);
 
-  static UINT RudderGrp[2] = {GRP_RIGHT_RSB_PANEL,GRP_LEFT_RSB_PANEL};
-  static MGROUP_ROTATE Rudder (midx, RudderGrp, 2,
-    _V(0,5.7,-15.02), _V(0, 0.81035, -0.585947), (float)(54.2*RAD));
-  anim_rudder = CreateAnimation (0.5);
-  LogAnim("anim_rudder", anim_rudder);
-  AddAnimationComponent (anim_rudder, 0, 1, &Rudder);
+	// ***** 6. Rudder animation *****
 
-  // ***** 7. Speedbrake animation *****
+	static UINT RudderGrp[2] = { GRP_RIGHT_RSB_PANEL, GRP_LEFT_RSB_PANEL };
+	static MGROUP_ROTATE Rudder(midx, RudderGrp, 2,
+		_V(0, 7.5, -15.8689), _V(-0.0418225, -0.843401, 0.555654), (float)(54.2*RAD));
+	anim_rudder = CreateAnimation(0.5);
+	LogAnim("anim_rudder", anim_rudder);
+	AddAnimationComponent(anim_rudder, 0, 1, &Rudder);
 
-  static UINT SB1Grp[1] = {GRP_RIGHT_RSB_PANEL};
-  static MGROUP_ROTATE SB1 (midx, SB1Grp, 1,
-    _V(0,5.7,-15.02), _V(0, 0.81035, -0.585947), (float)(-49.3*RAD));
-  static UINT SB2Grp[1] = {GRP_LEFT_RSB_PANEL};
-  static MGROUP_ROTATE SB2 (midx, SB2Grp, 1,
-    _V(0,5.7,-15.02), _V(0, 0.81035, -0.585947), (float)(49.3*RAD));
+	// ***** 7. Speedbrake animation *****
 
-  anim_spdb = CreateAnimation (0);
-  LogAnim("anim_spdb", anim_spdb);
-  AddAnimationComponent (anim_spdb, 0, 1, &SB1);
-  AddAnimationComponent (anim_spdb, 0, 1, &SB2);
+	static UINT SB1Grp[1] = { GRP_RIGHT_RSB_PANEL };
+	static MGROUP_ROTATE SB1(midx, SB1Grp, 1,
+		_V(0,  7.5, -15.8689), _V(0.0418225, -0.843401, 0.555654), (float)(49.3*RAD));
+	static UINT SB2Grp[1] = { GRP_LEFT_RSB_PANEL };
+	static MGROUP_ROTATE SB2(midx, SB2Grp, 1,
+		_V(0,  7.5, -15.8689), _V(-0.0418225, -0.843401, 0.555654), (float)(-49.3*RAD));
 
-  // ***** 8. RMS arm animation *****
-  // Note that the animation components can't be declared static here, since
-  // their rotation parameters are modified by the respective parent transforms
+	anim_spdb = CreateAnimation(0);
+	LogAnim("anim_spdb", anim_spdb);
+	AddAnimationComponent(anim_spdb, 0, 1, &SB1);
+	AddAnimationComponent(anim_spdb, 0, 1, &SB2);
+
+	// ***** 8. RMS arm animation *****
+	// Note that the animation components can't be declared static here, since
+	// their rotation parameters are modified by the respective parent transforms
 
 
-  // ***** 9 Payload bay cameras animation *****
-  // DaveS edit: realigned with the scaled down orbiter mesh
-  // FRONT LEFT
-  static UINT camFLYawGrp[1] = {GRP_PANTILT_CAM_A};
-  CameraFLYaw = new MGROUP_ROTATE (midx, camFLYawGrp, 1,
-    _V(-1.78,-0.36,9.4), _V(0,1,0), (float)(340*RAD));
-  anim_camFLyaw = CreateAnimation (0.5);
-  LogAnim("anim_camFLyaw", anim_camFLyaw);
-  parent = AddAnimationComponent (anim_camFLyaw, 0, 1, CameraFLYaw);
+	// ***** 9 Payload bay cameras animation *****
+	// FRONT LEFT
+	static UINT camFLYawGrp[1] = { GRP_PANTILT_CAM_A };
+	MGROUP_ROTATE* CameraFLYaw = new MGROUP_ROTATE(midx, camFLYawGrp, 1,
+		_V(-1.816, 0.909, 9.464), _V(0, 1, 0), (float)(340 * RAD));
+	anim_camFLyaw = CreateAnimation(0.5);
+	LogAnim("anim_camFLyaw", anim_camFLyaw);
+	parent = AddManagedAnimationComponent(anim_camFLyaw, 0, 1, CameraFLYaw);
 
-  static UINT camFLPitchGrp[1] = {GRP_CAM_A};
-  CameraFLPitch = new MGROUP_ROTATE (midx, camFLPitchGrp, 1,
-    _V(-1.78,-0.16,9.4), _V(1,0,0), (float)(340*RAD));
-  anim_camFLpitch = CreateAnimation (0.5);
-  //anim_camFLpitch = CreateAnimation (0.7647);
-  LogAnim("anim_camFLpitch", anim_camFLpitch);
-  parent = AddAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPitch, parent);
+	static UINT camFLPitchGrp[1] = { GRP_CAM_A };
+	MGROUP_ROTATE* CameraFLPitch = new MGROUP_ROTATE(midx, camFLPitchGrp, 1,
+		_V(-1.816, 0.909, 9.464), _V(1, 0, 0), (float)(340 * RAD));
+	anim_camFLpitch = CreateAnimation(0.5);
+	//anim_camFLpitch = CreateAnimation (0.7647);
+	LogAnim("anim_camFLpitch", anim_camFLpitch);
+	parent = AddManagedAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPitch, parent);
 
-  // FRONT RIGHT
-  static UINT camFRYawGrp[1] = {GRP_PANTILT_CAM_D};
-  CameraFRYaw = new MGROUP_ROTATE (midx, camFRYawGrp, 1,
-    _V(1.78,-0.36,9.4), _V(0,1,0), (float)(340*RAD));
-  anim_camFRyaw = CreateAnimation (0.5);
-  LogAnim("anim_camFRyaw", anim_camFRyaw);
-  parent = AddAnimationComponent (anim_camFRyaw, 0, 1, CameraFRYaw);
+	MGROUP_TRANSFORM* CameraFLPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbCamPos[0]), 1);
+	AddManagedAnimationComponent(anim_camFLpitch, 0, 1, CameraFLPos, parent);
 
-  static UINT camFRPitchGrp[1] = {GRP_CAM_D};
-  CameraFRPitch = new MGROUP_ROTATE (midx, camFRPitchGrp, 1,
-    _V(1.78,-0.16,9.4), _V(1,0,0), (float)(340*RAD));
-  anim_camFRpitch = CreateAnimation (0.5);
-  LogAnim("anim_camFRpitch", anim_camFRpitch);
-  AddAnimationComponent (anim_camFRpitch, 0, 1, CameraFRPitch, parent);
+	// FRONT RIGHT
+	static UINT camFRYawGrp[1] = { GRP_PANTILT_CAM_D };
+	MGROUP_ROTATE* CameraFRYaw = new MGROUP_ROTATE(midx, camFRYawGrp, 1,
+		_V(1.816, 0.909, 9.464), _V(0, 1, 0), (float)(340 * RAD));
+	anim_camFRyaw = CreateAnimation(0.5);
+	LogAnim("anim_camFRyaw", anim_camFRyaw);
+	parent = AddManagedAnimationComponent(anim_camFRyaw, 0, 1, CameraFRYaw);
 
-  // BACK LEFT
-  static UINT camBLYawGrp[1] = {GRP_PANTILT_CAM_B};
-  CameraBLYaw = new MGROUP_ROTATE (midx, camBLYawGrp, 1,
-    _V(-2.26,-0.3,-8.24), _V(0,1,0), (float)(340*RAD));
-  anim_camBLyaw = CreateAnimation (0.5);
-  LogAnim("anim_camBLyaw", anim_camBLyaw);
-  parent = AddAnimationComponent (anim_camBLyaw, 0, 1, CameraBLYaw);
+	static UINT camFRPitchGrp[1] = { GRP_CAM_D };
+	MGROUP_ROTATE* CameraFRPitch = new MGROUP_ROTATE(midx, camFRPitchGrp, 1,
+		_V(1.816, 0.909, 9.464), _V(1, 0, 0), (float)(340 * RAD));
+	anim_camFRpitch = CreateAnimation(0.5);
+	LogAnim("anim_camFRpitch", anim_camFRpitch);
+	parent = AddManagedAnimationComponent(anim_camFRpitch, 0, 1, CameraFRPitch, parent);
 
-  static UINT camBLPitchGrp[1] = {GRP_CAM_B};
-  CameraBLPitch = new MGROUP_ROTATE (midx, camBLPitchGrp, 1,
-    _V(-2.26,-0.09,-8.24), _V(-1,0,0), (float)(340*RAD));
-  anim_camBLpitch = CreateAnimation (0.5);
-  LogAnim("anim_camBLpitch", anim_camBLpitch);
-  AddAnimationComponent (anim_camBLpitch, 0, 1, CameraBLPitch, parent);
+	MGROUP_TRANSFORM* CameraFRPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbCamPos[3]), 1);
+	AddManagedAnimationComponent(anim_camFRpitch, 0, 1, CameraFRPos, parent);
 
-  // BACK RIGHT
-  static UINT camBRYawGrp[1] = {GRP_PANTILT_CAM_C};
-  CameraBRYaw = new MGROUP_ROTATE (midx, camBRYawGrp, 1,
-    _V(2.26,-0.3,-8.24), _V(0,1,0), (float)(340*RAD));
-  anim_camBRyaw = CreateAnimation (0.5);
-  LogAnim("anim_camBRyaw", anim_camBRyaw);
-  parent = AddAnimationComponent (anim_camBRyaw, 0, 1, CameraBRYaw);
+	// BACK LEFT
+	static UINT camBLYawGrp[1] = { GRP_PANTILT_CAM_B };
+	MGROUP_ROTATE* CameraBLYaw = new MGROUP_ROTATE(midx, camBLYawGrp, 1,
+		_V(-2.21, 0.909, -8.438), _V(0, 1, 0), (float)(340 * RAD));
+	anim_camBLyaw = CreateAnimation(0.5);
+	LogAnim("anim_camBLyaw", anim_camBLyaw);
+	parent = AddManagedAnimationComponent(anim_camBLyaw, 0, 1, CameraBLYaw);
 
-  static UINT camBRPitchGrp[1] = {GRP_CAM_C};
-  CameraBRPitch = new MGROUP_ROTATE (midx, camBRPitchGrp, 1,
-    _V(2.26,-0.09,-8.24), _V(-1,0,0), (float)(340*RAD));
-  anim_camBRpitch = CreateAnimation (0.5);
-  LogAnim("anim_camBRpitch", anim_camBRpitch);
-  AddAnimationComponent (anim_camBRpitch, 0, 1, CameraBRPitch, parent);
+	static UINT camBLPitchGrp[1] = { GRP_CAM_B };
+	MGROUP_ROTATE* CameraBLPitch = new MGROUP_ROTATE(midx, camBLPitchGrp, 1,
+		_V(-2.21, 0.909, -8.438), _V(-1, 0, 0), (float)(340 * RAD));
+	anim_camBLpitch = CreateAnimation(0.5);
+	LogAnim("anim_camBLpitch", anim_camBLpitch);
+	parent = AddManagedAnimationComponent(anim_camBLpitch, 0, 1, CameraBLPitch, parent);
 
+	MGROUP_TRANSFORM* CameraBLPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbCamPos[1]), 1);
+	AddManagedAnimationComponent(anim_camBLpitch, 0, 1, CameraBLPos, parent);
 
-  // ***** 11 ET Umb Door animation *****
-  static UINT ETUmbLGrp[1] = {GRP_ET_DOOR_LEFT};
-  static UINT ETUmbRGrp[1] = {GRP_ET_DOOR_RIGHT};
-  static MGROUP_ROTATE EtumbdoorL (midx, ETUmbLGrp, 1,
-	  _V(-1.339, -4.749, -9.935), _V(0, -0.05, 0.99875), (float)(+180.0*RAD));
-  static MGROUP_ROTATE EtumbdoorR (midx, ETUmbRGrp, 1,
-	  _V(1.339, -4.749, -9.935), _V(0, -0.05, 0.99875), (float)(-180.0*RAD));
+	// BACK RIGHT
+	static UINT camBRYawGrp[1] = { GRP_PANTILT_CAM_C };
+	MGROUP_ROTATE* CameraBRYaw = new MGROUP_ROTATE(midx, camBRYawGrp, 1,
+		_V(2.21, 0.909, -8.438), _V(0, 1, 0), (float)(340 * RAD));
+	anim_camBRyaw = CreateAnimation(0.5);
+	LogAnim("anim_camBRyaw", anim_camBRyaw);
+	parent = AddManagedAnimationComponent(anim_camBRyaw, 0, 1, CameraBRYaw);
 
-  static VECTOR3 etumbdoor_dummyvec[4];
-  static UINT ETUmbLDDMAftGrp[1] = {GRP_ET_DOOR_LEFT_DDM_ARM_AFT};
-  static UINT ETUmbLDDMAftRodGrp[1] = {GRP_ET_DOOR_LEFT_DDM_LINK_ROD_AFT};
-  static MGROUP_ROTATE ETUmbLDDMAft (midx, ETUmbLDDMAftGrp, 1, _V(-1.258, -4.675, -9.822), _V(0, 0.060757, -0.998152), static_cast<float>(-125.0*RAD));
-  static MGROUP_ROTATE ETUmbLDDMAftRod1 (LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec), 1, _V(-1.414, -4.492, -9.81), _V(0, 0, -1), static_cast<float>(14.0*RAD));
-  static MGROUP_ROTATE ETUmbLDDMAftRod2 (midx, ETUmbLDDMAftRodGrp, 1, _V(-1.414, -4.492, -9.81), _V(0, 0, -1), static_cast<float>(-33*RAD));
-  static UINT ETUmbLDDMFwdGrp[1] = {GRP_ET_DOOR_LEFT_DDM_ARM_FWD};
-  static UINT ETUmbLDDMFwdRodGrp[1] = {GRP_ET_DOOR_LEFT_DDM_LINK_ROD_FWD};
-  static MGROUP_ROTATE ETUmbLDDMFwd (midx, ETUmbLDDMFwdGrp, 1, _V(-1.257, -4.738, -8.787), _V(0, 0.060757, -0.998152), static_cast<float>(-125.0*RAD));
-  static MGROUP_ROTATE ETUmbLDDMFwdRod1 (LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec+1), 1, _V(-1.414, -4.553, -8.776), _V(0, 0, -1), static_cast<float>(14.0*RAD));
-  static MGROUP_ROTATE ETUmbLDDMFwdRod2 (midx, ETUmbLDDMFwdRodGrp, 1, _V(-1.414, -4.553, -8.776), _V(0, 0, -1), static_cast<float>(-33.0*RAD));
-  anim_letumbdoor = CreateAnimation(0);
-  LogAnim("anim_letumbdoor", anim_letumbdoor);
-  parent = AddAnimationComponent(anim_letumbdoor, 0, 1, &EtumbdoorL);
-  parent = AddAnimationComponent(anim_letumbdoor, 0, 1, &ETUmbLDDMFwd);
-  parent = AddAnimationComponent(anim_letumbdoor, 0, 0.5, &ETUmbLDDMFwdRod1, parent);
-  AddAnimationComponent(anim_letumbdoor, 0.5, 1, &ETUmbLDDMFwdRod2, parent);
-  parent = AddAnimationComponent(anim_letumbdoor, 0, 1, &ETUmbLDDMAft);
-  parent = AddAnimationComponent(anim_letumbdoor, 0, 0.5, &ETUmbLDDMAftRod1, parent);
-  AddAnimationComponent(anim_letumbdoor, 0.5, 1, &ETUmbLDDMAftRod2, parent);
+	static UINT camBRPitchGrp[1] = { GRP_CAM_C };
+	MGROUP_ROTATE* CameraBRPitch = new MGROUP_ROTATE(midx, camBRPitchGrp, 1,
+		_V(2.21, 0.909, -8.438), _V(-1, 0, 0), (float)(340 * RAD));
+	anim_camBRpitch = CreateAnimation(0.5);
+	LogAnim("anim_camBRpitch", anim_camBRpitch);
+	parent = AddManagedAnimationComponent(anim_camBRpitch, 0, 1, CameraBRPitch, parent);
 
-  static UINT ETUmbRDDMAftGrp[1] = {GRP_ET_DOOR_RIGHT_DDM_ARM_AFT};
-  static UINT ETUmbRDDMAftRodGrp[1] = {GRP_ET_DOOR_RIGHT_DDM_LINK_ROD_AFT};
-  static MGROUP_ROTATE ETUmbRDDMAft (midx, ETUmbRDDMAftGrp, 1, _V(1.258, -4.675, -9.822), _V(0, 0.060757, -0.998152), static_cast<float>(125.0*RAD));
-  static MGROUP_ROTATE ETUmbRDDMAftRod1 (LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec+2), 1, _V(1.414, -4.492, -9.81), _V(0, 0, -1), static_cast<float>(-14.0*RAD));
-  static MGROUP_ROTATE ETUmbRDDMAftRod2 (midx, ETUmbRDDMAftRodGrp, 1, _V(1.414, -4.492, -9.81), _V(0, 0, -1), static_cast<float>(33*RAD));
-  static UINT ETUmbRDDMFwdGrp[1] = {GRP_ET_DOOR_RIGHT_DDM_ARM_FWD};
-  static UINT ETUmbRDDMFwdRodGrp[1] = {GRP_ET_DOOR_RIGHT_DDM_LINK_ROD_FWD};
-  static MGROUP_ROTATE ETUmbRDDMFwd (midx, ETUmbRDDMFwdGrp, 1, _V(1.257, -4.738, -8.787), _V(0, 0.060757, -0.998152), static_cast<float>(125.0*RAD));
-  static MGROUP_ROTATE ETUmbRDDMFwdRod1 (LOCALVERTEXLIST, MAKEGROUPARRAY(etumbdoor_dummyvec+3), 1, _V(1.414, -4.553, -8.776), _V(0, 0, -1), static_cast<float>(-14.0*RAD));
-  static MGROUP_ROTATE ETUmbRDDMFwdRod2 (midx, ETUmbRDDMFwdRodGrp, 1, _V(1.414, -4.553, -8.776), _V(0, 0, -1), static_cast<float>(33.0*RAD));
-  anim_retumbdoor = CreateAnimation(0);
-  LogAnim("anim_retumbdoor", anim_retumbdoor);
-  parent = AddAnimationComponent(anim_retumbdoor, 0, 1, &EtumbdoorR);
-  parent = AddAnimationComponent(anim_retumbdoor, 0, 1, &ETUmbRDDMFwd);
-  parent = AddAnimationComponent(anim_retumbdoor, 0, 0.5, &ETUmbRDDMFwdRod1, parent);
-  AddAnimationComponent(anim_retumbdoor, 0.5, 1, &ETUmbRDDMFwdRod2, parent);
-  parent = AddAnimationComponent(anim_retumbdoor, 0, 1, &ETUmbRDDMAft);
-  parent = AddAnimationComponent(anim_retumbdoor, 0, 0.5, &ETUmbRDDMAftRod1, parent);
-  AddAnimationComponent(anim_retumbdoor, 0.5, 1, &ETUmbRDDMAftRod2, parent);
+	MGROUP_TRANSFORM* CameraBRPos = new MGROUP_TRANSFORM(LOCALVERTEXLIST, MAKEGROUPARRAY(&plbCamPos[2]), 1);
+	AddManagedAnimationComponent(anim_camBRpitch, 0, 1, CameraBRPos, parent);
 
-  // ***** SSME Gimbal Animations *****
+	// ***** 11 ET Umb Door animation *****
+	static UINT ETUmbLDoorGrp[1] = {GRP_ET_DOOR_LEFT};
+	static MGROUP_ROTATE ETUmbLDoor( midx, ETUmbLDoorGrp, 1, ETUMB_L_P1, ETUMB_L_AXIS, (float)(360.0 * RAD) );
+	anim_letumbdoor = CreateAnimation( 0.0 );
+	LogAnim( "anim_letumbdoor", anim_letumbdoor );
+	parent = AddAnimationComponent( anim_letumbdoor, 0, 1, &ETUmbLDoor );
+
+	static UINT ETUmbLDDMArmGrp[2] = {GRP_ET_DOOR_LEFT_DDM_ARM_AFT, GRP_ET_DOOR_LEFT_DDM_ARM_FWD};
+	static MGROUP_ROTATE ETUmbLDDMArm( midx, ETUmbLDDMArmGrp, 2, ETUMB_L_P2, ETUMB_L_AXIS, static_cast<float>(ETUMB_ARM_RANGE) );
+	anim_letumbarm = CreateAnimation( 0.0 );
+	LogAnim( "anim_letumbarm", anim_letumbarm );
+	AddAnimationComponent( anim_letumbarm, 0, 1, &ETUmbLDDMArm );
+
+	static UINT ETUmbLDDMLinkGrp[2] = {GRP_ET_DOOR_LEFT_DDM_LINK_ROD_AFT, GRP_ET_DOOR_LEFT_DDM_LINK_ROD_FWD};
+	static MGROUP_ROTATE ETUmbLDDMLink( midx, ETUmbLDDMLinkGrp, 2, ETUMB_L_P4, ETUMB_L_AXIS, static_cast<float>(360.0 * RAD) );
+	anim_letumblink = CreateAnimation( 0.0 );
+	LogAnim( "anim_letumblink", anim_letumblink );
+	AddAnimationComponent( anim_letumblink, 0, 1, &ETUmbLDDMLink, parent );
 
 
-  static UINT SSMET_Grp[1] = {GRP_CENTER_SSME};
-  static UINT SSMEL_Grp[1] = {GRP_LEFT_SSME};
-  static UINT SSMER_Grp[1] = {GRP_RIGHT_SSME};
-  static VECTOR3 ssmet_dummy_vec;
-  static VECTOR3 ssmer_dummy_vec;
-  static VECTOR3 ssmel_dummy_vec;
+	static UINT ETUmbRDoorGrp[1] = {GRP_ET_DOOR_RIGHT};
+	static MGROUP_ROTATE ETUmbRDoor( midx, ETUmbRDoorGrp, 1, ETUMB_R_P1, ETUMB_R_AXIS, (float)(-360.0 * RAD) );
+	anim_retumbdoor = CreateAnimation( 0.0 );
+	LogAnim( "anim_retumbdoor", anim_retumbdoor );
+	parent = AddAnimationComponent( anim_retumbdoor, 0, 1, &ETUmbRDoor );
 
-  SSMET_GOX_REF1 = SSMET_GOX_REF;
-  SSMEL_GOX_REF1 = SSMEL_GOX_REF;
-  SSMER_GOX_REF1 = SSMER_GOX_REF;
+	static UINT ETUmbRDDMArmGrp[2] = {GRP_ET_DOOR_RIGHT_DDM_ARM_AFT, GRP_ET_DOOR_RIGHT_DDM_ARM_FWD};
+	static MGROUP_ROTATE ETUmbRDDMArm( midx, ETUmbRDDMArmGrp, 2, ETUMB_R_P2, ETUMB_R_AXIS, static_cast<float>(-ETUMB_ARM_RANGE) );
+	anim_retumbarm = CreateAnimation( 0.0 );
+	LogAnim( "anim_retumbarm", anim_retumbarm );
+	AddAnimationComponent( anim_retumbarm, 0, 1, &ETUmbRDDMArm );
 
-  static MGROUP_ROTATE SSMETYaw (LOCALVERTEXLIST, MAKEGROUPARRAY(&ssmet_dummy_vec), 1, SSMET_REF, _V(0.0, 1.0, 0.0), (float)(21.0 * RAD));
-  static MGROUP_ROTATE SSMETPitch (midx, SSMET_Grp, 1, SSMET_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
-  static MGROUP_ROTATE SSMETPitchV (LOCALVERTEXLIST, MAKEGROUPARRAY(&SSMET_GOX_REF1), 1, SSMET_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
+	static UINT ETUmbRDDMLinkGrp[2] = {GRP_ET_DOOR_RIGHT_DDM_LINK_ROD_AFT, GRP_ET_DOOR_RIGHT_DDM_LINK_ROD_FWD};
+	static MGROUP_ROTATE ETUmbRDDMLink( midx, ETUmbRDDMLinkGrp, 2, ETUMB_R_P4, ETUMB_R_AXIS, static_cast<float>(-360.0 * RAD) );
+	anim_retumblink = CreateAnimation( 0.0 );
+	LogAnim( "anim_retumblink", anim_retumblink );
+	AddAnimationComponent( anim_retumblink, 0, 1, &ETUmbRDDMLink, parent );
 
-  anim_ssmeTyaw = CreateAnimation(0.5);
-  LogAnim("anim_ssmeTyaw", anim_ssmeTyaw);
-  anim_ssmeTpitch = CreateAnimation(0.5);
-  LogAnim("anim_ssmeTpitch", anim_ssmeTpitch);
-
-  parent = AddAnimationComponent(anim_ssmeTyaw, 0.0, 1.0, &SSMETYaw, NULL);
-  AddAnimationComponent(anim_ssmeTpitch, 0.0, 1.0, &SSMETPitch, parent);
-  AddAnimationComponent(anim_ssmeTpitch, 0.0, 1.0, &SSMETPitchV, parent);
+	// ***** SSME Gimbal Animations *****
 
 
-  static MGROUP_ROTATE SSMELYaw (LOCALVERTEXLIST, MAKEGROUPARRAY(&ssmel_dummy_vec), 1, SSMEL_REF, _V(0.0, 1.0, 0.0), (float)(21.0 * RAD));
-  static MGROUP_ROTATE SSMELPitch (midx, SSMEL_Grp, 1, SSMEL_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
-  //Virtual animations
-  static MGROUP_ROTATE SSMELPitchV (LOCALVERTEXLIST, MAKEGROUPARRAY(&SSMEL_GOX_REF1), 1, SSMEL_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
+	static UINT SSMET_Grp[1] = { GRP_CENTER_SSME };
+	static UINT SSMEL_Grp[1] = { GRP_LEFT_SSME };
+	static UINT SSMER_Grp[1] = { GRP_RIGHT_SSME };
+	static VECTOR3 ssmet_dummy_vec;
+	static VECTOR3 ssmer_dummy_vec;
+	static VECTOR3 ssmel_dummy_vec;
 
-  anim_ssmeLyaw = CreateAnimation(0.5);
-  LogAnim("anim_ssmeLyaw", anim_ssmeLyaw);
-  anim_ssmeLpitch = CreateAnimation(0.5);
-  LogAnim("anim_ssmeLpitch", anim_ssmeLpitch);
+	SSMET_GOX_REF1 = SSMET_GOX_REF;
+	SSMEL_GOX_REF1 = SSMEL_GOX_REF;
+	SSMER_GOX_REF1 = SSMER_GOX_REF;
 
-  parent = AddAnimationComponent(anim_ssmeLyaw, 0.0, 1.0, &SSMELYaw, NULL);
-  AddAnimationComponent(anim_ssmeLpitch, 0.0, 1.0, &SSMELPitch, parent);
-  AddAnimationComponent(anim_ssmeLpitch, 0.0, 1.0, &SSMELPitchV, parent);
+	static MGROUP_ROTATE SSMETYaw(LOCALVERTEXLIST, MAKEGROUPARRAY(&ssmet_dummy_vec), 1, SSMET_REF, _V(0.0, 1.0, 0.0), (float)(21.0 * RAD));
+	static MGROUP_ROTATE SSMETPitch(midx, SSMET_Grp, 1, SSMET_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
+	static MGROUP_ROTATE SSMETPitchV(LOCALVERTEXLIST, MAKEGROUPARRAY(&SSMET_GOX_REF1), 1, SSMET_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
+
+	anim_ssmeTyaw = CreateAnimation(0.5);
+	LogAnim("anim_ssmeTyaw", anim_ssmeTyaw);
+	anim_ssmeTpitch = CreateAnimation(0.5);
+	LogAnim("anim_ssmeTpitch", anim_ssmeTpitch);
+
+	parent = AddAnimationComponent(anim_ssmeTyaw, 0.0, 1.0, &SSMETYaw, NULL);
+	AddAnimationComponent(anim_ssmeTpitch, 0.0, 1.0, &SSMETPitch, parent);
+	AddAnimationComponent(anim_ssmeTpitch, 0.0, 1.0, &SSMETPitchV, parent);
 
 
-  static MGROUP_ROTATE SSMERYaw (LOCALVERTEXLIST, MAKEGROUPARRAY(&ssmer_dummy_vec), 1, SSMEL_REF, _V(0.0, 1.0, 0.0), (float)(21.0 * RAD));
-  static MGROUP_ROTATE SSMERPitch (midx, SSMER_Grp, 1, SSMER_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
-  static MGROUP_ROTATE SSMERPitchV (LOCALVERTEXLIST, MAKEGROUPARRAY(&SSMER_GOX_REF1), 1, SSMER_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
+	static MGROUP_ROTATE SSMELYaw(LOCALVERTEXLIST, MAKEGROUPARRAY(&ssmel_dummy_vec), 1, SSMEL_REF, _V(0.0, 1.0, 0.0), (float)(21.0 * RAD));
+	static MGROUP_ROTATE SSMELPitch(midx, SSMEL_Grp, 1, SSMEL_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
+	//Virtual animations
+	static MGROUP_ROTATE SSMELPitchV(LOCALVERTEXLIST, MAKEGROUPARRAY(&SSMEL_GOX_REF1), 1, SSMEL_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
 
-  anim_ssmeRyaw = CreateAnimation(0.5);
-  LogAnim("anim_ssmeRyaw", anim_ssmeRyaw);
-  anim_ssmeRpitch = CreateAnimation(0.5);
-  LogAnim("anim_ssmeRpitch", anim_ssmeRpitch);
+	anim_ssmeLyaw = CreateAnimation(0.5);
+	LogAnim("anim_ssmeLyaw", anim_ssmeLyaw);
+	anim_ssmeLpitch = CreateAnimation(0.5);
+	LogAnim("anim_ssmeLpitch", anim_ssmeLpitch);
 
-  parent = AddAnimationComponent(anim_ssmeRyaw, 0.0, 1.0, &SSMERYaw, NULL);
-  AddAnimationComponent(anim_ssmeRpitch, 0.0, 1.0, &SSMERPitch, parent);
-  AddAnimationComponent(anim_ssmeRpitch, 0.0, 1.0, &SSMERPitchV, parent);
+	parent = AddAnimationComponent(anim_ssmeLyaw, 0.0, 1.0, &SSMELYaw, NULL);
+	AddAnimationComponent(anim_ssmeLpitch, 0.0, 1.0, &SSMELPitch, parent);
+	AddAnimationComponent(anim_ssmeLpitch, 0.0, 1.0, &SSMELPitchV, parent);
 
-  // ======================================================
-  // Air Data Probe Assembly Animations
-  // ======================================================
 
-  
+	static MGROUP_ROTATE SSMERYaw(LOCALVERTEXLIST, MAKEGROUPARRAY(&ssmer_dummy_vec), 1, SSMER_REF, _V(0.0, 1.0, 0.0), (float)(21.0 * RAD));
+	static MGROUP_ROTATE SSMERPitch(midx, SSMER_Grp, 1, SSMER_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
+	static MGROUP_ROTATE SSMERPitchV(LOCALVERTEXLIST, MAKEGROUPARRAY(&SSMER_GOX_REF1), 1, SSMER_REF, _V(1.0, 0.0, 0.0), (float)(17.0 * RAD));
 
-  static UINT ADPL_Grp[1] = {GRP_LEFT_ADP};
-  static UINT ADPR_Grp[1] = {GRP_RIGHT_ADP};
+	anim_ssmeRyaw = CreateAnimation(0.5);
+	LogAnim("anim_ssmeRyaw", anim_ssmeRyaw);
+	anim_ssmeRpitch = CreateAnimation(0.5);
+	LogAnim("anim_ssmeRpitch", anim_ssmeRpitch);
 
-  static MGROUP_ROTATE ADPL_Deploy (midx, ADPL_Grp, 1, PROBEL_REF, PROBE_AXIS, (float)(180.0 * RAD));
-  static MGROUP_ROTATE ADPR_Deploy (midx, ADPR_Grp, 1, PROBER_REF, PROBE_AXIS, (float)(-180.0 * RAD));
+	parent = AddAnimationComponent(anim_ssmeRyaw, 0.0, 1.0, &SSMERYaw, NULL);
+	AddAnimationComponent(anim_ssmeRpitch, 0.0, 1.0, &SSMERPitch, parent);
+	AddAnimationComponent(anim_ssmeRpitch, 0.0, 1.0, &SSMERPitchV, parent);
 
-  anim_adpl = CreateAnimation(1.0);
-  LogAnim("anim_adpl", anim_adpl);
-  AddAnimationComponent(anim_adpl, 0.0, 1.0, &ADPL_Deploy);
+	// ======================================================
+	// Air Data Probe Assembly Animations
+	// ======================================================
 
-  anim_adpr = CreateAnimation(1.0);
-  LogAnim("anim_adpr", anim_adpr);
-  AddAnimationComponent(anim_adpr, 0.0, 1.0, &ADPR_Deploy);
 
-  // ======================================================
-  // Star tracker door animation
-  // ======================================================
 
-  static UINT STZD_Grp[1] = {GRP_Z_STAR_TRACKER_DOOR};
-  static UINT STYD_Grp[1] = {GRP_Y_STAR_TRACKER_DOOR};
+	static UINT ADPL_Grp[1] = { GRP_PROBEL };
+	static UINT ADPR_Grp[1] = { GRP_PROBER };
 
-  static MGROUP_ROTATE STZD_Open (midx, STZD_Grp, 1, STZD_REF, STZD_AXIS, STAR_TRACKER_DOOR_ANIMATION_ANGLE);
-  static MGROUP_ROTATE STYD_Open (midx, STYD_Grp, 1, STYD_REF, STYD_AXIS, STAR_TRACKER_DOOR_ANIMATION_ANGLE);
+	static MGROUP_ROTATE ADPL_Deploy(midx, ADPL_Grp, 1, PROBEL_REF, PROBE_AXIS, (float)(180.0 * RAD));
+	static MGROUP_ROTATE ADPR_Deploy(midx, ADPR_Grp, 1, PROBER_REF, PROBE_AXIS, (float)(-180.0 * RAD));
 
-  anim_stzd = CreateAnimation(1.0);
-  LogAnim("anim_stzd", anim_stzd);
-  AddAnimationComponent(anim_stzd, 0.0, 1.0, &STZD_Open);
+	anim_adpl = CreateAnimation(1.0);
+	LogAnim("anim_adpl", anim_adpl);
+	AddAnimationComponent(anim_adpl, 0.0, 1.0, &ADPL_Deploy);
 
-  pSTZDoorMotor->SetObjectAnim(anim_stzd);
+	anim_adpr = CreateAnimation(1.0);
+	LogAnim("anim_adpr", anim_adpr);
+	AddAnimationComponent(anim_adpr, 0.0, 1.0, &ADPR_Deploy);
 
-  anim_styd = CreateAnimation(1.0);
-  LogAnim("anim_styd", anim_styd);
-  AddAnimationComponent(anim_styd, 0.0, 1.0, &STYD_Open);
+	// ======================================================
+	// Star tracker door animation
+	// ======================================================
 
-  pSTYDoorMotor->SetObjectAnim(anim_styd);
+	static UINT STZD_Grp[1] = { GRP_ZSTARTRACKER_DOOR };
+	static UINT STYD_Grp[1] = { GRP_XSTARTRACKER_DOOR };
 
-  // ======================================================
-  // VC animation definitions
-  // ======================================================
-  plop->DefineAnimations (vidx);
-  panela4->DefineVCAnimations (vidx);
-  panelc2->DefineVCAnimations (vidx);
-  panelo3->DefineVCAnimations (vidx);
+	static MGROUP_ROTATE STZD_Open(midx, STZD_Grp, 1, STZD_REF, STZD_AXIS, STAR_TRACKER_DOOR_ANIMATION_ANGLE);
+	static MGROUP_ROTATE STYD_Open(midx, STYD_Grp, 1, STYD_REF, STYD_AXIS, STAR_TRACKER_DOOR_ANIMATION_ANGLE);
 
-  EndLoggingAnims();
+	anim_stzd = CreateAnimation(0.0);
+	LogAnim("anim_stzd", anim_stzd);
+	AddAnimationComponent(anim_stzd, 0.0, 1.0, &STZD_Open);
+
+	pSTZDoorMotor->SetObjectAnim(anim_stzd);
+
+	anim_styd = CreateAnimation(0.0);
+	LogAnim("anim_styd", anim_styd);
+	AddAnimationComponent(anim_styd, 0.0, 1.0, &STYD_Open);
+
+	pSTYDoorMotor->SetObjectAnim(anim_styd);
+
+
+	// SBTCs
+	static UINT LeftSBTC_GRP[1] = {GRP_CDR_SBTC_VC};
+	anim_leftsbtc = CreateAnimation( 0.6 );
+	static MGROUP_ROTATE LeftSBTC( mesh_vc, LeftSBTC_GRP, 1, _V( 0, 1.6685, 14.2797 ), _V( 1, 0, 0 ), static_cast<float>(60.0 * RAD) );
+	AddAnimationComponent( anim_leftsbtc, 0, 1, &LeftSBTC );
+
+	static UINT RightSBTC_GRP[1] = {GRP_PLT_SBTC_VC};
+	anim_rightsbtc = CreateAnimation( 0.6 );
+	static MGROUP_ROTATE RightSBTC( mesh_vc, RightSBTC_GRP, 1, _V( 0, 1.6115, 14.2286 ), _V( 1, 0, 0 ), static_cast<float>(60.0 * RAD) );
+	AddAnimationComponent( anim_rightsbtc, 0, 1, &RightSBTC );
+
+	EndLoggingAnims();
 }
 
-void Atlantis::DefineAttachments (const VECTOR3& ofs0)
+void Atlantis::DefineAttachments(const VECTOR3& ofs0)
 {
 
-	if(ahHDP)
+	if (ahHDP)
 	{
 		//when without ET, turn this into a ferry attachment "XFERRY"
-		SetAttachmentParams(ahHDP,POS_HDP, _V(0.0, 0.0, -1.0), 
+		SetAttachmentParams(ahHDP, POS_HDP, _V(0.0, 0.0, -1.0),
 			_V(0.0, 1.0, 0.0));
 	}
-	else 
+	else
 	{
-	  ahHDP = CreateAttachment(true, POS_HDP, _V(0.0, 0.0, -1.0), 
-		  _V(0.0, 1.0, 0.0), "XHDP");
+		ahHDP = CreateAttachment(true, POS_HDP, _V(0.0, 0.0, -1.0),
+			_V(0.0, 1.0, 0.0), "XHDP");
 	}
-	if(ahTow)
+	if (ahTow)
 	{
 		//Update position
-		SetAttachmentParams(ahTow, POS_TOW, _V(0.0, 0.0, 1.0), 
-			_V(0.0, -1.0, 0.0));
+		SetAttachmentParams(ahTow, POS_TOW, _V(0, 0.0749788, 0.997185),
+			_V(0, 0.997185, -0.0749787));
 	}
 	else {
 		//create new attachment
-		ahTow = CreateAttachment(true, POS_TOW, _V(0.0, 0.0, 1.0), 
-		  _V(0.0, -1.0, 0.0), "XTOW");
+		ahTow = CreateAttachment(true, POS_TOW, _V(0, 0.0749788, 0.997185),
+			_V(0, 0.997185, -0.0749787), "T");
 	}
 
-	
-
-		/*
-	Fixed:
-0. RMS End-effector
-1. OBSS
-2. MMU1 (historic, do we need them?)
-3. MMU2
-4. Docking port Aux (allow us simulating soft docking)
-*/
-
-		//if (!obss_attach) obss_attach = 
-    //if (!rms_attach) rms_attach = 
-
-
-	//Separate into UpdateRMSAttachment
-	/*if(ahRMS && !pRMS) //replace with ahRMSLEE?
-	{
-		//Update position
-		SetAttachmentParams(ahRMS, ofs0 + arm_tip[0], arm_tip[1]-arm_tip[0], 
-			arm_tip[2]-arm_tip[0]);
-	}
-	else {
-		//create new attachment
-		ahRMS = CreateAttachment (false, ofs0 + arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
-		if(pRMS) pRMS->DefineAttachmentPoint(ahRMS);
-	}*/
-	if(pRMS) pRMS->CreateAttachment();
+	if (pRMS) pRMS->CreateAttachment();
 	// if RMS does not exist, create a placeholder attachment
 	else CreateAttachment(false, _V(0, 0, 0), _V(1, 0, 0), _V(0, 1, 0), "INVALID");
 
-	//Separate into UpdateOBSSAttachment
-	/*if(ahOBSS)
-	{
-		SetAttachmentParams(ahOBSS, ofs0+_V(2.87, 1.90, 3.15), _V(0,1,0), _V(0,0,1));
-	}
-	else {
-		ahOBSS = CreateAttachment (false, ofs0+_V(2.87, 1.90, 3.15), _V(0,1,0), _V(0,0,1), "OBSS");
-		if(pMPMs) pMPMs->DefineAttachmentPoint(ahOBSS);
-	}*/
-	if(pMPMs) pMPMs->CreateAttachment();
+	if (pMPMs) pMPMs->CreateAttachment();
 	// if MPMs are not used, create a placeholder attachment
 	else CreateAttachment(false, _V(0, 0, 0), _V(1, 0, 0), _V(0, 1, 0), "INVALID");
 
 
-	//Without MMU, make this port airlock payload 
-	if(ahMMU[0])
-	{
-		
-	}
-	else 
-	{
-		ahMMU[0] = CreateAttachment (false, ofs0 + OFS_PORTMMU, _V(1,0,0), _V(0,0,1), "XS");
-	}
-
-	//Without MMU, make this stbd airlock payload 
-	if(ahMMU[1])
-	{	
-	}
-	else
-	{
-		ahMMU[1] = CreateAttachment (false, ofs0 + OFS_STBDMMU, _V(-1,0,0), _V(0,0,1), "XS");
-	}
+	CreateAttachment(false, ofs0 + OFS_PORTMMU, _V(1, 0, 0), _V(0, 0, 1), "XS");// port airlock payload
+	CreateAttachment(false, ofs0 + OFS_STBDMMU, _V(-1, 0, 0), _V(0, 0, 1), "XS");// stbd airlock payload
 
 
-
-	//Move to UpdateDockAuxAttach(), include animation of docking port.
-	//reject attaching when no docking port available
-	UpdateODSAttachment(ofs0+_V(ODS_POS.x+ODS_DOCKPOS_OFFSET.x, ODS_POS.y+ODS_DOCKPOS_OFFSET.y, pMission->GetODSZPos()+ODS_DOCKPOS_OFFSET.z), _V(0.0, 1.0, 0.0), _V(0.0,0.0,1.0));
+	/*eva_docking::ODS* pODS = dynamic_cast<eva_docking::ODS*>(pExtAirlock);
+	if (pODS) pODS->UpdateODSAttachment();
+	else */CreateAttachment( false, _V( 0, 0, 0 ), _V( 1, 0, 0 ), _V( 0, 1, 0 ), "INVALID" );
 	
 
-/*
-dynamic centerline payloads, controlled by the payload 1-3 interfaces
+	/*
+	dynamic centerline payloads, controlled by the payload 1-3 interfaces
 
-5. Payload 1
-6. Payload 2
-7. Payload 3.
+	5. Payload 1
+	6. Payload 2
+	7. Payload 3.
 
-*/
+	*/
 
 	VECTOR3 vPayloadPos = _V(0.0, PL_ATTACH_CENTER_Y, 0.0);
-	for(unsigned int i = 0; i<3; i++)
+	for (unsigned int i = 0; i < 3; i++)
 	{
-		vPayloadPos.z=pMission->GetPayloadZPos(i);
+		vPayloadPos.z = pMission->GetPayloadZPos(i);
 
 		pActiveLatches[i]->SetAttachmentParams(vPayloadPos, DIR_CENTERPL, ROT_CENTERPL);
 		pActiveLatches[i]->CreateAttachment();
 	}
 
-		/*
-		Static centerline Payloads:
-	
-		8. Static C/L payload 1
-		9.	Static C/L payload 2
-		10. Static C/L payload 3.
-		11. Static C/L payload 4.
-		*/
+	/*
+	Static centerline Payloads:
+
+	8. Static C/L payload 1
+	9.	Static C/L payload 2
+	10. Static C/L payload 3.
+	11. Static C/L payload 4.
+	*/
 	vPayloadPos = _V(0.0, PL_ATTACH_CENTER_Y, 0.0);
-	
-	for(int i = 0; i<4; i++)
+
+	for (int i = 0; i < 4; i++)
 	{
-		if(ahCenterPassive[i])
+		vPayloadPos.z = pMission->GetPayloadZPos(i + 3);
+		if (ahCenterPassive[i])
 		{
 			//update
-			//vPayloadPos.z = fPayloadZPos[i+3];
-			vPayloadPos.z = pMission->GetPayloadZPos(i+3);
-
-			SetAttachmentParams(ahCenterPassive[i], ofs0+vPayloadPos, DIR_CENTERPL, 
+			SetAttachmentParams(ahCenterPassive[i], ofs0 + vPayloadPos, DIR_CENTERPL,
 				ROT_CENTERPL);
 		}
-		else 
+		else
 		{
-			vPayloadPos.z = fPayloadZPos[i+3];
 			//create
-			ahCenterPassive[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_CENTERPL, 
+			ahCenterPassive[i] = CreateAttachment(false, ofs0 + vPayloadPos, DIR_CENTERPL,
 				ROT_CENTERPL, "XS");
 		}
 	}
 
-/*
+	/*
 
-Pseudo static Port sill payloads (Are static inside the Shuttle, but can later get separated by EVA)
+	Pseudo static Port sill payloads (Are static inside the Shuttle, but can later get separated by EVA)
 
-12. Port static 1
-13. Port Static 2
-14. Port Static 3
-15. Port Static 4
+	12. Port static 1
+	13. Port Static 2
+	14. Port Static 3
+	15. Port Static 4
 
-The same starboard
+	The same starboard
 
-16. Starboard Static 1
-17. Starboard Static 2
-18. Starboard Static 3
-19. Starboard Static 4
+	16. Starboard Static 1
+	17. Starboard Static 2
+	18. Starboard Static 3
+	19. Starboard Static 4
 	*/
 
 	vPayloadPos = _V(-PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 0.0);
-	
-	for(int i = 0; i<4; i++)
+
+	for (int i = 0; i < 4; i++)
 	{
-		if(ahPortPL[i])
+		vPayloadPos.z = pMission->GetPayloadZPos(i + 7);
+		if (ahPortPL[i])
 		{
 			//update
-			//vPayloadPos.z = fPayloadZPos[i+7];
-			vPayloadPos.z = pMission->GetPayloadZPos(i+7);
-
-			SetAttachmentParams(ahPortPL[i], ofs0+vPayloadPos, DIR_PORTPL, 
+			SetAttachmentParams(ahPortPL[i], ofs0 + vPayloadPos, DIR_PORTPL,
 				ROT_PORTPL);
 		}
-		else 
+		else
 		{
-			//vPayloadPos.z = fPayloadZPos[i+7];
-			vPayloadPos.z = pMission->GetPayloadZPos(i+7);
-
 			//create
-			ahPortPL[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_PORTPL, 
+			ahPortPL[i] = CreateAttachment(false, ofs0 + vPayloadPos, DIR_PORTPL,
 				ROT_PORTPL, "XS");
 		}
 	}
 
 	vPayloadPos = _V(PL_ATTACH_SIDE_X, PL_ATTACH_SIDE_Y, 0.0);
-	
-	for(int i = 0; i<4; i++)
+
+	for (int i = 0; i < 4; i++)
 	{
-		if(ahStbdPL[i])
+		vPayloadPos.z = pMission->GetPayloadZPos(i + 11);
+		if (ahStbdPL[i])
 		{
 			//update
-			vPayloadPos.z = pMission->GetPayloadZPos(i+11);
-			//vPayloadPos.z = fPayloadZPos[i+11];
-			SetAttachmentParams(ahStbdPL[i], ofs0+vPayloadPos, DIR_STBDPL, 
+			SetAttachmentParams(ahStbdPL[i], ofs0 + vPayloadPos, DIR_STBDPL,
 				ROT_STBDPL);
 		}
-		else 
+		else
 		{
-			//vPayloadPos.z = fPayloadZPos[i+11];
-			vPayloadPos.z = pMission->GetPayloadZPos(i+11);
 			//create
-			ahStbdPL[i] = CreateAttachment(false, ofs0+vPayloadPos, DIR_STBDPL, 
+			ahStbdPL[i] = CreateAttachment(false, ofs0 + vPayloadPos, DIR_STBDPL,
 				ROT_STBDPL, "XS");
 		}
 	}
-	
-/*
-20. ET
-21. LSRB
-22. RSRB
-*/
+
+	/*
+	20. ET
+	21. LSRB
+	22. RSRB
+	*/
 	CreateETAndSRBAttachments(ofs0);
+
+	// only one will be created
+	if (pASE_IUS) pASE_IUS->CreateAttachment();// 23
+	else if (pCISS) pCISS->CreateAttachment();// 23
 }
 
 void Atlantis::CreateETAndSRBAttachments(const VECTOR3 &ofs)
 {
-	ahET = CreateAttachment(false, ET_OFFSET+ofs, _V(0, 1, 0), _V(0, 0, 1), "SSU_ET");
-	ahLeftSRB = CreateAttachment(false, LSRB_OFFSET+ofs, _V(-1, 0, 0), _V(0, 0, 1), "SSU_SRB");
-	ahRightSRB = CreateAttachment(false, RSRB_OFFSET+ofs, _V(-1, 0, 0), _V(0, 0, 1), "SSU_SRB");
+	ahET = CreateAttachment(false, ET_OFFSET + ofs, _V(0, 1, 0), _V(0, 0, 1) , "SSU_ET"); // DaveS note: DIR and ROT vectors should be V(0.0, 0.999997,  0.00261802), _V(0.0, 0.00261802, 0.999997) but this causes the ET to move during 2nd stage and I'm not sure what to do about that. It's most likely related to CG calcs.
+	ahLeftSRB = CreateAttachment(false, LSRB_OFFSET + ofs, _V(-1, 0, 0), _V(0, 0, 1), "SSU_SRB");
+	ahRightSRB = CreateAttachment(false, RSRB_OFFSET + ofs, _V(-1, 0, 0), _V(0, 0, 1), "SSU_SRB");
 	char pszBuf[255];
 	sprintf_s(pszBuf, 255, "Attachment count: %d", AttachmentCount(false));
 	oapiWriteLog(pszBuf);
 }
 
-bool Atlantis::SatStowed() const
-{
-	for(int i = 0; i<3; i++)
-	{
-		if(GetAttachmentStatus(ahCenterActive[i]) != NULL)
-			return true;
-	}
-
-	return false;
-}
-
 void Atlantis::AddOrbiterVisual()
 {
-  huds.hudcnt = _V(-0.671257, 2.523535, 14.969);
+	huds.hudcnt = VC_HUDPOS_CDR;
 
-  bHasODS = pMission->HasODS();
-  bHasExtAL = pMission->HasExtAL();
+	bHasODS = pMission->HasODS();
+	bHasExtAL = pMission->HasExtAL();
 
-  if (mesh_orbiter == MESH_UNDEFINED) {
+	if (mesh_orbiter == MESH_UNDEFINED) {
 
-    // ***** Load meshes
+		// ***** Load meshes
+		if (pCISS) pCISS->AddMesh();
+		if (pASE_IUS) pASE_IUS->AddMesh();
+		if (pDragChute) pDragChute->AddMesh();
 
-    mesh_cockpit = AddMesh (hOrbiterCockpitMesh, &VC_OFFSET);
-    SetMeshVisibilityMode (mesh_cockpit, MESHVIS_EXTERNAL);
+		mesh_cockpit = AddMesh(hOrbiterCockpitMesh, &VC_OFFSET);
+		SetMeshVisibilityMode(mesh_cockpit, MESHVIS_EXTERNAL);
 
-    mesh_orbiter = AddMesh (hOrbiterMesh, &OFS_ZERO);
-    SetMeshVisibilityMode (mesh_orbiter, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-	
-	hLOMSPodMesh = oapiLoadMeshGlobal(pMission->GetLOMSPodMeshName().c_str());
-	mesh_loms = AddMesh(hLOMSPodMesh, &LOMS_OFFSET);
-    SetMeshVisibilityMode(mesh_loms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-	hROMSPodMesh = oapiLoadMeshGlobal(pMission->GetROMSPodMeshName().c_str());
-	mesh_roms = AddMesh(hROMSPodMesh, &ROMS_OFFSET);
-    SetMeshVisibilityMode(mesh_roms, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
+		mesh_orbiter = AddMesh(hOrbiterMesh, &OFS_ZERO);
+		SetMeshVisibilityMode(mesh_orbiter, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS);
 
-	//ADD REENTRY MESH
-	oapiWriteLog("OFSET REENTRY SET");
-	mesh_heatshield = AddMesh(hHeatShieldMesh,&OFS_ZERO);
-	oapiWriteLog("REENTRY MESH ADDED");
+		if (pMission->UseSILTS() == true)
+		{
+			hSILTSMesh = oapiLoadMeshGlobal(SILTS_MESHNAME);
+			mesh_SILTS = AddMesh(hSILTSMesh, &SILTS_OFFSET);
+			SetMeshVisibilityMode(mesh_SILTS, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS);
+			oapiWriteLog("SILTS pod mesh added");
+		}
 
-	if(pMission->WingPaintingEnabled()) {
-		strncpy(WingName, pMission->GetOrbiter().c_str(), 256);
-		SURFHANDLE insignia_tex = oapiGetTextureHandle (hOrbiterMesh, TEX_ATLANTIS);
-		PaintMarkings (insignia_tex);
+		if (pMission->GetEDOPallets() >= 1)
+		{
+			hEDOPalletMesh = oapiLoadMeshGlobal( EDOPALLET_MESHNAME );
+			mesh_EDOPallet = AddMesh( hEDOPalletMesh, &EDOPALLET_OFFSET );
+			SetMeshVisibilityMode( mesh_EDOPallet, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS );
+			oapiWriteLog( "EDO pallet mesh added" );
+
+			if (pMission->GetEDOPallets() == 2)
+			{
+				hEDOPallet2Mesh = oapiLoadMeshGlobal( EDOPALLET2_MESHNAME );
+				mesh_EDOPallet2 = AddMesh( hEDOPallet2Mesh, &EDOPALLET2_OFFSET );
+				SetMeshVisibilityMode( mesh_EDOPallet2, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS );
+				oapiWriteLog( "2º EDO pallet mesh added" );
+			}
+		}
+
+		/*if (pMission->HasOMSKit() == true)
+		{
+			hOMSKitMesh = oapiLoadMeshGlobal( OMSKIT_MESHNAME );
+			mesh_OMSKit = AddMesh( hOMSKitMesh, &OMSKIT_OFFSET );
+			SetMeshVisibilityMode( mesh_OMSKit, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS );
+			oapiWriteLog( "OMS pallet mesh added" );
+		}*/
+
+		//ADD REENTRY MESH
+		oapiWriteLog("OFFSET REENTRY MESH SET");
+		mesh_heatshield = AddMesh(hHeatShieldMesh, &ENTRY_OFFSET);
+		oapiWriteLog("REENTRY MESH ADDED");
+
+		mesh_vc = AddMesh(hOrbiterVCMesh, &VC_OFFSET);
+		SetMeshVisibilityMode(mesh_vc, MESHVIS_VC);
+
+		AddKUBandVisual(KU_OFFSET);
+
+		if (pExtAirlock)
+		{
+			pExtAirlock->AddMeshes( _V( 0, 0, pMission->GetExternalAirlockZPos() ) );
+			
+			eva_docking::ODS* pODS = dynamic_cast<eva_docking::ODS*>(pExtAirlock);
+			if (pODS) pODS->SetDockParams( pMission->GetExternalAirlockZPos() );
+			
+			pExtAirlock->DefineAnimations( _V( 0, 0, pMission->GetExternalAirlockZPos() ) );
+		}
+
+		if (pTAA)
+		{
+			pTAA->AddMeshes( _V( 0, 0, pMission->GetTunnelAdapterAssemblyZPos() ) );
+			//pTAA->DefineAnimations( _V( 0, 0, pMission->GetTunnelAdapterAssemblyZPos() ) );
+		}
+
+		mesh_middeck = AddMesh(hMidDeckMesh, &VC_OFFSET);
+		//Only make visible when actually inside the mid deck
+		bMidDeckVisible = false;
+		SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
+
+		pgForward.AddMeshes( VC_OFFSET );
+		pgForward.DefineVC();
+		pgForward.DefineVCAnimations(mesh_vc);
+
+		pgLeft.AddMeshes( VC_OFFSET );
+		pgLeft.DefineVC();
+		pgLeft.DefineVCAnimations(mesh_vc);
+
+		pgCenter.AddMeshes( VC_OFFSET );
+		pgCenter.DefineVC();
+		pgCenter.DefineVCAnimations(mesh_vc);
+
+		pgRight.AddMeshes( VC_OFFSET );
+		pgRight.DefineVC();
+		pgRight.DefineVCAnimations(mesh_vc);
+
+		pgOverhead.AddMeshes( VC_OFFSET );
+		pgOverhead.DefineVC();
+		pgOverhead.DefineVCAnimations(mesh_vc);
+
+		pgOverheadAft.AddMeshes( VC_OFFSET );
+		pgOverheadAft.DefineVC();
+		pgOverheadAft.DefineVCAnimations(mesh_vc);
+
+		pgAftPort.AddMeshes( VC_OFFSET );
+		pgAftPort.DefineVC();
+		pgAftPort.DefineVCAnimations(mesh_vc);
+
+		pgAft.AddMeshes( VC_OFFSET );
+		pgAft.DefineVC();
+		pgAft.DefineVCAnimations(mesh_vc);
+
+		pgAftStbd.AddMeshes( VC_OFFSET );
+		pgAftStbd.DefineVC();
+		pgAftStbd.DefineVCAnimations(mesh_vc);
+
+		huds.nmesh = mesh_vc;
+
+		if (do_cargostatic) {
+			VECTOR3 cofs = cargo_static_ofs;
+			if (mesh_cargo_static == MESH_UNDEFINED)
+			{
+				mesh_cargo_static = AddMesh(cargo_static_mesh_name, &cofs);
+			}
+			else {
+				InsertMesh(cargo_static_mesh_name, mesh_cargo_static, &cofs);
+			}
+			SetMeshVisibilityMode(mesh_cargo_static, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS);
+		}
+
+		// ***** Attachment definitions
+		DefineAttachments(OFS_ZERO);
+
+		// ***** Cockpit camera definition
+
+		SetCameraOffset(_V(-0.67, 2.55, 14.4));
+		oapiVCRegisterHUD(&huds); // register changes in HUD parameters
+
+		DefineAnimations();
 	}
-
-    mesh_vc = AddMesh (hOrbiterVCMesh, &VC_OFFSET);
-    SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
-
-	/*if(RMS) {
-		//add panelA8
-		mesh_panela8 = AddMesh(hPanelA8Mesh, &ofs);
-		SetMeshVisibilityMode (mesh_panela8, MESHVIS_VC);
-	}*/
-
-	AddKUBandVisual(OFS_ZERO);
-
-	if(mesh_extal == MESH_UNDEFINED) {
-		VECTOR3 x = _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
-		mesh_extal = AddMesh(hExtALMesh, &x);
-		SetMeshVisibilityMode(mesh_extal, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-	}
-
-	if(mesh_ods == MESH_UNDEFINED) {
-		VECTOR3 x = _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos());
-		mesh_ods = AddMesh(hODSMesh, &x);
-		SetMeshVisibilityMode(mesh_ods, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-	}
-
-	if(bHasODS) {
-		ShowODS(); // also shows external airlock
-	}
-	else {
-		HideODS();
-		if(bHasExtAL) ShowExtAL();
-		else HideExtAL();
-	}
-
-	mesh_middeck = AddMesh(hMidDeckMesh, &VC_OFFSET);
-	//Only make visible when actually inside the mid deck
-	bMidDeckVisible = false;
-	SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
-	//SetMeshVisibilityMode(mesh_middeck, MESHVIS_VC);
-
-	VECTOR3 chute_ofs=CHUTE_ATTACH_POINT;
-	mesh_dragchute=AddMesh(hDragChuteMesh, &chute_ofs);
-	SetMeshVisibilityMode(mesh_dragchute, MESHVIS_NEVER);
-
-	/* Add optional A7A3/A8A3 panel meshes
-	*/
-	if(pA7A8Panel)
-	{
-		pA7A8Panel->AddMeshes(VC_OFFSET);
-		// functions below should be called by panel group
-		/*pA7A8Panel->DefineVC();
-		pA7A8Panel->DefineVCAnimations(mesh_vc);
-		pA7A8Panel->Realize();*/
-	}
-	if(pPanelA8) pPanelA8->AddMeshes(VC_OFFSET);
-
-	pgForward.DefineVC();
-	pgForward.DefineVCAnimations(mesh_vc);
-	
-	pgLeft.DefineVC();
-	pgLeft.DefineVCAnimations(mesh_vc);
-
-	pgCenter.DefineVC();
-	pgCenter.DefineVCAnimations(mesh_vc);
-
-	pgOverhead.DefineVC();
-	pgOverhead.DefineVCAnimations(mesh_vc);
-
-	pgOverheadAft.DefineVC();
-	pgOverheadAft.DefineVCAnimations(mesh_vc);
-
-	pgRight.DefineVC();
-	pgRight.DefineVCAnimations(mesh_vc);
-
-	pgAft.DefineVC();
-	pgAft.DefineVCAnimations(mesh_vc);
-
-	pgAftStbd.DefineVC();
-	pgAftStbd.DefineVCAnimations(mesh_vc);
-
-	pgAftPort.DefineVC();
-	pgAftPort.DefineVCAnimations(mesh_vc);
-
-    //for (int i = 0; i < 10; i++) mfds[i].nmesh = mesh_vc;
-    huds.nmesh = mesh_vc;
-
-    if (do_cargostatic) {
-      VECTOR3 cofs = cargo_static_ofs;
-	  if(mesh_cargo_static  == MESH_UNDEFINED)
-	  {
-		mesh_cargo_static = AddMesh (cargo_static_mesh_name, &cofs);
-	  } else {
-		InsertMesh(cargo_static_mesh_name, mesh_cargo_static, &cofs);
-	  }
-	  SetMeshVisibilityMode(mesh_cargo_static, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-    }
-    if (do_plat) {
-      VECTOR3 plat_ofs = _V(-2.59805, 1.69209, -5.15524);
-      AddMesh("shuttle_eva_plat", &plat_ofs);
-    }
-
-	/*if(STBDMPM) {
-		VECTOR3 pos=ofs+STBDMPM_REF;
-		mesh_mpm = AddMesh (hOBSSMPMMesh, &pos);
-		SetMeshVisibilityMode (mesh_mpm, MESHVIS_NEVER);
-	}*/
-
-	
-
-    // ***** Docking definitions
-
-	VECTOR3 DockPos = _V(ODS_POS.x+ODS_DOCKPOS_OFFSET.x, ODS_POS.y+ODS_DOCKPOS_OFFSET.y, pMission->GetODSZPos()+ODS_DOCKPOS_OFFSET.z);
-	SetDockParams (DockPos, _V(0,1,0), _V(0,0,-1));
-
-    // ***** Attachment definitions
-
-    //if (!sat_attach) sat_attach = CreateAttachment (false, ofs+ofs_sts_sat, _V(0,1,0), _V(0,0,1), "X");
-	//080415, DaveS add: Added temporary OBSS MPM attachment point
-	//if (!obss_attach) obss_attach = CreateAttachment (false, ofs+_V(2.83, 1.05, 1.68), _V(0,1,0), _V(0,0,1), "OBSS");
-    //if (!rms_attach) rms_attach = CreateAttachment (false, ofs+arm_tip[0], arm_tip[1]-arm_tip[0], arm_tip[2]-arm_tip[0], "G", true);
-
-	DefineAttachments(OFS_ZERO);
-
-    // ***** Cockpit camera definition
-
-    SetCameraOffset (_V(-0.67,2.55,14.4));
-    oapiVCRegisterHUD (&huds); // register changes in HUD parameters
-
-	DefineAnimations();
-
-	if(pExtAirlock) {
-		oapiWriteLog("Create External Airlock animations");
-		pExtAirlock->DefineAirlockAnimations(mesh_extal, mesh_ods, _V(ODS_POS.x, ODS_POS.y, pMission->GetODSZPos()));
-		oapiWriteLog("\tDONE.");
-	}
-
-	
-
-	
-  }
 }
 
-void Atlantis::SeparateBoosters (double met)
+void Atlantis::SeparateBoosters(double met)
 {
-	//int i;
 	char buffer[120];
 
 	double thrust_level, prop_level;
 	GetSRB_State(met, thrust_level, prop_level);
-	prop_level = GetPropellantMass(ph_srb)/GetPropellantMaxMass(ph_srb);
-	
+	prop_level = GetPropellantMass(ph_srb) / GetPropellantMaxMass(ph_srb);
+
 	DetachSRB(LEFT, thrust_level, prop_level);
 	DetachSRB(RIGHT, thrust_level, prop_level);
 
-  sprintf(buffer, "MG_Atlantis: Residual SRB propellant mass is %f kg\n", GetPropellantMass(ph_srb));
-  oapiWriteLog(buffer);
+	sprintf(buffer, "MG_Atlantis: Residual SRB propellant mass is %f kg\n", GetPropellantMass(ph_srb));
+	oapiWriteLog(buffer);
 
-  // Remove SRB's from Shuttle instance
-  DelPropellantResource (ph_srb);
-  DelThrusterGroup (thg_srb, THGROUP_USER, true);
-  for(int i = 0; i<2; i++)
-  {
-	DelExhaustStream(pshSlag1[i]);
-    DelExhaustStream(pshSlag2[i]);
-	DelExhaustStream(pshSlag3[i]);
-	pshSlag1[i] = NULL;
-	pshSlag2[i] = NULL;
-	pshSlag3[i] = NULL;
-  }
+	// Remove SRB's from Shuttle instance
+	DelPropellantResource(ph_srb);
+	DelThruster( th_srb[0] );
+	DelThruster( th_srb[1] );
+	for (int i = 0; i < 2; i++)
+	{
+		DelExhaustStream(pshSlag1[i]);
+		DelExhaustStream(pshSlag2[i]);
+		DelExhaustStream(pshSlag3[i]);
+		pshSlag1[i] = NULL;
+		pshSlag2[i] = NULL;
+		pshSlag3[i] = NULL;
+	}
 
-  // shift cg
-  //ShiftCG (OFS_LAUNCH_ORBITER-OFS_WITHTANK_ORBITER);
+	// reconfigure
+	SetOrbiterTankConfiguration();
+	char cbuf[255];
+	sprintf(cbuf, "Boosters separated");
+	oapiWriteLog(cbuf);
 
+	//stop playing sound
+	StopVesselWave(SoundID, SSME_RUNNING);
 
-  // reconfigure
-  RecordEvent ("JET", "SRB");
-  SetOrbiterTankConfiguration();
-  char cbuf[255];
-  sprintf(cbuf, "Boosters separated");
-  oapiWriteLog(cbuf);
-
-  //stop playing sound
-  StopVesselWave(SoundID, SSME_RUNNING);
-
-  // change ET texture
-  OBJHANDLE hTank = GetAttachmentStatus(ahET);
-  if(hTank) {
+	// change ET texture (TODO: uncomment this code once ET burn texture is fixed)
+	/*OBJHANDLE hTank = GetAttachmentStatus(ahET);
+	if(hTank) {
 	Atlantis_Tank* pTank = static_cast<Atlantis_Tank*>(oapiGetVesselInterface(hTank));
 	pTank->UseBurntETTexture();
-  }
+	}*/
 }
 
-void Atlantis::DetachSRB(SIDE side, double thrust, double prop) const
+void Atlantis::DetachSRB(SIDE side, double thrust, double prop)
 {
-	/*OBJHANDLE hSRB = GetAttachmentStatus(ahSRBAttach);
-	if(hSRB) {
-		Atlantis_SRB* pSRB = static_cast<Atlantis_SRB*>(oapiGetVesselInterface(hSRB));
-		DetachChildAndUpdateMass(ahSRBAttach);
-		pSRB->SetPostSeparationState(t0, thrust, prop);
-	}*/
 	Atlantis_SRB* pSRB = GetSRBInterface(side);
-	if(side==LEFT) DetachChildAndUpdateMass(ahLeftSRB);
+	if (side == LEFT) DetachChildAndUpdateMass(ahLeftSRB);
 	else DetachChildAndUpdateMass(ahRightSRB);
 	pSRB->SetPostSeparationState(t0, thrust, prop);
 }
 
-void Atlantis::SeparateTank (void)
+void Atlantis::SeparateTank(void)
 {
-	DetachChildAndUpdateMass(ahET, -1.0);
+	DetachChildAndUpdateMass(ahET, 0.0);
 
-	// Remove Tank from shuttle instance
-	DelPropellantResource (ph_tank);
+	// create separate tanks for MPS dumps
+	// using remaining mass in manifold to estimate LO2 & LH2 masses
+	phLOXdump = CreatePropellantResource(LOXmass);
+	phLH2dump = CreatePropellantResource(LH2mass);
+	CreateMPSDumpVents();
 
-	// main engines are done
-	//DelThrusterGroup (thg_main, THGROUP_MAIN, true);
-
-	// clear launch attitude control system
-	//DelThrusterGroup (THGROUP_ATT_PITCHUP, true);
-	//DelThrusterGroup (THGROUP_ATT_PITCHDOWN, true);
-	//DelThrusterGroup (THGROUP_ATT_BANKLEFT, true);
-	//DelThrusterGroup (THGROUP_ATT_BANKRIGHT, true);
-	//DelThrusterGroup (THGROUP_ATT_YAWLEFT, true);
-	//DelThrusterGroup (THGROUP_ATT_YAWRIGHT, true);
-
-	// remove tank mesh and shift cg
-	//Test keeping animations - which are not defined on the ET.
-	//DelMesh (mesh_tank, true);
-	//ShiftCG (OFS_WITHTANK_ORBITER);
+	// delete joint mps manifold
+	DelPropellantResource(ph_mps);
 
 	// reconfigure
-	RecordEvent ("JET", "ET"); 
-	SetOrbiterConfiguration ();
-
-	bManualSeparate = false;
-}
-
-bool Atlantis::HasSRBs() const
-{
-	return (status <= STATE_STAGE1);
+	SetOrbiterConfiguration();
 }
 
 bool Atlantis::HasTank() const
@@ -2868,7 +2509,7 @@ bool Atlantis::HasTank() const
 Atlantis_Tank* Atlantis::GetTankInterface() const
 {
 	OBJHANDLE hTank = GetAttachmentStatus(ahET);
-	if(hTank)
+	if (hTank)
 		return static_cast<Atlantis_Tank*>(oapiGetVesselInterface(hTank));
 	return NULL;
 }
@@ -2876,169 +2517,56 @@ Atlantis_Tank* Atlantis::GetTankInterface() const
 Atlantis_SRB* Atlantis::GetSRBInterface(SIDE side) const
 {
 	OBJHANDLE hSRB = NULL;
-	if(side==LEFT) hSRB = GetAttachmentStatus(ahLeftSRB);
+	if (side == LEFT) hSRB = GetAttachmentStatus(ahLeftSRB);
 	else hSRB = GetAttachmentStatus(ahRightSRB);
-	if(hSRB)
+	if (hSRB)
 		return static_cast<Atlantis_SRB*>(oapiGetVesselInterface(hSRB));
 	return NULL;
 }
 
 ISSUMLP* Atlantis::GetMLPInterface() const
 {
-	if(ahHDP)
+	if (ahHDP)
 	{
 		OBJHANDLE hMLP = GetAttachmentStatus(ahHDP);
-		if(hMLP)
+		if (hMLP)
 		{
 			VESSEL* pV = oapiGetVesselInterface(hMLP);
-			if(pV)
+			if (pV)
 			{
-				if(!_stricmp(pV->GetClassName(), "SSU_MLP")) return static_cast<MLP*>(pV);
-				else if(!_stricmp(pV->GetClassName(), "SSU_SLC6")) return static_cast<SLC6*>(pV);
+				if (!_stricmp(pV->GetClassName(), "SSU_MLP")) return static_cast<MLP*>(pV);
+				else if (!_stricmp(pV->GetClassName(), "SSU_SLC6")) return static_cast<SLC6*>(pV);
 			}
 		}
 	}
 	return NULL;
 }
 
-void Atlantis::ToggleGrapple (void)
+void Atlantis::ToggleGrapple(void)
 {
-  //OBJHANDLE hV = GetAttachmentStatus (ahRMS);
-
-  if(!RMS) return; //no arm
-  if (pRMS->Grappled()) {  // release satellite
-
-    //ATTACHMENTHANDLE hAtt = CanArrest();
-    //reduce mass of shuttle
-    /*pl_mass-=oapiGetMass(hV);
-	if(pl_mass<0.0) pl_mass=0.0;
-	SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);*/
-
-    //DetachChild (ahRMS);
-	pRMS->Ungrapple();
-    // check whether the object being ungrappled is ready to be clamped into the payload bay
-	/*
-    if (hAtt) {
-      AttachChild (hV, sat_attach, hAtt);
-      if (hDlg) {
-        SetWindowText (GetDlgItem (hDlg, IDC_PAYLOAD), "Purge");
-        EnableWindow (GetDlgItem (hDlg, IDC_PAYLOAD), TRUE);
-      }
-    }
-	*/
-
-#ifdef UNDEF
-    VECTOR3 pos, dir, rot, gbay, gpos;
-    GetAttachmentParams (sat_attach, pos, dir, rot);
-    Local2Global (pos, gbay);
-    VESSEL *v = oapiGetVesselInterface (hV);
-    DWORD nAttach = v->AttachmentCount (true);
-    for (DWORD j = 0; j < nAttach; j++) { // now scan all attachment points
-      ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
-      v->GetAttachmentParams (hAtt, pos, dir, rot);
-      v->Local2Global (pos, gpos);
-      if (dist (gpos, gbay) < MAX_GRAPPLING_DIST) {
-        AttachChild (hV, sat_attach, hAtt);
-        return;
-      }
-    }
-#endif
-
-  } else {             // grapple satellite
-	  ATTACHMENTHANDLE hV=pRMS->Grapple();
-	  if(hV) {
-		  //increase mass of shuttle
-		  /*pl_mass+=oapiGetMass(hV);
-		  //oapiWriteLog("pl_mass increased");
-		  SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);*/
-	  }
-  }
-}
-
-void Atlantis::ToggleArrest (void)
-{
-}
-
-void Atlantis::ToggleVCMode()
-{
-	switch(vcDeckMode)
-	{
-	case VCM_FLIGHTDECK:
-		oapiSetPanel(VC_MIDDECK);
-		vcDeckMode = VCM_MIDDECK;
-		break;
-	case VCM_MIDDECK:
-		oapiSetPanel(VC_PORTSTATION);
-		vcDeckMode = VCM_FLIGHTDECK;
-		break;
-	} 
-}
-
-ATTACHMENTHANDLE Atlantis::GetAttachmentTarget(ATTACHMENTHANDLE attachment, const char* id_string, OBJHANDLE* vessel) const
-{
-	VECTOR3 gpos, gdir, gatt, pos, dir, rot, gattdir;
-	GetAttachmentParams(attachment, pos, dir, rot);
-    Local2Global(pos, gatt);  // global position of SSU attachment point
-	GlobalRot(dir, gattdir);
-
-	// Code copied from ToggleGrapple() function
-	// ToggleGrapple() function should be modified to use this.
-	for (DWORD i = 0; i < oapiGetVesselCount(); i++) {
-		OBJHANDLE hV = oapiGetVesselByIndex (i);
-		if (hV == GetHandle()) continue; // we don't want to grapple ourselves ...
-
-		oapiGetGlobalPos (hV, &gpos);
-		if (dist (gpos, gatt) < oapiGetSize (hV)) { // in range
-			VESSEL *v = oapiGetVesselInterface (hV);
-			DWORD nAttach = v->AttachmentCount (true);
-			for (DWORD j = 0; j < nAttach; j++) { // now scan all attachment points of the candidate
-				ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
-				if(v->GetAttachmentStatus(hAtt)) continue; //attachment is attached to something else
-
-				//check attachment ID
-				const char *id = v->GetAttachmentId (hAtt);
-				if (strncmp (id, id_string, strlen(id_string))) continue; // attachment point not compatible
-
-				//check attachment point position/direction
-				v->GetAttachmentParams (hAtt, pos, dir, rot);
-				v->Local2Global (pos, gpos);
-				if (dist (gpos, gatt) < MAX_GRAPPLING_DIST) { 
-					v->GlobalRot(dir, gdir);
-					//sprintf_s(oapiDebugString(), 255, "Attitude difference: %f", fabs(180-DEG*acos(dotp(gdir, grmsdir))));
-					if(fabs(PI-acos(dotp(gdir, gattdir))) < MAX_GRAPPLING_ANGLE) {  // found one!
-						oapiWriteLog("Found attachment");
-						if(vessel) *vessel=hV;
-						return hAtt;
-					}
-				}
-			}
+	if (!RMS) return; //no arm
+	if (pRMS->Grappled()) {  // release satellite
+		pRMS->Ungrapple();
+	}
+	else {             // grapple satellite
+		ATTACHMENTHANDLE hV = pRMS->Grapple();
+		if (hV) {
+			//increase mass of shuttle
+			/*pl_mass+=oapiGetMass(hV);
+			//oapiWriteLog("pl_mass increased");
+			SetEmptyMass(ORBITER_EMPTY_MASS+pl_mass);*/
 		}
 	}
-	//if we haven't found a target, return NULL and leave OBJHANDLE* unchanged
-	return NULL;
 }
 
-void Atlantis::SeparateMMU (void)
+bool Atlantis::HydraulicsOK( void ) const
 {
-  // Create MMU as individual object
-  VESSELSTATUS vs;
-  GetStatus (vs);
-  char name[256];
-  strcpy (name, GetName()); strcat (name, "-MMU");
-  hMMU = oapiCreateVessel(name, "Nasa_MMU", vs);
-  jettison_time = oapiGetSimTime();
-  reset_mmu = true;
-  // Remove MMU from shuttle instance
-  SetOrbiterConfiguration ();
-}
-
-bool Atlantis::HydraulicsOK() {
-  return panelr2->HydraulicPressure();
+	return ((pAPU[0]->GetHydraulicPressure() >= 2800) || (pAPU[1]->GetHydraulicPressure() >= 2800) || (pAPU[2]->GetHydraulicPressure() >= 2800));
 }
 
 void Atlantis::GimbalOMS(int engine, double pitch, double yaw)
 {
-	if(abs(pitch)<6.0 && abs(yaw)<7.0) {
+	if (abs(pitch) < 6.0 && abs(yaw) < 7.0) {
 		//OMSGimbal[engine][0]=pitch;
 		//OMSGimbal[engine][1]=yaw;
 
@@ -3063,10 +2591,10 @@ void Atlantis::GimbalOMS(int engine, double pitch, double yaw)
 
 double Atlantis::CalcNetSSMEThrust() const
 {
-	VECTOR3 N=_V(0, 0, 0), F, M;
-	for(int i=0;i<3;i++) {
+	VECTOR3 N = _V(0, 0, 0), F, M;
+	for (int i = 0; i < 3; i++) {
 		GetThrusterMoment(th_main[i], F, M);
-		N+=F;
+		N += F;
 	}
 	return length(N);
 }
@@ -3076,77 +2604,54 @@ double Atlantis::GetSSMEISP() const
 	return GetThrusterIsp(th_main[0]);
 }
 
-void Atlantis::CalcSSMEThrustAngles(double& degAngleP, double& degAngleY) const
+void Atlantis::CalcSSMEThrustAngles(int eng, double& degAngleP, double& degAngleY) const
 {
-	VECTOR3 N=_V(0, 0, 0);
-        for(int i=0;i<3;i++) {
-		N += SSMENullDirection[i]*GetThrusterLevel(th_main[i]);
+	VECTOR3 N = _V(0, 0, 0);
+	VECTOR3 dir = _V(0, 0, 0);
+	if (eng == 0)
+	{
+		for (int i = 0; i < 3; i++) {
+			GetThrusterRef(th_main[i], dir);
+			dir = Normalize(-dir);
+			N += dir*GetThrusterLevel(th_main[i]);
+		}
 	}
-	degAngleP=DEG*asin(N.y/N.z);
-	degAngleY=DEG*asin(N.x/N.z);
+	else
+	{
+		GetThrusterRef(th_main[eng - 1], dir);
+		N = -dir;
+	}
+	degAngleP = DEG*atan2(N.y, N.z);
+	degAngleY = -DEG*atan2(cos(RAD*degAngleP) * N.x, N.z);
 }
-
-void Atlantis::FailEngine(int engine)
-{
-	SetThrusterResource(th_main[engine], NULL);
-	bEngineFail=false;
-}
-
-void Atlantis::LaunchClamps ()
-{
-  VECTOR3 F, T, r = _V(0,0,0), Fc = _V(0,0,0), Tc = _V(0,0,0);
-  GetThrusterMoment (th_srb[0], F, T);
-  Fc.z = -2*F.z;
-  Tc.x =  2*T.x;
-  GetThrusterMoment (th_main[0], F, T);
-  Fc.z -= 2*F.z;
-  Fc.y -= 2*F.y;
-  Tc.x += 2*T.x;
-  GetThrusterMoment (th_main[2], F, T);
-  Fc.z -= F.z;
-  Fc.y -= F.y;
-  Tc.x += T.x;
-  r.z = (Fc.y ? Tc.x/Fc.y : 0);
-  AddForce (Fc, r);
-}
-
 
 // Update moving parts of the orbiter's visual: payload bay doors and gear
 // This should only be called when the visual exists, e.g. from within
 // clbkVisualCreated or clbkAnimate
 
-void Atlantis::UpdateMesh ()
+void Atlantis::UpdateMesh()
 {
-  // update animation states
-  //gop->UpdateMesh();
-  SetAnimation (anim_spdb, spdb_proc);
-  SetAnimation (anim_door, plop->BayDoorStatus.pos);
-  for(int i=0;i<4;i++) SetAnimation(anim_clatch[i], plop->CLBayDoorLatch[i].pos);
-  SetAnimation (anim_rad,  plop->RadiatorStatus.pos);
-  SetAnimation (anim_kubd, plop->KuAntennaStatus.pos);
-  SetAnimation (anim_kualpha, plop->KuAntennaStatus.pos);
-  SetAnimation (anim_kubeta, plop->KuAntennaStatus.pos);
-  //SetAnimation(anim_letumbdoor, panelr2->LETUmbDoorStatus.pos);
-  //SetAnimation(anim_retumbdoor, panelr2->RETUmbDoorStatus.pos);
-  SetAnimation(anim_gear, gear_status.pos);
+	// update animation states
+	SetAnimation(anim_spdb, spdb_proc);
+	SetPayloadBayDoorPosition( 0, pPayloadBay->PayloadBayDoor[0].pos );
+	SetPayloadBayDoorPosition( 1, pPayloadBay->PayloadBayDoor[1].pos );
+	for (int i = 0; i < 4; i++) SetAnimation(anim_clatch[i], pPayloadBay->PLBDLatch[i].pos);
+	SetAnimation(anim_rad[0], pPayloadBay->RadiatorStatus[0].pos);
+	SetAnimation(anim_rad[1], pPayloadBay->RadiatorStatus[1].pos);
+	SetAnimation( anim_kubd, pPayloadBay->KuAntennaStatus.pos );
+	if (pDeployedAssembly)
+	{
+		SetAnimation( anim_kualpha, pDeployedAssembly->GetAlphaAnimation() );
+		SetAnimation( anim_kubeta, pDeployedAssembly->GetBetaAnimation() );
+	}
+	SetAnimation(anim_gear, gear_status.pos);
 
-  SetAnimationCameras(); // update camera positions
-
-
-  // update MFD brightness
-  if (vis) {
-    int i;
-    MESHHANDLE hMesh = GetMesh (vis, mesh_vc);
-    for (i = 0; i < 10; i++) {
-      MATERIAL *mat = oapiMeshMaterial (hMesh, 10+i);
-      mat->emissive.r = mat->emissive.g = mat->emissive.b = (float)mfdbright[i];
-    }
-  }
+	SetAnimationCameras(); // update camera positions
 }
 
 void Atlantis::ShowMidDeck()
 {
-	if(!bMidDeckVisible)
+	if (!bMidDeckVisible)
 	{
 		SetMeshVisibilityMode(mesh_middeck, MESHVIS_VC);
 		bMidDeckVisible = true;
@@ -3154,7 +2659,7 @@ void Atlantis::ShowMidDeck()
 }
 void Atlantis::HideMidDeck()
 {
-	if(bMidDeckVisible)
+	if (bMidDeckVisible)
 	{
 		SetMeshVisibilityMode(mesh_middeck, MESHVIS_NEVER);
 		bMidDeckVisible = false;
@@ -3163,23 +2668,27 @@ void Atlantis::HideMidDeck()
 
 void Atlantis::DeployLandingGear()
 {
-	if(status==STATE_ORBITER && GearArmed() && gear_status.action!=AnimState::OPEN) {
-		gear_status.action=AnimState::OPENING;
-		RecordEvent ("GEAR", "DOWN");
+	if (status == STATE_ORBITER && GearArmed() && gear_status.action != AnimState::OPEN) {
+		gear_status.action = AnimState::OPENING;
+		LandingGearDeployLT[0].SetLine();
+		LandingGearDeployLT[1].SetLine();
+		RecordEvent("GEAR", "DOWN");
 	}
 }
 
 void Atlantis::RetractLandingGear()
 {
-	if(status==STATE_ORBITER && GearArmed()) {
-		gear_status.action=AnimState::CLOSING;
-		RecordEvent ("GEAR", "UP");
+	if (status == STATE_ORBITER && GearArmed()) {
+		gear_status.action = AnimState::CLOSING;
+		RecordEvent("GEAR", "UP");
 	}
 }
 
 void Atlantis::ArmGear()
 {
-	gear_armed=true;
+	gear_armed = true;
+	LandingGearArmLT[0].SetLine();
+	LandingGearArmLT[1].SetLine();
 }
 
 bool Atlantis::GearArmed() const
@@ -3187,101 +2696,348 @@ bool Atlantis::GearArmed() const
 	return gear_armed;
 }
 
-void Atlantis::DeployDragChute()
-{
-	SetAnimation(anim_chute_deploy, 0.0);
-	SetMeshVisibilityMode(mesh_dragchute, MESHVIS_EXTERNAL);	
-
-	//DragChuteState=REEFED;
-	DragChuteState=DEPLOYING;
-	DragChuteSize=0.0;
-}
-
-void Atlantis::JettisonDragChute()
-{
-	SetMeshVisibilityMode(mesh_dragchute, MESHVIS_NEVER);
-
-	DragChuteState=JETTISONED;
-	DragChuteSize=0.0;
-
-	//add chute vessel
-	VESSELSTATUS2 vs;
-	memset(&vs, 0, sizeof(vs));
-	vs.version=2;
-	GetStatusEx(&vs);
-	vs.status=0;
-	VECTOR3 chute_ofs;
-	Local2Rel(CHUTE_ATTACH_POINT, chute_ofs);
-	vs.rpos=chute_ofs;
-	char name[255];
-	strcpy_s(name, GetName()); 
-	strcat_s(name, "-Chute");
-	oapiCreateVesselEx(name, "SSU_Chute", &vs);
-}
-
 void Atlantis::DefineTouchdownPoints()
 {
-	if (gear_status.action==AnimState::OPEN) { // gear fully deployed
-		SetTouchdownPoints (_V(0.0, -5.88, 15.39)+orbiter_ofs, _V(-3.418, -7.46, -4.99)+orbiter_ofs, _V(3.418, -7.46, -4.99)+orbiter_ofs); // gear wheel tips
-		SetSurfaceFrictionCoeff (0.035/2, 0.5);
+	switch (status)
+	{
+		//case STATE_PRELAUNCH:// set in first call to clbkPreStep() with exact pad/MLP elevation
+		case STATE_STAGE1:
+		case STATE_STAGE2:
+			 {
+				DWORD ntdvtx = 4;
+				static TOUCHDOWNVTX tdvtx[4] = {
+					{_V( 0, -10, -55.8 ), 1e5, 1e2, 0.5, 0.005},
+					{_V( -7, 7, -55.8 ), 1e5, 1e2, 0.5, 0.005},
+					{_V( 7, 7, -55.8 ), 1e5, 1e2, 0.5, 0.005},
+					{_V( 0, 0, 20 ), 1e5, 1e2, 0.5}
+				};
+				SetTouchdownPoints( tdvtx, ntdvtx );
+			 }
+			break;
+		case STATE_ORBITER:
+			{
+				DWORD ntdvtx = 10;
+				static TOUCHDOWNVTX tdvtx[10];
+				// points do not necessarily represent EXACT locations in order to decrease total point count
+				// nose tip
+				tdvtx[3].pos = _V( 0, -2.0295, 18.6573 ) + orbiter_ofs;
+				tdvtx[3].stiffness = 1e8;
+				tdvtx[3].damping = 1e6;
+				tdvtx[3].mu = 1;
+				//tdvtx[3].mu_lng = 0;
+				// top of forward fuselage
+				tdvtx[4].pos = _V( 0, 2.0796, 12.0360 ) + orbiter_ofs;
+				tdvtx[4].stiffness = 1e8;
+				tdvtx[4].damping = 1e6;
+				tdvtx[4].mu = 1;
+				//tdvtx[4].mu_lng = 0;
+				// top of tail
+				tdvtx[5].pos = _V( 0, 10.3036, -17.4510 ) + orbiter_ofs;
+				tdvtx[5].stiffness = 1e8;
+				tdvtx[5].damping = 1e6;
+				tdvtx[5].mu = 1;
+				//tdvtx[5].mu_lng = 0;
+				// BF LH tip
+				tdvtx[6].pos = _V( -2.7904, -3.3344, -16.7121 ) + orbiter_ofs;
+				tdvtx[6].stiffness = 1e8;
+				tdvtx[6].damping = 1e6;
+				tdvtx[6].mu = 1;
+				//tdvtx[6].mu_lng = 0;
+				// BF RH tip
+				tdvtx[7].pos = _V( 2.7904, -3.3344, -16.7121 ) + orbiter_ofs;
+				tdvtx[7].stiffness = 1e8;
+				tdvtx[7].damping = 1e6;
+				tdvtx[7].mu = 1;
+				//tdvtx[7].mu_lng = 0;
+				// LH wing tip
+				tdvtx[8].pos = _V( -12.3260, -2.7311, -10.5948 ) + orbiter_ofs;
+				tdvtx[8].stiffness = 1e8;
+				tdvtx[8].damping = 1e6;
+				tdvtx[8].mu = 1;
+				//tdvtx[8].mu_lng = 0;
+				// RH wing tip
+				tdvtx[9].pos = _V( 12.3260, -2.7311, -10.5948 ) + orbiter_ofs;
+				tdvtx[9].stiffness = 1e8;
+				tdvtx[9].damping = 1e6;
+				tdvtx[9].mu = 1;
+				//tdvtx[9].mu_lng = 0;
+
+				if (gear_status.action == AnimState::OPEN)
+				{// gear fully deployed
+					// NLG (open)
+					tdvtx[0].pos = _V( 0, -5.142, 14.897 ) + orbiter_ofs;
+					tdvtx[0].stiffness = 1e8;
+					tdvtx[0].damping = 1e6;
+					tdvtx[0].mu = 2;
+					tdvtx[0].mu_lng = 0.0175;
+					// LH MLG (open)
+					tdvtx[1].pos = _V( -4.027, -6.607, -5.3 ) + orbiter_ofs;
+					tdvtx[1].stiffness = 1e8;
+					tdvtx[1].damping = 1e5;
+					tdvtx[1].mu = 2;
+					tdvtx[1].mu_lng = 0.0175;
+					// RH MLG (open)
+					tdvtx[2].pos = _V( 4.027, -6.607, -5.3 ) + orbiter_ofs;
+					tdvtx[2].stiffness = 1e8;
+					tdvtx[2].damping = 1e5;
+					tdvtx[2].mu = 2;
+					tdvtx[2].mu_lng = 0.0175;
+				}
+				else
+				{// belly landing
+					// NLG area (closed)
+					tdvtx[0].pos = _V( 0, -3.3878, 14.6771 ) + orbiter_ofs;
+					tdvtx[0].stiffness = 1e8;
+					tdvtx[0].damping = 1e6;
+					tdvtx[0].mu = 1;
+					tdvtx[0].mu_lng = 1;
+					// LH MLG area (closed)
+					tdvtx[1].pos = _V( -2.6445, -3.8329, -3.8605 ) + orbiter_ofs;
+					tdvtx[1].stiffness = 1e8;
+					tdvtx[1].damping = 1e6;
+					tdvtx[1].mu = 1;
+					tdvtx[1].mu_lng = 1;
+					// RH MLG area (closed)
+					tdvtx[2].pos = _V( 2.6445, -3.8329, -3.8605 ) + orbiter_ofs;
+					tdvtx[2].stiffness = 1e8;
+					tdvtx[2].damping = 1e6;
+					tdvtx[2].mu = 1;
+					tdvtx[2].mu_lng = 1;
+				}
+
+				SetTouchdownPoints( tdvtx, ntdvtx );
+			}
+			break;
 	}
-	else {
-		SetTouchdownPoints (_V(0,-2.5,14)+orbiter_ofs, _V(-8,-2.8,-9)+orbiter_ofs, _V(8,-2.8,-9)+orbiter_ofs); // belly landing
-		SetSurfaceFrictionCoeff (0.4, 0.4);
+
+	return;
+}
+
+void Atlantis::ClearMeshes()
+{
+	VESSEL::ClearMeshes( true );
+	mesh_orbiter = MESH_UNDEFINED;
+	mesh_kuband = MESH_UNDEFINED;
+	mesh_cockpit = MESH_UNDEFINED;
+	mesh_vc = MESH_UNDEFINED;
+}
+
+void Atlantis::SetPayloadBayDoorPosition( int side, double pos )
+{
+	if (side == 0)// port
+	{
+		// motor/push rod/crank part
+		double r5 = length( PLBD_PORT_P4 - PLBD_PORT_P5 );
+		double r6 = length( PLBD_PORT_P5 - PLBD_PORT_P6 );
+		double r7 = length( PLBD_PORT_P4 - PLBD_PORT_P7 );
+		double r8 = length( PLBD_PORT_P7 - PLBD_PORT_P6 );
+
+		double theta5o = 2 * PI - angle( PLBD_PORT_P5 - PLBD_PORT_P4, _V( -1.0, 0.0, 0.0 ) );
+		double theta6o = 2 * PI - angle( PLBD_PORT_P6 - PLBD_PORT_P5, _V( -1.0, 0.0, 0.0 ) );
+		double theta7 = 2 * PI - angle( PLBD_PORT_P7 - PLBD_PORT_P4, _V( -1.0, 0.0, 0.0 ) );
+		double theta8o = 2 * PI - angle( PLBD_PORT_P6 - PLBD_PORT_P7, _V( -1.0, 0.0, 0.0 ) );
+
+		double theta8 = theta8o + (pos * PLBD_MOTOR_RANGE);
+		if (theta8 > (2 * PI)) theta8 -= 2 * PI;
+
+		double xa = r7 * cos( theta7 ) + r8 * cos( theta8 );
+		double ya = r7 * sin( theta7 ) + r8 * sin( theta8 );
+
+		double theta6 = 2 * PI + atan2( ya, xa ) + acos( ((xa * xa) + (ya * ya) + (r6 * r6) - (r5 * r5)) / (2 * r6 * sqrt( (xa * xa) + (ya * ya) )) );
+
+		double theta5 = 2 * PI + atan2( ya - r6 * sin( theta6 ), xa - r6 * cos( theta6 ) );
+		if (theta5 > (2 * PI)) theta5 -= 2 * PI;
+
+		// clamp/pull rod/door part
+		double r1 = length( PLBD_PORT_P2 - PLBD_PORT_P1 );
+		double r2 = length( PLBD_PORT_P3 - PLBD_PORT_P2 );
+		double r3 = length( PLBD_PORT_P3 - PLBD_PORT_P4 );
+		double r4 = length( PLBD_PORT_P4 - PLBD_PORT_P1 );
+
+		double theta1o = 2 * PI - angle( PLBD_PORT_P1 - PLBD_PORT_P2, _V( -1.0, 0.0, 0.0 ) );
+		double theta2o = angle( PLBD_PORT_P2 - PLBD_PORT_P3, _V( -1.0, 0.0, 0.0 ) );
+		double theta3 = 2 * PI - angle( PLBD_PORT_P4 - PLBD_PORT_P3, _V( -1.0, 0.0, 0.0 ) );
+		double theta4o = angle( PLBD_PORT_P1 - PLBD_PORT_P4, _V( -1.0, 0.0, 0.0 ) );
+
+		double theta4 = theta4o - (theta5o - theta5);
+
+		xa = r3 * cos( theta3 ) + r4 * cos( theta4 );
+		ya = r3 * sin( theta3 ) + r4 * sin( theta4 );
+
+		double theta2 = 2 * PI + atan2( ya, xa ) - acos( ((xa * xa) + (ya * ya) + (r2 * r2) - (r1 * r1)) / (2 * r2 * sqrt( (xa * xa) + (ya * ya) )) );
+		if (theta2 > (2 * PI)) theta2 -= 2 * PI;
+
+		double theta1 = 2 * PI + atan2( ya - r2 * sin( theta2 ), xa - r2 * cos( theta2 ) );
+		if (theta1 > (2 * PI)) theta1 -= 2 * PI;
+
+		
+		SetAnimation( anim_door_port_pushrod, (theta6 - theta6o - (theta4 - theta4o)) / (2 * PI) );
+		
+		double tmp = (theta4 - theta4o) / (2 * PI);
+		if (tmp < 0.0) tmp += 1.0;
+		SetAnimation( anim_door_port_clamp, tmp );
+		
+		tmp = (theta1 - theta1o + (theta2o - theta2)) / (2 * PI);
+		if (tmp < 0.0) tmp += 1.0;
+		SetAnimation( anim_door_port_pullrod, tmp );
+		
+		tmp = (theta2o - theta2) / (2 * PI);
+		if (tmp < 0.0) tmp += 1.0;
+		SetAnimation( anim_door_port, tmp );
+
+		ldoor_drag = sqrt( min( 1.0, pos ) );
 	}
+	else// starboard
+	{
+		// motor/push rod/crank part
+		double r5 = length( PLBD_STBD_P4 - PLBD_STBD_P5 );
+		double r6 = length( PLBD_STBD_P5 - PLBD_STBD_P6 );
+		double r7 = length( PLBD_STBD_P4 - PLBD_STBD_P7 );
+		double r8 = length( PLBD_STBD_P7 - PLBD_STBD_P6 );
+
+		double theta5o = 2 * PI - angle( PLBD_STBD_P5 - PLBD_STBD_P4, _V( 1.0, 0.0, 0.0 ) );
+		double theta6o = 2 * PI - angle( PLBD_STBD_P6 - PLBD_STBD_P5, _V( 1.0, 0.0, 0.0 ) );
+		double theta7 = 2 * PI - angle( PLBD_STBD_P7 - PLBD_STBD_P4, _V( 1.0, 0.0, 0.0 ) );
+		double theta8o = 2 * PI - angle( PLBD_STBD_P6 - PLBD_STBD_P7, _V( 1.0, 0.0, 0.0 ) );
+
+		double theta8 = theta8o + (pos * PLBD_MOTOR_RANGE);
+		if (theta8 > (2 * PI)) theta8 -= 2 * PI;
+
+		double xa = r7 * cos( theta7 ) + r8 * cos( theta8 );
+		double ya = r7 * sin( theta7 ) + r8 * sin( theta8 );
+
+		double theta6 = 2 * PI + atan2( ya, xa ) + acos( ((xa * xa) + (ya * ya) + (r6 * r6) - (r5 * r5)) / (2 * r6 * sqrt( (xa * xa) + (ya * ya) )) );
+
+		double theta5 = 2 * PI + atan2( ya - r6 * sin( theta6 ), xa - r6 * cos( theta6 ) );
+		if (theta5 > (2 * PI)) theta5 -= 2 * PI;
+
+		// clamp/pull rod/door part
+		double r1 = length( PLBD_STBD_P2 - PLBD_STBD_P1 );
+		double r2 = length( PLBD_STBD_P3 - PLBD_STBD_P2 );
+		double r3 = length( PLBD_STBD_P3 - PLBD_STBD_P4 );
+		double r4 = length( PLBD_STBD_P4 - PLBD_STBD_P1 );
+
+		double theta1o = 2 * PI - angle( PLBD_STBD_P1 - PLBD_STBD_P2, _V( 1.0, 0.0, 0.0 ) );
+		double theta2o = angle( PLBD_STBD_P2 - PLBD_STBD_P3, _V( 1.0, 0.0, 0.0 ) );
+		double theta3 = 2 * PI - angle( PLBD_STBD_P4 - PLBD_STBD_P3, _V( 1.0, 0.0, 0.0 ) );
+		double theta4o = angle( PLBD_STBD_P1 - PLBD_STBD_P4, _V( 1.0, 0.0, 0.0 ) );
+
+		double theta4 = theta4o - (theta5o - theta5);
+
+		xa = r3 * cos( theta3 ) + r4 * cos( theta4 );
+		ya = r3 * sin( theta3 ) + r4 * sin( theta4 );
+
+		double theta2 = 2 * PI + atan2( ya, xa ) - acos( ((xa * xa) + (ya * ya) + (r2 * r2) - (r1 * r1)) / (2 * r2 * sqrt( (xa * xa) + (ya * ya) )) );
+		if (theta2 > (2 * PI)) theta2 -= 2 * PI;
+
+		double theta1 = 2 * PI + atan2( ya - r2 * sin( theta2 ), xa - r2 * cos( theta2 ) );
+		if (theta1 > (2 * PI)) theta1 -= 2 * PI;
+
+		
+		SetAnimation( anim_door_stbd_pushrod, (theta6 - theta6o - (theta4 - theta4o)) / (2 * PI) );
+		
+		double tmp = (theta4 - theta4o) / (2 * PI);
+		if (tmp < 0.0) tmp += 1.0;
+		SetAnimation( anim_door_stbd_clamp, tmp );
+		
+		tmp = (theta1 - theta1o + (theta2o - theta2)) / (2 * PI);
+		if (tmp < 0.0) tmp += 1.0;
+		SetAnimation( anim_door_stbd_pullrod, tmp );
+		
+		tmp = (theta2o - theta2) / (2 * PI);
+		if (tmp < 0.0) tmp += 1.0;
+		SetAnimation( anim_door_stbd, tmp );
+
+		rdoor_drag = sqrt( min( 1.0, pos ) );
+	}
+	return;
 }
 
-void Atlantis::ClearMeshes ()
-{
-  VESSEL::ClearMeshes();
-  mesh_orbiter = MESH_UNDEFINED;
-  mesh_kuband  = MESH_UNDEFINED;
-  mesh_cockpit = MESH_UNDEFINED;
-  mesh_vc      = MESH_UNDEFINED;
-}
-
-void Atlantis::SetBayDoorPosition (double pos)
-{
-  SetAnimation (anim_door, pos);
-  rdoor_drag = sqrt (min (1.0, pos*3.0));
-  ldoor_drag = sqrt (min (1.0, max(0.0, pos-0.3656)*3.0));
-  //SetAnimation (anim_portTS, max(0.0, (pos - 0.5)/0.5));
-}
-
-void Atlantis::SetBayDoorLatchPosition(int gang, double pos)
+void Atlantis::SetPayloadBayDoorLatchPosition(int gang, double pos)
 {
 	SetAnimation(anim_clatch[gang], pos);
 }
 
-void Atlantis::SetRadiatorPosition (double pos)
+void Atlantis::SetRadiatorPosition(double pos, int side)
 {
-  SetAnimation (anim_rad, pos);
+	SetAnimation(anim_rad[side], pos);
 }
 
-void Atlantis::SetKuAntennaPosition (double pos)
+void Atlantis::SetKuAntennaDAPosition(double pos)
 {
-  SetAnimation (anim_kubd, pos);
-  SetAnimation (anim_kualpha, pos);
-  SetAnimation (anim_kubeta, pos);
+	SetAnimation(anim_kubd, pos);
 }
 
-void Atlantis::SetETUmbDoorPosition (double pos, int door)
+void Atlantis::SetETUmbDoorPosition(double pos, int door)
 {
-	if(door==0) SetAnimation (anim_letumbdoor, pos);
-	else SetAnimation (anim_retumbdoor, pos);
+	if (door == 0)
+	{
+		// LH
+		double r1 = length( ETUMB_L_P1 - ETUMB_L_P4 );
+		double r2 = length( ETUMB_L_P1 - ETUMB_L_P2 );
+		double r3 = length( ETUMB_L_P2 - ETUMB_L_P3 );
+		double r4 = length( ETUMB_L_P4 - ETUMB_L_P3 );
+		double theta2 = angle( ETUMB_L_P2 - ETUMB_L_P1, _V( -1.0, 0.0, 0.0 ) );
+		double theta1o = angle( ETUMB_L_P4 - ETUMB_L_P1, _V( -1.0, 0.0, 0.0 ) );
+		double theta3o = angle( ETUMB_L_P3 - ETUMB_L_P2, _V( -1.0, 0.0, 0.0 ) );
+		double theta4o = angle( ETUMB_L_P3 - ETUMB_L_P4, _V( -1.0, 0.0, 0.0 ) );
+
+		double theta3 = theta3o - (pos * ETUMB_ARM_RANGE);
+
+		double xa = r2 * cos( theta2 ) + r3 * cos( theta3 );
+		double ya = r2 * sin( theta2 ) + r3 * sin( theta3 );
+
+		double theta4 = atan2( ya, xa ) + acos( ((xa * xa) + (ya * ya) + (r4 * r4) - (r1 * r1)) / (2 * r4 * sqrt( (xa * xa) + (ya * ya) )) );
+
+		double theta1 = atan2( ya - r4 * sin( theta4 ), xa - r4 * cos( theta4 ) );
+
+		SetAnimation( anim_letumbdoor, (theta1o - theta1) / (2 * PI) );
+		SetAnimation( anim_letumbarm, (theta3o - theta3) / ETUMB_ARM_RANGE );
+		double tmp = (theta4o - theta4 - (theta1o - theta1)) / (2 * PI);
+		if (tmp < 0.0) tmp += 1.0;
+		SetAnimation( anim_letumblink, tmp );
+	}
+	else
+	{
+		// RH
+		double r1 = length( ETUMB_R_P1 - ETUMB_R_P4 );
+		double r2 = length( ETUMB_R_P1 - ETUMB_R_P2 );
+		double r3 = length( ETUMB_R_P2 - ETUMB_R_P3 );
+		double r4 = length( ETUMB_R_P4 - ETUMB_R_P3 );
+		double theta2 = angle( ETUMB_R_P2 - ETUMB_R_P1, _V( 1.0, 0.0, 0.0 ) );
+		double theta1o = angle( ETUMB_R_P4 - ETUMB_R_P1, _V( 1.0, 0.0, 0.0 ) );
+		double theta3o = angle( ETUMB_R_P3 - ETUMB_R_P2, _V( 1.0, 0.0, 0.0 ) );
+		double theta4o = angle( ETUMB_R_P3 - ETUMB_R_P4, _V( 1.0, 0.0, 0.0 ) );
+
+		double theta3 = theta3o - (pos * ETUMB_ARM_RANGE);
+
+		double xa = r2 * cos( theta2 ) + r3 * cos( theta3 );
+		double ya = r2 * sin( theta2 ) + r3 * sin( theta3 );
+
+		double theta4 = atan2( ya, xa ) + acos( ((xa * xa) + (ya * ya) + (r4 * r4) - (r1 * r1)) / (2 * r4 * sqrt( (xa * xa) + (ya * ya) )) );
+
+		double theta1 = atan2( ya - r4 * sin( theta4 ), xa - r4 * cos( theta4 ) );
+
+		SetAnimation( anim_retumbdoor, (theta1o - theta1) / (2 * PI) );
+		SetAnimation( anim_retumbarm, (theta3o - theta3) / ETUMB_ARM_RANGE );
+		double tmp = (theta4o - theta4 - (theta1o - theta1)) / (2 * PI);
+		if (tmp < 0.0) tmp += 1.0;
+		SetAnimation( anim_retumblink, tmp );
+	}
+	return;
 }
 
-void Atlantis::OperateSpeedbrake (AnimState::Action action)
+void Atlantis::OperateSpeedbrake(AnimState::Action action)
 {
-  spdb_status = action;
-  RecordEvent ("SPEEDBRAKE", action == AnimState::CLOSING ? "CLOSE" : "OPEN");
+	spdb_status = action;
+	RecordEvent("SPEEDBRAKE", action == AnimState::CLOSING ? "CLOSE" : "OPEN");
 }
 
 void Atlantis::SetSpeedbrake(double tgt)
 {
-	spdb_tgt=tgt;
-	if(spdb_tgt<spdb_proc) OperateSpeedbrake(AnimState::CLOSING);
-	else if(spdb_tgt>spdb_proc) OperateSpeedbrake(AnimState::OPENING);
+	spdb_tgt = tgt;
+	if (spdb_tgt<spdb_proc) OperateSpeedbrake(AnimState::CLOSING);
+	else if (spdb_tgt>spdb_proc) OperateSpeedbrake(AnimState::OPENING);
 }
 
 void Atlantis::SetAnimationCameras() {
@@ -3313,55 +3069,41 @@ void Atlantis::SetAnimationCameras() {
 	anim_pitch = linterp(-170, 0, 170, 1, camPitch[CAM_C]);
 	SetAnimation(anim_camBRpitch, anim_pitch);
 
-	//RMS Elbow
-	/*anim_yaw=linterp(-170, 0, 170, 1, camRMSElbowPan);
-	SetAnimation(anim_camRMSElbowPan, anim_yaw);
-	anim_pitch=linterp(-170, 0, 170, 1, camRMSElbowTilt);
-	SetAnimation(anim_camRMSElbowTilt, anim_pitch);*/
-
-	if(oapiCameraInternal()) {
+	if (oapiCameraInternal() && VCMode >= VC_PLBCAMFL && VCMode <= VC_PLBCAMFR) {
 		double a = 0;
 		double b = 0;
 
 		switch (VCMode) {
 		case VC_PLBCAMFL:
-			a = ((-camYaw[CAM_A]+90)*RAD);
-			b = ((camPitch[CAM_A]-90)*RAD);
-			SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
-			oapiCameraSetCockpitDir(0.0, 0.0);
+			a = ((-camYaw[CAM_A] + 90)*RAD);
+			b = ((camPitch[CAM_A] - 90)*RAD);
 			break;
 		case VC_PLBCAMFR:
-			a = ((-camYaw[CAM_D]+90)*RAD);
-			b = ((camPitch[CAM_D]-90)*RAD);
-			SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
-			oapiCameraSetCockpitDir(0.0, 0.0);
+			a = ((-camYaw[CAM_D] + 90)*RAD);
+			b = ((camPitch[CAM_D] - 90)*RAD);
 			break;
 		case VC_PLBCAMBL:
-			a = ((-camYaw[CAM_B]-90)*RAD);
-			b = ((camPitch[CAM_B]-90)*RAD);
-			SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
-			oapiCameraSetCockpitDir(0.0, 0.0);
+			a = ((-camYaw[CAM_B] - 90)*RAD);
+			b = ((camPitch[CAM_B] - 90)*RAD);
 			break;
 		case VC_PLBCAMBR:
-			a = ((-camYaw[CAM_C]-90)*RAD);
-			b = ((camPitch[CAM_C]-90)*RAD);
-			SetCameraDefaultDirection (_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
-			oapiCameraSetCockpitDir(0.0, 0.0);
+			a = ((-camYaw[CAM_C] - 90)*RAD);
+			b = ((camPitch[CAM_C] - 90)*RAD);
 			break;
-			/*case VC_RMSCAM:
-			SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);
-			SetCameraOffset(camRMSElbowLoc[0]);
-			break;*/
 		}
+		SetCameraOffset(orbiter_ofs + plbCamPos[VCMode - VC_PLBCAMFL]);
+		SetCameraDefaultDirection(_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
+		oapiCameraSetCockpitDir(0.0, 0.0);
 	}
 }
 
 LightEmitter* Atlantis::AddPayloadBayLight(VECTOR3& pos, VECTOR3& dir, double degWidth, BEACONLIGHTSPEC& bspec)
 {
-	static VECTOR3 color = _V(0.75,0.75,0.75);
-	const COLOUR4 diff = {0.949f, 0.988f, 1.0f, 0.0f};
-	const COLOUR4 amb = {0.0, 0.0, 0};
-	const COLOUR4 spec = {0.0f, 0.0f, 0.0f,0};
+	static VECTOR3 color = _V(0.75, 0.75, 0.75);
+	//const COLOUR4 diff = {0.949f, 0.988f, 1.0f, 0.0f}; //RGB for metal halide but it doesn't quite match up with actual photos
+	const COLOUR4 diff = { 0.847f, 0.968f, 1.0f, 0.0f }; //RGB for mercury vapor, this better matches photos
+	const COLOUR4 amb = { 0.0, 0.0, 0 };
+	const COLOUR4 spec = { 0.0f, 0.0f, 0.0f, 0 };
 
 	bspec.active = false;
 	bspec.col = &color;
@@ -3373,1886 +3115,2333 @@ LightEmitter* Atlantis::AddPayloadBayLight(VECTOR3& pos, VECTOR3& dir, double de
 	bspec.size = 0.25;
 	bspec.tofs = 0;
 	AddBeacon(&bspec);
-	return AddSpotLight(pos,dir,20,0.5,0.8,0.001, degWidth*RAD, degWidth*1.1*RAD,
-						 diff,spec,amb);
+	return AddSpotLight(pos, dir, 20, 0.5, 0.0, 0.05, degWidth*RAD, degWidth*1.1*RAD,
+		diff, spec, amb);
 }
 
 void Atlantis::EnableThrusters(const int Thrusters[], int nThrusters)
 {
-	if(bUseRealRCS)
-		return;
+	if (bUseRealRCS)
+	{
+		//th_att_rcs[0] = CreateThruster(_V(0, 0, 15.5), _V(0, 1, 0), 
+		//th_att_rcs[1] = CreateThruster(_V(0, 0, -15.5), _V(0, -1, 0),
+		//th_att_rcs[2] = CreateThruster(_V(0, 0, 15.5), _V(0, -1, 0), 
+		//th_att_rcs[3] = CreateThruster(_V(0, 0, -15.5), _V(0, 1, 0), 
+		/*th_att_rcs[4] = CreateThruster(_V(0, 0, 15.5), _V(-1, 0, 0),
+		th_att_rcs[5] = CreateThruster(_V(0, 0, -15.5), _V(1, 0, 0),
+		th_att_rcs[6] = CreateThruster(_V(0, 0, 15.5), _V(1, 0, 0),
+		th_att_rcs[7] = CreateThruster(_V(0, 0, -15.5), _V(-1, 0, 0),
+		th_att_rcs[8] = CreateThruster(_V(2.7, 0, 0), _V(0, 1, 0), ORBITER_RCS_THRUST, ph_frcs,
+		th_att_rcs[9] = CreateThruster(_V(-2.7, 0, 0), _V(0, -1, 0), ORBITER_RCS_THRUST, ph_oms,
+		th_att_rcs[10] = CreateThruster(_V(-2.7, 0, 0), _V(0, 1, 0), ORBITER_RCS_THRUST, ph_frcs,
+		th_att_rcs[11] = CreateThruster(_V(2.7, 0, 0), _V(0, -1, 0), ORBITER_RCS_THRUST, ph_oms,
 
-	for(int i=0;i<nThrusters;i++) {
-		if(Thrusters[i]%2==1)
-			SetThrusterResource(th_att_rcs[Thrusters[i]], ph_oms);
-		else
-			SetThrusterResource(th_att_rcs[Thrusters[i]], ph_frcs);
+		*/
+		for (int i = 0; i < nThrusters; i++) {
+			switch (Thrusters[i]) {
+			case 0:
+				//Enable FxD
+				SetThrusterResource(thFRCS[RCS_F1D], ph_frcs);
+				SetThrusterResource(thFRCS[RCS_F2D], ph_frcs);
+				SetThrusterResource(thFRCS[RCS_F3D], ph_frcs);
+				SetThrusterResource(thFRCS[RCS_F4D], ph_frcs);
+				break;
+			case 1:
+				//Enable L(R)xU
+				SetThrusterResource(thLRCS[RCS_L1U], ph_lrcs);
+				SetThrusterResource(thLRCS[RCS_L2U], ph_lrcs);
+				SetThrusterResource(thLRCS[RCS_L4U], ph_lrcs);
+				SetThrusterResource(thRRCS[RCS_R1U], ph_rrcs);
+				SetThrusterResource(thRRCS[RCS_R2U], ph_rrcs);
+				SetThrusterResource(thRRCS[RCS_R4U], ph_rrcs);
+				break;
+			case 2:
+				//Enable FxU
+				SetThrusterResource(thFRCS[RCS_F1U], ph_frcs);
+				SetThrusterResource(thFRCS[RCS_F2U], ph_frcs);
+				SetThrusterResource(thFRCS[RCS_F3U], ph_frcs);
+				break;
+			case 3:
+				//Enable L(R)xD
+				SetThrusterResource(thLRCS[RCS_L3D], ph_lrcs);
+				SetThrusterResource(thLRCS[RCS_L2D], ph_lrcs);
+				SetThrusterResource(thLRCS[RCS_L4D], ph_lrcs);
+				SetThrusterResource(thRRCS[RCS_R3D], ph_rrcs);
+				SetThrusterResource(thRRCS[RCS_R2D], ph_rrcs);
+				SetThrusterResource(thRRCS[RCS_R4D], ph_rrcs);
+				break;
+			case 4:
+				//Enable FxL
+				SetThrusterResource(thFRCS[RCS_F1L], ph_frcs);
+				SetThrusterResource(thFRCS[RCS_F3L], ph_frcs);
+				break;
+			case 5:
+				//Enable RxR
+
+				SetThrusterResource(thRRCS[RCS_R3R], ph_rrcs);
+				SetThrusterResource(thRRCS[RCS_R1R], ph_rrcs);
+				SetThrusterResource(thRRCS[RCS_R2R], ph_rrcs);
+				SetThrusterResource(thRRCS[RCS_R4R], ph_rrcs);
+				break;
+			case 6:
+				//Enable FxR
+				SetThrusterResource(thFRCS[RCS_F2R], ph_frcs);
+				SetThrusterResource(thFRCS[RCS_F4R], ph_frcs);
+				break;
+			case 7:
+				//Enable LxL
+				SetThrusterResource(thLRCS[RCS_L3L], ph_lrcs);
+				SetThrusterResource(thLRCS[RCS_L1L], ph_lrcs);
+				SetThrusterResource(thLRCS[RCS_L2L], ph_lrcs);
+				SetThrusterResource(thLRCS[RCS_L4L], ph_lrcs);
+				break;
+			case 8:
+				//Enable front bank left
+				SetThrusterResource(thFRCS[RCS_F2D], ph_frcs);
+				SetThrusterResource(thFRCS[RCS_F4D], ph_frcs);
+				break;
+			case 9:
+				//Enable aft bank left
+				SetThrusterResource(thRRCS[RCS_R3D], ph_rrcs);
+				SetThrusterResource(thRRCS[RCS_R4D], ph_rrcs);
+				SetThrusterResource(thRRCS[RCS_R2D], ph_rrcs);
+				SetThrusterResource(thLRCS[RCS_L4U], ph_lrcs);
+				SetThrusterResource(thLRCS[RCS_L2U], ph_lrcs);
+				SetThrusterResource(thLRCS[RCS_L1U], ph_lrcs);
+				break;
+			case 10:
+				//Enable front bank right
+				SetThrusterResource(thFRCS[RCS_F2R], ph_frcs);
+				SetThrusterResource(thFRCS[RCS_F4R], ph_frcs);
+				break;
+			case 11:
+				//Enable aft bank right
+				SetThrusterResource(thRRCS[RCS_R1U], ph_rrcs);
+				SetThrusterResource(thRRCS[RCS_R4U], ph_rrcs);
+				SetThrusterResource(thRRCS[RCS_R2U], ph_rrcs);
+				SetThrusterResource(thLRCS[RCS_L4D], ph_lrcs);
+				SetThrusterResource(thLRCS[RCS_L2D], ph_lrcs);
+				SetThrusterResource(thLRCS[RCS_L3D], ph_lrcs);
+				break;
+			}
+		}
 	}
+	else
+	{
+		//TODO: Possible Crash
+		for (int i = 0; i < nThrusters; i++) {
+			if (Thrusters[i] % 2 == 1)
+				SetThrusterResource(th_att_rcs[Thrusters[i]], ph_oms);
+			else
+				SetThrusterResource(th_att_rcs[Thrusters[i]], ph_frcs);
+		}
+	}
+
 }
 
 void Atlantis::DisableThrusters(const int Thrusters[], int nThrusters)
 {
-	if(bUseRealRCS)
-		return;
+	if (bUseRealRCS) {
+		for (int i = 0; i < nThrusters; i++) {
+			switch (Thrusters[i]) {
+			case 0:
+				//Disable FxD
+				SetThrusterResource(thFRCS[RCS_F1D], NULL);
+				SetThrusterResource(thFRCS[RCS_F2D], NULL);
+				SetThrusterResource(thFRCS[RCS_F3D], NULL);
+				SetThrusterResource(thFRCS[RCS_F4D], NULL);
+				break;
+			case 1:
+				//Enable L(R)xU
+				SetThrusterResource(thLRCS[RCS_L1U], NULL);
+				SetThrusterResource(thLRCS[RCS_L2U], NULL);
+				SetThrusterResource(thLRCS[RCS_L4U], NULL);
+				SetThrusterResource(thRRCS[RCS_R1U], NULL);
+				SetThrusterResource(thRRCS[RCS_R2U], NULL);
+				SetThrusterResource(thRRCS[RCS_R4U], NULL);
+				break;
+			case 2:
+				//Enable FxU
+				SetThrusterResource(thFRCS[RCS_F1U], NULL);
+				SetThrusterResource(thFRCS[RCS_F2U], NULL);
+				SetThrusterResource(thFRCS[RCS_F3U], NULL);
+				break;
+			case 3:
+				//Enable L(R)xD
+				SetThrusterResource(thLRCS[RCS_L3D], NULL);
+				SetThrusterResource(thLRCS[RCS_L2D], NULL);
+				SetThrusterResource(thLRCS[RCS_L4D], NULL);
+				SetThrusterResource(thRRCS[RCS_R3D], NULL);
+				SetThrusterResource(thRRCS[RCS_R2D], NULL);
+				SetThrusterResource(thRRCS[RCS_R4D], NULL);
+				break;
+			case 4:
+				//Enable FxL
+				SetThrusterResource(thFRCS[RCS_F1L], NULL);
+				SetThrusterResource(thFRCS[RCS_F3L], NULL);
+				break;
+			case 5:
+				//Enable RxR
 
-	for(int i=0;i<nThrusters;i++) {
-		SetThrusterResource(th_att_rcs[Thrusters[i]], NULL);
+				SetThrusterResource(thRRCS[RCS_R3R], NULL);
+				SetThrusterResource(thRRCS[RCS_R1R], NULL);
+				SetThrusterResource(thRRCS[RCS_R2R], NULL);
+				SetThrusterResource(thRRCS[RCS_R4R], NULL);
+				break;
+			case 6:
+				//Enable FxR
+				SetThrusterResource(thFRCS[RCS_F2R], NULL);
+				SetThrusterResource(thFRCS[RCS_F4R], NULL);
+				break;
+			case 7:
+				//Enable LxL
+				SetThrusterResource(thLRCS[RCS_L3L], NULL);
+				SetThrusterResource(thLRCS[RCS_L1L], NULL);
+				SetThrusterResource(thLRCS[RCS_L2L], NULL);
+				SetThrusterResource(thLRCS[RCS_L4L], NULL);
+				break;
+			case 8:
+				//Enable front bank left
+				SetThrusterResource(thFRCS[RCS_F2D], NULL);
+				SetThrusterResource(thFRCS[RCS_F4D], NULL);
+				break;
+			case 9:
+				//Enable aft bank left
+				SetThrusterResource(thRRCS[RCS_R3D], NULL);
+				SetThrusterResource(thRRCS[RCS_R4D], NULL);
+				SetThrusterResource(thRRCS[RCS_R2D], NULL);
+				SetThrusterResource(thLRCS[RCS_L4U], NULL);
+				SetThrusterResource(thLRCS[RCS_L2U], NULL);
+				SetThrusterResource(thLRCS[RCS_L1U], NULL);
+				break;
+			case 10:
+				//Enable front bank right
+				SetThrusterResource(thFRCS[RCS_F2R], NULL);
+				SetThrusterResource(thFRCS[RCS_F4R], NULL);
+				break;
+			case 11:
+				//Enable aft bank right
+				SetThrusterResource(thRRCS[RCS_R1U], NULL);
+				SetThrusterResource(thRRCS[RCS_R4U], NULL);
+				SetThrusterResource(thRRCS[RCS_R2U], NULL);
+				SetThrusterResource(thLRCS[RCS_L4D], NULL);
+				SetThrusterResource(thLRCS[RCS_L2D], NULL);
+				SetThrusterResource(thLRCS[RCS_L3D], NULL);
+				break;
+			}
+		}
+	}
+	else
+	{
+		//TODO: Possible Crash!
+		for (int i = 0; i < nThrusters; i++) {
+			SetThrusterResource(th_att_rcs[Thrusters[i]], NULL);
+		}
 	}
 }
 
 void Atlantis::UpdateTranslationForces()
 {
-	TransForce[0].x=GetThrusterGroupMaxThrust(thg_transfwd);
-	TransForce[1].x=GetThrusterGroupMaxThrust(thg_transaft);
-	TransForce[0].y=GetThrusterGroupMaxThrust(thg_transright);
-	TransForce[1].y=GetThrusterGroupMaxThrust(thg_transleft);
-	TransForce[0].z=GetThrusterGroupMaxThrust(thg_transdown);
-	TransForce[1].z=GetThrusterGroupMaxThrust(thg_transup);
+	TransForce[0].x = GetThrusterGroupMaxThrust(thg_transfwd);
+	TransForce[1].x = GetThrusterGroupMaxThrust(thg_transaft);
+	TransForce[0].y = GetThrusterGroupMaxThrust(thg_transright);
+	TransForce[1].y = GetThrusterGroupMaxThrust(thg_transleft);
+	TransForce[0].z = GetThrusterGroupMaxThrust(thg_transdown);
+	TransForce[1].z = GetThrusterGroupMaxThrust(thg_transup);
 }
 
 double Atlantis::GetThrusterGroupMaxThrust(THGROUP_HANDLE thg) const
 {
-	VECTOR3 Total=_V(0.0, 0.0, 0.0), Dir;
-	for(DWORD i=0;i<GetGroupThrusterCount(thg);i++) {
-		THRUSTER_HANDLE th=GetGroupThruster(thg, i);
+	VECTOR3 Total = _V(0.0, 0.0, 0.0), Dir;
+	for (DWORD i = 0; i < GetGroupThrusterCount(thg); i++) {
+		THRUSTER_HANDLE th = GetGroupThruster(thg, i);
 		GetThrusterDir(th, Dir);
-		Total+=Dir*GetThrusterMax0(th);
+		Total += Dir*GetThrusterMax0(th);
 	}
 	return length(Total);
 }
 
 double Atlantis::GetPropellantLevel(PROPELLANT_HANDLE ph) const
 {
-	return 100.0*(GetPropellantMass(ph)/GetPropellantMaxMass(ph));
+	return 100.0*(GetPropellantMass(ph) / GetPropellantMaxMass(ph));
 }
 
-void Atlantis::UpdateHandControllerSignals()
+void Atlantis::UpdateControllersSignals( double dt )
 {
-	//get THC and RHC input
-	if(ControlRMS) { // use RHC/THC input to control RMS
-		RMS_RHCInput[PITCH].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)));
-		RMS_RHCInput[YAW].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)));
-		RMS_RHCInput[ROLL].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)));
-		if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
+	// RHC and THC input (RMS included)
+	if (ControlRMS)
+	{
+		// use RHC/THC input to control RMS
+
+		// kill FCS input
+		for (int i = 0; i < 9; i++)
+		{
+			LeftRHC[i].ResetLine();
+			RightRHC[i].ResetLine();
+			AftRHC[i].ResetLine();
+
+			LeftTHC[i * 2].ResetLine();
+			LeftTHC[(i * 2) + 1].ResetLine();
+			AftTHC[i * 2].ResetLine();
+			AftTHC[(i * 2) + 1].ResetLine();
+		}
+		LeftRHCpitch = 0.0;
+		LeftRHCroll = 0.0;
+		LeftRHCyaw = 0.0;
+		RightRHCpitch = 0.0;
+		RightRHCroll = 0.0;
+		RightRHCyaw = 0.0;
+		AftRHCpitch = 0.0;
+		AftRHCroll = 0.0;
+		AftRHCyaw = 0.0;
+
+		RMS_RHCInput[PITCH].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_PITCHUP) - GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)));
+		RMS_RHCInput[YAW].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)));
+		RMS_RHCInput[ROLL].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT) - GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)));
+		if (!ControlSurfacesEnabled && GetAttitudeMode() == RCS_ROT) { // use arrow, Ins/Del keys for translation input
 			RMS_THCInput[0].SetLine(5.0f*(float)(AltKybdInput.x));
 			RMS_THCInput[1].SetLine(5.0f*(float)(AltKybdInput.y));
 			RMS_THCInput[2].SetLine(5.0f*(float)(AltKybdInput.z));
 		}
 		else {
-			RMS_THCInput[0].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK)));
-			RMS_THCInput[1].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT)));
-			RMS_THCInput[2].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP)));
-		}
-		for(int i=0;i<3;i++) {
-			RHCInput.data[i]=0.0;
-			THCInput.data[i]=0.0;
+			RMS_THCInput[0].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_FORWARD) - GetThrusterGroupLevel(THGROUP_ATT_BACK)));
+			RMS_THCInput[1].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_RIGHT) - GetThrusterGroupLevel(THGROUP_ATT_LEFT)));
+			RMS_THCInput[2].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_DOWN) - GetThrusterGroupLevel(THGROUP_ATT_UP)));
 		}
 
 		// use RHC pitch commands to drive single joint input
 		// in theory, these discrete lines should only be set if RMS is in SINGLE or DIRECT mode
 		// in practice, RMS code only looks at these discrete lines if in appropriate mode
-		if((GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)) > 0.5) {
+		if ((GetThrusterGroupLevel(THGROUP_ATT_PITCHUP) - GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)) > 0.5) {
 			RMSDrivePlus.SetLine();
 			RMSDriveMinus.ResetLine();
 			lastRMSSJCommand = 1;
 		}
-		else if((GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)) < -0.5) {
+		else if ((GetThrusterGroupLevel(THGROUP_ATT_PITCHUP) - GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)) < -0.5) {
 			RMSDrivePlus.ResetLine();
 			RMSDriveMinus.SetLine();
 			lastRMSSJCommand = -1;
 		}
 		else {
-			if(lastRMSSJCommand != 0) { // only reset lines once, so Panel A8 joint drive switch works
+			if (lastRMSSJCommand != 0) { // only reset lines once, so Panel A8 joint drive switch works
 				RMSDrivePlus.ResetLine();
 				RMSDriveMinus.ResetLine();
 				lastRMSSJCommand = 0;
 			}
 		}
 	}
-	else { // use RHC/THC input to control RCS
-		if(status==STATE_ORBITER && GetAltitude()<100000.0) { // use Orbiter aerosurfaces, which will smoothly ramp between values, for entry
-			if((VCMode==VC_CDR && CdrFltCntlrPwr) || (VCMode==VC_PLT && PltFltCntlrPwr)) { //forward RHC/THC
-				RHCInput.data[PITCH]=GetControlSurfaceLevel(AIRCTRL_ELEVATOR);
-				RHCInput.data[YAW]=GetControlSurfaceLevel(AIRCTRL_RUDDER);
-				RHCInput.data[ROLL]=GetControlSurfaceLevel(AIRCTRL_AILERON);
-			}
-			else {
-				RHCInput=_V(0, 0, 0);
-			}
-			THCInput=_V(0, 0, 0);
-		}
-		else { // launch or in orbit - use Orbiter thrusters
-			//if(VCMode==VC_CDR || VCMode==VC_PLT || VCMode==VC_MS1 || VCMode==VC_MS2) { //forward RHC/THC
-			if((VCMode==VC_CDR && CdrFltCntlrPwr) || (VCMode==VC_PLT && PltFltCntlrPwr)) { //forward RHC/THC
-				RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
-				RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-				RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
-				if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-					for(int i=0;i<3;i++) THCInput.data[i]=AltKybdInput.data[i];
-				}
-				else {
-					THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
-					THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
-					THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
-				}
-			}
-			else if((VCMode!=VC_MS1 && VCMode!=VC_MS2) && AftFltCntlrPwr) { //aft RHC/THC
-				if(AftSense) { //-Z
-					//sprintf_s(oapiDebugString(), 255, "AFT SENSE Set");
-					RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-					RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-					RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)-GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
-					if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-						THCInput.z=-AltKybdInput.x;
-						THCInput.y=-AltKybdInput.y;
-						THCInput.x=-AltKybdInput.z;
-					}
-					else {
-						THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-						THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-						THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN);
-					}
-				}
-				else { //-X
-					//sprintf_s(oapiDebugString(), 255, "AFT SENSE Not Set");
-					RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-					RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-					RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-					if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-						THCInput.x=-AltKybdInput.x;
-						THCInput.y=-AltKybdInput.y;
-						THCInput.z=AltKybdInput.z;
-					}
-					else {
-						THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-						THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-						THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
-					}
-				}
-			}
-			else {
-				RHCInput=_V(0, 0, 0);
-				THCInput=_V(0, 0, 0);
-			}
-		}
-
-		for(unsigned short i=0;i<3;i++) {
-			RMS_RHCInput[i].SetLine(0.0);
-			RMS_THCInput[i].SetLine(0.0);
-
-			RHCInputPort[i].SetLine(static_cast<float>(RHCInput.data[i]));
-			THCInputPort[i].SetLine(static_cast<float>(THCInput.data[i]));
-		}
-	}
-	// get SPDBK/THROT level
-	if(pSimpleGPC->GetMajorMode()==102 || pSimpleGPC->GetMajorMode()==103
-		|| pSimpleGPC->GetMajorMode()==304 || pSimpleGPC->GetMajorMode()==305)
+	else
 	{
-		SpdbkThrotPort.SetLine(static_cast<float>(GetThrusterGroupLevel(THGROUP_MAIN)));
+		// use RHC/THC input to control FCS
+
+		// kill RMS input
+		for (int i = 0; i < 3; i++)
+		{
+			RMS_RHCInput[i].ResetLine();
+			RMS_THCInput[i].ResetLine();
+		}
+
+		double pitch;
+		double roll;
+		double yaw;
+
+		// left RHC & THC
+		if ((VCMode == VC_CDR) && (CdrFltCntlrPwr.IsSet()))
+		{
+			// power is on and user is "here", use input
+			pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
+			roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
+			yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
+			
+			if (GetAttitudeMode() == RCS_ROT)
+			{
+				// use arrows and Ins and Del keys
+				if (AltKybdInput.x == 1.0)
+				{
+					LeftTHC[0].SetLine( 1.0f );
+					LeftTHC[1].SetLine( 1.0f );
+					LeftTHC[2].SetLine( 1.0f );
+					LeftTHC[3].ResetLine();
+					LeftTHC[4].ResetLine();
+					LeftTHC[5].ResetLine();
+				}
+				else if (AltKybdInput.x == -1.0)
+				{
+					LeftTHC[0].ResetLine();
+					LeftTHC[1].ResetLine();
+					LeftTHC[2].ResetLine();
+					LeftTHC[3].SetLine( 1.0f );
+					LeftTHC[4].SetLine( 1.0f );
+					LeftTHC[5].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[0].ResetLine();
+					LeftTHC[1].ResetLine();
+					LeftTHC[2].ResetLine();
+					LeftTHC[3].ResetLine();
+					LeftTHC[4].ResetLine();
+					LeftTHC[5].ResetLine();
+				}
+
+				if (AltKybdInput.y == 1.0)
+				{
+					LeftTHC[6].SetLine( 1.0f );
+					LeftTHC[7].SetLine( 1.0f );
+					LeftTHC[8].SetLine( 1.0f );
+					LeftTHC[9].ResetLine();
+					LeftTHC[10].ResetLine();
+					LeftTHC[11].ResetLine();
+				}
+				else if (AltKybdInput.y == -1.0)
+				{
+					LeftTHC[6].ResetLine();
+					LeftTHC[7].ResetLine();
+					LeftTHC[8].ResetLine();
+					LeftTHC[9].SetLine( 1.0f );
+					LeftTHC[10].SetLine( 1.0f );
+					LeftTHC[11].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[6].ResetLine();
+					LeftTHC[7].ResetLine();
+					LeftTHC[8].ResetLine();
+					LeftTHC[9].ResetLine();
+					LeftTHC[10].ResetLine();
+					LeftTHC[11].ResetLine();
+				}
+
+				if (AltKybdInput.z == 1.0)
+				{
+					LeftTHC[12].SetLine( 1.0f );
+					LeftTHC[13].SetLine( 1.0f );
+					LeftTHC[14].SetLine( 1.0f );
+					LeftTHC[15].ResetLine();
+					LeftTHC[16].ResetLine();
+					LeftTHC[17].ResetLine();
+				}
+				else if (AltKybdInput.z == -1.0)
+				{
+					LeftTHC[12].ResetLine();
+					LeftTHC[13].ResetLine();
+					LeftTHC[14].ResetLine();
+					LeftTHC[15].SetLine( 1.0f );
+					LeftTHC[16].SetLine( 1.0f );
+					LeftTHC[17].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[12].ResetLine();
+					LeftTHC[13].ResetLine();
+					LeftTHC[14].ResetLine();
+					LeftTHC[15].ResetLine();
+					LeftTHC[16].ResetLine();
+					LeftTHC[17].ResetLine();
+				}
+			}
+			else
+			{
+				// use numpad keys
+				if (GetThrusterGroupLevel( THGROUP_ATT_BACK ) != 0)
+				{
+					LeftTHC[0].SetLine( 1.0f );
+					LeftTHC[1].SetLine( 1.0f );
+					LeftTHC[2].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[0].ResetLine();
+					LeftTHC[1].ResetLine();
+					LeftTHC[2].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_FORWARD ) != 0)
+				{
+					LeftTHC[3].SetLine( 1.0f );
+					LeftTHC[4].SetLine( 1.0f );
+					LeftTHC[5].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[3].ResetLine();
+					LeftTHC[4].ResetLine();
+					LeftTHC[5].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_RIGHT ) != 0)
+				{
+					LeftTHC[6].SetLine( 1.0f );
+					LeftTHC[7].SetLine( 1.0f );
+					LeftTHC[8].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[6].ResetLine();
+					LeftTHC[7].ResetLine();
+					LeftTHC[8].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_LEFT ) != 0)
+				{
+					LeftTHC[9].SetLine( 1.0f );
+					LeftTHC[10].SetLine( 1.0f );
+					LeftTHC[11].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[9].ResetLine();
+					LeftTHC[10].ResetLine();
+					LeftTHC[11].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_UP ) != 0)
+				{
+					LeftTHC[12].SetLine( 1.0f );
+					LeftTHC[13].SetLine( 1.0f );
+					LeftTHC[14].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[12].ResetLine();
+					LeftTHC[13].ResetLine();
+					LeftTHC[14].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_DOWN ) != 0)
+				{
+					LeftTHC[15].SetLine( 1.0f );
+					LeftTHC[16].SetLine( 1.0f );
+					LeftTHC[17].SetLine( 1.0f );
+				}
+				else
+				{
+					LeftTHC[15].ResetLine();
+					LeftTHC[16].ResetLine();
+					LeftTHC[17].ResetLine();
+				}
+			}
+		}
+		else
+		{
+			// power is off or empty seat, no input
+			pitch = 0.0;
+			roll = 0.0;
+			yaw = 0.0;
+
+			LeftTHC[0].ResetLine();
+			LeftTHC[1].ResetLine();
+			LeftTHC[2].ResetLine();
+			LeftTHC[3].ResetLine();
+			LeftTHC[4].ResetLine();
+			LeftTHC[5].ResetLine();
+			LeftTHC[6].ResetLine();
+			LeftTHC[7].ResetLine();
+			LeftTHC[8].ResetLine();
+			LeftTHC[9].ResetLine();
+			LeftTHC[10].ResetLine();
+			LeftTHC[11].ResetLine();
+			LeftTHC[12].ResetLine();
+			LeftTHC[13].ResetLine();
+			LeftTHC[14].ResetLine();
+			LeftTHC[15].ResetLine();
+			LeftTHC[16].ResetLine();
+			LeftTHC[17].ResetLine();
+		}
+		if (pitch > LeftRHCpitch)
+		{
+			LeftRHCpitch += RHC_RATE * dt;
+			if (LeftRHCpitch > pitch) LeftRHCpitch = pitch;
+		}
+		else if (pitch < LeftRHCpitch)
+		{
+			LeftRHCpitch -= RHC_RATE * dt;
+			if (LeftRHCpitch < pitch) LeftRHCpitch = pitch;
+		}
+		LeftRHC[0].SetLine( static_cast<float>(LeftRHCpitch) );
+		LeftRHC[1].SetLine( static_cast<float>(LeftRHCpitch) );
+		LeftRHC[2].SetLine( static_cast<float>(LeftRHCpitch) );
+		if (roll > LeftRHCroll)
+		{
+			LeftRHCroll += RHC_RATE * dt;
+			if (LeftRHCroll > roll) LeftRHCroll = roll;
+		}
+		else if (roll < LeftRHCroll)
+		{
+			LeftRHCroll -= RHC_RATE * dt;
+			if (LeftRHCroll < roll) LeftRHCroll = roll;
+		}
+		LeftRHC[3].SetLine( static_cast<float>(LeftRHCroll) );
+		LeftRHC[4].SetLine( static_cast<float>(LeftRHCroll) );
+		LeftRHC[5].SetLine( static_cast<float>(LeftRHCroll) );
+		if (yaw > LeftRHCyaw)
+		{
+			LeftRHCyaw += RHC_RATE * dt;
+			if (LeftRHCyaw > yaw) LeftRHCyaw = yaw;
+		}
+		else if (yaw < LeftRHCyaw)
+		{
+			LeftRHCyaw -= RHC_RATE * dt;
+			if (LeftRHCyaw < yaw) LeftRHCyaw = yaw;
+		}
+		LeftRHC[6].SetLine( static_cast<float>(LeftRHCyaw) );
+		LeftRHC[7].SetLine( static_cast<float>(LeftRHCyaw) );
+		LeftRHC[8].SetLine( static_cast<float>(LeftRHCyaw) );
+
+		// right RHC
+		if ((VCMode == VC_PLT) && (PltFltCntlrPwr.IsSet()))
+		{
+			// power is on and user is "here", use input
+			pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
+			roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
+			yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
+		}
+		else
+		{
+			// power is off or empty seat, no input
+			pitch = 0.0;
+			roll = 0.0;
+			yaw = 0.0;
+		}
+		if (pitch > RightRHCpitch)
+		{
+			RightRHCpitch += RHC_RATE * dt;
+			if (RightRHCpitch > pitch) RightRHCpitch = pitch;
+		}
+		else if (pitch < RightRHCpitch)
+		{
+			RightRHCpitch -= RHC_RATE * dt;
+			if (RightRHCpitch < pitch) RightRHCpitch = pitch;
+		}
+		RightRHC[0].SetLine( static_cast<float>(RightRHCpitch) );
+		RightRHC[1].SetLine( static_cast<float>(RightRHCpitch) );
+		RightRHC[2].SetLine( static_cast<float>(RightRHCpitch) );
+		if (roll > RightRHCroll)
+		{
+			RightRHCroll += RHC_RATE * dt;
+			if (RightRHCroll > roll) RightRHCroll = roll;
+		}
+		else if (roll < RightRHCroll)
+		{
+			RightRHCroll -= RHC_RATE * dt;
+			if (RightRHCroll < roll) RightRHCroll = roll;
+		}
+		RightRHC[3].SetLine( static_cast<float>(RightRHCroll) );
+		RightRHC[4].SetLine( static_cast<float>(RightRHCroll) );
+		RightRHC[5].SetLine( static_cast<float>(RightRHCroll) );
+		if (yaw > RightRHCyaw)
+		{
+			RightRHCyaw += RHC_RATE * dt;
+			if (RightRHCyaw > yaw) RightRHCyaw = yaw;
+		}
+		else if (yaw < RightRHCyaw)
+		{
+			RightRHCyaw -= RHC_RATE * dt;
+			if (RightRHCyaw < yaw) RightRHCyaw = yaw;
+		}
+		RightRHC[6].SetLine( static_cast<float>(RightRHCyaw) );
+		RightRHC[7].SetLine( static_cast<float>(RightRHCyaw) );
+		RightRHC[8].SetLine( static_cast<float>(RightRHCyaw) );
+
+		// aft RHC & THC
+		if (((VCMode == VC_AFTPILOT) || (VCMode == VC_DOCKCAM)) && (AftFltCntlrPwr.IsSet()))
+		{
+			// power is on and user is "here", use input
+			pitch = GetThrusterGroupLevel( THGROUP_ATT_PITCHUP ) - GetThrusterGroupLevel( THGROUP_ATT_PITCHDOWN );
+			roll = GetThrusterGroupLevel( THGROUP_ATT_BANKRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_BANKLEFT );
+			yaw = GetThrusterGroupLevel( THGROUP_ATT_YAWRIGHT ) - GetThrusterGroupLevel( THGROUP_ATT_YAWLEFT );
+
+			// connections below are due to physical orientation of aft THC
+			if (GetAttitudeMode() == RCS_ROT)
+			{
+				// use arrows and Ins and Del keys
+				if (AltKybdInput.x == 1.0)
+				{
+					AftTHC[0].SetLine( 1.0f );
+					AftTHC[1].SetLine( 1.0f );
+					AftTHC[2].SetLine( 1.0f );
+					AftTHC[3].ResetLine();
+					AftTHC[4].ResetLine();
+					AftTHC[5].ResetLine();
+				}
+				else if (AltKybdInput.x == -1.0)
+				{
+					AftTHC[0].ResetLine();
+					AftTHC[1].ResetLine();
+					AftTHC[2].ResetLine();
+					AftTHC[3].SetLine( 1.0f );
+					AftTHC[4].SetLine( 1.0f );
+					AftTHC[5].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[0].ResetLine();
+					AftTHC[1].ResetLine();
+					AftTHC[2].ResetLine();
+					AftTHC[3].ResetLine();
+					AftTHC[4].ResetLine();
+					AftTHC[5].ResetLine();
+				}
+
+				if (AltKybdInput.z == 1.0)
+				{
+					AftTHC[6].SetLine( 1.0f );
+					AftTHC[7].SetLine( 1.0f );
+					AftTHC[8].SetLine( 1.0f );
+					AftTHC[9].ResetLine();
+					AftTHC[10].ResetLine();
+					AftTHC[11].ResetLine();
+				}
+				else if (AltKybdInput.z == -1.0)
+				{
+					AftTHC[6].ResetLine();
+					AftTHC[7].ResetLine();
+					AftTHC[8].ResetLine();
+					AftTHC[9].SetLine( 1.0f );
+					AftTHC[10].SetLine( 1.0f );
+					AftTHC[11].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[6].ResetLine();
+					AftTHC[7].ResetLine();
+					AftTHC[8].ResetLine();
+					AftTHC[9].ResetLine();
+					AftTHC[10].ResetLine();
+					AftTHC[11].ResetLine();
+				}
+
+				if (AltKybdInput.y == 1.0)
+				{
+					AftTHC[12].ResetLine();
+					AftTHC[13].ResetLine();
+					AftTHC[14].ResetLine();
+					AftTHC[15].SetLine( 1.0f );
+					AftTHC[16].SetLine( 1.0f );
+					AftTHC[17].SetLine( 1.0f );
+				}
+				else if (AltKybdInput.y == -1.0)
+				{
+					AftTHC[12].SetLine( 1.0f );
+					AftTHC[13].SetLine( 1.0f );
+					AftTHC[14].SetLine( 1.0f );
+					AftTHC[15].ResetLine();
+					AftTHC[16].ResetLine();
+					AftTHC[17].ResetLine();
+				}
+				else
+				{
+					AftTHC[12].ResetLine();
+					AftTHC[13].ResetLine();
+					AftTHC[14].ResetLine();
+					AftTHC[15].ResetLine();
+					AftTHC[16].ResetLine();
+					AftTHC[17].ResetLine();
+				}
+			}
+			else
+			{
+				// use numpad keys
+				if (GetThrusterGroupLevel( THGROUP_ATT_BACK ) != 0)
+				{
+					AftTHC[0].SetLine( 1.0f );
+					AftTHC[1].SetLine( 1.0f );
+					AftTHC[2].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[0].ResetLine();
+					AftTHC[1].ResetLine();
+					AftTHC[2].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_FORWARD ) != 0)
+				{
+					AftTHC[3].SetLine( 1.0f );
+					AftTHC[4].SetLine( 1.0f );
+					AftTHC[5].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[3].ResetLine();
+					AftTHC[4].ResetLine();
+					AftTHC[5].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_UP ) != 0)
+				{
+					AftTHC[6].SetLine( 1.0f );
+					AftTHC[7].SetLine( 1.0f );
+					AftTHC[8].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[6].ResetLine();
+					AftTHC[7].ResetLine();
+					AftTHC[8].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_DOWN ) != 0)
+				{
+					AftTHC[9].SetLine( 1.0f );
+					AftTHC[10].SetLine( 1.0f );
+					AftTHC[11].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[9].ResetLine();
+					AftTHC[10].ResetLine();
+					AftTHC[11].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_LEFT ) != 0)
+				{
+					AftTHC[12].SetLine( 1.0f );
+					AftTHC[13].SetLine( 1.0f );
+					AftTHC[14].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[12].ResetLine();
+					AftTHC[13].ResetLine();
+					AftTHC[14].ResetLine();
+				}
+				if (GetThrusterGroupLevel( THGROUP_ATT_RIGHT ) != 0)
+				{
+					AftTHC[15].SetLine( 1.0f );
+					AftTHC[16].SetLine( 1.0f );
+					AftTHC[17].SetLine( 1.0f );
+				}
+				else
+				{
+					AftTHC[15].ResetLine();
+					AftTHC[16].ResetLine();
+					AftTHC[17].ResetLine();
+				}
+			}
+		}
+		else
+		{
+			// power is off or empty seat, no input
+			pitch = 0.0;
+			roll = 0.0;
+			yaw = 0.0;
+
+			AftTHC[0].ResetLine();
+			AftTHC[1].ResetLine();
+			AftTHC[2].ResetLine();
+			AftTHC[3].ResetLine();
+			AftTHC[4].ResetLine();
+			AftTHC[5].ResetLine();
+			AftTHC[6].ResetLine();
+			AftTHC[7].ResetLine();
+			AftTHC[8].ResetLine();
+			AftTHC[9].ResetLine();
+			AftTHC[10].ResetLine();
+			AftTHC[11].ResetLine();
+			AftTHC[12].ResetLine();
+			AftTHC[13].ResetLine();
+			AftTHC[14].ResetLine();
+			AftTHC[15].ResetLine();
+			AftTHC[16].ResetLine();
+			AftTHC[17].ResetLine();
+		}
+		if (pitch > AftRHCpitch)
+		{
+			AftRHCpitch += RHC_RATE * dt;
+			if (AftRHCpitch > pitch) AftRHCpitch = pitch;
+		}
+		else if (pitch < AftRHCpitch)
+		{
+			AftRHCpitch -= RHC_RATE * dt;
+			if (AftRHCpitch < pitch) AftRHCpitch = pitch;
+		}
+		AftRHC[0].SetLine( static_cast<float>(AftRHCpitch) );
+		AftRHC[1].SetLine( static_cast<float>(AftRHCpitch) );
+		AftRHC[2].SetLine( static_cast<float>(AftRHCpitch) );
+		if (roll > AftRHCroll)
+		{
+			AftRHCroll += RHC_RATE * dt;
+			if (AftRHCroll > roll) AftRHCroll = roll;
+		}
+		else if (roll < AftRHCroll)
+		{
+			AftRHCroll -= RHC_RATE * dt;
+			if (AftRHCroll < roll) AftRHCroll = roll;
+		}
+		AftRHC[3].SetLine( static_cast<float>(AftRHCroll) );
+		AftRHC[4].SetLine( static_cast<float>(AftRHCroll) );
+		AftRHC[5].SetLine( static_cast<float>(AftRHCroll) );
+		if (yaw > AftRHCyaw)
+		{
+			AftRHCyaw += RHC_RATE * dt;
+			if (AftRHCyaw > yaw) AftRHCyaw = yaw;
+		}
+		else if (yaw < AftRHCyaw)
+		{
+			AftRHCyaw -= RHC_RATE * dt;
+			if (AftRHCyaw < yaw) AftRHCyaw = yaw;
+		}
+		AftRHC[6].SetLine( static_cast<float>(AftRHCyaw) );
+		AftRHC[7].SetLine( static_cast<float>(AftRHCyaw) );
+		AftRHC[8].SetLine( static_cast<float>(AftRHCyaw) );
 	}
-	else {
-		SpdbkThrotPort.ResetLine();
+
+	// RPTA input
+	double RPTAtmp = 0.0;
+	if ((VCMode == VC_CDR) || (VCMode == VC_PLT)) RPTAtmp = RPTAinput;
+	if (RPTAtmp > RPTApos)
+	{
+		RPTApos += RPTA_RATE * dt;
+		if (RPTApos > RPTAtmp) RPTApos = RPTAtmp;
 	}
+	else if (RPTAtmp < RPTApos)
+	{
+		RPTApos -= RPTA_RATE * dt;
+		if (RPTApos < RPTAtmp) RPTApos = RPTAtmp;
+	}
+	if (CdrFltCntlrPwr.IsSet())
+	{
+		LeftRPTA[0].SetLine( (float)RPTApos );
+		LeftRPTA[1].SetLine( (float)RPTApos );
+		LeftRPTA[2].SetLine( (float)RPTApos );
+	}
+	else
+	{
+		LeftRPTA[0].ResetLine();
+		LeftRPTA[1].ResetLine();
+		LeftRPTA[2].ResetLine();
+	}
+	if (PltFltCntlrPwr.IsSet())
+	{
+		RightRPTA[0].SetLine( (float)RPTApos );
+		RightRPTA[1].SetLine( (float)RPTApos );
+		RightRPTA[2].SetLine( (float)RPTApos );
+	}
+	else
+	{
+		RightRPTA[0].ResetLine();
+		RightRPTA[1].ResetLine();
+		RightRPTA[2].ResetLine();
+	}
+
+	// SBTC input
+	if (VCMode == VC_CDR)
+	{
+		LeftSBTCpos = range( 0.0, LeftSBTCpos + SBTCinput, 1.0 );
+	}
+	else if (VCMode == VC_PLT)
+	{
+		RightSBTCpos = range( 0.0, RightSBTCpos + SBTCinput, 1.0 );
+	}
+	SBTCinput = 0.0;
+
+	if (CdrFltCntlrPwr.IsSet())
+	{
+		LeftSBTC[0].SetLine( (float)LeftSBTCpos );
+		LeftSBTC[1].SetLine( (float)LeftSBTCpos );
+		LeftSBTC[2].SetLine( (float)LeftSBTCpos );
+	}
+	else
+	{
+		LeftSBTC[0].ResetLine();
+		LeftSBTC[1].ResetLine();
+		LeftSBTC[2].ResetLine();
+	}
+	SetAnimation( anim_leftsbtc, LeftSBTCpos );
+	if (PltFltCntlrPwr.IsSet())
+	{
+		RightSBTC[0].SetLine( (float)RightSBTCpos );
+		RightSBTC[1].SetLine( (float)RightSBTCpos );
+		RightSBTC[2].SetLine( (float)RightSBTCpos );
+	}
+	else
+	{
+		RightSBTC[0].ResetLine();
+		RightSBTC[1].ResetLine();
+		RightSBTC[2].ResetLine();
+	}
+	SetAnimation( anim_rightsbtc, RightSBTCpos );
+	if ((VCMode == VC_CDR) && (CdrFltCntlrPwr.IsSet()))
+	{
+		if (SBTCTOinput)
+		{
+			LeftSBTC[3].SetLine( 1.0f );
+			LeftSBTC[4].SetLine( 1.0f );
+			LeftSBTC[5].SetLine( 1.0f );
+		}
+		else
+		{
+			LeftSBTC[3].ResetLine();
+			LeftSBTC[4].ResetLine();
+			LeftSBTC[5].ResetLine();
+		}
+	}
+	else
+	{
+		LeftSBTC[3].ResetLine();
+		LeftSBTC[4].ResetLine();
+		LeftSBTC[5].ResetLine();
+	}
+	if ((VCMode == VC_PLT) && (PltFltCntlrPwr.IsSet()))
+	{
+		if (SBTCTOinput)
+		{
+			RightSBTC[3].SetLine( 1.0f );
+			RightSBTC[4].SetLine( 1.0f );
+			RightSBTC[5].SetLine( 1.0f );
+		}
+		else
+		{
+			RightSBTC[3].ResetLine();
+			RightSBTC[4].ResetLine();
+			RightSBTC[5].ResetLine();
+		}
+	}
+	else
+	{
+		RightSBTC[3].ResetLine();
+		RightSBTC[4].ResetLine();
+		RightSBTC[5].ResetLine();
+	}
+
+	return;
 }
 
-void Atlantis::clbkSetClassCaps (FILEHANDLE cfg)
+void Atlantis::clbkSetClassCaps(FILEHANDLE cfg)
 {
-
-	options->Parse(cfg);
-	if (!oapiReadItem_bool (cfg, "RenderCockpit", render_cockpit))
-		render_cockpit = false;
-
-	if (!oapiReadItem_bool (cfg, "UseRealRCS", bUseRealRCS))
-		bUseRealRCS = false;
-
-	if(!oapiReadItem_bool (cfg, "EnableMCADebug", bEnableMCADebug))
-		bEnableMCADebug = false;
-  
-
-
-	psubsystems->SetClassCaps(cfg);
-
-	/*
-	if(pA7A8Panel) 
+	try
 	{
-		  
+		options->Parse(cfg);
+		if (!oapiReadItem_bool(cfg, "UseRealRCS", bUseRealRCS))
+			bUseRealRCS = false;
+
+		if (!oapiReadItem_bool(cfg, "EnableMCADebug", bEnableMCADebug))
+			bEnableMCADebug = false;
+
+
+
+		psubsystems->SetClassCaps(cfg);
+		loadMDMConfiguration();
 	}
-	*/
-
-	////REENTRY STREAM
-	//SURFHANDLE entry = oapiRegisterReentryTexture("Reentry1");
-	//SetReentryTexture(entry,302763);
-	//PS_REENTRY.srcrate = 60;
-	//PS_REENTRY.v0 = 300;
-	//PS_REENTRY.ltype = PS_REENTRY.EMISSIVE;
-	//PS_REENTRY.levelmap = PS_REENTRY.LVL_FLAT;
-	//PS_REENTRY.atmsmap = PS_REENTRY.ATM_FLAT;
-	////PS_REENTRY.amin = 1;
-	//PS_REENTRY.amax = 5;
-	//PS_REENTRY.lifetime = 100;
-	//PS_REENTRY.growthrate = 100;
-	//PS_REENTRY.srcsize = 100;
-	//PS_REENTRY.srcspread = 1000;
-
+	catch (std::exception &e)
+	{
+		char buffer[400];
+		sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] Exception in clbkSetClassCaps: %s", e.what());
+		oapiWriteLog(buffer);
+		exit(999);
+	}
 }
 
 // --------------------------------------------------------------
 // Set status from a VESSELSTATUS2 structure
 // --------------------------------------------------------------
-void Atlantis::clbkSetStateEx (const void *status)
+void Atlantis::clbkSetStateEx(const void *status)
 {
-  // default parameter initialisation
-  DefSetStateEx (status);
+	// default parameter initialisation
+	DefSetStateEx(status);
 
-  oapiWriteLog("(ssu)Set Orbiter configuration.");
-  // reset vessel-specific parameters to defaults
-  //status = 3;
-  SetOrbiterConfiguration();
-  
+	oapiWriteLog("(ssu)Set Orbiter configuration.");
+	// reset vessel-specific parameters to defaults
+	SetOrbiterConfiguration();
+
 }
 
 // --------------------------------------------------------------
 // Read status from scenario file
 // --------------------------------------------------------------
-void Atlantis::clbkLoadStateEx (FILEHANDLE scn, void *vs)
+void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 {
-  int action;
-  char *line;
-  char pszBuffer[256];
-  char pszLogBuffer[256];
-  double srbtime = 0.0;
-  /*double sts_sat_x = 0.0;
-  double sts_sat_y = 0.0;
-  double sts_sat_z = 0.0;*/
-  spdb_status = AnimState::CLOSED; spdb_proc = 0.0;
+	int action;
+	char *line;
+	char pszBuffer[256];
+	char pszLogBuffer[256];
 
-  while (oapiReadScenario_nextline (scn, line)) {
-      if (!_strnicmp (line, "CONFIGURATION", 13)) {
-            sscanf (line+13, "%d", &status);
-    } else if (!_strnicmp (line, "MISSION", 7)) {
-		strncpy(pszBuffer, line+8, 255);
-		
-		sprintf_s(pszLogBuffer, 255, "(SpaceShuttleUltra) Loading mission %s", pszBuffer);
-		oapiWriteLog(pszLogBuffer);
-		
-		pMission = ssuGetMission(pszBuffer);
-
-		// add additional components defined in Mission file
-		RMS = pMission->HasRMS();
-		STBDMPM = pMission->HasSTBDMPMs();
-
-		if(RMS) {
-			psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
-			if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
-		}
-		if(STBDMPM) {
-			psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
-			if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
-		}
-
-		bHasKUBand = pMission->HasKUBand();
-	} else if (!_strnicmp (line, "MET", 3)) {
-		sscanf (line+3, "%lf", &met);
-	} else if(!_strnicmp(line, "ODS", 3)) {
-		bHasODS = true;
-    } else if (!_strnicmp (line, "SPEEDBRAKE", 10)) {
-		sscanf (line+10, "%d%lf%lf", &action, &spdb_proc, &spdb_tgt);
-		spdb_status = (AnimState::Action)(action+1);
-    } else if (!_strnicmp (line, "WING_NAME", 9)) {
-      strncpy(WingName,line+10,256);
-	} else if (!_strnicmp (line, "GEAR", 4)) {
-		sscan_state(line+4, gear_status);
-		if(gear_status.action==AnimState::STOPPED) gear_status.action=AnimState::CLOSED;
-    } else if (!_strnicmp (line, "SRB_IGNITION_TIME", 17)) {
-		sscanf (line+17, "%lf", &srbtime);
-	} else if (!_strnicmp (line, "PLBD_CAM", 8)) {
-		sscanf (line+8, "%lf%lf%lf%lf%lf%lf%lf%lf", &camPitch[CAM_A], &camYaw[CAM_A], &camPitch[CAM_B], &camYaw[CAM_B],
-			&camPitch[CAM_C], &camYaw[CAM_C], &camPitch[CAM_D], &camYaw[CAM_D]);
-		cameraMoved=true;
-    } /*else if (!_strnicmp (line, "SAT_OFS_X", 9)) {
-		sscanf (line+9, "%lf", &sts_sat_x);
-    } else if (!_strnicmp (line, "SAT_OFS_Y", 9)) {
-		sscanf (line+9, "%lf", &sts_sat_y);
-    } else if (!_strnicmp (line, "SAT_OFS_Z", 9)) {
-		sscanf (line+9, "%lf", &sts_sat_z);
-	}*/ else if (!_strnicmp (line, "PAYLOAD_MASS", 12)) {
-		sscanf (line+12, "%lf", &pl_mass);
-	} else if (!_strnicmp (line, "CARGO_STATIC_MESH", 17)) {
-		sscanf (line+17, "%s", cargo_static_mesh_name);
-		do_cargostatic = true;
-    } else if (!_strnicmp (line, "CARGO_STATIC_OFS", 16)) {
-		sscanf (line+16, "%lf%lf%lf", &cargo_static_ofs.x, &cargo_static_ofs.y, &cargo_static_ofs.z);
-	} else if (!RMS && !_strnicmp (line, "RMS", 3)) {
-		RMS=true;
-		psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
-		if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
-	} else if (!STBDMPM && !_strnicmp (line, "STBD_MPM", 8)) {
-		STBDMPM=true;
-		psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
-		if(!pPanelA8) pgAft.AddPanel(pPanelA8 = new vc::PanelA8(this));
-	} else if(!_strnicmp(line, "OPS", 3)) {
-		unsigned int ops;
-		sscanf(line+3, "%u", &ops);
-		pSimpleGPC->SetMajorMode(ops);
-	/*} else if(!_strnicmp(line, "PEG7", 4)) {
-		sscanf(line+4, "%lf%lf%lf", &PEG7.x, &PEG7.y, &PEG7.z);
-	} else if(!_strnicmp(line, "WT", 2)) {
-		sscanf(line+2, "%lf", &WT);
-	} else if(!_strnicmp(line, "TIG", 3)) {
-		sscanf(line+3, "%lf%lf%lf%lf", &TIG[0], &TIG[1], &TIG[2], &TIG[3]);
-	} else if(!_strnicmp(line, "TV_ROLL", 7)) {
-		sscanf_s(line+7, "%lf", &TV_ROLL);
-	} else if(!_strnicmp(line, "MNVR", 4)) {
-		sscanf_s(line+4, "%d %d", &MNVRLOAD, &MnvrToBurnAtt);*/
-	/*} else if(!_strnicmp(line, "ASSIST", 6)) {
-		sscanf(line+6, "%lf%lf", &OMS_Assist[0], &OMS_Assist[1]);
-	} else if(!_strnicmp(line, "THROTTLE_BUCKET", 15)) {
-		sscanf(line+15, "%lf%lf", &Throttle_Bucket[0], &Throttle_Bucket[1]);
-		Throttle_Bucket[0]=Throttle_Bucket[0]*fps_to_ms;
-		Throttle_Bucket[1]=Throttle_Bucket[1]*fps_to_ms;
-	} else if(!_strnicmp(line, "HEADS_UP", 8)) {
-		sscanf(line+8, "%lf", &RollToHeadsUp);
-		RollToHeadsUp=RollToHeadsUp*fps_to_ms;
-	} else if(!_strnicmp(line, "AUTOPILOT", 9)) {
-		sscanf(line+9, "%lf%lf%lf%lf%lf", &TgtInc, &TgtLAN, &TgtAlt, &TgtSpd, &TgtFPA);
-		bAutopilot=true;*/
-	} else if(!_strnicmp(line, "ENGINE FAIL", 11)) {
-		sscanf(line+11, "%d%lf", &EngineFail, &EngineFailTime);
-		bEngineFail=true;
-	/*} else if(!_strnicmp(line, "MPSGOXVENT", 10)) {
-		action = 0;
-		sscanf(line+10, "%d", &action);
-		bSSMEGOXVent = (action != 0);*/
-	} else if(!_strnicmp(line, "PAYLOAD", 7)) {
-		ParsePayloadLine(line);
-	} else if (!_strnicmp(line, "@PANEL", 6)) {
-		char pszPanelName[30];
-		sscanf_s(line+6, "%s", pszPanelName, sizeof(pszPanelName));
-		sprintf_s(pszBuffer, 255, "\tLook up panel \"%s\"... \t\t(%s)", 
-			pszPanelName, line);
-		oapiWriteLog(pszBuffer);
-		//bool bFound = false;
-
-		if(pgLeft.HasPanel(pszPanelName))
-			pgLeft.ParsePanelBlock(pszPanelName, scn);
-
-		if(pgForward.HasPanel(pszPanelName))
-			pgForward.ParsePanelBlock(pszPanelName, scn);
-
-		if(pgRight.HasPanel(pszPanelName))
-			pgRight.ParsePanelBlock(pszPanelName, scn);
-
-		if(pgCenter.HasPanel(pszPanelName)) 
-			pgCenter.ParsePanelBlock(pszPanelName, scn);
-
-		if(pgOverhead.HasPanel(pszPanelName))
-			pgOverhead.ParsePanelBlock(pszPanelName, scn);
-
-		if(pgOverheadAft.HasPanel(pszPanelName))
-			pgOverheadAft.ParsePanelBlock(pszPanelName, scn);
-
-		if(pgAftStbd.HasPanel(pszPanelName))
-			pgAftStbd.ParsePanelBlock(pszPanelName, scn);
-
-		if(pgAft.HasPanel(pszPanelName))
-			pgAft.ParsePanelBlock(pszPanelName, scn);
-
-		if(pgAftPort.HasPanel(pszPanelName)) 
-			pgAftPort.ParsePanelBlock(pszPanelName, scn);
-
-		oapiWriteLog("\tLeave @PANEL block.");
-	} /*else if(!_strnicmp(line,"PLB_LIGHTS",10)) {
-		int t;
-		sscanf_s(line+10,"%i",&t);
-		if(t==1)
+	while (oapiReadScenario_nextline(scn, line))
+	{
+		if (!_strnicmp(line, "CONFIGURATION", 13))
 		{
-			bPLBLights = false;
-			ControlPLBLights();
+			sscanf(line + 13, "%d", &status);
+		}
+		else if (!_strnicmp(line, "VC_POS", 6))
+		{
+			sscanf(line + 6, "%d", &scnVCMode);
+		}
+		else if (!_strnicmp(line, "MISSION", 7))
+		{
+			strncpy(pszBuffer, line + 8, 255);
+
+			sprintf_s(pszLogBuffer, 255, "(SpaceShuttleUltra) Loading mission %s", pszBuffer);
+			oapiWriteLog(pszLogBuffer);
+
+			pMission = ssuGetMission(pszBuffer);
+
+			/////// panels ///////
+			pgForward.AddPanel( new vc::PanelF9( this ) );
+
+			pgLeft.AddPanel( new vc::PanelL1( this ) );
+			pgLeft.AddPanel( new vc::PanelL2( this ) );
+			pgLeft.AddPanel( new vc::PanelL4( this ) );
+
+			pgCenter.AddPanel( new vc::PanelC3( this, pMission->GetOrbiter() ) );
+
+			pgRight.AddPanel( new vc::PanelR2( this ) );
+			pgRight.AddPanel( new vc::PanelR1( this ) );// HACK should be placed before R2, but click area on R2 is too big
+			pgRight.AddPanel( new vc::PanelR4( this ) );
+
+			pgOverhead.AddPanel( new vc::PanelO1( this ) );
+			pgOverhead.AddPanel( new vc::PanelO2( this ) );
+			pgOverhead.AddPanel( new vc::PanelO3( this ) );
+			pgOverhead.AddPanel( new vc::PanelO5( this ) );
+			pgOverhead.AddPanel( new vc::PanelO6( this ) );
+			pgOverhead.AddPanel( new vc::PanelO7( this ) );
+			pgOverhead.AddPanel( new vc::PanelO8( this ) );
+			pgOverhead.AddPanel( new vc::PanelO9( this ) );
+
+			pgOverheadAft.AddPanel( new vc::PanelO13( this ) );
+			pgOverheadAft.AddPanel( new vc::PanelO17( this ) );
+
+			pgAftPort.AddPanel( new vc::PanelL9( this ) );
+
+			pgAft.AddPanel( new vc::PanelA2( this ) );
+			pgAft.AddPanel( new vc::PanelA4( this ) );
+			pgAft.AddPanel( new vc::PanelA6U( this ) );
+			pgAft.AddPanel( new vc::PanelA7U( this ) );
+
+			pgAftStbd.AddPanel( new vc::PanelR10( this ) );
+			pgAftStbd.AddPanel( new vc::PanelR13U( this ) );
+			pgAftStbd.AddPanel( new vc::PanelR13L( this ) );
+
+			/////// subsystems ///////
+			psubsystems->AddSubsystem( new eps::PRSD( pMission->GetInternalPRSDTankSets(), pMission->HasEDOKit(), pMission->GetEDOPallets(), psubsystems ) );
+
+			psubsystems->AddSubsystem( new VideoControlUnit( psubsystems, "VideoControlUnit" ) );
+
+			psubsystems->AddSubsystem( new AnnunciatorControlAssembly( psubsystems, "ACA1", 1 ) );
+			psubsystems->AddSubsystem( new AnnunciatorControlAssembly( psubsystems, "ACA2", 2 ) );
+			psubsystems->AddSubsystem( new AnnunciatorControlAssembly( psubsystems, "ACA3", 3 ) );
+			psubsystems->AddSubsystem( new AnnunciatorControlAssembly( psubsystems, "ACA4", 4 ) );
+			psubsystems->AddSubsystem( new AnnunciatorControlAssembly( psubsystems, "ACA5", 5 ) );
+
+			// add additional components defined in Mission file
+			RMS = pMission->HasRMS();
+			STBDMPM = pMission->HasSTBDMPMs();
+
+			if (RMS)
+			{
+				psubsystems->AddSubsystem(pRMS = new RMSSystem(psubsystems));
+				pgAft.AddPanel( new vc::PanelA8( this ) );
+			}
+			if (STBDMPM)
+			{
+				psubsystems->AddSubsystem(pMPMs = new StbdMPMSystem(psubsystems));
+				if (!RMS) pgAft.AddPanel( new vc::PanelA8( this ) );
+			}
+			if (pMission->HasODS())
+			{
+				psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
+				pgAft.AddPanel( new vc::PanelA7A8ODS( this ) );
+			}
+			else if (pMission->HasExtAL()) psubsystems->AddSubsystem( pExtAirlock = new eva_docking::ExtAirlock( psubsystems, "ExternalAirlock" ) );
+
+			if (pMission->HasTAA()) psubsystems->AddSubsystem( pTAA = new eva_docking::TunnelAdapterAssembly( psubsystems, pMission->AftTAA() ) );
+
+			if (pMission->UseASE_IUS())
+			{
+				psubsystems->AddSubsystem( pASE_IUS = new ASE_IUS( psubsystems, pMission->IsASELocationAft() ) );
+				pgAftPort.AddPanel( new vc::PanelL10_IUS( this ) );
+				pgAftPort.AddPanel( new vc::PanelL12U_IUS( this ) );
+			}
+
+			if (pMission->UseCISS())
+			{
+				psubsystems->AddSubsystem( pCISS = new CISS( psubsystems, pMission->IsCISSGPrime() ) );
+				pgAftPort.AddPanel( new vc::PanelL12U_Centaur( this ) );
+				hasCISS = true;
+			}
+
+			bHasKUBand = pMission->HasKUBand();
+
+			if (bHasKUBand)
+			{
+				psubsystems->AddSubsystem( pDeployedAssembly = new comm::DeployedAssembly( psubsystems ) );
+				psubsystems->AddSubsystem( new comm::ElectronicsAssembly1( psubsystems, pDeployedAssembly ) );
+				psubsystems->AddSubsystem( new comm::ElectronicsAssembly2( psubsystems, pDeployedAssembly ) );
+			}
+
+			if (pMission->HasDragChute()) psubsystems->AddSubsystem( pDragChute = new DragChute( psubsystems ) );
+		}
+		else if (!_strnicmp( line, "SBTC", 4 ))
+		{
+			double left = 0.0;
+			double right = 0.0;
+			sscanf( line + 4, "%lf %lf", &left, &right );
+			if ((left >= 0.0) && (left <= 1.0)) LeftSBTCpos = left;
+			if ((right >= 0.0) && (right <= 1.0)) RightSBTCpos = right;
+		}
+		else if (!_strnicmp(line, "SPEEDBRAKE", 10))
+		{
+			sscanf(line + 10, "%d%lf%lf", &action, &spdb_proc, &spdb_tgt);
+			spdb_status = (AnimState::Action)(action + 1);
+		}
+		else if (!_strnicmp(line, "GEAR", 4))
+		{
+			sscan_state(line + 4, gear_status);
+			if (gear_status.action == AnimState::STOPPED) gear_status.action = AnimState::CLOSED;
+		}
+		else if (!_strnicmp(line, "PLB_CAM", 7))
+		{
+			sscanf(line + 8, "%lf%lf%lf%lf%lf%lf%lf%lf", &camPitch[CAM_A], &camYaw[CAM_A], &camPitch[CAM_B], &camYaw[CAM_B],
+				&camPitch[CAM_C], &camYaw[CAM_C], &camPitch[CAM_D], &camYaw[CAM_D]);
+			cameraMoved = true;
+		}
+		else if (!_strnicmp(line, "PAYLOAD_MASS", 12))
+		{
+			sscanf(line + 12, "%lf", &pl_mass);
+		}
+		else if (!_strnicmp(line, "CARGO_STATIC_MESH", 17))
+		{
+			sscanf(line + 17, "%s", cargo_static_mesh_name);
+			do_cargostatic = true;
+		}
+		else if (!_strnicmp(line, "CARGO_STATIC_OFS", 16))
+		{
+			sscanf(line + 16, "%lf%lf%lf", &cargo_static_ofs.x, &cargo_static_ofs.y, &cargo_static_ofs.z);
+		}
+		else if (!_strnicmp(line, "OPS", 3))
+		{
+			unsigned int ops;
+			sscanf(line + 3, "%u", &ops);
+			pSimpleGPC->SetMajorMode(ops);
+		}
+		else if (_strnicmp(line, "GOXVENTSOFF", 11) == 0)
+		{
+			if (status == STATE_PRELAUNCH) bSSMEGOXVent = false;
+		}
+		else if (!_strnicmp(line, "@PANEL", 6))
+		{
+			char pszPanelName[30];
+			sscanf_s(line + 6, "%s", pszPanelName, sizeof(pszPanelName));
+			sprintf_s(pszBuffer, 255, "\tLook up panel \"%s\"... \t\t(%s)", pszPanelName, line);
+			oapiWriteLog(pszBuffer);
+
+			if (pgForward.HasPanel(pszPanelName)) pgForward.ParsePanelBlock(pszPanelName, scn);
+			else if (pgLeft.HasPanel(pszPanelName)) pgLeft.ParsePanelBlock(pszPanelName, scn);
+			else if (pgCenter.HasPanel(pszPanelName)) pgCenter.ParsePanelBlock(pszPanelName, scn);
+			else if (pgRight.HasPanel(pszPanelName)) pgRight.ParsePanelBlock(pszPanelName, scn);
+			else if (pgOverhead.HasPanel(pszPanelName)) pgOverhead.ParsePanelBlock(pszPanelName, scn);
+			else if (pgOverheadAft.HasPanel(pszPanelName)) pgOverheadAft.ParsePanelBlock(pszPanelName, scn);
+			else if (pgAftPort.HasPanel(pszPanelName)) pgAftPort.ParsePanelBlock(pszPanelName, scn);
+			else if (pgAft.HasPanel(pszPanelName)) pgAft.ParsePanelBlock(pszPanelName, scn);
+			else if (pgAftStbd.HasPanel(pszPanelName)) pgAftStbd.ParsePanelBlock(pszPanelName, scn);
+
+			oapiWriteLog("\tLeave @PANEL block.");
 		}
 		else
 		{
-			bPLBLights = true;
-			ControlPLBLights();
+			if (psubsystems->ParseScenarioLine(scn, line)) continue; // offer line to subsystem simulation
+			ParseScenarioLineEx(line, vs);// unrecognised option - pass to Orbiter's generic parser
 		}
-	}*/ else {
-      if (plop->ParseScenarioLine (line)) continue; // offer the line to bay door operations
-	  if (panela4->ParseScenarioLine (line)) continue; // offer line to panel A4
-	  if (panelc2->ParseScenarioLine (line)) continue; // offer line to panel C2
-	  if (psubsystems->ParseScenarioLine(scn, line)) continue; // offer line to subsystem simulation
-      ParseScenarioLineEx (line, vs);
-      // unrecognised option - pass to Orbiter's generic parser
-    }
-  }
-  /*ofs_sts_sat.x=sts_sat_x;
-  ofs_sts_sat.y=sts_sat_y;
-  ofs_sts_sat.z=sts_sat_z;*/
+	}
 
-  ClearMeshes();
-  switch (status) {
-  case 0:
-    SetLaunchConfiguration();
-    break;
-  case 1:
-    SetPostLaunchConfiguration (met);
-    break;
-  case 2:
-    SetOrbiterTankConfiguration();
-    break;
-  case 3:
-    SetOrbiterConfiguration();
-    break;
-  }
-  if(status >= STATE_STAGE1) pMTU->StartMET(); // make sure timer is running
+	ClearMeshes();
+	switch (status)
+	{
+	case 0:
+		SetLaunchConfiguration();
+		break;
+	case 1:
+		SetPostLaunchConfiguration(met);
+		break;
+	case 2:
+		SetOrbiterTankConfiguration();
+		break;
+	case 3:
+		SetOrbiterConfiguration();
+		break;
+	}
+	if (status >= STATE_STAGE1) pMTU->StartMET(); // make sure timer is running
 
-  UpdateMesh ();
+	UpdateMesh();
 }
 
 // --------------------------------------------------------------
 // Write status to scenario file
 // --------------------------------------------------------------
-void Atlantis::clbkSaveState (FILEHANDLE scn)
+void Atlantis::clbkSaveState(FILEHANDLE scn)
 {
-  char cbuf[256];
+	char cbuf[256];
 
-  // save default vessel parameters
-  // set CoG to center of mesh before saving scenario; otherwise, shuttle position will change slightly when saved scenario is loaded
-  ShiftCG(-currentCoG);
-  VESSEL3::clbkSaveState (scn);
-  ShiftCG(currentCoG); // reset CoG to correct position
+	// save default vessel parameters
+	// set CoG to center of mesh before saving scenario; otherwise, shuttle position will change slightly when saved scenario is loaded
+	ShiftCG(-currentCoG);
+	VESSEL3::clbkSaveState(scn);
+	ShiftCG(currentCoG); // reset CoG to correct position
 
-  if(!pMission->GetMissionFileName().empty()) 
-  {
-	  strcpy(cbuf, pMission->GetMissionFileName().c_str());
-	  oapiWriteScenario_string(scn, "MISSION", cbuf);
-  }
+	if (!pMission->GetMissionFileName().empty())
+	{
+		strcpy(cbuf, pMission->GetMissionFileName().c_str());
+		oapiWriteScenario_string(scn, "MISSION", cbuf);
+	}
 
-  // custom parameters
-  oapiWriteScenario_int (scn, "CONFIGURATION", status);
+	// custom parameters
+	oapiWriteScenario_int(scn, "CONFIGURATION", status);
+	oapiWriteScenario_int(scn, "VC_POS", VCMode);
+	
+	if ((LeftSBTCpos != 1.0) || (RightSBTCpos != 1.0))
+	{
+		sprintf( cbuf, "%0.2f %0.2f", LeftSBTCpos, RightSBTCpos );
+		oapiWriteScenario_string( scn, "SBTC", cbuf );
+	}
 
-  if(bHasODS)
-  {
-	  oapiWriteLine(scn, "  ODS");
-  }
+	if (spdb_status != AnimState::CLOSED)
+	{
+		sprintf(cbuf, "%d %0.4f %0.4f", spdb_status - 1, spdb_proc, spdb_tgt);
+		oapiWriteScenario_string(scn, "SPEEDBRAKE", cbuf);
+	}
+	WriteScenario_state(scn, "GEAR", gear_status);
 
-  /*if (status == 1)
-    oapiWriteScenario_float (scn, "MET", oapiGetSimTime()-t0);
-  else oapiWriteScenario_float (scn, "MET", met);*/
+	if (do_cargostatic)
+	{
+		oapiWriteScenario_string(scn, "CARGO_STATIC_MESH", cargo_static_mesh_name);
+		if (cargo_static_ofs.x || cargo_static_ofs.y || cargo_static_ofs.z)
+			oapiWriteScenario_vec(scn, "CARGO_STATIC_OFS", cargo_static_ofs);
+	}
+	if (pl_mass != 0.0) oapiWriteScenario_float(scn, "PAYLOAD_MASS", pl_mass);
 
-  if (spdb_status != AnimState::CLOSED) {
-    sprintf (cbuf, "%d %0.4f %0.4f", spdb_status-1, spdb_proc, spdb_tgt);
-    oapiWriteScenario_string (scn, "SPEEDBRAKE", cbuf);
-  }
-  oapiWriteScenario_string (scn, "WING_NAME", WingName);
-  WriteScenario_state(scn, "GEAR", gear_status);
+	//GPC
+	oapiWriteScenario_int(scn, "OPS", pSimpleGPC->GetMajorMode());
 
-  if(STBDMPM) {
-	  oapiWriteLine(scn, "  STBD_MPM"); 
-	  //WriteScenario_state(scn, "STBD_MPM", StbdMPMRollout);
-  }
-  
-  if(RMS) {
-	  oapiWriteLine(scn, "  RMS");
-  }
+	sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_B], camYaw[CAM_B],
+		camPitch[CAM_C], camYaw[CAM_C], camPitch[CAM_D], camYaw[CAM_D]);
+	oapiWriteScenario_string(scn, "PLB_CAM", cbuf);
 
-  /*oapiWriteScenario_float (scn, "SAT_OFS_X", ofs_sts_sat.x);
-  oapiWriteScenario_float (scn, "SAT_OFS_Y", ofs_sts_sat.y);
-  oapiWriteScenario_float (scn, "SAT_OFS_Z", ofs_sts_sat.z);*/
+	oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
+	psubsystems->SaveState(scn);
 
-  if (do_cargostatic) {
-    oapiWriteScenario_string (scn, "CARGO_STATIC_MESH", cargo_static_mesh_name);
-    if (cargo_static_ofs.x || cargo_static_ofs.y || cargo_static_ofs.z)
-      oapiWriteScenario_vec (scn, "CARGO_STATIC_OFS", cargo_static_ofs);
-  } 
-  if(pl_mass!=0.0) oapiWriteScenario_float(scn, "PAYLOAD_MASS", pl_mass);
-
-  //GPC
-  oapiWriteScenario_int (scn, "OPS", pSimpleGPC->GetMajorMode());
-
-  SavePayloadState(scn);
-
-  /*if(bSSMEGOXVent)
-  {
-	  oapiWriteScenario_int(scn, "MPSGOXVENT", 1);
-  }*/
-
-  sprintf_s(cbuf, 255, "%0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f %0.4f", camPitch[CAM_A], camYaw[CAM_A], camPitch[CAM_B], camYaw[CAM_B],
-			camPitch[CAM_C], camYaw[CAM_C], camPitch[CAM_D], camYaw[CAM_D]);
-  oapiWriteScenario_string(scn, "PLBD_CAM", cbuf);
-  /*if(bPLBLights)
-  {
-	  oapiWriteScenario_int(scn,"PLB_LIGHTS",1);
-  }
-  else
-  {
-	  oapiWriteScenario_int(scn,"PLB_LIGHTS",0);
-  }*/
-
-  oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
-  psubsystems->SaveState(scn);
-
-  // save bay door operations status
-  plop->SaveState (scn);
-  panela4->SaveState(scn);
-  panelc2->SaveState(scn);
 	oapiWriteLog("SpaceShuttleUltra:\tSave panel states...");
 	oapiWriteLog("\tForward flight deck");
-  pgLeft.OnSaveState(scn);
-  pgForward.OnSaveState(scn);
-  pgRight.OnSaveState(scn);
-  pgCenter.OnSaveState(scn);
-  pgOverhead.OnSaveState(scn);
-  pgOverheadAft.OnSaveState(scn);
-  oapiWriteLog("\tAft flight deck");
-  pgAftStbd.OnSaveState(scn);
-  pgAft.OnSaveState(scn);
-  pgAftPort.OnSaveState(scn);
-
-
-	//oapiWriteLog("SpaceShuttleUltra:\tSave subsystem states...");
-  //psubsystems->SaveState(scn);
+	pgForward.OnSaveState(scn);
+	pgLeft.OnSaveState(scn);
+	pgCenter.OnSaveState(scn);
+	pgRight.OnSaveState(scn);
+	pgOverhead.OnSaveState(scn);
+	pgOverheadAft.OnSaveState(scn);
+	oapiWriteLog("\tAft flight deck");
+	pgAftPort.OnSaveState(scn);
+	pgAft.OnSaveState(scn);
+	pgAftStbd.OnSaveState(scn);
 
 	oapiWriteLog("SpaceShuttleUltra:\tSaving state done.");
-}
-
-void Atlantis::SavePayloadState(FILEHANDLE scn) const
-{
-	char pszBuffer[256];
-	for(int i = 0; i<3; i++)
-	{
-		sprintf_s(pszBuffer, 256, "   PAYLOAD CACTIVE%1d %f %f %d",
-			i+1, fPayloadZPos[i], fPayloadMass[i], usPayloadType[i]);
-		oapiWriteLine(scn, pszBuffer);
-	}
-	for(int i = 0; i<4; i++)
-	{
-		sprintf_s(pszBuffer, 256, "   PAYLOAD CPASSIVE%1d %f %f %d",
-			i+1, fPayloadZPos[3+i], fPayloadMass[3+i], usPayloadType[3+i]);
-		oapiWriteLine(scn, pszBuffer);
-	}
-
-	for(int i = 0; i<4; i++)
-	{
-		sprintf_s(pszBuffer, 256, "   PAYLOAD PORT%1d %f %f %d",
-			i+1, fPayloadZPos[7+i], fPayloadMass[7+i], usPayloadType[7+i]);
-		oapiWriteLine(scn, pszBuffer);
-	}
-	for(int i = 0; i<4; i++)
-	{
-		sprintf_s(pszBuffer, 256, "   PAYLOAD STBD%1d %f %f %d",
-			i+1, fPayloadZPos[11+i], fPayloadMass[11+i], usPayloadType[11+i]);
-		oapiWriteLine(scn, pszBuffer);
-	}
-}
-
-bool Atlantis::ParsePayloadLine(const char* pszLine)
-{
-	char pszKey[100];
-	char pszBuffer[256];
-	float zpos = 0.0, mass = 0.0;
-	int x = 0;
-	sscanf_s(pszLine + 8, "%s",
-		pszKey, sizeof(pszKey));
-
-	sscanf_s(pszLine + 9 + strlen(pszKey), "%f %f %d",
-		&zpos, &mass, &x);
-
-
-	sprintf_s(pszBuffer, 256, "PAYLOAD %s %f %f %d",
-		pszKey, zpos, mass, x);
-	oapiWriteLog(pszBuffer);
-	
-
-	if(!_strnicmp(pszKey, "CACTIVE", 7))
-	{
-		int i = atoi(pszKey+7) - 1;
-		
-		if(i>=0 && i<4)
-		{
-			fPayloadZPos[i] = zpos;
-			fPayloadMass[i] = mass;
-			usPayloadType[i] = (unsigned short)(x);
-		}
-	}
-	else if(!_strnicmp(pszKey, "CPASSIVE", 8))
-	{
-		int i = atoi(pszKey+8) - 1;
-		
-		if(i>=0 && i<4)
-		{
-			fPayloadZPos[i+3] = zpos;
-			fPayloadMass[i+3] = mass;
-			usPayloadType[i+3] = (unsigned short)(x);
-		}
-	}
-	else if(!_strnicmp(pszKey, "PORT", 4))
-	{
-		int i = atoi(pszKey+4) - 1;
-		
-		if(i>=0 && i<5)
-		{
-			fPayloadZPos[i+7] = zpos;
-			fPayloadMass[i+7] = mass;
-			usPayloadType[i+7] = (unsigned short)(x);
-		}
-	}
-	else if(!_strnicmp(pszKey, "STBD", 4))
-	{
-		int i = atoi(pszKey+4) - 1;
-		if(i>=0 && i<5)
-		{
-			fPayloadZPos[i+11] = zpos;
-			fPayloadMass[i+11] = mass;
-			usPayloadType[i+11] = (unsigned short)(x);
-		}
-	}
-	else
-	{
-		return false;
-	}
-	return true;
 }
 
 // --------------------------------------------------------------
 // Vessel gains or loses input focus
 // --------------------------------------------------------------
-void Atlantis::clbkFocusChanged (bool getfocus, OBJHANDLE newv, OBJHANDLE oldv)
+void Atlantis::clbkFocusChanged(bool getfocus, OBJHANDLE newv, OBJHANDLE oldv)
 {
-  if (getfocus) {
-    oapiDisableMFDMode (MFD_LANDING);
-    // no VTOL MFD mode for Atlantis
-	//Enable communication overlays
-  } else 
-  {
-	  //Disable all Communication overlays
-  }
+	if (getfocus) {
+		oapiDisableMFDMode(MFD_LANDING);
+		// no VTOL MFD mode for Atlantis
+		//Enable communication overlays
+	}
+	else
+	{
+		//Disable all Communication overlays
+	}
 }
 
 int Atlantis::clbkGeneric(int msgid, int prm, void *context)
 {
-	switch(msgid)
+	try {
+		switch (msgid)
+		{
+		case VMSG_LUAINSTANCE:
+			return Lua_InitInstance(context);
+		case VMSG_LUAINTERPRETER:
+			return Lua_InitInterpreter(context);
+		default:
+			return 0;
+		}
+	}
+	catch (std::exception &e)
 	{
-	case VMSG_LUAINSTANCE:
-		return Lua_InitInstance (context);
-	case VMSG_LUAINTERPRETER:
-		return Lua_InitInterpreter (context);
-	default:
+		char buffer[400];
+		sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] Exception in clbkGeneric: %s", e.what());
+		oapiWriteLog(buffer);
 		return 0;
 	}
-	return 0;
 }
 
 // --------------------------------------------------------------
 // Before first timestep
 // --------------------------------------------------------------
-void Atlantis::clbkPostCreation ()
+void Atlantis::clbkPostCreation()
 {
-	//oapiWriteLog("In clbkPostCreation");
-	VESSEL3::clbkPostCreation(); //may not be necessary
-
-	SoundID=ConnectToOrbiterSoundDLL(GetHandle());
-	if(SoundID!=-1) {
-		//NOTE: (char*) casts in OrbiterSound calls should be safe; I think function just stores the file names (SiameseCat)
-		SetMyDefaultWaveDirectory(const_cast<char*>(SOUND_DIRECTORY));
-
-		SoundOptionOnOff(SoundID, PLAYATTITUDETHRUST, FALSE);
-		RequestLoadVesselWave(SoundID, RCS_SOUND, (char*)RCS_SOUND_FILE, INTERNAL_ONLY);
+	try
+	{
+		//oapiWriteLog("In clbkPostCreation");
 		
-		ReplaceStockSound(SoundID, const_cast<char*>(AIR_CONDITIONING_SOUND_FILE), REPLACE_AIR_CONDITIONNING);
+		SoundID = ConnectToOrbiterSoundDLL(GetHandle());
+		if (SoundID != -1) {
+			//NOTE: (char*) casts in OrbiterSound calls should be safe; I think function just stores the file names (SiameseCat)
+			SetMyDefaultWaveDirectory(const_cast<char*>(SOUND_DIRECTORY));
 
-		//SSME sounds
-		SoundOptionOnOff(SoundID, PLAYMAINTHRUST, FALSE);
-		SoundOptionOnOff(SoundID, PLAYUSERTHRUST, FALSE);
-		RequestLoadVesselWave(SoundID, SSME_START, (char*)SSME_START_FILE, BOTHVIEW_FADED_MEDIUM);
-		RequestLoadVesselWave(SoundID, SSME_RUNNING, (char*)SSME_RUNNING_FILE, BOTHVIEW_FADED_MEDIUM);
+			SoundOptionOnOff(SoundID, PLAYATTITUDETHRUST, FALSE);
+			RequestLoadVesselWave(SoundID, RCS_SOUND, (char*)RCS_SOUND_FILE, INTERNAL_ONLY);
 
-		//APU sounds
-		RequestLoadVesselWave(SoundID, APU_START, (char*)APU_START_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
-		RequestLoadVesselWave(SoundID, APU_RUNNING, (char*)APU_RUNNING_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
-		RequestLoadVesselWave(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
+			ReplaceStockSound(SoundID, const_cast<char*>(AIR_CONDITIONING_SOUND_FILE), REPLACE_AIR_CONDITIONNING);
 
-		RequestLoadVesselWave(SoundID, SWITCH_GUARD_SOUND, const_cast<char*>(SWITCH_GUARD_FILE), INTERNAL_ONLY);
-		RequestLoadVesselWave(SoundID, SWITCH_THROW_SOUND, const_cast<char*>(SWITCH_THROW_FILE), INTERNAL_ONLY);
-	}
+			//SSME sounds
+			SoundOptionOnOff(SoundID, PLAYMAINTHRUST, FALSE);
+			SoundOptionOnOff(SoundID, PLAYUSERTHRUST, FALSE);
+			RequestLoadVesselWave(SoundID, SSME_START, (char*)SSME_START_FILE, BOTHVIEW_FADED_MEDIUM);
+			RequestLoadVesselWave(SoundID, SSME_RUNNING, (char*)SSME_RUNNING_FILE, BOTHVIEW_FADED_MEDIUM);
+			RequestLoadVesselWave(SoundID, SSME_SHUTDOWN, (char*)SSME_SHUTDOWN_FILE, BOTHVIEW_FADED_MEDIUM);
 
+			//APU sounds
+			RequestLoadVesselWave(SoundID, APU_START, (char*)APU_START_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
+			RequestLoadVesselWave(SoundID, APU_RUNNING, (char*)APU_RUNNING_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
+			RequestLoadVesselWave(SoundID, APU_SHUTDOWN, (char*)APU_SHUTDOWN_FILE, EXTERNAL_ONLY_FADED_MEDIUM);
 
-	/*if(ops==104 || ops==105 || ops==106 || ops==202 || ops==301 || ops==302 || ops==303) {
-		if(MNVRLOAD) {
-			LoadManeuver();
-			if(MnvrToBurnAtt) LoadBurnAttManeuver();
+			RequestLoadVesselWave(SoundID, SWITCH_GUARD_SOUND, const_cast<char*>(SWITCH_GUARD_FILE), INTERNAL_ONLY);
+			RequestLoadVesselWave(SoundID, SWITCH_THROW_SOUND, const_cast<char*>(SWITCH_THROW_FILE), INTERNAL_ONLY);
+			RequestLoadVesselWave(SoundID, KEY_PRESS_SOUND, const_cast<char*>(KEY_PRESS_FILE), INTERNAL_ONLY);
+
+			RequestLoadVesselWave( SoundID, TB_OFF_SOUND, const_cast<char*>(TB_OFF_FILE), INTERNAL_ONLY );
+			RequestLoadVesselWave( SoundID, TB_ON_SOUND, const_cast<char*>(TB_ON_FILE), INTERNAL_ONLY );
+			
+			RequestLoadVesselWave( SoundID, CW_TONE_SOUND, const_cast<char*>(CW_TONE_FILE), BOTHVIEW_FADED_MEDIUM );// play outside as it is "critical"
+			RequestLoadVesselWave( SoundID, CW_TONE_RMS_SOUND, const_cast<char*>(CW_TONE_FILE), BOTHVIEW_FADED_MEDIUM );
 		}
+
+
+		//oapiWriteLog("(ssu)Realize all subsystems");
+		psubsystems->RealizeAll();
+		pgForward.Realize();
+		pgLeft.Realize();
+		pgCenter.Realize();
+		pgRight.Realize();
+		pgOverhead.Realize();
+		pgOverheadAft.Realize();
+		pgAftPort.Realize();
+		pgAft.Realize();
+		pgAftStbd.Realize();
+
+		DiscreteBundle* pBundle = BundleManager()->CreateBundle("Controllers", 16);
+		CdrFltCntlrPwr.Connect(pBundle, 1);
+		PltFltCntlrPwr.Connect(pBundle, 2);
+		AftFltCntlrPwr.Connect(pBundle, 3);
+
+		pBundle = bundleManager->CreateBundle("AEROSURFACE_CMD", 16);
+		//LeftElevonCommand.Connect(pBundle, 0);
+		//RightElevonCommand.Connect(pBundle, 1);
+		ElevonCommand.Connect(pBundle, 0);
+		AileronCommand.Connect(pBundle, 1);
+		RudderCommand.Connect(pBundle, 2);
+
+		pBundle = bundleManager->CreateBundle("THRUSTER_CMD", 16);
+		for (unsigned int i = 0; i < 3; i++) {
+			RotThrusterCommands[i].Connect(pBundle, i);
+			TransThrusterCommands[i].Connect(pBundle, i + 3);
+
+			// at start, make sure lines are set to 0;
+			DiscOutPort temp;
+			temp.Connect(pBundle, i);
+			temp.ResetLine();
+			temp.Connect(pBundle, i + 3);
+			temp.ResetLine();
+		}
+		RotThrusterCommands[3].Connect(pBundle, 6);// SERC RCS thrusters
+
+		pBundle = bundleManager->CreateBundle("RMS_EE", 16);
+		RMSGrapple.Connect(pBundle, 0);
+		RMSRelease.Connect(pBundle, 1);
+
+		pBundle = bundleManager->CreateBundle("RMS_HC_INPUT", 16);
+		for (int i = 0; i < 3; i++) {
+			RMS_RHCInput[i].Connect(pBundle, i);
+			RMS_THCInput[i].Connect(pBundle, i + 3);
+		}
+
+		pBundle = bundleManager->CreateBundle( "LeftRHCTHC_A", 16 );
+		for (int i = 0; i < 9; i++) LeftRHC[i].Connect( pBundle, i );
+		for (int i = 9; i < 16; i++) LeftTHC[i - 9].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "LeftRHCTHC_B", 16 );
+		for (int i = 0; i < 11; i++) LeftTHC[i + 7].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "RightRHC", 16 );
+		for (int i = 0; i < 9; i++) RightRHC[i].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "AftRHCTHC_A", 16 );
+		for (int i = 0; i < 9; i++) AftRHC[i].Connect( pBundle, i );
+		for (int i = 9; i < 16; i++) AftTHC[i - 9].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "AftRHCTHC_B", 16 );
+		for (int i = 0; i < 11; i++) AftTHC[i + 7].Connect( pBundle, i );
+
+		pBundle = bundleManager->CreateBundle( "RPTA", 16 );
+		for (int i = 0; i < 3; i++)
+		{
+			LeftRPTA[i].Connect( pBundle, i );
+			RightRPTA[i].Connect( pBundle, i + 3 );
+		}
+
+		pBundle = bundleManager->CreateBundle( "LeftSBTC", 16 );
+		for (int i = 0; i < 6; i++) LeftSBTC[i].Connect( pBundle, i );
+		pBundle = bundleManager->CreateBundle( "RightSBTC", 16 );
+		for (int i = 0; i < 6; i++) RightSBTC[i].Connect( pBundle, i );
+
+		pBundle = bundleManager->CreateBundle("RMS_MODE", 16);
+		RMSSpeedIn.Connect(pBundle, 12);
+		RMSSpeedOut.Connect(pBundle, 12);
+
+		pBundle = bundleManager->CreateBundle("RMS_SINGLE_JOINT", 16);
+		RMSDrivePlus.Connect(pBundle, 8);
+		RMSDriveMinus.Connect(pBundle, 9);
+
+		pBundle = bundleManager->CreateBundle("LOMS", 5);
+		OMSArm[LEFT].Connect(pBundle, 0);
+		OMSArmPress[LEFT].Connect(pBundle, 1);
+		OMSFire[LEFT].Connect(pBundle, 2);
+		OMSPitch[LEFT].Connect(pBundle, 3);
+		OMSYaw[LEFT].Connect(pBundle, 4);
+		pBundle = bundleManager->CreateBundle("ROMS", 5);
+		OMSArm[RIGHT].Connect(pBundle, 0);
+		OMSArmPress[RIGHT].Connect(pBundle, 1);
+		OMSFire[RIGHT].Connect(pBundle, 2);
+		OMSPitch[RIGHT].Connect(pBundle, 3);
+		OMSYaw[RIGHT].Connect(pBundle, 4);
+
+		pBundle = bundleManager->CreateBundle("C3_LIMITS_SSMEPB", 5);
+		for (int i = 0; i < 3; i++) SSMEPBAnalog[i].Connect(pBundle, i + 2);
+
+		pBundle = bundleManager->CreateBundle("ET_LOX_SENSORS", 16);
+		LO2LowLevelSensor[0].Connect(pBundle, 0);
+		LO2LowLevelSensor[1].Connect(pBundle, 1);
+		LO2LowLevelSensor[2].Connect(pBundle, 2);
+		LO2LowLevelSensor[3].Connect(pBundle, 3);
+
+		// ports for pan/tilt and cam settings
+		pBundle = bundleManager->CreateBundle( "VCU_output_1", 16 );
+		PTUHighRate.Connect( pBundle, 5 );
+		PLBCamPanLeft[0].Connect( pBundle, 6 );
+		PLBCamPanRight[0].Connect( pBundle, 7 );
+		PLBCamTiltUp[0].Connect( pBundle, 8 );
+		PLBCamTiltDown[0].Connect( pBundle, 9 );
+
+		PLBCamPanLeft[1].Connect( pBundle, 10 );
+		PLBCamPanRight[1].Connect( pBundle, 11 );
+		PLBCamTiltUp[1].Connect( pBundle, 12 );
+		PLBCamTiltDown[1].Connect( pBundle, 13 );
+
+		PLBCamPanLeft[2].Connect( pBundle, 14 );
+		PLBCamPanRight[2].Connect( pBundle, 15 );
+		
+		pBundle = bundleManager->CreateBundle( "VCU_output_2", 16 );
+		PLBCamTiltUp[2].Connect( pBundle, 0 );
+		PLBCamTiltDown[2].Connect( pBundle, 1 );
+		PLBCamPanLeft[3].Connect( pBundle, 2 );
+		PLBCamPanRight[3].Connect( pBundle, 3 );
+		PLBCamTiltUp[3].Connect( pBundle, 4 );
+		PLBCamTiltDown[3].Connect( pBundle, 5 );
+
+		pBundle = bundleManager->CreateBundle( "CameraManControl", 16 );
+		PLBCamPanLeft_Man.Connect( pBundle, 0 );
+		PLBCamPanRight_Man.Connect( pBundle, 1 );
+		PLBCamTiltUp_Man.Connect( pBundle, 2 );
+		PLBCamTiltDown_Man.Connect( pBundle, 3 );
+
+		pBundle = bundleManager->CreateBundle("PLB_LIGHTS", 16);
+		for (int i = 0; i < 6; i++) PLBLightPower[i].Connect(pBundle, i);
+		if (pMission->HasBulkheadFloodlights()) {
+			FwdBulkheadLightPower.Connect(pBundle, 6);
+			DockingLightDim.Connect(pBundle, 7);
+			DockingLightBright.Connect(pBundle, 8);
+		}
+
+		pBundle = bundleManager->CreateBundle("LANDING_GEAR", 16);
+		LandingGearPosition[0].Connect(pBundle, 0);
+		LandingGearPosition[1].Connect(pBundle, 1);
+		LandingGearPosition[2].Connect(pBundle, 2);
+		LandingGearPosition[3].Connect(pBundle, 3);
+		LandingGearPosition[4].Connect(pBundle, 4);
+		LandingGearPosition[5].Connect(pBundle, 5);
+		LandingGearArmPB[0].Connect(pBundle, 6);
+		LandingGearArmPB[1].Connect(pBundle, 7);
+		LandingGearDeployPB[0].Connect(pBundle, 8);
+		LandingGearDeployPB[1].Connect(pBundle, 9);
+
+		pBundle = bundleManager->CreateBundle( "ACA2_5", 16 );
+		LandingGearArmLT[1].Connect( pBundle, 6 );
+		LandingGearDeployLT[1].Connect( pBundle, 14 );
+
+		pBundle = bundleManager->CreateBundle( "ACA3_4", 16 );
+		LandingGearArmLT[0].Connect( pBundle, 12 );
+
+		pBundle = bundleManager->CreateBundle( "ACA3_5", 16 );
+		LandingGearDeployLT[0].Connect( pBundle, 0 );
+		
+		if (!gear_status.Closed())
+		{
+			LandingGearArmLT[0].SetLine();
+			LandingGearArmLT[1].SetLine();
+			LandingGearDeployLT[0].SetLine();
+			LandingGearDeployLT[1].SetLine();
+		}
+
+		pgForward.LogPanels("Forward");
+		pgLeft.LogPanels("Left");
+		pgCenter.LogPanels("Center");
+		pgRight.LogPanels("Right");
+		pgOverhead.LogPanels("Overhead");
+		pgOverheadAft.LogPanels("Aft Overhead");
+		pgAftPort.LogPanels("Aft Port");
+		pgAft.LogPanels("Aft");
+		pgAftStbd.LogPanels("Aft Starboard");
 	}
-	if(!MnvrToBurnAtt) {
-		if(MNVR) LoadInertialManeuver();
-		else if(TRK) LoadTrackManeuver();
-		else if(ROT) LoadRotationManeuver();
-	}*/
-
-
-
-	//oapiWriteLog("(ssu)Realize all subsystems");
-	psubsystems->RealizeAll();
-	pgForward.Realize();
-	pgLeft.Realize();
-	pgRight.Realize();
-	pgCenter.Realize();
-	pgOverhead.Realize();
-	pgOverheadAft.Realize();
-	pgAftPort.Realize();
-	pgAft.Realize();
-	pgAftStbd.Realize();
-
-	DiscreteBundle* pBundle=BundleManager()->CreateBundle("BODYFLAP_CONTROLS", 16);
-	BodyFlapAutoIn.Connect(pBundle, 0);
-	BodyFlapAutoOut.Connect(pBundle, 0);
-	BodyFlapManOut.Connect(pBundle, 1);
-
-	pBundle=BundleManager()->CreateBundle("SPDBKTHROT_CONTROLS", 16);
-	SpdbkThrotAutoIn.Connect(pBundle, 0);
-	SpdbkThrotCDROut.Connect(pBundle, 1);
-	SpdbkThrotPLTOut.Connect(pBundle, 2);
-	// if neither MAN port is set, set AUTO port
-	DiscInPort SpdbkThrotCDRIn, SpdbkThrotPLTIn;
-	SpdbkThrotCDRIn.Connect(pBundle, 1);
-	SpdbkThrotPLTIn.Connect(pBundle, 2);
-	if(!SpdbkThrotCDRIn && !SpdbkThrotPLTIn) {
-		DiscOutPort SpdbkThrotAutoOut;
-		SpdbkThrotAutoOut.Connect(pBundle, 0);
-		SpdbkThrotAutoOut.SetLine();
+	catch (std::exception &e)
+	{
+		char buffer[400];
+		sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] Exception in clbkPostCreation: %s", e.what());
+		oapiWriteLog(buffer);
 	}
-
-	pBundle=BundleManager()->CreateBundle("Controllers", 16);
-	AftSense.Connect(pBundle, 0);
-	CdrFltCntlrPwr.Connect(pBundle, 1);
-	PltFltCntlrPwr.Connect(pBundle, 2);
-	AftFltCntlrPwr.Connect(pBundle, 3);
-
-	pBundle=bundleManager->CreateBundle("HC_INPUT", 16);
-	for(int i=0;i<3;i++) {
-		RHCInputPort[i].Connect(pBundle, i);
-		THCInputPort[i].Connect(pBundle, i+3);
-
-		RHCInputPort[i].SetLine(0.0f);
-		THCInputPort[i].SetLine(0.0f);
-	}
-	SpdbkThrotPort.Connect(pBundle, 6);
-
-	pBundle=bundleManager->CreateBundle("AEROSURFACE_CMD", 16);
-	//LeftElevonCommand.Connect(pBundle, 0);
-	//RightElevonCommand.Connect(pBundle, 1);
-	ElevonCommand.Connect(pBundle, 0);
-	AileronCommand.Connect(pBundle, 1);
-
-	pBundle=bundleManager->CreateBundle("THRUSTER_CMD", 16);
-	for(unsigned int i=0;i<3;i++) {
-		RotThrusterCommands[i].Connect(pBundle, i);
-		TransThrusterCommands[i].Connect(pBundle, i+3);
-
-		// at start, make sure lines are set to 0;
-		DiscOutPort temp;
-		temp.Connect(pBundle, i);
-		temp.ResetLine();
-		temp.Connect(pBundle, i+3);
-		temp.ResetLine();
-	}
-
-	pBundle=bundleManager->CreateBundle("RMS_EE", 16);
-	RMSGrapple.Connect(pBundle, 0);
-	RMSRelease.Connect(pBundle, 1);
-
-	pBundle=bundleManager->CreateBundle("RMS_HC_INPUT", 16);
-	for(int i=0;i<3;i++) {
-		RMS_RHCInput[i].Connect(pBundle, i);
-		RMS_THCInput[i].Connect(pBundle, i+3);
-	}
-
-	pBundle=bundleManager->CreateBundle("RMS_MODE", 16);
-	RMSSpeedIn.Connect(pBundle, 12);
-	RMSSpeedOut.Connect(pBundle, 12);
-
-	pBundle = bundleManager->CreateBundle("RMS_SINGLE_JOINT", 16);
-	RMSDrivePlus.Connect(pBundle, 8);
-	RMSDriveMinus.Connect(pBundle, 9);
-
-	pBundle=bundleManager->CreateBundle("SSMEC_R2_SWITCHES", 4);
-	MPSPwr[0][0].Connect(pBundle, 0);
-	MPSPwr[1][0].Connect(pBundle, 1);
-	MPSHeIsolA[0].Connect(pBundle, 2);
-	MPSHeIsolB[0].Connect(pBundle, 2);
-	pBundle=bundleManager->CreateBundle("SSMEL_R2_SWITCHES", 4);
-	MPSPwr[0][1].Connect(pBundle, 0);
-	MPSPwr[1][1].Connect(pBundle, 1);
-	MPSHeIsolA[1].Connect(pBundle, 2);
-	MPSHeIsolB[1].Connect(pBundle, 2);
-	pBundle=bundleManager->CreateBundle("SSMER_R2_SWITCHES", 4);
-	MPSPwr[0][2].Connect(pBundle, 0);
-	MPSPwr[1][2].Connect(pBundle, 1);
-	MPSHeIsolA[2].Connect(pBundle, 2);
-	MPSHeIsolB[2].Connect(pBundle, 2);
-
-	pBundle = bundleManager->CreateBundle("SSME", 8);
-	for(int i=0;i<3;i++) SSMEShutdown[i].Connect(pBundle, i);
-
-	pBundle=bundleManager->CreateBundle("LOMS", 5);
-	OMSArm[LEFT].Connect(pBundle, 0);
-	OMSArmPress[LEFT].Connect(pBundle, 1);
-	OMSFire[LEFT].Connect(pBundle, 2);
-	OMSPitch[LEFT].Connect(pBundle, 3);
-	OMSYaw[LEFT].Connect(pBundle, 4);
-	pBundle=bundleManager->CreateBundle("ROMS", 5);
-	OMSArm[RIGHT].Connect(pBundle, 0);
-	OMSArmPress[RIGHT].Connect(pBundle, 1);
-	OMSFire[RIGHT].Connect(pBundle, 2);
-	OMSPitch[RIGHT].Connect(pBundle, 3);
-	OMSYaw[RIGHT].Connect(pBundle, 4);
-
-	// ports for pan/tilt and cam settings
-	DiscreteBundle* pCamBundles[5];
-	pCamBundles[0] = bundleManager->CreateBundle("PLBD_CAM_A", 16);
-	pCamBundles[1] = bundleManager->CreateBundle("PLBD_CAM_B", 16);
-	pCamBundles[2] = bundleManager->CreateBundle("PLBD_CAM_C", 16);
-	pCamBundles[3] = bundleManager->CreateBundle("PLBD_CAM_D", 16);
-	pCamBundles[4] = bundleManager->CreateBundle("RMS_ELBOW_CAM", 16);
-	for(unsigned short i=0;i<5;i++) {
-		PLBDCamPanLeft[i].Connect(pCamBundles[i], 0);
-		PLBDCamPanLeft_Out[i].Connect(pCamBundles[i], 0);
-		PLBDCamPanRight[i].Connect(pCamBundles[i], 1);
-		PLBDCamPanRight_Out[i].Connect(pCamBundles[i], 1);
-
-		PLBDCamTiltUp[i].Connect(pCamBundles[i], 2);
-		PLBDCamTiltUp_Out[i].Connect(pCamBundles[i], 2);
-		PLBDCamTiltDown[i].Connect(pCamBundles[i], 3);
-		PLBDCamTiltDown_Out[i].Connect(pCamBundles[i], 3);
-
-		PTULowSpeed[i].Connect(pCamBundles[i], 4);
-	}
-
-	pBundle = bundleManager->CreateBundle("PLBD_LIGHTS", 16);
-	for(int i=0;i<6;i++) PLBDLightPower[i].Connect(pBundle, i);
-	if(pMission->HasBulkheadFloodlights()) {
-		FwdBulkheadLightPower.Connect(pBundle, 6);
-		DockingLightDim.Connect(pBundle, 7);
-		DockingLightBright.Connect(pBundle, 8);
-	}
-}
+} //Atlantis::clbkPostCreation
 
 // --------------------------------------------------------------
 // Simulation time step
 // --------------------------------------------------------------
 
-void Atlantis::clbkPreStep (double simT, double simDT, double mjd)
+void Atlantis::clbkPreStep(double simT, double simDT, double mjd)
 {
 	static bool ___PreStep_flag = false;
-//	double dThrust;
-	//double steerforce, airspeed;
 
-	if(firstStep || status > STATE_PRELAUNCH) UpdateCoG(); // TODO: refine
+	try
+	{
+		if (firstStep) {
+			UpdateMassAndCoG(); // update visual before simulation starts
 
-	if(firstStep) {
-		firstStep = false;
-		UpdateMass();
-		if(status <= STATE_STAGE1) {
-			// update SRB thrusters to match values from SRB vessel
-			OBJHANDLE hLeftSRB = GetAttachmentStatus(ahLeftSRB);
-			VESSEL* pLeftSRB = oapiGetVesselInterface(GetAttachmentStatus(ahLeftSRB));
-			THRUSTER_HANDLE th_ref = pLeftSRB->GetGroupThruster(THGROUP_MAIN, 0);
-			CopyThrusterSettings(th_srb[0], pLeftSRB, th_ref);
-			VESSEL* pRightSRB = oapiGetVesselInterface(GetAttachmentStatus(ahRightSRB));
-			th_ref = pRightSRB->GetGroupThruster(THGROUP_MAIN, 0);
-			CopyThrusterSettings(th_srb[1], pRightSRB, th_ref);
+			if (status <= STATE_STAGE1) {
+				// update SRB thrusters to match values from SRB vessel
+				VESSEL* pLeftSRB = oapiGetVesselInterface(GetAttachmentStatus(ahLeftSRB));
+				THRUSTER_HANDLE th_ref = pLeftSRB->GetGroupThruster(THGROUP_MAIN, 0);
+				CopyThrusterSettings(th_srb[0], pLeftSRB, th_ref);
+				VESSEL* pRightSRB = oapiGetVesselInterface(GetAttachmentStatus(ahRightSRB));
+				th_ref = pRightSRB->GetGroupThruster(THGROUP_MAIN, 0);
+				CopyThrusterSettings(th_srb[1], pRightSRB, th_ref);
 
-			PROPELLANT_HANDLE ph_ref = pLeftSRB->GetThrusterResource(th_ref);
-			double phMass = pLeftSRB->GetPropellantMaxMass(ph_ref);
-			SetPropellantMaxMass(ph_srb, phMass*2.0);
+				PROPELLANT_HANDLE ph_ref = pLeftSRB->GetThrusterResource(th_ref);
+				double phMass = pLeftSRB->GetPropellantMaxMass(ph_ref);
+				SetPropellantMaxMass(ph_srb, phMass*2.0);
 
-			// update touchdown points to match height of attachment to pad
-			// otherwise, stack will either fall through pad or bounce upwards at T-0
-			OBJHANDLE hPad = GetAttachmentStatus(ahHDP);
-			if(hPad) {
-				VESSEL* v = oapiGetVesselInterface(hPad);
-				DWORD count = v->AttachmentCount(false);
-				//ATTACHMENTHANDLE ahParent = NULL;
-				VECTOR3 parentAttachPos, dir, rot;
-				for(DWORD i=0;i<count;i++) {
-					ATTACHMENTHANDLE ah = v->GetAttachmentHandle(false, i);
-					if(v->GetAttachmentStatus(ah) == GetHandle()) {
-						v->GetAttachmentParams(ah, parentAttachPos, dir, rot);
-						break;
+				// update touchdown points to match height of attachment to pad
+				// otherwise, stack will either fall through pad or bounce upwards at T-0
+				OBJHANDLE hPad = GetAttachmentStatus(ahHDP);
+				if (hPad) {
+					VESSEL* v = oapiGetVesselInterface(hPad);
+					DWORD count = v->AttachmentCount(false);
+					//ATTACHMENTHANDLE ahParent = NULL;
+					VECTOR3 parentAttachPos, dir, rot;
+					for (DWORD i = 0; i < count; i++) {
+						ATTACHMENTHANDLE ah = v->GetAttachmentHandle(false, i);
+						if (v->GetAttachmentStatus(ah) == GetHandle()) {
+							v->GetAttachmentParams(ah, parentAttachPos, dir, rot);
+							break;
+						}
 					}
+					VECTOR3 pt1, pt2, pt3;
+					v->GetTouchdownPoints(pt1, pt2, pt3);
+					// assume y-axis of pad is in vertical direction and pt1.y==pt2.y==pt3.y
+					VECTOR3 pos = POS_HDP - currentCoG;
+					double touchdownZ = pt1.y - parentAttachPos.y + pos.z;
+					DWORD ntdvtx = 4;
+					static TOUCHDOWNVTX tdvtx[4] = {
+						{_V( 0, -10, touchdownZ ), 1e5, 1e2, 0.5, 0.005},
+						{_V( -7, 7, touchdownZ ), 1e5, 1e2, 0.5, 0.005},
+						{_V( 7, 7, touchdownZ ), 1e5, 1e2, 0.5, 0.005},
+						{_V( 0, 0, 20 ), 1e5, 1e2, 0.5}
+					};
+					SetTouchdownPoints( tdvtx, ntdvtx );
 				}
-				VECTOR3 pt1, pt2, pt3;
-				v->GetTouchdownPoints(pt1, pt2, pt3);
-				// assume y-axis of pad is in vertical direction and pt1.y==pt2.y==pt3.y
-				double touchdownZ = pt1.y-parentAttachPos.y - 25.71;
-				SetTouchdownPoints (_V(0,-10,touchdownZ), _V(-7,7,touchdownZ), _V(7,7,touchdownZ));
 			}
 		}
-	}
 
-	if(!___PreStep_flag)
-	{
-		oapiWriteLog("In clbkPreStep");
-		___PreStep_flag = true;
-	}
-	
-	// update MET; needs to be done as early as possible, before subsytem PreStep functions are called
-	if(status==STATE_PRELAUNCH) {
-		met = 0.0;
-	}
-	else {
-		// calculate MET (in seconds) from MTU
-		met = pMTU->GetMETDay(0)*86400.0 + pMTU->GetMETHour(0)*3600.0 + pMTU->GetMETMin(0)*60.0 + pMTU->GetMETSec(0) + pMTU->GetMETMilli(0)/1000.0;
-	}
-	//Stopwatch st, stSub;
-	//st.Start();
-
-	//stSub.Start();
-	psubsystems->PreStep(simT, simDT, mjd);
-	pgLeft.OnPreStep(simT, simDT, mjd);
-	pgForward.OnPreStep(simT, simDT, mjd);
-	pgRight.OnPreStep(simT, simDT, mjd);
-	pgCenter.OnPreStep(simT, simDT, mjd);
-	pgOverhead.OnPreStep(simT, simDT, mjd);
-	pgOverheadAft.OnPreStep(simT, simDT, mjd);
-	pgAftStbd.OnPreStep(simT, simDT, mjd);
-	pgAft.OnPreStep(simT, simDT, mjd);
-	pgAftPort.OnPreStep(simT, simDT, mjd);
-	//double subTime = stSub.Stop();
-
-	OMSEngControl(LEFT);
-	OMSEngControl(RIGHT);
-
-	switch(status) {
-		case STATE_PRELAUNCH:
-		case STATE_STAGE1:
-		case STATE_STAGE2:
-			//for(unsigned short i=0;i<3;i++) SSMEEngControl(i);
-			break;
-		case STATE_ORBITER:
-			break;
-	}
-
-	// disable all Orbitersim autopilots
-	for(int i=NAVMODE_KILLROT;i<=NAVMODE_HOLDALT;i++) DeactivateNavmode(i);
-	
-	UpdateHandControllerSignals();
-
-	// check inputs from GPC and set thrusters
-	//sprintf_s(oapiDebugString(), 255, "RCS: %f %f %f", RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[YAW].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage());
-	if(RotThrusterCommands[PITCH].GetVoltage() > 0.0001) {
-		SetThrusterGroupLevel(thg_pitchup, RotThrusterCommands[PITCH].GetVoltage());
-		SetThrusterGroupLevel(thg_pitchdown, 0.0);
-
-		if(lastRotCommand[PITCH] != 1) {
-			lastRotCommand[PITCH] = 1;
-			PlayVesselWave(SoundID, RCS_SOUND);
+		if (!___PreStep_flag)
+		{
+			oapiWriteLog("In clbkPreStep");
+			___PreStep_flag = true;
 		}
-	}
-	else if(RotThrusterCommands[PITCH].GetVoltage() < -0.0001) {
-		SetThrusterGroupLevel(thg_pitchdown, -RotThrusterCommands[PITCH].GetVoltage());
-		SetThrusterGroupLevel(thg_pitchup, 0.0);
 
-		if(lastRotCommand[PITCH] != -1) {
-			lastRotCommand[PITCH] = -1;
-			PlayVesselWave(SoundID, RCS_SOUND);
-		}
-	}
-	else {
-		SetThrusterGroupLevel(thg_pitchup, 0.0);
-		SetThrusterGroupLevel(thg_pitchdown, 0.0);
-		lastRotCommand[PITCH] = 0;
-	}
-	if(RotThrusterCommands[YAW].GetVoltage() > 0.0001) {
-		SetThrusterGroupLevel(thg_yawright, RotThrusterCommands[YAW].GetVoltage());
-		SetThrusterGroupLevel(thg_yawleft, 0.0);
-
-		if(lastRotCommand[YAW] != 1) {
-			lastRotCommand[YAW] = 1;
-			PlayVesselWave(SoundID, RCS_SOUND);
-		}
-	}
-	else if(RotThrusterCommands[YAW].GetVoltage() < -0.0001) {
-		SetThrusterGroupLevel(thg_yawleft, -RotThrusterCommands[YAW].GetVoltage());
-		SetThrusterGroupLevel(thg_yawright, 0.0);
-
-		if(lastRotCommand[YAW] != -1) {
-			lastRotCommand[YAW] = -1;
-			PlayVesselWave(SoundID, RCS_SOUND);
-		}
-	}
-	else {
-		SetThrusterGroupLevel(thg_yawright, 0.0);
-		SetThrusterGroupLevel(thg_yawleft, 0.0);
-		lastRotCommand[YAW] = 0;
-	}
-	if(RotThrusterCommands[ROLL].GetVoltage() > 0.0001) {
-		SetThrusterGroupLevel(thg_rollright, RotThrusterCommands[ROLL].GetVoltage());
-		SetThrusterGroupLevel(thg_rollleft, 0.0);
-
-		if(lastRotCommand[ROLL] != 1) {
-			lastRotCommand[ROLL] = 1;
-			PlayVesselWave(SoundID, RCS_SOUND);
-		}
-	}
-	else if(RotThrusterCommands[ROLL].GetVoltage() < -0.0001) {
-		SetThrusterGroupLevel(thg_rollleft, -RotThrusterCommands[ROLL].GetVoltage());
-		SetThrusterGroupLevel(thg_rollright, 0.0);
-
-		if(lastRotCommand[ROLL] != -1) {
-			lastRotCommand[ROLL] = -1;
-			PlayVesselWave(SoundID, RCS_SOUND);
-		}
-	}
-	else {
-		SetThrusterGroupLevel(thg_rollright, 0.0);
-		SetThrusterGroupLevel(thg_rollleft, 0.0);
-		lastRotCommand[ROLL] = 0;
-	}
-
-	if(TransThrusterCommands[0].GetVoltage() > 0.0001) {
-		SetThrusterGroupLevel(thg_transfwd, 1.0);
-		SetThrusterGroupLevel(thg_transaft, 0.0);
-
-		if(lastTransCommand[0] != 1) {
-			lastTransCommand[0] = 1;
-			PlayVesselWave(SoundID, RCS_SOUND);
-		}
-	}
-	else if(TransThrusterCommands[0].GetVoltage() < -0.0001) {
-		SetThrusterGroupLevel(thg_transaft, 1.0);
-		SetThrusterGroupLevel(thg_transfwd, 0.0);
-
-		if(lastTransCommand[0] != -1) {
-			lastTransCommand[0] = -1;
-			PlayVesselWave(SoundID, RCS_SOUND);
-		}
-	}
-	else {
-		SetThrusterGroupLevel(thg_transfwd, 0.0);
-		SetThrusterGroupLevel(thg_transaft, 0.0);
-		lastTransCommand[0] = 0;
-	}
-	if(TransThrusterCommands[1].GetVoltage() > 0.0001) {
-		SetThrusterGroupLevel(thg_transright, 1.0);
-		SetThrusterGroupLevel(thg_transleft, 0.0);
-
-		if(lastTransCommand[1] != 1) {
-			lastTransCommand[1] = 1;
-			PlayVesselWave(SoundID, RCS_SOUND);
-		}
-	}
-	else if(TransThrusterCommands[1].GetVoltage() < -0.0001) {
-		SetThrusterGroupLevel(thg_transleft, 1.0);
-		SetThrusterGroupLevel(thg_transright, 0.0);
-
-		if(lastTransCommand[1] != -1) {
-			lastTransCommand[1] = -1;
-			PlayVesselWave(SoundID, RCS_SOUND);
-		}
-	}
-	else {
-		SetThrusterGroupLevel(thg_transright, 0.0);
-		SetThrusterGroupLevel(thg_transleft, 0.0);
-		lastTransCommand[1] = 0;
-	}
-	if(TransThrusterCommands[2].GetVoltage() > 0.0001) {
-		SetThrusterGroupLevel(thg_transdown, 1.0);
-		SetThrusterGroupLevel(thg_transup, 0.0);
-
-		if(lastTransCommand[2] != 1) {
-			lastTransCommand[2] = 1;
-			PlayVesselWave(SoundID, RCS_SOUND);
-		}
-	}
-	else if(TransThrusterCommands[2].GetVoltage() < -0.0001) {
-		SetThrusterGroupLevel(thg_transup, 1.0);
-		SetThrusterGroupLevel(thg_transdown, 0.0);
-
-		if(lastTransCommand[2] != -1) {
-			lastTransCommand[2] = -1;
-			PlayVesselWave(SoundID, RCS_SOUND);
-		}
-	}
-	else {
-		SetThrusterGroupLevel(thg_transdown, 0.0);
-		SetThrusterGroupLevel(thg_transup, 0.0);
-		lastTransCommand[2] = 0;
-	}
-	
-	if(pSimpleGPC->GetMajorMode()==304 || pSimpleGPC->GetMajorMode()==305 || pSimpleGPC->GetMajorMode() == 801) {
-		double elevonPos = 0.0;
-		double aileronPos = 0.0;
-		if(HydraulicsOK()) {
-			elevonPos = range(-33.0, ElevonCommand.GetVoltage()*33.0, 18.0);
-			aileronPos = range(-10.0, AileronCommand.GetVoltage()*10.0, 10.0);
-			//aerosurfaces.leftElevon = range(-33.0, LeftElevonCommand.GetVoltage()*-33.0, 18.0);
-			//aerosurfaces.rightElevon = range(-33.0, RightElevonCommand.GetVoltage()*-33.0, 18.0);
-			aerosurfaces.leftElevon = range(-33.0, elevonPos-aileronPos, 18.0);
-			aerosurfaces.rightElevon = range(-33.0, elevonPos+aileronPos, 18.0);
-			aerosurfaces.bodyFlap = 0.0;
-			aerosurfaces.speedbrake = spdb_proc*100.0;
-			//if(pSimpleGPC->GetMajorMode() == 801)
-				//aerosurfaces.bodyFlap = (ElevonCommand.GetVoltage() + 1.0)/2.0 * 100.0;
+		// update MET; needs to be done as early as possible, before subsytem PreStep functions are called
+		if (status == STATE_PRELAUNCH) {
+			met = 0.0;
 		}
 		else {
-			aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;
-			aerosurfaces.bodyFlap = 0.0;
-			aerosurfaces.rudder = 0.0;
-			aerosurfaces.speedbrake = 0.0;
+			// calculate MET (in seconds) from MTU
+			met = pMTU->GetMETDay(0)*86400.0 + pMTU->GetMETHour(0)*3600.0 + pMTU->GetMETMin(0)*60.0 + pMTU->GetMETSec(0) + pMTU->GetMETMilli(0) / 1000.0;
 		}
 
-		double voltage = ElevonCommand.GetVoltage();
-		double alvoltage = AileronCommand.GetVoltage();
-		// set animations corresponding to aerosurface positions
-		//double elevonPos = (LeftElevonCommand.GetVoltage()+RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
-		//SetAnimation(anim_elev, (1.0-ElevonCommand.GetVoltage())/2.0);
-		if(aerosurfaces.leftElevon < 0.0) SetAnimation(anim_lelevon, (aerosurfaces.leftElevon + 34.0)/(34.0*2));
-		else SetAnimation(anim_lelevon, (18.0 + aerosurfaces.leftElevon)/(18.0*2));
-		if(aerosurfaces.rightElevon < 0.0) SetAnimation(anim_relevon, (aerosurfaces.rightElevon + 34.0)/(34.0*2));
-		else SetAnimation(anim_relevon, (18.0 + aerosurfaces.rightElevon)/(18.0*2));
-	}
+		// landing gear PB
+		if ((LandingGearArmPB[0].IsSet() == true) || (LandingGearArmPB[1].IsSet() == true)) ArmGear();
+		if ((GearArmed() == true) && ((LandingGearDeployPB[0].IsSet() == true) || (LandingGearDeployPB[1].IsSet() == true))) DeployLandingGear();
 
+		// landing gear position switches
+		if (gear_status.action == AnimState::CLOSED)
+		{
+			// uplock on / downlock off
+			LandingGearPosition[0].SetLine();
+			LandingGearPosition[1].ResetLine();
 
-	// if we reenter PLBD cam view from external view, update camera direction
-	if(!bLastCamInternal && oapiCameraInternal()) {
-		if(VCMode>=VC_PLBCAMFL && VCMode<=VC_RMSCAM) SetAnimationCameras();
-	}
-	bLastCamInternal = oapiCameraInternal();
+			LandingGearPosition[2].SetLine();
+			LandingGearPosition[3].ResetLine();
 
-	// turn PLBD lights on/off
-	if(pMission->HasBulkheadFloodlights()) {
-		bool state = FwdBulkheadLightPower;
-		FwdBulkheadLight->Activate(state);
-		FwdBulkhead_bspec.active = state;
-
-		// check docking light (which has DIM and BRIGHT positions)
-		if(DockingLightDim) {
-			DockingLight[0]->Activate(true);
-			Docking_bspec[0].active = true;
-			DockingLight[1]->Activate(false);
-			Docking_bspec[1].active = false;
+			LandingGearPosition[4].SetLine();
+			LandingGearPosition[5].ResetLine();
 		}
-		else if(DockingLightBright) {
-			DockingLight[0]->Activate(true);
-			Docking_bspec[0].active = true;
-			DockingLight[1]->Activate(true);
-			Docking_bspec[1].active = true;
+		else if (gear_status.action == AnimState::OPEN)
+		{
+			// uplock off / downlock on
+			LandingGearPosition[0].ResetLine();
+			LandingGearPosition[1].SetLine();
+
+			LandingGearPosition[2].ResetLine();
+			LandingGearPosition[3].SetLine();
+
+			LandingGearPosition[4].ResetLine();
+			LandingGearPosition[5].SetLine();
 		}
-		else { // off
-			for(int i=0;i<2;i++) {
+		else
+		{
+			// uplock off / downlock off
+			LandingGearPosition[0].ResetLine();
+			LandingGearPosition[1].ResetLine();
+
+			LandingGearPosition[2].ResetLine();
+			LandingGearPosition[3].ResetLine();
+
+			LandingGearPosition[4].ResetLine();
+			LandingGearPosition[5].ResetLine();
+		}
+
+		//Stopwatch st, stSub;
+		//st.Start();
+
+		//stSub.Start();
+		psubsystems->PreStep(simT, simDT, mjd);
+		pgForward.OnPreStep(simT, simDT, mjd);
+		pgLeft.OnPreStep(simT, simDT, mjd);
+		pgCenter.OnPreStep(simT, simDT, mjd);
+		pgRight.OnPreStep(simT, simDT, mjd);
+		pgOverhead.OnPreStep(simT, simDT, mjd);
+		pgOverheadAft.OnPreStep(simT, simDT, mjd);
+		pgAftPort.OnPreStep(simT, simDT, mjd);
+		pgAft.OnPreStep(simT, simDT, mjd);
+		pgAftStbd.OnPreStep(simT, simDT, mjd);
+		//double subTime = stSub.Stop();
+
+		OMSEngControl(LEFT);
+		OMSEngControl(RIGHT);
+
+		// disable all Orbitersim autopilots
+		for (int i = NAVMODE_KILLROT; i <= NAVMODE_HOLDALT; i++) DeactivateNavmode(i);
+
+		UpdateControllersSignals( simDT );
+
+
+
+		// check inputs from GPC and set thrusters
+		//PITCH Commands to Thrusters
+		double pitchcmd = RotThrusterCommands[PITCH].GetVoltage();
+		if (pitchcmd > 0.0001)
+		{
+			SetThrusterGroupLevel(thg_pitchup, pitchcmd);
+			SetThrusterGroupLevel(thg_pitchdown, 0.0);
+
+			if (lastRotCommand[PITCH] != 1) {
+				lastRotCommand[PITCH] = 1;
+				PlayVesselWave(SoundID, RCS_SOUND);
+			}
+		}
+		else if (pitchcmd < -0.0001)
+		{
+			SetThrusterGroupLevel(thg_pitchdown, -pitchcmd);
+			SetThrusterGroupLevel(thg_pitchup, 0.0);
+
+			if (lastRotCommand[PITCH] != -1) {
+				lastRotCommand[PITCH] = -1;
+				PlayVesselWave(SoundID, RCS_SOUND);
+			}
+		}
+		else
+		{
+			SetThrusterGroupLevel(thg_pitchup, 0.0);
+			SetThrusterGroupLevel(thg_pitchdown, 0.0);
+			lastRotCommand[PITCH] = 0;
+
+		}
+
+
+		//YAW Commands to thrusters
+		if (RotThrusterCommands[YAW].GetVoltage() > 0.0001) {
+			SetThrusterGroupLevel(thg_yawright, RotThrusterCommands[YAW].GetVoltage());
+			SetThrusterGroupLevel(thg_yawleft, 0.0);
+
+			if (lastRotCommand[YAW] != 1) {
+				lastRotCommand[YAW] = 1;
+				PlayVesselWave(SoundID, RCS_SOUND);
+			}
+		}
+		else if (RotThrusterCommands[YAW].GetVoltage() < -0.0001) {
+			SetThrusterGroupLevel(thg_yawleft, -RotThrusterCommands[YAW].GetVoltage());
+			SetThrusterGroupLevel(thg_yawright, 0.0);
+
+			if (lastRotCommand[YAW] != -1) {
+				lastRotCommand[YAW] = -1;
+				PlayVesselWave(SoundID, RCS_SOUND);
+			}
+		}
+		else {
+			SetThrusterGroupLevel(thg_yawright, 0.0);
+			SetThrusterGroupLevel(thg_yawleft, 0.0);
+			lastRotCommand[YAW] = 0;
+		}
+
+		//ROLL Commands to Thruster
+		if (RotThrusterCommands[ROLL].GetVoltage() > 0.0001) {
+			SetThrusterGroupLevel(thg_rollright, RotThrusterCommands[ROLL].GetVoltage());
+			SetThrusterGroupLevel(thg_rollleft, 0.0);
+
+			if (lastRotCommand[ROLL] != 1) {
+				lastRotCommand[ROLL] = 1;
+				PlayVesselWave(SoundID, RCS_SOUND);
+			}
+		}
+		else if (RotThrusterCommands[ROLL].GetVoltage() < -0.0001) {
+			SetThrusterGroupLevel(thg_rollleft, -RotThrusterCommands[ROLL].GetVoltage());
+			SetThrusterGroupLevel(thg_rollright, 0.0);
+
+			if (lastRotCommand[ROLL] != -1) {
+				lastRotCommand[ROLL] = -1;
+				PlayVesselWave(SoundID, RCS_SOUND);
+			}
+		}
+		else {
+			SetThrusterGroupLevel(thg_rollright, 0.0);
+			SetThrusterGroupLevel(thg_rollleft, 0.0);
+			lastRotCommand[ROLL] = 0;
+		}
+
+		// SERC
+		if (RotThrusterCommands[3].GetVoltage() > 0.0001)
+		{
+			// roll left
+			//Possible Crash
+			if (!bUseRealRCS)
+			{
+				SetThrusterLevel(th_att_rcs[4], RotThrusterCommands[3].GetVoltage());// F2R, F4R
+				SetThrusterLevel(th_att_rcs[9], RotThrusterCommands[3].GetVoltage());// L1U, L2U, L4U
+				SetThrusterLevel(th_att_rcs[8], RotThrusterCommands[3].GetVoltage());// R2D, R3D, R4D
+				SetThrusterLevel(th_att_rcs[7], RotThrusterCommands[3].GetVoltage());// R1R, R2R, R3R, R4R
+
+				SetThrusterLevel(th_att_rcs[6], 0);// F1L, F3L
+				SetThrusterLevel(th_att_rcs[10], 0);// L2D, L3D, L4D
+				SetThrusterLevel(th_att_rcs[5], 0);// L1L, L2L, L3L, L4L
+				SetThrusterLevel(th_att_rcs[11], 0);// R1U, R2U, R4U
+			}
+
+			SERCstop = false;
+		}
+		else if (RotThrusterCommands[3].GetVoltage() < -0.0001)
+		{
+			// roll right
+			//Possible Crash
+			if (!bUseRealRCS)
+			{
+				SetThrusterLevel(th_att_rcs[6], -RotThrusterCommands[3].GetVoltage());// F1L, F3L
+				SetThrusterLevel(th_att_rcs[10], -RotThrusterCommands[3].GetVoltage());// L2D, L3D, L4D
+				SetThrusterLevel(th_att_rcs[5], -RotThrusterCommands[3].GetVoltage());// L1L, L2L, L3L, L4L
+				SetThrusterLevel(th_att_rcs[11], -RotThrusterCommands[3].GetVoltage());// R1U, R2U, R4U
+
+				SetThrusterLevel(th_att_rcs[4], 0);// F2R, F4R
+				SetThrusterLevel(th_att_rcs[9], 0);// L1U, L2U, L4U
+				SetThrusterLevel(th_att_rcs[8], 0);// R2D, R3D, R4D
+				SetThrusterLevel(th_att_rcs[7], 0);// R1R, R2R, R3R, R4R
+			}
+			SERCstop = false;
+		}
+		else
+		{
+			if (SERCstop == false)
+			{
+				if (!bUseRealRCS)
+				{
+					SetThrusterLevel(th_att_rcs[4], 0);// F2R, F4R
+					SetThrusterLevel(th_att_rcs[9], 0);// L1U, L2U, L4U
+					SetThrusterLevel(th_att_rcs[8], 0);// R2D, R3D, R4D
+					SetThrusterLevel(th_att_rcs[7], 0);// R1R, R2R, R3R, R4R
+
+					SetThrusterLevel(th_att_rcs[6], 0);// F1L, F3L
+					SetThrusterLevel(th_att_rcs[10], 0);// L2D, L3D, L4D
+					SetThrusterLevel(th_att_rcs[5], 0);// L1L, L2L, L3L, L4L
+					SetThrusterLevel(th_att_rcs[11], 0);// R1U, R2U, R4U
+				}
+
+				SERCstop = true;
+			}
+		}
+
+
+		if (!bUseRealRCS) {
+
+
+			if (TransThrusterCommands[0].GetVoltage() > 0.0001) {
+				SetThrusterGroupLevel(thg_transfwd, 1.0);
+				SetThrusterGroupLevel(thg_transaft, 0.0);
+
+				if (lastTransCommand[0] != 1) {
+					lastTransCommand[0] = 1;
+					PlayVesselWave(SoundID, RCS_SOUND);
+				}
+			}
+			else if (TransThrusterCommands[0].GetVoltage() < -0.0001) {
+				SetThrusterGroupLevel(thg_transaft, 1.0);
+				SetThrusterGroupLevel(thg_transfwd, 0.0);
+
+				if (lastTransCommand[0] != -1) {
+					lastTransCommand[0] = -1;
+					PlayVesselWave(SoundID, RCS_SOUND);
+				}
+			}
+			else {
+				SetThrusterGroupLevel(thg_transfwd, 0.0);
+				SetThrusterGroupLevel(thg_transaft, 0.0);
+				lastTransCommand[0] = 0;
+			}
+			if (TransThrusterCommands[1].GetVoltage() > 0.0001) {
+				SetThrusterGroupLevel(thg_transright, 1.0);
+				SetThrusterGroupLevel(thg_transleft, 0.0);
+
+				if (lastTransCommand[1] != 1) {
+					lastTransCommand[1] = 1;
+					PlayVesselWave(SoundID, RCS_SOUND);
+				}
+			}
+			else if (TransThrusterCommands[1].GetVoltage() < -0.0001) {
+				SetThrusterGroupLevel(thg_transleft, 1.0);
+				SetThrusterGroupLevel(thg_transright, 0.0);
+
+				if (lastTransCommand[1] != -1) {
+					lastTransCommand[1] = -1;
+					PlayVesselWave(SoundID, RCS_SOUND);
+				}
+			}
+			else {
+				SetThrusterGroupLevel(thg_transright, 0.0);
+				SetThrusterGroupLevel(thg_transleft, 0.0);
+				lastTransCommand[1] = 0;
+			}
+			if (TransThrusterCommands[2].GetVoltage() > 0.0001) {
+				SetThrusterGroupLevel(thg_transdown, 1.0);
+				SetThrusterGroupLevel(thg_transup, 0.0);
+
+				if (lastTransCommand[2] != 1) {
+					lastTransCommand[2] = 1;
+					PlayVesselWave(SoundID, RCS_SOUND);
+				}
+			}
+			else if (TransThrusterCommands[2].GetVoltage() < -0.0001) {
+				SetThrusterGroupLevel(thg_transup, 1.0);
+				SetThrusterGroupLevel(thg_transdown, 0.0);
+
+				if (lastTransCommand[2] != -1) {
+					lastTransCommand[2] = -1;
+					PlayVesselWave(SoundID, RCS_SOUND);
+				}
+			}
+			else {
+				SetThrusterGroupLevel(thg_transdown, 0.0);
+				SetThrusterGroupLevel(thg_transup, 0.0);
+				lastTransCommand[2] = 0;
+			}
+		}
+
+
+		if (pSimpleGPC->GetMajorMode() == 304 || pSimpleGPC->GetMajorMode() == 305 || pSimpleGPC->GetMajorMode() == 801) {
+			double elevonPos = 0.0;
+			double aileronPos = 0.0;
+			if (HydraulicsOK()) {
+				elevonPos = range(-33.0, ElevonCommand.GetVoltage()*33.0, 18.0);
+				aileronPos = range(-10.0, AileronCommand.GetVoltage()*10.0, 10.0);
+				//aerosurfaces.leftElevon = range(-33.0, LeftElevonCommand.GetVoltage()*-33.0, 18.0);
+				//aerosurfaces.rightElevon = range(-33.0, RightElevonCommand.GetVoltage()*-33.0, 18.0);
+				aerosurfaces.leftElevon = range(-33.0, elevonPos - aileronPos, 18.0);
+				aerosurfaces.rightElevon = range(-33.0, elevonPos + aileronPos, 18.0);
+				aerosurfaces.bodyFlap = 0.0;
+				aerosurfaces.speedbrake = spdb_proc*100.0;
+				//if(pSimpleGPC->GetMajorMode() == 801)
+				//aerosurfaces.bodyFlap = (ElevonCommand.GetVoltage() + 1.0)/2.0 * 100.0;
+
+				// TODO: limit combined rudder and speedbrake deflection
+				aerosurfaces.rudder = range(-27.1, RudderCommand.GetVoltage()*27.1, 27.1);
+				SetControlSurfaceLevel(AIRCTRL_RUDDERTRIM, RudderCommand.GetVoltage());
+			}
+			else {
+				aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;
+				aerosurfaces.bodyFlap = 0.0;
+				aerosurfaces.rudder = 0.0;
+				aerosurfaces.speedbrake = 0.0;
+			}
+
+			// set animations corresponding to aerosurface positions
+			//double elevonPos = (LeftElevonCommand.GetVoltage()+RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
+			//SetAnimation(anim_elev, (1.0-ElevonCommand.GetVoltage())/2.0);
+			if (aerosurfaces.leftElevon < 0.0) SetAnimation(anim_lelevon, (aerosurfaces.leftElevon + 34.0) / (34.0 * 2));
+			else SetAnimation(anim_lelevon, (18.0 + aerosurfaces.leftElevon) / (18.0 * 2));
+			if (aerosurfaces.rightElevon < 0.0) SetAnimation(anim_relevon, (aerosurfaces.rightElevon + 34.0) / (34.0 * 2));
+			else SetAnimation(anim_relevon, (18.0 + aerosurfaces.rightElevon) / (18.0 * 2));
+		}
+
+
+		// if we reenter PLBD cam view from external view, update camera direction
+		if (!bLastCamInternal && oapiCameraInternal()) {
+			if (VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) SetAnimationCameras();
+		}
+		bLastCamInternal = oapiCameraInternal();
+
+		// turn PLBD lights on/off
+		if (pMission->HasBulkheadFloodlights()) {
+			bool state = FwdBulkheadLightPower;
+			FwdBulkheadLight->Activate(state);
+			FwdBulkhead_bspec.active = state;
+
+			// check docking light (which has DIM and BRIGHT positions)
+			if (DockingLightDim) {
+				DockingLight[0]->Activate(true);
+				Docking_bspec[0].active = true;
+				DockingLight[1]->Activate(false);
+				Docking_bspec[1].active = false;
+			}
+			else if (DockingLightBright) {
+				DockingLight[0]->Activate(true);
+				Docking_bspec[0].active = true;
+				DockingLight[1]->Activate(true);
+				Docking_bspec[1].active = true;
+			}
+			else { // off
+				for (int i = 0; i < 2; i++) {
+					DockingLight[i]->Activate(false);
+					Docking_bspec[i].active = false;
+				}
+			}
+		}
+		else { // turn off FWD bulkhead & docking lights
+			FwdBulkheadLight->Activate(false);
+			FwdBulkhead_bspec.active = false;
+			for (int i = 0; i < 2; i++) {
 				DockingLight[i]->Activate(false);
 				Docking_bspec[i].active = false;
 			}
 		}
-	}
-	else { // turn off FWD bulkhead & docking lights
-		FwdBulkheadLight->Activate(false);
-		FwdBulkhead_bspec.active = false;
-		for(int i=0;i<2;i++) {
-			DockingLight[i]->Activate(false);
-			Docking_bspec[i].active = false;
+		for (int i = 0; i < 6; i++) {
+			bool state = PLBLightPower[i].IsSet();
+			PLBLight[i]->Activate(state);
+			PLB_bspec[i].active = state;
 		}
-	}
-	for(int i=0;i<6;i++) {
-		bool state = PLBDLightPower[i].IsSet();
-		PLBLight[i]->Activate(state);
-		PLB_bspec[i].active = state;
-	}
 
-	// during launch, turn engine light source on
-	if(status <= STATE_STAGE2 && GetSSMEThrustLevel(0) > 10.0) {
-		SSMELight->Activate(true);
-		SSMELight->SetIntensity(GetSSMEThrustLevel(0)/SSME_MAX_POWER_LEVEL);
-	}
-	else {
-		SSMELight->Activate(false);
-	}
-	if(status == STATE_STAGE1 && GetLiftOffFlag()) {
-		SRBLight->Activate(true);
-	}
-	else {
-		SRBLight->Activate(false);
-	}
+		// during launch, turn engine light source on
+		if (status <= STATE_STAGE2 && GetSSMEThrustLevel(0) > 1.0) {
+			SSMELight->Activate(true);
+			SSMELight->SetIntensity(GetSSMEThrustLevel(0) / SSME_MAX_POWER_LEVEL);
+		}
+		else {
+			SSMELight->Activate(false);
+		}
+		if (status == STATE_STAGE1 && GetLiftOffFlag()) {
+			SRBLight[0]->Activate(true);
+			SRBLight[1]->Activate(true);
+		}
+		else {
+			SRBLight[0]->Activate(false);
+			SRBLight[1]->Activate(false);
+		}
 
-	//double time=st.Stop();
-	//sprintf_s(oapiDebugString(), 255, "PreStep time: %f Subsystem time: %f", time, subTime);
-	//oapiWriteLog(oapiDebugString());
+		//double time=st.Stop();
+		//sprintf_s(oapiDebugString(), 255, "PreStep time: %f Subsystem time: %f", time, subTime);
+		//oapiWriteLog(oapiDebugString());
 
+		if (status > STATE_PRELAUNCH) UpdateMassAndCoG(); // TODO: refine
+
+	}
+	catch (std::exception &e)
+	{
+		char buffer[400];
+		sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] Exception in clbkPreStep: %s", e.what());
+		oapiWriteLog(buffer);
+		exit(1);
+	}
 }	//Atlantis::clbkPreStep
 
-void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
+void Atlantis::clbkPostStep(double simt, double simdt, double mjd)
 {
 	static bool ___PostStep_flag = false;
-	//double met;
-	double airspeed;
-	//int i;
-	OBJHANDLE hvessel;
-
-	//Stopwatch st, stSub;
-	//st.Start();
-
-	if(!___PostStep_flag)
-	{
-		oapiWriteLog("(Atlantis::clbkPostStep) Entering.");
-	}
-
 	
-	if(!___PostStep_flag)
+	try
 	{
-		oapiWriteLog("(Atlantis::clbkPostStep) Processing subsystems.");
-	}
-	//stSub.Start();
-	psubsystems->PostStep(simt, simdt, mjd);
-	//double subTime = stSub.Stop();
+		//Stopwatch st, stSub;
+		//st.Start();
 
-	if(!___PostStep_flag)
-	{
-		oapiWriteLog("(Atlantis::clbkPostStep) Processing DAP.");
-	}
-
-	if(!___PostStep_flag)
-	{
-		oapiWriteLog("(Atlantis::clbkPostStep) Processing panels.");
-	}
-	
-	//Panel groups
-	pgLeft.OnPostStep(simt, simdt, mjd);
-	pgForward.OnPostStep(simt, simdt, mjd);
-	pgRight.OnPostStep(simt, simdt, mjd);
-	pgCenter.OnPostStep(simt, simdt, mjd);
-	pgOverhead.OnPostStep(simt, simdt, mjd);
-	pgOverheadAft.OnPostStep(simt, simdt, mjd);
-	pgAftStbd.OnPostStep(simt, simdt, mjd);
-	pgAft.OnPostStep(simt, simdt, mjd);
-	pgAftPort.OnPostStep(simt, simdt, mjd);
-	//stSub.Stop();
-
-	
-	if(!___PostStep_flag)
-	{
-		oapiWriteLog("(Atlantis::clbkPostStep) Executing state depending behavior.");
-	}
-
-	switch (status) {
-	case STATE_PRELAUNCH: // launch configuration
-		//if(rsls) rsls->OnPostStep(simt, simdt, mjd);
-		// check SSME state and trigger liftoff when required
-		//bool bAllSSMEsOff = true; // all SSMEs at 0.0% thrust
-		if(Eq(GetSSMEThrustLevel(0), 0.0, 0.05))
+		if (!___PostStep_flag)
 		{
-			if(GetPropellantLevel(ph_tank) > 0.05) // ET is at least partially filled; allow venting
+			oapiWriteLog("(Atlantis::clbkPostStep) Entering.");
+		}
+
+		if (firstStep) {
+			firstStep = false;
+			UpdateMassAndCoG(true);
+		}
+
+		if (!___PostStep_flag)
+		{
+			oapiWriteLog("(Atlantis::clbkPostStep) Processing subsystems.");
+		}
+		//stSub.Start();
+		psubsystems->PostStep(simt, simdt, mjd);
+		//double subTime = stSub.Stop();
+
+		if (!___PostStep_flag)
+		{
+			oapiWriteLog("(Atlantis::clbkPostStep) Processing panels.");
+		}
+
+		//Panel groups
+		pgForward.OnPostStep(simt, simdt, mjd);
+		pgLeft.OnPostStep(simt, simdt, mjd);
+		pgCenter.OnPostStep(simt, simdt, mjd);
+		pgRight.OnPostStep(simt, simdt, mjd);
+		pgOverhead.OnPostStep(simt, simdt, mjd);
+		pgOverheadAft.OnPostStep(simt, simdt, mjd);
+		pgAftPort.OnPostStep(simt, simdt, mjd);
+		pgAft.OnPostStep(simt, simdt, mjd);
+		pgAftStbd.OnPostStep(simt, simdt, mjd);
+		//stSub.Stop();
+
+
+		if (!___PostStep_flag)
+		{
+			oapiWriteLog("(Atlantis::clbkPostStep) Executing state depending behavior.");
+		}
+
+		switch (status) {
+		case STATE_PRELAUNCH: // launch configuration
+			// check SSME state and trigger liftoff when required
+			if (Eq(GetSSMEThrustLevel(0), 0.0, 0.0001))
 			{
-				for(unsigned short i = 0; i<3; i++)
+				if ((GetPropellantLevel(ph_mps) > 0.5) && (bSSMEGOXVent == true)) // TODO improve this venting with engine status
 				{
-					if(th_ssme_gox[i] != NULL) {
-						SetThrusterLevel(th_ssme_gox[i], 1.0);
+					for (unsigned short i = 0; i < 3; i++)
+					{
+						if (th_ssme_gox[i] != NULL) {
+							SetThrusterLevel(th_ssme_gox[i], 1.0);
+						}
+					}
+				}
+				else
+				{
+					for (unsigned short i = 0; i < 3; i++)
+					{
+						if (th_ssme_gox[i] != NULL) {
+							SetThrusterLevel(th_ssme_gox[i], 0.0);
+						}
 					}
 				}
 			}
 			else
 			{
-				for(unsigned short i = 0; i<3; i++)
+				status = STATE_STAGE1; // launch
+				t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
+				RecordEvent("STATUS", "SSME_IGNITION");
+				//play sounds
+				PlayVesselWave(SoundID, SSME_START, NOLOOP);
+
+				for (unsigned short i = 0; i < 3; i++)
 				{
-					if(th_ssme_gox[i] != NULL) {
+					if (th_ssme_gox[i] != NULL) {
 						SetThrusterLevel(th_ssme_gox[i], 0.0);
 					}
 				}
 			}
-		}
-		else
-		{
-			status = STATE_STAGE1; // launch
-			t0 = simt + SRB_STABILISATION_TIME;   // store designated liftoff time
-			RecordEvent ("STATUS", "SSME_IGNITION");
+			break;
+		case STATE_STAGE1: // SRB's ignited
 			//play sounds
-			PlayVesselWave(SoundID, SSME_START, NOLOOP);
-			//if(bAutopilot) 
-				//InitializeAutopilot(); //setup autopilot for ascent
-
-			for(unsigned short i = 0; i<3; i++)
+			if (!IsPlaying(SoundID, SSME_START) && !pRSLS->GetRSLSAbortFlag())
+				PlayVesselWave(SoundID, SSME_RUNNING, LOOP);
+			for (unsigned short i = 0; i < 3; i++)
 			{
-				if(th_ssme_gox[i] != NULL) {
+				if (th_ssme_gox[i] != NULL) {
 					SetThrusterLevel(th_ssme_gox[i], 0.0);
 				}
 			}
-		}
-		//GPC(simdt);
-		break;
-	case STATE_STAGE1: // SRB's ignited
-		//play sounds
-		if(!IsPlaying(SoundID, SSME_START))
-			PlayVesselWave(SoundID, SSME_RUNNING, LOOP);
-		for(unsigned short i = 0; i<3; i++)
-		{
-			if(th_ssme_gox[i] != NULL) {
-				SetThrusterLevel(th_ssme_gox[i], 0.0);
-			}
-		}
-		/*if(met >= 0.0 && !GetLiftOffFlag())
-		{
-			SignalGSEBreakHDP();
-			TriggerLiftOff();	
-		}*/
-		if(!GetLiftOffFlag()) {
-			Twang(t0-simt);
-			//if(rsls) rsls->OnPostStep(simt, simdt, mjd);
-		}
-		//sprintf(oapiDebugString(),"met: %f",met);
-		if (met > SRB_SEPARATION_TIME && !Playback() || bManualSeparate) { // separate boosters
-			SeparateBoosters (met);
-			bManualSeparate = false;
-			pSimpleGPC->SetMajorMode(103);		//Replace by signal to GPC
-		}
-		else {
-			if(met>0.0) {
-				if(GetPropellantMass(ph_srb) == 0.0 && !bSRBCutoffFlag)
-				{
-					char buffer[100];
-					sprintf(buffer, "MG_Atlantis: CRITICAL ERROR! SRB BURN OUT AT %f s\n", met);
-					oapiWriteLog(buffer);
-					bSRBCutoffFlag = true;
-				}
 
+			if (!GetLiftOffFlag()) Twang(t0 - simt);
 
+			if (met > 0.0) {
 				// extract current thrust level and propellant level as a function of time
-				//DisableAllRCS(); //Don't need RCS, SRB gimbal works fine
 				double thrust_level, prop_level;
-				GetSRB_State (met, thrust_level, prop_level);
+				GetSRB_State(met, thrust_level, prop_level);
 				for (unsigned short i = 0; i < 2; i++) {
-					SetThrusterLevel (th_srb[i], thrust_level);
+					SetThrusterLevel(th_srb[i], thrust_level);
 					SetPropellantMass(ph_srb, prop_level*GetPropellantMaxMass(ph_srb));
 				}
 
-				if(met > 15.0)
+				if (met > 15.0)
 				{
 					slag1 = pow(1.0 - thrust_level, 3);
 					slag2 = pow(1.0 - thrust_level, 2);
 					slag3 = 1.0 - thrust_level;
 				}
-				if(pSimpleGPC->GetMajorMode()==101) pSimpleGPC->SetMajorMode(102);
+				if (pSimpleGPC->GetMajorMode() == 101) pSimpleGPC->SetMajorMode(102);
 			}
 			else {
-				LaunchClamps ();
-			}
-			
-		}
-		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
-		//GPC(simdt);
-		break;
-
-	case STATE_STAGE2: // post SRB separation
-		if (bManualSeparate) {
-			//SetThrusterGroupLevel(THGROUP_MAIN, 0.00);
-			//for(unsigned short i=0;i<3;i++) SetSSMEThrustLevel(i, 0.00);
-			SetSSMEThrustLevel(0, 0.00);
-			SetThrusterLevel(th_oms[0], 0.00);
-			SetThrusterLevel(th_oms[1], 0.00);
-			SeparateTank();
-		}
-		/*if (GetSSMEThrustLevel(0) > 0.05) {
-			DisableAllRCS();
-		}*/
-		//else EnableAllRCS();
-		if(bEngineFail && met>=EngineFailTime) FailEngine(EngineFail);
-		//GPC(simdt);
-		break;
-	case STATE_ORBITER: // post tank separation
-		//EnableAllRCS();
-		//On entry, start shutting down RCS channels as appropriate
-		/*if(RollActive && GetDynPressure()>RollOff) {
-			/*SetThrusterGroupLevel(THGROUP_ATT_BANKLEFT,0);
-			SetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT,0);
-			DelThrusterGroup(THGROUP_ATT_BANKLEFT);
-			DelThrusterGroup(THGROUP_ATT_BANKRIGHT);*
-			RollActive=false;
-		}
-		if(PitchActive && GetDynPressure()>PitchOff) {
-			/*SetThrusterGroupLevel(THGROUP_ATT_PITCHUP,0);
-			SetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN,0);
-			DelThrusterGroup(THGROUP_ATT_PITCHUP);
-			DelThrusterGroup(THGROUP_ATT_PITCHDOWN);*
-			PitchActive=false;
-		}
-		if(YawActive && GetMachNumber()<YawOff && GetDynPressure()>100) {
-			/*SetThrusterGroupLevel(THGROUP_ATT_YAWLEFT,0);
-			SetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT,0);
-			DelThrusterGroup(THGROUP_ATT_YAWLEFT);
-			DelThrusterGroup(THGROUP_ATT_YAWRIGHT);*
-			YawActive=false;
-		}*/
-		//Check if Control Surfaces are usable
-		if(ControlSurfacesEnabled && !panelr2->HydraulicPressure())
-		{
-			DisableControlSurfaces();
-		}
-		else if(!ControlSurfacesEnabled && panelr2->HydraulicPressure())
-		{
-			EnableControlSurfaces();
-		}
-
-		//get THC and RHC input
-		/*if(ControlRMS) { // use RHC/THC input to control RMS
-			RMS_RHCInput[PITCH].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)));
-			RMS_RHCInput[YAW].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)));
-			RMS_RHCInput[ROLL].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)));
-			if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-				RMS_THCInput[0].SetLine(5.0f*(float)(AltKybdInput.x));
-				RMS_THCInput[1].SetLine(5.0f*(float)(AltKybdInput.y));
-				RMS_THCInput[2].SetLine(5.0f*(float)(-AltKybdInput.z));
-			}
-			else {
-				RMS_THCInput[0].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK)));
-				RMS_THCInput[1].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT)));
-				RMS_THCInput[2].SetLine(5.0f*(float)(GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN)));
-			}
-			for(int i=0;i<3;i++) {
-				RHCInput.data[i]=0.0;
-				THCInput.data[i]=0.0;
-			}
-
-			// use RHC pitch commands to drive single joint input
-			// in theory, these discrete lines should only be set if RMS is in SINGLE or DIRECT mode
-			// in practice, RMS code only looks at these discrete lines if in appropriate mode
-			if((GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)) > 0.5) {
-				RMSDrivePlus.SetLine();
-				RMSDriveMinus.ResetLine();
-				lastRMSSJCommand = 1;
-			}
-			else if((GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)) < -0.5) {
-				RMSDrivePlus.ResetLine();
-				RMSDriveMinus.SetLine();
-				lastRMSSJCommand = -1;
-			}
-			else {
-				if(lastRMSSJCommand != 0) { // only reset lines once, so Panel A8 joint drive switch works
-					RMSDrivePlus.ResetLine();
-					RMSDriveMinus.ResetLine();
-					lastRMSSJCommand = 0;
-				}
-			}
-		}
-		else { // use RHC/THC input to control RCS
-			//if(VCMode==VC_CDR || VCMode==VC_PLT || VCMode==VC_MS1 || VCMode==VC_MS2) { //forward RHC/THC
-			if((VCMode==VC_CDR && CdrFltCntlrPwr) || (VCMode==VC_PLT && PltFltCntlrPwr)) { //forward RHC/THC
-				RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHUP)-GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN);
-				RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-				RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT);
-				if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-					for(int i=0;i<3;i++) THCInput.data[i]=AltKybdInput.data[i];
-				}
-				else {
-					THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_FORWARD)-GetThrusterGroupLevel(THGROUP_ATT_BACK);
-					THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_RIGHT)-GetThrusterGroupLevel(THGROUP_ATT_LEFT);
-					THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
-				}
-			}
-			else if((VCMode!=VC_MS1 && VCMode!=VC_MS2) && AftFltCntlrPwr){ //aft RHC/THC
-				if(AftSense) { //-Z
-					//sprintf_s(oapiDebugString(), 255, "AFT SENSE Set");
-					RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-					RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-					RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT)-GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT);
-					if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-						THCInput.z=-AltKybdInput.x;
-						THCInput.y=-AltKybdInput.y;
-						THCInput.x=-AltKybdInput.z;
-					}
-					else {
-						THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-						THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-						THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_UP)-GetThrusterGroupLevel(THGROUP_ATT_DOWN);
-					}
-				}
-				else { //-X
-					//sprintf_s(oapiDebugString(), 255, "AFT SENSE Not Set");
-					RHCInput.data[PITCH]=GetThrusterGroupLevel(THGROUP_ATT_PITCHDOWN)-GetThrusterGroupLevel(THGROUP_ATT_PITCHUP);
-					RHCInput.data[YAW]=GetThrusterGroupLevel(THGROUP_ATT_YAWRIGHT)-GetThrusterGroupLevel(THGROUP_ATT_YAWLEFT);
-					RHCInput.data[ROLL]=GetThrusterGroupLevel(THGROUP_ATT_BANKLEFT)-GetThrusterGroupLevel(THGROUP_ATT_BANKRIGHT);
-					if(!ControlSurfacesEnabled && GetAttitudeMode()==RCS_ROT) { // use arrow, Ins/Del keys for translation input
-						THCInput.x=-AltKybdInput.x;
-						THCInput.y=-AltKybdInput.y;
-						THCInput.z=AltKybdInput.z;
-					}
-					else {
-						THCInput.x=GetThrusterGroupLevel(THGROUP_ATT_BACK)-GetThrusterGroupLevel(THGROUP_ATT_FORWARD);
-						THCInput.y=GetThrusterGroupLevel(THGROUP_ATT_LEFT)-GetThrusterGroupLevel(THGROUP_ATT_RIGHT);
-						THCInput.z=GetThrusterGroupLevel(THGROUP_ATT_DOWN)-GetThrusterGroupLevel(THGROUP_ATT_UP);
-					}
-				}
-			}
-			else {
-				RHCInput=_V(0, 0, 0);
-				THCInput=_V(0, 0, 0);
-			}
-
-			for(unsigned short i=0;i<3;i++) {
-				RMS_RHCInput[i].SetLine(0.0);
-				RMS_THCInput[i].SetLine(0.0);
-
-				RHCInputPort[i].SetLine(static_cast<float>(RHCInput.data[i]));
-				THCInputPort[i].SetLine(static_cast<float>(THCInput.data[i]));
-			}
-		}*/
-		
-		/*
-		if (bManualSeparate && GetAttachmentStatus (sat_attach)) {
-		DetachChild (sat_attach, 0.1);
-		bManualSeparate = false;
-		}
-		*/
-
-		//deploy gear
-		airspeed=GetAirspeed();
-		if(GetAltitude()<92.44 && gear_status.action==AnimState::CLOSED) {
-			DeployLandingGear();
-		}
-		else if(GetAltitude()<609.6) ArmGear();
-
-		//drag chute
-		if(GroundContact()) {
-			if(GetAirspeed()>1.0) SetSpeedbrake(1.0); //keep speedbrake open until wheelstop
-			//sprintf_s(oapiDebugString(), 255, "Chute State: %d", DragChuteState);
-			if(!DragChuteDeploying && GetAirspeed()<=CHUTE_DEPLOY_SPEED && GetAirspeed()>CHUTE_JETTISON_SPEED) {
-				DragChuteDeploying=true;
-				DragChuteDeployTime=met;
-			}
-			else if(DragChuteState==STOWED && DragChuteDeploying && (met-DragChuteDeployTime)>CHUTE_DEPLOY_TIME)
-				DeployDragChute();
-			else if(DragChuteState==DEPLOYING) {
-				DragChuteSize=min(0.4, DragChuteSize+CHUTE_DEPLOY_RATE*simdt);
-				SetAnimation(anim_chute_deploy, 1-DragChuteSize);
-				sprintf_s(oapiDebugString(), 255, "Chute: %f", DragChuteSize);
-				if(Eq(DragChuteSize, 0.4, 0.001)) DragChuteState=REEFED;
-			}
-			else if(DragChuteState==REEFED) {
-				if((met-DragChuteDeployTime)>CHUTE_INFLATE_TIME) {
-					DragChuteState=INFLATED;
-				}
-			}
-			else if(DragChuteState==INFLATED) {
-				if(GetAirspeed()<CHUTE_JETTISON_SPEED) JettisonDragChute();
-				else if(DragChuteSize<1.0) {
-					DragChuteSize=min(1.0, DragChuteSize+CHUTE_INFLATE_RATE*simdt);
-					SetAnimation(anim_chute_deploy, 1-DragChuteSize);
-					sprintf_s(oapiDebugString(), 255, "Chute: %f", DragChuteSize);
+				if (pRSLS->GetRSLSAbortFlag())// handle pad abort (sound wise)
+				{
+					if (IsPlaying( SoundID, SSME_RUNNING )) PlayVesselWave( SoundID, SSME_SHUTDOWN, NOLOOP );
+					StopVesselWave( SoundID, SSME_RUNNING );
 				}
 			}
 
-			//spin chute
-			if(DragChuteState>=DEPLOYING && DragChuteState<JETTISONED) {
-				if(DragChuteSpin.Opening()) {
-					DragChuteSpin.pos=min(1.0, DragChuteSpin.pos+CHUTE_SPIN_RATE*simdt);
-					if(Eq(DragChuteSpin.pos, 1.0, 0.01)) DragChuteSpin.action=AnimState::CLOSING;
-				}
-				else {
-					DragChuteSpin.pos=max(0.0, DragChuteSpin.pos-CHUTE_SPIN_RATE*simdt);
-					if(Eq(DragChuteSpin.pos, 0.0, 0.01)) DragChuteSpin.action=AnimState::OPENING;
-				}
-				SetAnimation(anim_chute_spin, DragChuteSpin.pos);
-				//sprintf_s(oapiDebugString(), 255, "Chute spin: %f", DragChuteSpin.pos);
-			}
-		}
+			break;
 
-		if (do_eva) {
-			char name[256];
-			strcpy (name, GetName()); strcat (name, "-MMU");
-			hvessel=oapiGetVesselByName(name);
-			if (hvessel == 0)
+		case STATE_STAGE2: // post SRB separation
+			break;
+		case STATE_ORBITER: // post tank separation
+			//Check if Control Surfaces are usable
+			if (ControlSurfacesEnabled && !HydraulicsOK())
 			{
-				SeparateMMU();
-				hvessel=oapiGetVesselByName(name);
-				if (hvessel != 0)
-					oapiSetFocusObject(hvessel);
+				DisableControlSurfaces();
 			}
-			else
+			else if (!ControlSurfacesEnabled && HydraulicsOK())
 			{
-				hvessel=oapiGetVesselByName(name);
-				if (hvessel != 0)
-					oapiSetFocusObject(hvessel);
-			};
-			do_eva = false;
-		};
+				EnableControlSurfaces();
+			}
 
-		//handle body flap and speedbrake PBIs
-		if((int)(pSimpleGPC->GetMajorMode()/100)==3) //Entry
-		{
-			//if flap is in AUTO mode, reset MAN line; otherwise set MAN line
-			if(BodyFlapAutoIn) BodyFlapManOut.ResetLine();
-			else BodyFlapManOut.SetLine();
+			//deploy gear
+			if (GetAltitude( ALTMODE_GROUND ) < 92.44 && gear_status.action == AnimState::CLOSED) {
+				DeployLandingGear();
+			}
+			else if (GetAltitude( ALTMODE_GROUND ) < 609.6) ArmGear();
 
-			if(!SpdbkThrotAutoIn) {
-				if(VCMode==VC_PLT) {
-					SpdbkThrotPLTOut.SetLine();
-					SpdbkThrotCDROut.ResetLine();
-				}
+			break;
+		}
+
+		// ***** Animate speedbrake *****
+
+		if (spdb_status >= AnimState::CLOSING && HydraulicsOK()) {
+			double da = simdt * SPEEDBRAKE_OPERATING_SPEED;
+			if (spdb_status == AnimState::CLOSING) { // retract brake
+				if (spdb_proc > spdb_tgt) spdb_proc = max(spdb_tgt, spdb_proc - da);
+				else                 spdb_status = AnimState::CLOSED;
+			}
+			else {                           // deploy antenna
+				if (spdb_proc < spdb_tgt) spdb_proc = min(spdb_tgt, spdb_proc + da);
+				else                 spdb_status = AnimState::OPEN;
+			}
+			SetAnimation(anim_spdb, spdb_proc);
+		}
+
+		// ***** Animate landing gear *****
+		if (gear_status.action >= AnimState::CLOSING) {
+			double da = simdt * GEAR_OPERATING_SPEED;
+			if (gear_status.action == AnimState::CLOSING) { // retract gear
+				if (gear_status.pos > 0.0) gear_status.pos = max(0.0, gear_status.pos - da);
 				else {
-					SpdbkThrotCDROut.SetLine();
-					SpdbkThrotPLTOut.ResetLine();
+					gear_status.action = AnimState::CLOSED;
+					DefineTouchdownPoints();
+					//UpdateVC();
 				}
 			}
+			else {                           // deploy gear
+				if (gear_status.pos < 1.0) gear_status.pos = min(1.0, gear_status.pos + da);
+				else {
+					gear_status.action = AnimState::OPEN;
+					DefineTouchdownPoints();
+					//UpdateVC();
+				}
+			}
+			SetAnimation(anim_gear, gear_status.pos);
+		}
+
+		// ----------------------------------------------------------
+		// Animate payload bay cameras.
+		// ----------------------------------------------------------
+		if (VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) {
+			if (bPLBCamPanLeft_Man) {
+				PLBCamPanLeft_Man.SetLine();
+				PLBCamPanRight_Man.ResetLine();
+			}
+			else if (bPLBCamPanRight_Man) {
+				PLBCamPanLeft_Man.ResetLine();
+				PLBCamPanRight_Man.SetLine();
+			}
 			else {
-				SpdbkThrotCDROut.ResetLine();
-				SpdbkThrotPLTOut.ResetLine();
+				PLBCamPanLeft_Man.ResetLine();
+				PLBCamPanRight_Man.ResetLine();
+			}
+
+			if (bPLBCamTiltUp_Man) {
+				PLBCamTiltUp_Man.SetLine();
+				PLBCamTiltDown_Man.ResetLine();
+			}
+			else if (bPLBCamTiltDown_Man) {
+				PLBCamTiltUp_Man.ResetLine();
+				PLBCamTiltDown_Man.SetLine();
+			}
+			else {
+				PLBCamTiltUp_Man.ResetLine();
+				PLBCamTiltDown_Man.ResetLine();
 			}
 		}
-		else if(pSimpleGPC->GetMajorMode() < 200) //LAUNCH
+
+		double camRate = PTU_LOWRATE_SPEED;
+		if (PTUHighRate) camRate = PTU_HIGHRATE_SPEED;
+		for (int i = 0; i < 4; i++) {
+			if (PLBCamPanLeft[i])  {
+				camYaw[i] = max(-MAX_PLB_CAM_PAN, camYaw[i] - camRate*simdt);
+				cameraMoved = true;
+			}
+			else if (PLBCamPanRight[i]) {
+				camYaw[i] = min(MAX_PLB_CAM_PAN, camYaw[i] + camRate*simdt);
+				cameraMoved = true;
+			}
+
+			if (PLBCamTiltDown[i]) {
+				camPitch[i] = max(-MAX_PLB_CAM_TILT, camPitch[i] - camRate*simdt);
+				cameraMoved = true;
+			}
+			else if (PLBCamTiltUp[i]) {
+				camPitch[i] = min(MAX_PLB_CAM_TILT, camPitch[i] + camRate*simdt);
+				cameraMoved = true;
+			}
+		}
+		if (cameraMoved) {
+			SetAnimationCameras();
+			cameraMoved = false;
+		}
+
+		// ----------------------------------------------------------
+		// Communication mode handler
+		// ----------------------------------------------------------
+
+		pCommModeHandler->PostStep(simt, simdt);
+
+		// ----------------------------------------------------------
+		// VC position label display
+		// ----------------------------------------------------------
+		if (fTimeCameraLabel > 0)
 		{
-			BodyFlapAutoOut.ResetLine();
-			BodyFlapManOut.ResetLine();
-		}
-
-		break;
-	}
-	// check inputs from GPC and set thrusters
-	/*if(RotThrusterCommands[PITCH].GetVoltage() > 0.01) {
-		SetThrusterGroupLevel(thg_pitchup, RotThrusterCommands[PITCH].GetVoltage());
-		SetThrusterGroupLevel(thg_pitchdown, 0.0);
-	}
-	else if(RotThrusterCommands[PITCH].GetVoltage() < -0.01) {
-		SetThrusterGroupLevel(thg_pitchdown, -RotThrusterCommands[PITCH].GetVoltage());
-		SetThrusterGroupLevel(thg_pitchup, 0.0);
-	}
-	else {
-		SetThrusterGroupLevel(thg_pitchup, 0.0);
-		SetThrusterGroupLevel(thg_pitchdown, 0.0);
-	}
-	if(RotThrusterCommands[YAW].GetVoltage() > 0.01) {
-		SetThrusterGroupLevel(thg_yawright, RotThrusterCommands[YAW].GetVoltage());
-		SetThrusterGroupLevel(thg_yawleft, 0.0);
-	}
-	else if(RotThrusterCommands[YAW].GetVoltage() < -0.01) {
-		SetThrusterGroupLevel(thg_yawleft, -RotThrusterCommands[YAW].GetVoltage());
-		SetThrusterGroupLevel(thg_yawright, 0.0);
-	}
-	else {
-		SetThrusterGroupLevel(thg_yawright, 0.0);
-		SetThrusterGroupLevel(thg_yawleft, 0.0);
-	}
-	if(RotThrusterCommands[ROLL].GetVoltage() > 0.01) {
-		SetThrusterGroupLevel(thg_rollleft, RotThrusterCommands[ROLL].GetVoltage());
-		SetThrusterGroupLevel(thg_rollright, 0.0);
-	}
-	else if(RotThrusterCommands[ROLL].GetVoltage() < -0.01) {
-		SetThrusterGroupLevel(thg_rollright, -RotThrusterCommands[ROLL].GetVoltage());
-		SetThrusterGroupLevel(thg_rollleft, 0.0);
-	}
-	else {
-		SetThrusterGroupLevel(thg_rollright, 0.0);
-		SetThrusterGroupLevel(thg_rollleft, 0.0);
-	}*/
-
-	// get aerosurface positions and thruster commands from GPC commands
-	// at the moment, this is only implemented for entry/TAEM (AerojetDAP)
-	/*if(ops==304 || ops==305) {
-		double elevonPos = 0.0;
-		double aileronPos = 0.0;
-		if(HydraulicsOK()) {
-			elevonPos = range(-33.0, ElevonCommand.GetVoltage()*-33.0, 18.0);
-			aileronPos = range(-10.0, AileronCommand.GetVoltage()*10.0, 10.0);
-			//aerosurfaces.leftElevon = range(-33.0, LeftElevonCommand.GetVoltage()*-33.0, 18.0);
-			//aerosurfaces.rightElevon = range(-33.0, RightElevonCommand.GetVoltage()*-33.0, 18.0);
-			aerosurfaces.leftElevon = range(-33.0, elevonPos+aileronPos, 18.0);
-			aerosurfaces.rightElevon = range(-33.0, elevonPos-aileronPos, 18.0);
-			aerosurfaces.bodyFlap = 0.0;
-			aerosurfaces.speedbrake = spdb_proc*100.0;
-		}
-		else {
-			aerosurfaces.leftElevon = aerosurfaces.rightElevon = 0.0;
-			aerosurfaces.bodyFlap = 0.0;
-			aerosurfaces.rudder = 0.0;
-			aerosurfaces.speedbrake = 0.0;
-		}
-		// set animations corresponding to aerosurface positions
-		//double elevonPos = (LeftElevonCommand.GetVoltage()+RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
-		SetAnimation(anim_elev, (elevonPos+1.0)/2.0);
-		//double aileronPos = (LeftElevonCommand.GetVoltage()-RightElevonCommand.GetVoltage())/2.0; // position in range [-1.0, 1.0]
-		SetAnimation(anim_elev, (aileronPos +1.0)/2.0);
-
-		//sprintf_s(oapiDebugString(), 255, "P: %f R: %f Y: %f",
-			//RotThrusterCommands[PITCH].GetVoltage(), RotThrusterCommands[ROLL].GetVoltage(), RotThrusterCommands[YAW].GetVoltage());
-		
-	}*/
-
-	if(SoundID!=-1) {
-		//play RCS sounds
-		/*if(RCSThrustersFiring()) {
-			if(!IsPlaying3(SoundID, RCS_SOUND)) PlayVesselWave3(SoundID, RCS_SOUND, LOOP);
-		}
-		else {
-			if(IsPlaying3(SoundID, RCS_SOUND)) StopVesselWave3(SoundID, RCS_SOUND);
-		}*/
-
-		//APU sounds
-		//STOP/START sounds are handled by APU instance; RUN sound applies to all 3 APUs and is handled here
-		if(pAPU[0]->IsRunning() || pAPU[1]->IsRunning() || pAPU[2]->IsRunning()) {
-			PlayVesselWave(SoundID, APU_RUNNING, LOOP);
-		}
-		else StopVesselWave(SoundID, APU_RUNNING); //all 3 APUs are off, so stop sound
-	}
-
-	//sprintf(oapiDebugString(), "%i", last_mfd);
-
-	VESSEL *aVessel;
-	VESSELSTATUS vs;
-
-	if (reset_mmu && simt-jettison_time > .01)
-	{
-		GetStatus(vs);
-		vs.eng_main = vs.eng_hovr = 0.0;
-		VECTOR3 ofs = OFS_ZERO;
-		ofs.x += OFS_MMU.x;
-		ofs.y += OFS_MMU.y;
-		ofs.z += OFS_MMU.z;
-		VECTOR3 rofs, rvel = {vs.rvel.x, vs.rvel.y, vs.rvel.z};
-		VECTOR3 vel = {0,0,0};
-		Local2Rel (ofs, vs.rpos);
-		GlobalRot (vel, rofs);
-		vs.rvel.x = rvel.x+rofs.x;
-		vs.rvel.y = rvel.y+rofs.y;
-		vs.rvel.z = rvel.z+rofs.z;
-		aVessel = oapiGetVesselInterface(hMMU);
-		aVessel->DefSetState(&vs);
-		reset_mmu=false;
-	}
-
-	// Execute payload bay operations
-	plop->Step (simt, simdt);
-	panela4->Step(simt, simdt);
-	panelc2->Step(simt, simdt);
-	panelo3->Step(simt, simdt);
-
-
-
-	// ***** Animate speedbrake *****
-
-	if (spdb_status >= AnimState::CLOSING) {
-		double da = simdt * SPEEDBRAKE_OPERATING_SPEED;
-		double tgt = spdb_tgt; // once speedbrake has been opened, limit position to >15%
-		if(GetMachNumber() < 10.0) tgt = max(spdb_tgt, 0.15); // once speedbrake has been opened, limit position to >15%
-		if (spdb_status == AnimState::CLOSING) { // retract brake
-			if (spdb_proc > tgt) spdb_proc = max (tgt, spdb_proc-da);
-			else                 spdb_status = AnimState::CLOSED;
-		} else {                           // deploy antenna
-			if (spdb_proc < tgt) spdb_proc = min (tgt, spdb_proc+da);
-			else                 spdb_status = AnimState::OPEN;
-		}
-		SetAnimation (anim_spdb, spdb_proc);
-	}
-
-	// ***** Animate landing gear *****
-	if (gear_status.action >= AnimState::CLOSING) {
-		double da = simdt * GEAR_OPERATING_SPEED;
-		if (gear_status.action == AnimState::CLOSING) { // retract gear
-			if (gear_status.pos > 0.0) gear_status.pos = max (0.0, gear_status.pos-da);
-			else {
-				gear_status.action = AnimState::CLOSED;
-				DefineTouchdownPoints();
-				//UpdateVC();
-			}
-		} else {                           // deploy gear
-			if (gear_status.pos < 1.0) gear_status.pos = min (1.0, gear_status.pos+da);
-			else {
-				gear_status.action = AnimState::OPEN;
-				DefineTouchdownPoints();
-				//UpdateVC();
+			fTimeCameraLabel -= simdt;
+			if (fTimeCameraLabel < 0)
+				fTimeCameraLabel = 0;
+			if (0 == fTimeCameraLabel)
+			{
+				oapiAnnotationSetText(nhCameraLabel, NULL);
 			}
 		}
-		SetAnimation (anim_gear, gear_status.pos);
-	}
 
-	// ----------------------------------------------------------
-	// Animate payload bay cameras.
-	// ----------------------------------------------------------
-	if(VCMode>=VC_PLBCAMFL && VCMode<=VC_RMSCAM) {
-		if(bPLBDCamPanLeft[VCMode-VC_PLBCAMFL]) {
-			PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].SetLine();
-			PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].ResetLine();
-		}
-		else if(bPLBDCamPanRight[VCMode-VC_PLBCAMFL]) {
-			PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].ResetLine();
-			PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].SetLine();
-		}
-		else {
-			PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].ResetLine();
-			PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].ResetLine();
-		}
+		//double time=st.Stop();
+		//sprintf_s(oapiDebugString(), 255, "PostStep time: %f", time);
+		//oapiWriteLog(oapiDebugString());
 
-		if(bPLBDCamTiltUp[VCMode-VC_PLBCAMFL]) {
-			PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].SetLine();
-			PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].ResetLine();
-		}
-		else if(bPLBDCamTiltDown[VCMode-VC_PLBCAMFL]) {
-			PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].ResetLine();
-			PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].SetLine();
-		}
-		else {
-			PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].ResetLine();
-			PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].ResetLine();
-		}
-	}
 
-	double camRate;
-	for(int i=0;i<4;i++) {
-		if(PTULowSpeed[i]) camRate = PTU_LOWRATE_SPEED;
-		else camRate = PTU_HIGHRATE_SPEED;
-
-		if(PLBDCamPanLeft[i])  {
-			camYaw[i] = max(-MAX_PLBD_CAM_TILT, camYaw[i]-camRate*simdt);
-			cameraMoved = true;
-		}
-		else if(PLBDCamPanRight[i]) {
-			camYaw[i] = min(MAX_PLBD_CAM_TILT, camYaw[i]+camRate*simdt);
-			cameraMoved = true;
-		}
-
-		if(PLBDCamTiltDown[i]) {
-			camPitch[i] = max(-MAX_PLBD_CAM_TILT, camPitch[i]-camRate*simdt);
-			cameraMoved = true;
-		}
-		else if(PLBDCamTiltUp[i]) {
-			camPitch[i] = min(MAX_PLBD_CAM_TILT, camPitch[i]+camRate*simdt);
-			cameraMoved = true;
-		}
-	}
-	if (cameraMoved) {
-		SetAnimationCameras();
-		cameraMoved = false;
-	}
-	//sprintf_s(oapiDebugString(), 255, "FL: %f %f FR: %f %f BL: %f %f BR: %f %f", camYaw[CAM_A], camPitch[CAM_A],
-		//camYaw[CAM_D], camPitch[CAM_D], camYaw[CAM_B], camPitch[CAM_B], camYaw[CAM_C], camPitch[CAM_C]);
-
-	// ----------------------------------------------------------
-	// Communication mode handler
-	// ----------------------------------------------------------
-
-	pCommModeHandler->PostStep(simt, simdt);
-
-	// ----------------------------------------------------------
-	// VC position label display
-	// ----------------------------------------------------------
-	if(fTimeCameraLabel > 0)
-	{
-		fTimeCameraLabel -= simdt;
-		if(fTimeCameraLabel < 0)
-			fTimeCameraLabel = 0;
-		if(0 == fTimeCameraLabel)
+		/*if(simt - tt >= 5)
 		{
-			oapiAnnotationSetText(nhCameraLabel, NULL);
-		}
-	}
-
-	//double time=st.Stop();
-	//sprintf_s(oapiDebugString(), 255, "PostStep time: %f", time);
-	//oapiWriteLog(oapiDebugString());
-
-	if(!___PostStep_flag)
-	{
-		oapiWriteLog("(Atlantis::clbkPostStep) Leaving.");
-		___PostStep_flag = true;
-	}
-
-
-	/*if(simt - tt >= 5)
-	{
 		tt = simt;
 		FILEHANDLE f1 = oapiOpenFile("SSUDensity.txt",FILE_APP);
 		oapiWriteItem_float(f1,"",GetAtmDensity());
@@ -5265,104 +5454,100 @@ void Atlantis::clbkPostStep (double simt, double simdt, double mjd)
 		FILEHANDLE f3 = oapiOpenFile("SSUAltitude.txt",FILE_APP);
 		oapiWriteItem_float(f3,"",GetAltitude());
 		oapiCloseFile(f3,FILE_APP);
-	}*/
-	
-	
-	double dens = GetAtmDensity();
-	double speed = GetAirspeed();
-	double flux = (dens*pow(speed,3))/3/1000000;
-	double heating_factor = flux/4 - 3.5;
-	double heating_scalar = 0;
-	if(heating_factor>=1)
-		heating_scalar = 1;
-	else if(heating_factor<=0)
-		heating_scalar = 0;
-	else 
-		heating_scalar = heating_factor;
+		}*/
 
-	//sprintf(oapiDebugString(),"%lf",heating_scalar);
-		
+		//Calculations used to modulate the alpha level (AKA visibility) of the entry plasma mesh
+		double dens = GetAtmDensity();
+		double speed = GetAirspeed();
+		double flux = (dens * pow( speed, 4 )) / 1e11;
+		double heating_factor = flux - 0.5;
+		double heating_scalar = range( 0, heating_factor, 1 );
+		//sprintf( oapiDebugString(), "%f %f", flux, heating_scalar );
+
+		if (heating_scalar == 0)
+			SetMeshVisibilityMode(mesh_heatshield, MESHVIS_NEVER);
+		else
+			SetMeshVisibilityMode(mesh_heatshield, MESHVIS_ALWAYS);
 
 
-	if(heating_scalar == 0)
-		SetMeshVisibilityMode(mesh_heatshield,MESHVIS_NEVER);
-	else
-		SetMeshVisibilityMode(mesh_heatshield,MESHVIS_ALWAYS);
-	
-	
 
-	//REENTRY HEAT SHIELD
-	if(hDevHeatShieldMesh)
-	{
-		oapiSetMeshProperty(hDevHeatShieldMesh,MESHPROPERTY_MODULATEMATALPHA,(DWORD)1);
-		oapiSetMeshProperty(hHeatShieldMesh,MESHPROPERTY_MODULATEMATALPHA,(DWORD)1);
-		DWORD i,num = oapiMeshMaterialCount(hHeatShieldMesh);
-		for(i=0; i<num; i++)
+		//REENTRY HEAT SHIELD
+		if (hDevHeatShieldMesh)
 		{
-			MATERIAL *mat1 = oapiMeshMaterial(hHeatShieldMesh,i);
-			MATERIAL mat2;
-			memcpy(&mat2,mat1,sizeof(MATERIAL));
-			mat2.ambient.a = static_cast<float>(heating_scalar);
-			mat2.ambient.b = 255;
-			mat2.ambient.r = 255;
-			mat2.ambient.g = 255;
-			mat2.diffuse.a = static_cast<float>(heating_scalar);
-			mat2.emissive.a = static_cast<float>(heating_scalar);
-			mat2.specular.a = static_cast<float>(heating_scalar);
-			oapiSetMaterial(hDevHeatShieldMesh,i,&mat2);
-			ZeroMemory(&mat2,sizeof(MATERIAL));
-			mat1 = NULL;
-		}
-	
-	}
+			oapiSetMeshProperty(hDevHeatShieldMesh, MESHPROPERTY_MODULATEMATALPHA, (DWORD)1);
+			oapiSetMeshProperty(hHeatShieldMesh, MESHPROPERTY_MODULATEMATALPHA, (DWORD)1);
+			DWORD i, num = oapiMeshMaterialCount(hHeatShieldMesh);
+			for (i = 0; i < num; i++)
+			{
+				MATERIAL *mat1 = oapiMeshMaterial(hHeatShieldMesh, i);
+				MATERIAL mat2;
+				memcpy(&mat2, mat1, sizeof(MATERIAL));
+				mat2.ambient.a = static_cast<float>(heating_scalar);
+				mat2.ambient.b = 255;
+				mat2.ambient.r = 255;
+				mat2.ambient.g = 255;
+				mat2.diffuse.a = static_cast<float>(heating_scalar);
+				mat2.emissive.a = static_cast<float>(heating_scalar);
+				mat2.specular.a = static_cast<float>(heating_scalar);
+				oapiSetMaterial(hDevHeatShieldMesh, i, &mat2);
+				ZeroMemory(&mat2, sizeof(MATERIAL));
+				mat1 = NULL;
+			}
 
-	//double time = st.Stop();
-	//sprintf_s(oapiDebugString(), 255, "PostStep time: %f Subsystem time: %f", time, subTime);
-	//sprintf(oapiDebugString(),"Heating scalar %lf",heating_scalar);
+		}
+
+		//double time = st.Stop();
+		//sprintf_s(oapiDebugString(), 255, "PostStep time: %f Subsystem time: %f", time, subTime);
+		//sprintf(oapiDebugString(),"Heating scalar %lf",heating_scalar);
+
+		if (!___PostStep_flag)
+		{
+			oapiWriteLog("(Atlantis::clbkPostStep) Leaving.");
+			___PostStep_flag = true;
+		}
+	}
+	catch (std::exception &e)
+	{
+		char buffer[400];
+		sprintf_s(buffer, 400, "(SpaceShuttleUltra) [ERROR] Exception in clbkPostStep: %s", e.what());
+		oapiWriteLog(buffer);
+		exit(1);
+	}
 }   //Atlantis::clbkPostStep
 
 // --------------------------------------------------------------
 // Respond to playback event
 // --------------------------------------------------------------
-bool Atlantis::clbkPlaybackEvent (double simt, double event_t, const char *event_type, const char *event)
+bool Atlantis::clbkPlaybackEvent(double simt, double event_t, const char *event_type, const char *event)
 {
-  if (!_stricmp (event_type, "JET")) {
-    if (!_stricmp (event, "SRB")) {
-      bManualSeparate = true;
-      return true;
-    }
-    else if (!_stricmp (event, "ET")) {
-      bManualSeparate = true;
-      return true;
-    }
-  } else if (!_stricmp (event_type, "STATUS")) {
-    if (!_stricmp (event, "SRB_IGNITION")) {
-      status = 1;
-      t0 = event_t + SRB_STABILISATION_TIME;
-      return true;
-    }
-  } else if (!_stricmp (event_type, "CARGODOOR")) {
-    plop->SetDoorAction (!_stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
-    return true;
-  } else if (!_stricmp (event_type, "GEAR")) {
-    //gop->OperateLandingGear (!_stricmp (event, "UP") ? AnimState::CLOSING : AnimState::OPENING);
-	if(!_stricmp(event, "UP")) DeployLandingGear();
-	else RetractLandingGear();
-    return true;
-  } else if (!_stricmp (event_type,"SPEEDBRAKE")) {
-    OperateSpeedbrake (!_stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
-    return true;
-  } else if (!_stricmp (event_type, "KUBAND")) {
-    plop->SetKuAntennaAction (!_stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
-    return true;
-  } else if(psubsystems->PlaybackEvent(simt, event_t, event_type, event)) {
+	if (!_stricmp(event_type, "STATUS")) {
+		if (!_stricmp(event, "SRB_IGNITION")) {
+			status = 1;
+			t0 = event_t + SRB_STABILISATION_TIME;
+			return true;
+		}
+	}/* else if (!_stricmp (event_type, "CARGODOOR")) {
+	  plop->SetDoorAction (!_stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
 	  return true;
-  }
+	  }*/ else if (!_stricmp(event_type, "GEAR")) {
+		if (!_stricmp(event, "UP")) DeployLandingGear();
+		else RetractLandingGear();
+		return true;
+	}
+	  else if (!_stricmp(event_type, "SPEEDBRAKE")) {
+		  OperateSpeedbrake(!_stricmp(event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
+		  return true;
+	  }/* else if (!_stricmp (event_type, "KUBAND")) {
+		plop->SetKuAntennaAction (!_stricmp (event, "CLOSE") ? AnimState::CLOSING : AnimState::OPENING);
+		return true;
+		}*/ else if (psubsystems->PlaybackEvent(simt, event_t, event_type, event)) {
+		  return true;
+	  }
 
-  return false;
+	  return false;
 }
 
-bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp)
+bool Atlantis::clbkDrawHUD(int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *skp)
 {
 	pSimpleGPC->OnDrawHUD(hps, skp);
 	return true;
@@ -5371,769 +5556,444 @@ bool Atlantis::clbkDrawHUD (int mode, const HUDPAINTSPEC *hps, oapi::Sketchpad *
 // --------------------------------------------------------------
 // Atlantis mesh loaded
 // --------------------------------------------------------------
-void Atlantis::clbkVisualCreated (VISHANDLE _vis, int refcount)
+void Atlantis::clbkVisualCreated(VISHANDLE _vis, int refcount)
 {
-  oapiWriteLog("(Atlantis::clbkVisualCreated) Entered.");
-  if (refcount > 1) return; // we don't support more than one visual per object
-  vis = _vis;
+	oapiWriteLog("(Atlantis::clbkVisualCreated) Entered.");
+	if (refcount > 1) return; // we don't support more than one visual per object
+	vis = _vis;
 
 	// get device-specific mesh handles
-  hDevOrbiterMesh = GetDevMesh(vis, mesh_orbiter);
-  oapiWriteLog("GETTING DEVMESH");
-  hDevHeatShieldMesh = GetDevMesh(vis, mesh_heatshield);
+	hDevOrbiterMesh = GetDevMesh(vis, mesh_orbiter);
+	oapiWriteLog("GETTING DEVMESH");
+	hDevHeatShieldMesh = GetDevMesh(vis, mesh_heatshield);
 
-#ifdef UNDEF
-  // note: orbiter re-applies the animations to the mesh before calling
-  // clbkVisualCreated, so updating the mesh here is not necessary
+	if (pRMS) pRMS->UpdateAttachment();
+	if (pMPMs) pMPMs->UpdateAttachment();
+	if (pASE_IUS) pASE_IUS->UpdateAttachment();
+	if (pCISS) pCISS->UpdateAttachment();
 
-  // reset grappling point
-  //wrist_yaw_joint[0] = _V(-2.87, 2.03, -4.88);
-  //wrist_yaw_joint[1] = _V(-2.87, 2.03, -4.88)+RotateVectorZ(_V(0.0, 1.0, 0.0), 18.435);
-  arm_tip[0] = _V(-2.87, 2.03, -6.27);
-  arm_tip[1] = _V(-2.87, 2.03, -7.27);
-  arm_tip[2] = _V(-2.87, 3.03, -6.27);
+	if (!pMission->GetOrbiterTextureName().empty()) UpdateOrbiterTexture( pMission->GetOrbiterTextureName() );
+	if (!pMission->GetLOMSPodTextureName().empty()) UpdateLOMSPodTexture( pMission->GetLOMSPodTextureName() );
+	if (!pMission->GetROMSPodTextureName().empty()) UpdateROMSPodTexture( pMission->GetROMSPodTextureName() );
 
-  UpdateMesh ();
-#endif
-  //UpdateOrbiterTexture();
-  //UpdateETTexture();
-  if(!pMission->GetOrbiterTextureName().empty())
-	  UpdateOrbiterTexture(pMission->GetOrbiterTextureName());
+	// hide tail which is not used on this flight
+	GROUPEDITSPEC grpSpec;
+	grpSpec.flags = GRPEDIT_SETUSERFLAG;
+	grpSpec.UsrFlag = 0x00000002; // hide group
+	if (pMission->HasDragChute())
+		oapiEditMeshGroup(hDevOrbiterMesh, GRP_TAIL_NO_CHUTE, &grpSpec);
+	else
+		oapiEditMeshGroup(hDevOrbiterMesh, GRP_TAIL_CHUTE, &grpSpec);
 
-  oapiWriteLog("(Atlantis::clbkVisualCreated) Leaving.");
+	// hide bridgerails
+	for (unsigned int i = 0; i < 13; i++) {
+		if (!pMission->HasBridgerail(i)) oapiEditMeshGroup(hDevOrbiterMesh, GRP_BAY1_LONGERON + i, &grpSpec);
+	}
+	
+	// hide bay 13 covers
+	if (hasCISS) oapiEditMeshGroup( hDevOrbiterMesh, GRP_PLB_BAY13_COVERS, &grpSpec );
+
+	if (!pMission->HasBulkheadFloodlights())
+	{
+		oapiEditMeshGroup( hDevOrbiterMesh, GRP_XO576_BULKHEAD_DOCKING_LIGHT, &grpSpec );
+		oapiEditMeshGroup( hDevOrbiterMesh, GRP_XO576_BULKHEAD_LIGHT, &grpSpec );
+	}
+
+	if (pExtAirlock) dynamic_cast<eva_docking::ExtAirlock*>(pExtAirlock)->VisualCreated( vis );
+
+	// update UVs for talkbacks and lights
+	oapiWriteLog( "Started Panels VisualCreated" );
+	pgForward.VisualCreated();
+	pgLeft.VisualCreated();
+	pgCenter.VisualCreated();
+	pgRight.VisualCreated();
+	pgOverhead.VisualCreated();
+	pgOverheadAft.VisualCreated();
+	pgAftPort.VisualCreated();
+	pgAft.VisualCreated();
+	pgAftStbd.VisualCreated();
+	oapiWriteLog( "Ended Panels VisualCreated" );
+
+	oapiWriteLog("(Atlantis::clbkVisualCreated) Leaving.");
 }
 
 // --------------------------------------------------------------
 // Atlantis mesh discarded
 // --------------------------------------------------------------
-void Atlantis::clbkVisualDestroyed (VISHANDLE _vis, int refcount)
+void Atlantis::clbkVisualDestroyed(VISHANDLE _vis, int refcount)
 {
-  if (vis == _vis) vis = NULL;
-  hDevHeatShieldMesh = NULL;
-}
-
-// --------------------------------------------------------------
-// Update mesh animation state
-// --------------------------------------------------------------
-void Atlantis::clbkAnimate (double simt)
-{
-  UpdateMesh ();
-}
-
-// --------------------------------------------------------------
-// Respond to MFD mode change
-// --------------------------------------------------------------
-void Atlantis::clbkMFDMode (int mfd, int mode)
-{
-	oapiVCTriggerRedrawArea (-1, AID_CDR1_LABEL+mfds[mfd]);
-	
-	//get pointer to CRT MFD as required
-	if(newmfd!=NULL && mode!=MFD_REFRESHBUTTONS) {
-		//newmfd->id = mfd;
-		newmfd->id=mfds[mfd]; //index of MDU associated with MFD
-		/*if(newmfd->id >= vc::MDUID_CRT1 && newmfd->id <= vc::MDUID_CRT4) {
-			Display[newmfd->id - vc::MDUID_CRT1]=newmfd;
-		}*/
-		newmfd->UpdateStatus=true;
-		newmfd=NULL; //reset newmfd so it can be used by next new instance of CRT MFD
-	}
-	//sprintf(oapiDebugString(), "%d", mfd);
+	if (vis == _vis) vis = NULL;
+	hDevHeatShieldMesh = NULL;
 }
 
 // --------------------------------------------------------------
 // Load generic glass cockpit mode
 // --------------------------------------------------------------
-bool Atlantis::clbkLoadGenericCockpit ()
+bool Atlantis::clbkLoadGenericCockpit()
 {
-  SetCameraOffset (_V(orbiter_ofs.x-0.67,orbiter_ofs.y+2.55,orbiter_ofs.z+14.4));
-  SetCameraDefaultDirection (_V(0,0,1));
-  return true;
+	SetCameraOffset(_V(orbiter_ofs.x - 0.67, orbiter_ofs.y + 2.55, orbiter_ofs.z + 14.4));
+	SetCameraDefaultDirection(_V(0, 0, 1));
+	return true;
 }
-
-// --------------------------------------------------------------
-// register VC buttons for the 2 commander MFDs
-// (accessible from commander position only)
-// --------------------------------------------------------------
-/*
-void Atlantis::RegisterVC_CdrMFD ()
-{
-
-  // -0.9049484  2.118143 14.7288
-  // -0.8917124  2.114834
-  // -0.7282474  2.104245
-  //2.121287  14.70349
-  // activate MFD function buttons
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CDR1_BUTTONS, 
-	  _V(-0.900,  2.11, 14.703)+orbiter_ofs, _V(-0.725, 2.11, 14.703)+orbiter_ofs,  
-	  _V(-0.900, 2.09, 14.703)+orbiter_ofs, _V(-0.725, 2.09, 14.703)+orbiter_ofs);
-
-  //-0.6275758
-  //-0.4694053
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CDR2_BUTTONS, 
-	  _V(-0.630, 2.11, 14.703)+orbiter_ofs,  _V(-0.469, 2.11, 14.703)+orbiter_ofs,
-	  _V(-0.630, 2.09, 14.703)+orbiter_ofs, _V(-0.469, 2.09, 14.703)+orbiter_ofs);
-
-    // D. Beachy: register+activate MFD power buttons
-  const double powerButtonRadius = 0.0075; // radius of power button on each MFD
-
-  oapiVCRegisterArea (AID_CDR1_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_CDR2_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-
-  oapiVCSetAreaClickmode_Spherical(AID_CDR1_PWR, _V(-0.92, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);	
-  oapiVCSetAreaClickmode_Spherical(AID_CDR2_PWR, _V(-0.655, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
-
-  // register+activate MFD brightness buttons
-  oapiVCRegisterArea (AID_CDR1_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_CDR2_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCSetAreaClickmode_Spherical (AID_CDR1_BRT, _V(-0.707, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical (AID_CDR2_BRT, _V(-0.441, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
-}
-*/
-
-// --------------------------------------------------------------
-// register VC buttons for the 2 pilot MFDs
-// (accessible from pilot position only)
-// --------------------------------------------------------------
-/*
-void Atlantis::RegisterVC_PltMFD ()
-{
-  // activate MFD function buttons
-  oapiVCSetAreaClickmode_Quadrilateral (AID_PLT1_BUTTONS, 
-	  _V(0.469, 2.11, 14.703) + orbiter_ofs, _V(0.630, 2.11, 14.703) + orbiter_ofs, 
-	  _V(0.469, 2.09, 14.703) + orbiter_ofs, _V(0.630, 2.09, 14.703) + orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_PLT2_BUTTONS, 
-	  _V(0.725, 2.11, 14.703) + orbiter_ofs, _V(0.900,  2.11, 14.703) + orbiter_ofs, 
-	  _V(0.725, 2.09, 14.703) + orbiter_ofs, _V(0.900, 2.09, 14.703) + orbiter_ofs);
-
-    // D. Beachy: register+activate MFD power buttons
-    const double powerButtonRadius = 0.0075; // radius of power button on each MFD
-  oapiVCRegisterArea (AID_PLT1_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_PLT2_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-    oapiVCSetAreaClickmode_Spherical(AID_PLT1_PWR, _V( 0.441, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
-    oapiVCSetAreaClickmode_Spherical(AID_PLT2_PWR, _V( 0.707, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
-
-  // register+activate MFD brightness buttons
-  oapiVCRegisterArea (AID_PLT1_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_PLT2_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCSetAreaClickmode_Spherical (AID_PLT1_BRT, _V(0.655, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical (AID_PLT2_BRT, _V(0.92, 2.123, 14.700)+orbiter_ofs, powerButtonRadius);
-}
-*/
-
-// --------------------------------------------------------------
-// register VC buttons for the 5 MFDs on the central panel
-// (accessible from commander and pilot positions)
-// --------------------------------------------------------------
-/*
-void Atlantis::RegisterVC_CntMFD ()
-{
-  // activate MFD function buttons
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CRT1_BUTTONS, 
-	  _V(-0.346, 2.212, 14.728) + orbiter_ofs, _V(-0.176, 2.212, 14.728) + orbiter_ofs, 
-	  _V(-0.346, 2.2, 14.724) + orbiter_ofs, _V(-0.176, 2.2, 14.724) + orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CRT2_BUTTONS, 
-	  _V( 0.176, 2.212, 14.728) + orbiter_ofs, _V(0.346, 2.212, 14.728) + orbiter_ofs, 
-	  _V( 0.176, 2.2, 14.724) + orbiter_ofs, _V(0.346, 2.2, 14.724) + orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CRT3_BUTTONS, 
-	  _V(-0.082, 2.099, 14.696) + orbiter_ofs, _V(0.085, 2.099,14.696) + orbiter_ofs,
-	  _V(-0.082, 2.09, 14.693) + orbiter_ofs, _V(0.085, 2.09, 14.693) + orbiter_ofs);
-
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD1_BUTTONS, 
-	  _V(-0.346, 1.987, 14.466)+orbiter_ofs, _V(-0.176, 1.987, 14.466)+orbiter_ofs, 
-	  _V(-0.346, 1.977, 14.462)+orbiter_ofs, _V(-0.176, 1.977, 14.462)+orbiter_ofs);
-  oapiVCSetAreaClickmode_Quadrilateral (AID_MFD2_BUTTONS, 
-	  _V( 0.176, 1.987, 14.466) + orbiter_ofs, _V(0.346, 1.987, 14.466) + orbiter_ofs, 
-	  _V( 0.176, 1.977, 14.462) + orbiter_ofs, _V(0.346, 1.977, 14.464) + orbiter_ofs);
-
-    // D. Beachy: register+activate MFD power buttons
-    const double powerButtonRadius = 0.0075; // radius of power button on each MFD
-  oapiVCRegisterArea (AID_CRT1_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_CRT2_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_CRT3_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_MFD1_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_MFD2_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-
-  oapiVCSetAreaClickmode_Spherical(AID_CRT1_PWR, _V(-0.366, 2.216, 14.729)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical(AID_CRT2_PWR, _V( 0.155, 2.216, 14.729)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical(AID_CRT3_PWR, _V(-0.103, 2.103, 14.697)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical(AID_MFD1_PWR, _V(-0.366, 1.992, 14.667)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical(AID_MFD2_PWR, _V( 0.155, 1.992, 14.667)+orbiter_ofs, powerButtonRadius);
-
-  // register+activate MFD brightness buttons
-  oapiVCRegisterArea (AID_CRT1_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_CRT2_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_CRT3_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_MFD1_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCRegisterArea (AID_MFD2_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-
-  oapiVCSetAreaClickmode_Spherical (AID_CRT1_BRT, _V(-0.155, 2.216, 14.729)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical (AID_CRT2_BRT, _V(0.366, 2.216, 14.729)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical (AID_CRT3_BRT, _V(0.103, 2.103, 14.697)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical (AID_MFD1_BRT, _V(-0.155,1.992, 14.667)+orbiter_ofs, powerButtonRadius);
-  oapiVCSetAreaClickmode_Spherical (AID_MFD2_BRT, _V(0.366,1.992, 14.667)+orbiter_ofs, powerButtonRadius);
-}
-*/
-
-// --------------------------------------------------------------
-// register VC buttons for the aft MFD at the starbord panel
-// (accessible from payload control position only)
-// --------------------------------------------------------------
-/*
-void Atlantis::RegisterVC_AftMFD ()
-{
-  // register+activate aft MFD function buttons
-  //SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, TEX_LABEL_VC);
-  //oapiVCRegisterArea (AID_CRT4_BUTTONS, _R(0,127,255,140), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  
-  oapiVCSetAreaClickmode_Quadrilateral (AID_CRT4_BUTTONS, 
-	  _V(1.352, 2.319, 13.54) + orbiter_ofs, _V(1.352, 2.319, 13.376) + orbiter_ofs, 
-	  _V(1.348, 2.315, 13.54) + orbiter_ofs, _V(1.348, 2.315, 13.376) + orbiter_ofs);
-
-  // register+activate MFD power button
-    const double powerButtonRadius = 0.0075; // radius of power button on each MFD
-  oapiVCRegisterArea (AID_CRT4_PWR, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_ONREPLAY);
-    oapiVCSetAreaClickmode_Spherical(AID_CRT4_PWR, _V(1.356, 2.321,13.563) + orbiter_ofs, powerButtonRadius);
-
-  // register+activate MFD brightness buttons
-  oapiVCRegisterArea (AID_CRT4_BRT, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY);
-  oapiVCSetAreaClickmode_Spherical (AID_CRT4_BRT, _V(1.356, 2.321,13.35)+orbiter_ofs, powerButtonRadius);
-}
-*/
 
 // --------------------------------------------------------------
 // Load virtual cockpit mode
 // --------------------------------------------------------------
-bool Atlantis::clbkLoadVC (int id)
+bool Atlantis::clbkLoadVC(int id)
 {
-  bool ok = false;
-  bool bUpdateVC = false;
-  double tilt = 0.0;
-  std::set<int> InactiveMDUs;
+	bool ok = false;
+	bool bUpdateVC = false;
 
-    // Get the VC Mode.
-  VCMode = id;
-  //Reset Clip Radius settings
-  SetClipRadius(0.0);
+	// when loading scenario, use cockpit position loaded from scenario instead of default position
+	if (firstStep) id = scnVCMode;
 
+	// Get the VC Mode.
+	VCMode = id;
+	//Reset Clip Radius settings
+	SetClipRadius(0.0);
 
-  // register MFD function buttons
-  // this needs to be done globally, so that the labels are correctly updated from all VC positions
-  //SURFHANDLE tex1 = oapiGetTextureHandle (hOrbiterVCMesh, TEX_LABEL_VC);
-  
-  /*
-  // commander MFD function buttons
-  oapiVCRegisterArea (AID_CDR1_BUTTONS, _R(0,1,255,14), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_CDR2_BUTTONS, _R(0,15,255,28), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  // pilot MFD function buttons
-  oapiVCRegisterArea (AID_PLT1_BUTTONS, _R(0,29,255,42), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_PLT2_BUTTONS, _R(0,43,255,56), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  // central console MFD function buttons
-  oapiVCRegisterArea (AID_CRT1_BUTTONS, _R(0, 57,255, 70), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_CRT2_BUTTONS, _R(0, 99,255,112), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_CRT3_BUTTONS, _R(0, 85,255, 98), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_CRT4_BUTTONS, _R(0,127,255,140), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_MFD1_BUTTONS, _R(0, 71,255, 84), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  oapiVCRegisterArea (AID_MFD2_BUTTONS, _R(0,113,255,126), PANEL_REDRAW_USER, PANEL_MOUSE_LBDOWN|PANEL_MOUSE_LBUP|PANEL_MOUSE_LBPRESSED|PANEL_MOUSE_ONREPLAY, PANEL_MAP_BACKGROUND, tex1);
-  */
-  
+	if (pRMS) {
+		if (id != VC_LEECAM) pRMS->SetEECameraView(false);
+		if (id != VC_RMSCAM) pRMS->SetElbowCamView(false);
+	}
 
-  // VC Cockpit not visible from Payload cameras or RMS camera.
-  // 080415, DaveS edit: Fixed VC being seen from the BR PLB camera. Original line below in comment
-  // Original line: if ((id > VC_PLBCAMFL && id < VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
-  //if ((id == VC_PLBCAMBL || id == VC_PLBCAMBR) || id == VC_LEECAM || id == VC_DOCKCAM) {
-  if (id >= VC_DOCKCAM && id <= VC_LEECAM) {
-	// for PLBD/RMS camera views, show hid internal VC mesh and show cockpit mesh meant to be seen in external views
-	SetMeshVisibilityMode (mesh_vc, MESHVIS_NEVER);
-	SetMeshVisibilityMode (mesh_cockpit, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-  } else {
-	SetMeshVisibilityMode (mesh_vc, MESHVIS_VC);
-	SetMeshVisibilityMode (mesh_cockpit, MESHVIS_EXTERNAL);
-  }
+	switch (id)
+	{
+		case VC_CDR: // commander position
+			DisplayCameraLabel( VC_LBL_CDR );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_CDR );
+			SetCameraDefaultDirection( VC_DIR_CDR );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 100 * RAD, 75 * RAD );
+			SetCameraMovement( VC_OFS_CDR_F, VC_AZ_CDR_F, VC_EL_CDR_F, VC_OFS_CDR_L, VC_AZ_CDR_L, VC_EL_CDR_L, VC_OFS_CDR_R, VC_AZ_CDR_R, VC_EL_CDR_R );
 
-  if(pRMS) {
-	if(id!=VC_LEECAM) pRMS->SetEECameraView(false);
-	if(id!=VC_RMSCAM) pRMS->SetElbowCamView(false);
-  }
+			if (bHasODS) oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_DOCKCAM, VC_MS2);
+			else oapiVCSetNeighbours(VC_PANELL4, VC_PLT, VC_PLBCAMFL, VC_MS2);
 
-  switch (id) {
-  case VC_CDR: // commander position
-    DisplayCameraLabel(VC_LBL_CDR);
-    SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_CDR);
-    SetCameraDefaultDirection (_V(0,0,1));
-    SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 75*RAD, -5*RAD, _V(0.3,0,0), -20*RAD, -27*RAD);
-    huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_CDR;
-    
-	if(bHasODS) oapiVCSetNeighbours (VC_PORTSTATION, VC_PLT, VC_DOCKCAM, VC_MS1);
-	else oapiVCSetNeighbours (VC_PORTSTATION, VC_PLT, VC_PLBCAMFL, VC_MS1);
-	
-	InactiveMDUs.insert(vc::MDUID_AFD);
-	InactiveMDUs.insert(vc::MDUID_CRT4);
+			huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_CDR;
 
-  // Default camera rotarion
-	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 50*RAD);
-
-	//HideMidDeck();
-
-	pgCenter.RegisterVC();
-	pgForward.RegisterVC();
-	pgLeft.RegisterVC();
-	pgOverhead.RegisterVC();
-
-    //RegisterVC_CdrMFD (); // activate commander MFD controls
-    //RegisterVC_CntMFD (); // activate central panel MFD controls
-    //gop->RegisterVC ();  // register panel F6 interface
-	panela4->RegisterVC();
-	//panelc3->RegisterVC();
-	panelc2->RegisterVC();
-	CDRKeyboard->RegisterVC();
-	PLTKeyboard->RegisterVC();
-//	panelf7->RegisterVC();
-	panelo3->RegisterVC();
-    ok = true;
-	bUpdateVC=true;
-    break;
-  case VC_PLT: // pilot position
-	DisplayCameraLabel(VC_LBL_PLT);
-    SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_PLT);
-    SetCameraDefaultDirection (_V(0,0,1));
-    SetCameraMovement (_V(0,0,0.3), 0, 0,		//Upwards/forward
-		_V(-0.3,0,0), 20*RAD, -27*RAD,			//To the left
-		_V(0.2,-0.1,0.25), -90*RAD, -72*RAD);	//To the right
-    huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_PLT;
-    
-	if(bHasODS) oapiVCSetNeighbours (VC_CDR, VC_STBDSTATION, VC_DOCKCAM, VC_MS2);
-	else oapiVCSetNeighbours (VC_CDR, VC_STBDSTATION, VC_PLBCAMFR, VC_MS2);
-	
-	InactiveMDUs.insert(vc::MDUID_AFD);
-	InactiveMDUs.insert(vc::MDUID_CRT4);
-
-  // Default camera rotarion
-	SetCameraRotationRange(144*RAD, 144*RAD, 100*RAD, 75*RAD);
-
-	//HideMidDeck();
-
-	pgCenter.RegisterVC();
-	pgForward.RegisterVC();
-	pgRight.RegisterVC();
-	pgOverhead.RegisterVC();
-
-    //RegisterVC_PltMFD (); // activate pilot MFD controls
-    //RegisterVC_CntMFD (); // activate central panel MFD controls
-	//panelc3->RegisterVC();
-	//panelr2->RegisterVC();
-	panelo3->RegisterVC();
-	panela4->RegisterVC();
-	panelc2->RegisterVC();
-	CDRKeyboard->RegisterVC();
-	PLTKeyboard->RegisterVC();
-//	panelf7->RegisterVC();
-    ok = true;
-	bUpdateVC=true;
-    break;
-  case VC_STBDSTATION: 
-	  DisplayCameraLabel(VC_LBL_STBDSTATION);
-    SetCameraOffset (VC_OFFSET + VC_POS_STBDSTATION + orbiter_ofs);
-    SetCameraDefaultDirection (VC_DIR_STBDSTATION);
-    //SetCameraMovement (_V(0,0.20,0.20), 0, 40.0*RAD, _V(0.3,-0.3,0.15), 60.0*RAD, -50.0*RAD, _V(-0.8,0,0), 0, 0);
-	InactiveMDUs.insert(vc::MDUID_CDR1);
-	InactiveMDUs.insert(vc::MDUID_CDR2);
-
-    // Outside cameras neighbours
-	if(bHasODS) oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_AFTWORKSTATION);
-	else oapiVCSetNeighbours(VC_PLT, VC_AFTPILOT, VC_PLBCAMFR, VC_AFTWORKSTATION);
-    //oapiVCSetNeighbours (1, 0, 3, 0);
-
-    // Default camera rotarion
-    SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
-
-	//HideMidDeck();
-
-	//pgOverhead.RegisterVC();
-	pgOverheadAft.RegisterVC();
-	pgAftStbd.RegisterVC();
-	pgAft.RegisterVC();
-
-    //RegisterVC_AftMFD (); // activate aft MFD controls
-    plop->RegisterVC ();  // register panel R13L interface
-	panela4->RegisterVC();
-	//if(panela8) panela8->RegisterVC();
-	panelo3->RegisterVC();
-    ok = true;
-	bUpdateVC=true;
-    break;
-  case VC_LEECAM: //RMS End Effector Camera
-		if(pRMS) {
-			DisplayCameraLabel(VC_LBL_LEECAM);
-			/*tilt = wr_angle;
-			if(tilt<-180.0) tilt+=360.0;
-			else if(tilt>180.0) tilt-=360.0;
-
-			//SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y,orbiter_ofs.z)+arm_tip[0]);
-			SetCameraOffset (_V(orbiter_ofs.x+0.10,orbiter_ofs.y-0.12,orbiter_ofs.z+0.3)+arm_tip[0]+RotateVectorZ(ARM_WRIST_CAM_OFFSET, wr_angle));
-			//SetCameraDefaultDirection (arm_tip[1]-arm_tip[0]);
-			SetCameraDefaultDirection (arm_tip[1]-arm_tip[0], -tilt*RAD);*/
-			pRMS->SetEECameraView(true);
-			oapiVCSetNeighbours (VC_RMSCAM, -1, -1, VC_RMSSTATION);
-
-			//HideMidDeck();
+			pgForward.RegisterVC();
+			pgLeft.RegisterVC();
+			pgCenter.RegisterVC();
+			pgOverhead.RegisterVC();
 
 			ok = true;
-		}
-		else ok=false;
-		break;
-  case VC_RMSCAM:
-		if(pRMS) {
-			DisplayCameraLabel(VC_LBL_ELBOWCAM);
-			/*SetCameraOffset(camRMSElbowLoc[0]);
-			SetCameraDefaultDirection(camRMSElbowLoc[1]-camRMSElbowLoc[0]);*/
-			pRMS->SetElbowCamView(true);
+			bUpdateVC = true;
+			break;
+		case VC_PLT: // pilot position
+			DisplayCameraLabel( VC_LBL_PLT );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_PLT );
+			SetCameraDefaultDirection( VC_DIR_PLT );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 100 * RAD, 75 * RAD );
+			SetCameraMovement( VC_OFS_PLT_F, VC_AZ_PLT_F, VC_EL_PLT_F, VC_OFS_PLT_L, VC_AZ_PLT_L, VC_EL_PLT_L, VC_OFS_PLT_R, VC_AZ_PLT_R, VC_EL_PLT_R );
 
-			oapiVCSetNeighbours (-1, VC_LEECAM, -1, VC_RMSSTATION);
-			//HideMidDeck();
-			ok=true;
-		}
-		else ok=false;
-		break;
-  case VC_PLBCAMFL: //FL Payload Bay Camera
-	  DisplayCameraLabel(VC_LBL_PLBCAMFL);
-    SetCameraOffset (_V(orbiter_ofs.x-1.78,orbiter_ofs.y-0.15,orbiter_ofs.z+9.4));
-    if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM);
-	else if(pRMS) oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_RMSSTATION);
-	else oapiVCSetNeighbours (VC_PLBCAMFR, VC_PLBCAMBL, -1, VC_RMSSTATION);
+			if (bHasODS) oapiVCSetNeighbours( VC_CDR, VC_PANELR4, VC_DOCKCAM, VC_MS1 );
+			else oapiVCSetNeighbours( VC_CDR, VC_PANELR4, VC_PLBCAMFR, VC_MS1 );
 
-	//HideMidDeck();
+			huds.hudcnt = orbiter_ofs + VC_OFFSET + VC_HUDPOS_PLT;
 
-    ok = true;
+			pgForward.RegisterVC();
+			pgCenter.RegisterVC();
+			pgRight.RegisterVC();
+			pgOverhead.RegisterVC();
 
-    break;
-  case VC_PLBCAMFR: //FR Payload Bay Camera
-	  DisplayCameraLabel(VC_LBL_PLBCAMFR);
-    SetCameraOffset (_V(orbiter_ofs.x+1.78,orbiter_ofs.y-0.15,orbiter_ofs.z+9.4));
-    if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM);
-	else if(pRMS) oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_AFTPILOT);
-	oapiVCSetNeighbours (VC_PLBCAMBR, VC_PLBCAMFL, -1, VC_AFTPILOT);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_PANELR4:
+			DisplayCameraLabel( VC_LBL_PANELR4 );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_PANELR4 );
+			SetCameraDefaultDirection( VC_DIR_PANELR4, VC_TILT_PANELR4 );
+			SetCameraRotationRange( 30 * RAD, 30 * RAD, 20 * RAD, 40 * RAD );
+			SetCameraMovement( VC_OFS_PANELR4_F, VC_AZ_PANELR4_F, VC_EL_PANELR4_F, VC_OFS_PANELR4_L, VC_AZ_PANELR4_L, VC_EL_PANELR4_L, VC_OFS_PANELR4_R, VC_AZ_PANELR4_R, VC_EL_PANELR4_R );
 
-	//HideMidDeck();
+			if (bHasODS) oapiVCSetNeighbours( VC_PLT, VC_STBDSTATION, VC_DOCKCAM, VC_MS1 );
+			else oapiVCSetNeighbours( VC_PLT, VC_STBDSTATION, VC_PLBCAMFR, VC_MS1 );
 
-    ok = true;
-    break;
-  case VC_PLBCAMBL: //BL Payload Bay Camera
-	  DisplayCameraLabel(VC_LBL_PLBCAMBL);
-    SetCameraOffset (_V(orbiter_ofs.x-2.25,orbiter_ofs.y-0.09,orbiter_ofs.z-8.24));
-	if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM);
-	else if(pRMS) oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_RMSSTATION);
-	oapiVCSetNeighbours (VC_PLBCAMFL, VC_PLBCAMBR, -1, VC_RMSSTATION);
+			pgForward.RegisterVC();
+			pgCenter.RegisterVC();
+			pgRight.RegisterVC();
+			pgOverhead.RegisterVC();
 
-	//HideMidDeck();
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_PANELL4:
+			DisplayCameraLabel( VC_LBL_PANELL4 );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_PANELL4 );
+			SetCameraDefaultDirection( VC_DIR_PANELL4, VC_TILT_PANELL4 );
+			SetCameraRotationRange( 30 * RAD, 30 * RAD, 20 * RAD, 40 * RAD );
+			SetCameraMovement( VC_OFS_PANELL4_F, VC_AZ_PANELL4_F, VC_EL_PANELL4_F, VC_OFS_PANELL4_L, VC_AZ_PANELL4_L, VC_EL_PANELL4_L, VC_OFS_PANELL4_R, VC_AZ_PANELL4_R, VC_EL_PANELL4_R );
 
-    ok = true;
-    break;
-  case VC_PLBCAMBR: //BR Payload Bay Camera
-	  DisplayCameraLabel(VC_LBL_PLBCAMBR);
-    SetCameraOffset (_V(orbiter_ofs.x+2.25,orbiter_ofs.y-0.09,orbiter_ofs.z-8.24));
-    if(bHasODS) oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM);
-	else if(pRMS) oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_AFTPILOT);
-	oapiVCSetNeighbours (VC_PLBCAMBL, VC_PLBCAMFR, -1, VC_AFTPILOT);
+			if (bHasODS) oapiVCSetNeighbours( VC_PORTSTATION, VC_CDR, VC_DOCKCAM, VC_MS2 );
+			else oapiVCSetNeighbours( VC_PORTSTATION, VC_CDR, VC_PLBCAMFR, VC_MS2 );
 
-	//HideMidDeck();
+			pgForward.RegisterVC();
+			pgLeft.RegisterVC();
+			pgCenter.RegisterVC();
+			pgOverhead.RegisterVC();
 
-    ok = true;
-    break;
-  case VC_DOCKCAM: //Docking camera
-	  DisplayCameraLabel(VC_LBL_DOCKCAM);
-	  SetCameraOffset (_V(orbiter_ofs.x,orbiter_ofs.y+ODS_POS.y+1.15,orbiter_ofs.z+pMission->GetODSZPos()-0.242));
-	  SetCameraDefaultDirection (_V(0.0, 1.0, 0.0), PI);
-	  SetCameraRotationRange(0, 0, 0, 0);
-	  oapiVCSetNeighbours(-1, -1, VC_PLBCAMFL, VC_AFTPILOT);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_STBDSTATION:
+			DisplayCameraLabel( VC_LBL_STBDSTATION );
+			SetCameraOffset( VC_OFFSET + VC_POS_STBDSTATION + orbiter_ofs );
+			SetCameraDefaultDirection( VC_DIR_STBDSTATION );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_STBDSTATION_F, VC_AZ_STBDSTATION_F, VC_EL_STBDSTATION_F, VC_OFS_STBDSTATION_L, VC_AZ_STBDSTATION_L, VC_EL_STBDSTATION_L, VC_OFS_STBDSTATION_R, VC_AZ_STBDSTATION_R, VC_EL_STBDSTATION_R );
 
-	  //HideMidDeck();
+			if (bHasODS) oapiVCSetNeighbours( VC_PLT, VC_AFTPILOT, VC_DOCKCAM, VC_AFTWORKSTATION );
+			else oapiVCSetNeighbours( VC_PLT, VC_AFTPILOT, VC_PLBCAMFR, VC_AFTWORKSTATION );
 
-	  ok = true;
-	  break;
-  case VC_AFTPILOT: //Aft Flight Deck
-	  DisplayCameraLabel(VC_LBL_AFTPILOT);
-	SetCameraOffset (VC_OFFSET + VC_POS_AFTPILOT + orbiter_ofs);
-    SetCameraDefaultDirection (VC_DIR_AFTPILOT);
-	InactiveMDUs.insert(vc::MDUID_CDR1);
-	InactiveMDUs.insert(vc::MDUID_CDR2);
-	
-	// Default camera rotarion
-    SetCameraRotationRange(144*RAD, 144*RAD, 95*RAD, 72*RAD);
-	SetCameraMovement (VC_OFSFWD_AFTPILOT, 0, 90.0*RAD, 
-		_V(0.4, 0.0, 0.0), 0, 0, 
-		_V(-0.4, 0.0, 0.0), 0, 0);
-    // Outside cameras neighbours
-	if(bHasODS) oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
-	oapiVCSetNeighbours(VC_STBDSTATION, VC_RMSSTATION, VC_PLBCAMFR, VC_AFTWORKSTATION);
+			pgOverheadAft.RegisterVC();
+			pgAft.RegisterVC();
+			pgAftStbd.RegisterVC();
 
-	//HideMidDeck();
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_LEECAM: //RMS End Effector Camera
+			if (pRMS) {
+				DisplayCameraLabel( VC_LBL_LEECAM );
+				pRMS->SetEECameraView( true );
+				oapiVCSetNeighbours( VC_RMSCAM, -1, -1, VC_RMSSTATION );
 
-	//pgOverhead.RegisterVC();
-	pgAftStbd.RegisterVC();
-	pgAft.RegisterVC();
-	pgAftPort.RegisterVC();
+				ok = true;
+			}
+			else ok = false;
+			break;
+		case VC_RMSCAM:
+			if (pRMS) {
+				DisplayCameraLabel( VC_LBL_ELBOWCAM );
+				pRMS->SetElbowCamView( true );
+				oapiVCSetNeighbours( -1, VC_LEECAM, -1, VC_RMSSTATION );
+				ok = true;
+			}
+			else ok = false;
+			break;
+		case VC_PLBCAMFL: //FL Payload Bay Camera
+			DisplayCameraLabel( VC_LBL_PLBCAMFL );
+			if (bHasODS) oapiVCSetNeighbours( VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_DOCKCAM );
+			else if (pRMS) oapiVCSetNeighbours( VC_PLBCAMFR, VC_PLBCAMBL, VC_LEECAM, VC_RMSSTATION );
+			else oapiVCSetNeighbours( VC_PLBCAMFR, VC_PLBCAMBL, -1, VC_RMSSTATION );
+			
+			ok = true;
+			break;
+		case VC_PLBCAMFR: //FR Payload Bay Camera
+			DisplayCameraLabel( VC_LBL_PLBCAMFR );
+			if (bHasODS) oapiVCSetNeighbours( VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_DOCKCAM );
+			else if (pRMS) oapiVCSetNeighbours( VC_PLBCAMBR, VC_PLBCAMFL, VC_LEECAM, VC_AFTPILOT );
+			else oapiVCSetNeighbours( VC_PLBCAMBR, VC_PLBCAMFL, -1, VC_AFTPILOT );
 
+			ok = true;
+			break;
+		case VC_PLBCAMBL: //BL Payload Bay Camera
+			DisplayCameraLabel( VC_LBL_PLBCAMBL );
+			if (bHasODS) oapiVCSetNeighbours( VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_DOCKCAM );
+			else if (pRMS) oapiVCSetNeighbours( VC_PLBCAMFL, VC_PLBCAMBR, VC_LEECAM, VC_RMSSTATION );
+			else oapiVCSetNeighbours( VC_PLBCAMFL, VC_PLBCAMBR, -1, VC_RMSSTATION );
 
-    plop->RegisterVC ();  // register panel R13L interface
-	panela4->RegisterVC();
-	//if(panela8) panela8->RegisterVC();
-	panelo3->RegisterVC();
-	//pA7A8Panel->RegisterVC();
-	ok = true;
-	bUpdateVC=true;
-	break;
-  case VC_RMSSTATION: 
-	  DisplayCameraLabel(VC_LBL_RMSSTATION);
-	SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_RMSSTATION);
-    SetCameraDefaultDirection (VC_DIR_RMSSTATION);
-    //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-    
-	if(bHasODS) oapiVCSetNeighbours (VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION);
-	else oapiVCSetNeighbours (VC_AFTPILOT, VC_PORTSTATION, VC_PLBCAMFL, VC_AFTWORKSTATION);
-	
-	InactiveMDUs.insert(vc::MDUID_PLT1);
-	InactiveMDUs.insert(vc::MDUID_PLT2);
+			ok = true;
+			break;
+		case VC_PLBCAMBR: //BR Payload Bay Camera
+			DisplayCameraLabel( VC_LBL_PLBCAMBR );
+			if (bHasODS) oapiVCSetNeighbours( VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_DOCKCAM );
+			else if (pRMS) oapiVCSetNeighbours( VC_PLBCAMBL, VC_PLBCAMFR, VC_LEECAM, VC_AFTPILOT );
+			else oapiVCSetNeighbours( VC_PLBCAMBL, VC_PLBCAMFR, -1, VC_AFTPILOT );
 
-	// Default camera rotation
-	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
-	SetCameraMovement (VC_OFSFWD_AFTPILOT, 0, 90.0*RAD, 
-		_V(0.4,0,0), 0, 0, 
-		_V(0,-0.3,0.15), 0, 0);
+			ok = true;
+			break;
+		case VC_DOCKCAM: //Docking camera
+			DisplayCameraLabel( VC_LBL_DOCKCAM );
+			SetCameraOffset( _V( orbiter_ofs.x, orbiter_ofs.y - 0.9/*EXTERNAL_AIRLOCK_POS.y*/ + 1.15, orbiter_ofs.z + pMission->GetExternalAirlockZPos() - 0.315 ) );
+			SetCameraDefaultDirection( _V( 0.0, 1.0, 0.0 ), PI );
+			oapiCameraSetAperture( 15 * RAD );
+			SetCameraRotationRange( 0, 0, 0, 0 );
+			oapiVCSetNeighbours( -1, -1, VC_PLBCAMFL, VC_AFTPILOT );
 
-	//ShowMidDeck();
+			ok = true;
+			break;
+		case VC_AFTPILOT: //Aft Flight Deck
+			DisplayCameraLabel( VC_LBL_AFTPILOT );
+			SetCameraOffset( VC_OFFSET + VC_POS_AFTPILOT + orbiter_ofs );
+			SetCameraDefaultDirection( VC_DIR_AFTPILOT );
+			oapiCameraSetAperture( 20 * RAD );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 95 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_AFTPILOT_F, VC_AZ_AFTPILOT_F, VC_EL_AFTPILOT_F, VC_OFS_AFTPILOT_L, VC_AZ_AFTPILOT_L, VC_EL_AFTPILOT_L, VC_OFS_AFTPILOT_R, VC_AZ_AFTPILOT_R, VC_EL_AFTPILOT_R );
+			
+			if (bHasODS) oapiVCSetNeighbours( VC_STBDSTATION, VC_RMSSTATION, VC_DOCKCAM, VC_AFTWORKSTATION );
+			oapiVCSetNeighbours( VC_STBDSTATION, VC_RMSSTATION, VC_PLBCAMFR, VC_AFTWORKSTATION );
 
-	//pgOverhead.RegisterVC();
-	pgAft.RegisterVC();
-	pgAftStbd.RegisterVC();
-	pgAftPort.RegisterVC();
+			pgAftPort.RegisterVC();
+			pgAft.RegisterVC();
+			pgAftStbd.RegisterVC();
 
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_RMSSTATION:
+			DisplayCameraLabel( VC_LBL_RMSSTATION );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_RMSSTATION );
+			SetCameraDefaultDirection( VC_DIR_RMSSTATION );
+			oapiCameraSetAperture( 20 * RAD );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_RMSSTATION_F, VC_AZ_RMSSTATION_F, VC_EL_RMSSTATION_F, VC_OFS_RMSSTATION_L, VC_AZ_RMSSTATION_L, VC_EL_RMSSTATION_L, VC_OFS_RMSSTATION_R, VC_AZ_RMSSTATION_R, VC_EL_RMSSTATION_R );
 
-	plop->RegisterVC ();  // register panel R13L interface
-	panela4->RegisterVC();
-	//if(panela8) panela8->RegisterVC();
-	panelo3->RegisterVC();
-	//pA7A8Panel->RegisterVC();
-	ok = true;
-	bUpdateVC=true;
-	break;
-  case VC_PORTSTATION:
-	DisplayCameraLabel(VC_LBL_PORTSTATION);
-	SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_PORTSTATION);
-    SetCameraDefaultDirection (VC_DIR_PORTSTATION);
-    //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-    
-	if(bHasODS) oapiVCSetNeighbours (VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_MIDDECK);
-	else oapiVCSetNeighbours (VC_RMSSTATION, VC_CDR, VC_PLBCAMFL, VC_MIDDECK);
+			if (bHasODS) oapiVCSetNeighbours( VC_AFTPILOT, VC_PORTSTATION, VC_DOCKCAM, VC_AFTWORKSTATION );
+			else oapiVCSetNeighbours( VC_AFTPILOT, VC_PORTSTATION, VC_PLBCAMFL, VC_AFTWORKSTATION );
 
-	InactiveMDUs.insert(vc::MDUID_PLT1);
-	InactiveMDUs.insert(vc::MDUID_PLT2);
+			pgAftPort.RegisterVC();
+			pgAft.RegisterVC();
+			pgAftStbd.RegisterVC();
 
-	// Default camera rotation
-	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_PORTSTATION:
+			DisplayCameraLabel( VC_LBL_PORTSTATION );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_PORTSTATION );
+			SetCameraDefaultDirection( VC_DIR_PORTSTATION );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_PORTSTATION_F, VC_AZ_PORTSTATION_F, VC_EL_PORTSTATION_F, VC_OFS_PORTSTATION_L, VC_AZ_PORTSTATION_L, VC_EL_PORTSTATION_L, VC_OFS_PORTSTATION_R, VC_AZ_PORTSTATION_R, VC_EL_PORTSTATION_R );
+			
+			if (bHasODS) oapiVCSetNeighbours( VC_RMSSTATION, VC_CDR, VC_DOCKCAM, VC_MIDDECK );
+			else oapiVCSetNeighbours( VC_RMSSTATION, VC_CDR, VC_PLBCAMFL, VC_MIDDECK );
 
-	//ShowMidDeck();
+			pgOverheadAft.RegisterVC();
+			pgAftPort.RegisterVC();
+			pgAft.RegisterVC();
 
-	//pgOverhead.RegisterVC();
-	pgOverheadAft.RegisterVC();
-	pgAft.RegisterVC();
-	pgAftPort.RegisterVC();
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_AFTWORKSTATION:
+			DisplayCameraLabel( VC_LBL_AFTWORKSTATION );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_AFTWORKSTATION );
+			SetCameraDefaultDirection( VC_DIR_AFTWORKSTATION );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_AFTWORKSTATION_F, VC_AZ_AFTWORKSTATION_F, VC_EL_AFTWORKSTATION_F, VC_OFS_AFTWORKSTATION_L, VC_AZ_AFTWORKSTATION_L, VC_EL_AFTWORKSTATION_L, VC_OFS_AFTWORKSTATION_R, VC_AZ_AFTWORKSTATION_R, VC_EL_AFTWORKSTATION_R );
+			oapiVCSetNeighbours( VC_STBDSTATION, VC_PORTSTATION, VC_RMSSTATION, VC_MS1 );
 
+			pgOverheadAft.RegisterVC();
+			pgAftPort.RegisterVC();
+			pgAft.RegisterVC();
+			pgAftStbd.RegisterVC();
 
-	plop->RegisterVC ();  // register panel R13L interface
-	panela4->RegisterVC();
-	//if(panela8) panela8->RegisterVC();
-	panelo3->RegisterVC();
-	ok = true;
-	bUpdateVC=true;
-	break;
-  case VC_AFTWORKSTATION:
-	  DisplayCameraLabel(VC_LBL_AFTWORKSTATION);
-	SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_AFTWORKSTATION);
-    SetCameraDefaultDirection (VC_DIR_AFTWORKSTATION);
-    //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-	oapiVCSetNeighbours (VC_STBDSTATION, VC_PORTSTATION, VC_RMSSTATION, VC_MS1);
-	InactiveMDUs.insert(vc::MDUID_CDR1);
-	InactiveMDUs.insert(vc::MDUID_CDR2);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_MS2:
+			DisplayCameraLabel( VC_LBL_MS2 );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_MS2 );
+			SetCameraDefaultDirection( VC_DIR_MS2 );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_MS2_F, VC_AZ_MS2_F, VC_EL_MS2_F, VC_OFS_MS2_L, VC_AZ_MS2_L, VC_EL_MS2_L, VC_OFS_MS2_R, VC_AZ_MS2_R, VC_EL_MS2_R );
 
-	// Default camera rotation
-	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+			if (bHasODS) oapiVCSetNeighbours( VC_PORTSTATION, VC_MS1, VC_CDR, VC_DOCKCAM );
+			else oapiVCSetNeighbours( VC_PORTSTATION, VC_MS1, VC_CDR, VC_PLBCAMFL );
 
-	//ShowMidDeck();
+			pgForward.RegisterVC();
+			pgCenter.RegisterVC();
+			pgOverhead.RegisterVC();
+			pgOverheadAft.RegisterVC();
 
-	pgOverhead.RegisterVC();
-	pgOverheadAft.RegisterVC();
-	pgAft.RegisterVC();
-	pgAftStbd.RegisterVC();
-	pgAftPort.RegisterVC();
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_MS1:
+			DisplayCameraLabel( VC_LBL_MS1 );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_MS1 );
+			SetCameraDefaultDirection( VC_DIR_MS1 );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
+			SetCameraMovement( VC_OFS_MS1_F, VC_AZ_MS1_F, VC_EL_MS1_F, VC_OFS_MS1_L, VC_AZ_MS1_L, VC_EL_MS1_L, VC_OFS_MS1_R, VC_AZ_MS1_R, VC_EL_MS1_R );
 
-		
-	plop->RegisterVC ();  // register panel R13L interface
-	panela4->RegisterVC();
-	//if(panela8) panela8->RegisterVC();
-	panelo3->RegisterVC();
-	//pA7A8Panel->RegisterVC();
-	ok = true;
-	bUpdateVC=true;
-	break;
+			if (bHasODS) oapiVCSetNeighbours( VC_MS2, VC_STBDSTATION, VC_PLT, VC_DOCKCAM );
+			else oapiVCSetNeighbours( VC_MS2, VC_STBDSTATION, VC_PLT, VC_PLBCAMFL );
 
-  case VC_MS1:
-	 DisplayCameraLabel(VC_LBL_MS1);
-	SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_MS1);
-    SetCameraDefaultDirection (VC_DIR_MS1);
-    //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-	
-	if(bHasODS) oapiVCSetNeighbours (VC_PORTSTATION, VC_MS2, VC_CDR, VC_DOCKCAM);
-	else oapiVCSetNeighbours (VC_PORTSTATION, VC_MS2, VC_CDR, VC_PLBCAMFL);
+			pgCenter.RegisterVC();
+			pgOverhead.RegisterVC();
+			pgOverheadAft.RegisterVC();
+			pgAftStbd.RegisterVC();
 
-	InactiveMDUs.insert(vc::MDUID_AFD);
+			ok = true;
+			bUpdateVC = true;
+			break;
+		case VC_MIDDECK:
+			DisplayCameraLabel( VC_LBL_MIDDECK );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_MIDDECK );
+			SetCameraDefaultDirection( VC_DIR_MIDDECK );
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
 
-	// Default camera rotation
-	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+			if (pMission->HasExtAL()) oapiVCSetNeighbours( -1, -1, VC_PORTSTATION, VC_EXT_AL );
+			else oapiVCSetNeighbours( -1, -1, VC_PORTSTATION, -1 );
 
-	//HideMidDeck();
+			ok = true;
+			break;
+		case VC_EXT_AL:
+			DisplayCameraLabel( VC_LBL_EXT_AL );
+			SetCameraOffset( orbiter_ofs + VC_OFFSET + VC_POS_EXT_AL + _V( 0, 0, pMission->GetExternalAirlockZPos() ) );
+			SetCameraDefaultDirection( VC_DIR_EXT_AL );
 
-	pgForward.RegisterVC();
-	pgCenter.RegisterVC();
-	pgOverhead.RegisterVC();
-	pgOverheadAft.RegisterVC();
-	pgAft.RegisterVC();
+			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
 
+			if (bHasODS) oapiVCSetNeighbours( -1, -1, VC_MIDDECK, VC_DOCKCAM );
+			else oapiVCSetNeighbours( -1, -1, VC_MIDDECK, -1 );
 
-    //RegisterVC_CdrMFD();
-	//RegisterVC_PltMFD (); // activate pilot MFD controls
-    //RegisterVC_CntMFD (); // activate central panel MFD controls
-	panela4->RegisterVC();
-	//panelc3->RegisterVC();
-	//panelr2->RegisterVC();
-	panelo3->RegisterVC();
-	panelc2->RegisterVC();
-	CDRKeyboard->RegisterVC();
-	PLTKeyboard->RegisterVC();
-//	panelf7->RegisterVC();
-    ok = true;
-	bUpdateVC=true;
-    break;
-  case VC_MS2:
-	DisplayCameraLabel(VC_LBL_MS2);
-	SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_MS2);
-    SetCameraDefaultDirection (VC_DIR_MS2);
-    //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-    
-	if(bHasODS) oapiVCSetNeighbours (VC_MS1, VC_STBDSTATION, VC_PLT, VC_DOCKCAM);
-	else oapiVCSetNeighbours (VC_MS1, VC_STBDSTATION, VC_PLT, VC_PLBCAMFL);
+			ok = true;
+			break;
+	}
 
-	InactiveMDUs.insert(vc::MDUID_AFD);
+	// VC Cockpit not visible from Payload cameras or RMS camera.
+	if (id >= VC_DOCKCAM && id <= VC_LEECAM)
+	{
+		// hide internal VC mesh (and individual panels) and middeck, and show cockpit mesh meant to be seen in external views
+		SetMeshVisibilityMode(mesh_vc, MESHVIS_NEVER);
+		HideMidDeck();
+		pgForward.HidePanels();
+		pgLeft.HidePanels();
+		pgCenter.HidePanels();
+		pgRight.HidePanels();
+		pgOverhead.HidePanels();
+		pgOverheadAft.HidePanels();
+		pgAftPort.HidePanels();
+		pgAft.HidePanels();
+		pgAftStbd.HidePanels();
 
-	// Default camera rotation
-	SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
+		SetMeshVisibilityMode(mesh_cockpit, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS);
 
-	//HideMidDeck();
+		// Pan and tilt from camera control not from alt + arrow but from the dialog
+		SetCameraRotationRange( 0, 0, 0, 0 );
+		// No lean for payload camera
+		SetCameraMovement( _V(0, 0, 0), 0, 0, _V(0, 0, 0), 0, 0, _V(0, 0, 0), 0, 0 );
 
-	pgCenter.RegisterVC();
-	pgOverhead.RegisterVC();
-	pgOverheadAft.RegisterVC();
-	pgAftStbd.RegisterVC();
+		// Refresh camera meshes and view positions
+		SetAnimationCameras();
+	}
+	else
+	{
+		SetMeshVisibilityMode( mesh_vc, MESHVIS_VC );
+		ShowMidDeck();
+		pgForward.ShowPanels();
+		pgLeft.ShowPanels();
+		pgCenter.ShowPanels();
+		pgRight.ShowPanels();
+		pgOverhead.ShowPanels();
+		pgOverheadAft.ShowPanels();
+		pgAftPort.ShowPanels();
+		pgAft.ShowPanels();
+		pgAftStbd.ShowPanels();
 
-    //RegisterVC_CdrMFD();
-	//RegisterVC_PltMFD (); // activate pilot MFD controls
-    //RegisterVC_CntMFD (); // activate central panel MFD controls
-	panela4->RegisterVC();
-	//panelc3->RegisterVC();
-	//panelr2->RegisterVC();
-	panelo3->RegisterVC();
-	panelc2->RegisterVC();
-	CDRKeyboard->RegisterVC();
-	PLTKeyboard->RegisterVC();
-//	panelf7->RegisterVC();
-    ok = true;
-	bUpdateVC=true;
-    break;
-  case VC_MIDDECK:
-
-	 DisplayCameraLabel(VC_LBL_MIDDECK);
-	 SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_MIDDECK);
-     SetCameraDefaultDirection (VC_DIR_MIDDECK);
-     //SetCameraMovement (_V(0,0,0.3), 0, 0, _V(-0.3,0,0), 20*RAD, -27*RAD, _V(0.3,0,0), -75*RAD, -5*RAD);
-     
-	 //ShowMidDeck();
-	 // Default camera rotation
-	 if(HasExternalAirlock())
-	 {
-		oapiVCSetNeighbours (-1, -1, VC_PORTSTATION, VC_EXT_AL);	
-	 } else {
-		 oapiVCSetNeighbours (-1, -1, VC_PORTSTATION, -1);
-	 }
-
-	 SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
-
-	 ok = true;
-	 break;
-  case VC_EXT_AL:
-	  DisplayCameraLabel(VC_LBL_EXT_AL);
-	  SetCameraOffset (orbiter_ofs + VC_OFFSET + VC_POS_EXT_AL);
-      SetCameraDefaultDirection (VC_DIR_EXT_AL);
-
-	  SetCameraRotationRange(144*RAD, 144*RAD, 72*RAD, 72*RAD);
-
-	  if(bHasODS) oapiVCSetNeighbours (-1, -1, VC_MIDDECK, VC_DOCKCAM);
-	  else oapiVCSetNeighbours (-1, -1, VC_MIDDECK, -1);
-
-	  //ShowMidDeck();
-     
-	  ok=true;
-	break;
-
-  }
-
-  // Common action for external payload cameras
-  if (id >= VC_DOCKCAM && id <= VC_LEECAM) {
-    // Pan and tilt from camera control not from alt + arrow but from the dialog
-    SetCameraRotationRange(0,0,0,0);
-    // No lean for payload camera
-    SetCameraMovement (_V(0,0,0), 0, 0, _V(0,0,0), 0, 0, _V(0,0,0), 0, 0);
-
-    // Refresh camera meshes and view positions
-    SetAnimationCameras();
-
-	// hide panels
-	HideMidDeck();
-	pgAft.HidePanels();
-  }
-  else {
-	  ShowMidDeck();
-	  pgAft.ShowPanels();
-  }
+		SetMeshVisibilityMode( mesh_cockpit, MESHVIS_EXTERNAL );
+	}
 
 	if (bUpdateVC) {
 		// register the HUDs (synced)
-		oapiVCRegisterHUD (&huds);
+		oapiVCRegisterHUD(&huds);
 		// register all MFD displays
-		for (int i = 0, counter=0; i < 11; i++)
+		for (int i = 0; i < 11; i++)
 		{
-			//oapiRegisterMFD (MFD_LEFT+i, mfds+i);
-			mfds[i]=-1;
-			if(mdus[i])
-			{
-				if(InactiveMDUs.find(i)==InactiveMDUs.end()) {
-					mdus[i]->RealizeMFD(counter);
-					//mfds[i]=counter;
-					mfds[counter]=i;
-					counter++;
-				}
-				else mdus[i]->RealizeMFD(-1);
-			}
-			oapiVCTriggerRedrawArea(-1, AID_CDR1_LABEL+i);
+			mdus[i]->RealizeMFD(i);
 		}
-		// update panels
-		plop->UpdateVC();
-		//gop->UpdateVC();
-		panela4->UpdateVC();
-		//if(RMS && panela8) panela8->UpdateVC();
-		panelc2->UpdateVC();
-		//panelc3->UpdateVC();
-		//	panelf7->UpdateVC();
-		panelo3->UpdateVC();
-		//panelr2->UpdateVC();
 	}
 	oapiCameraSetCockpitDir(0, 0);
 	return ok;
@@ -6142,584 +6002,309 @@ bool Atlantis::clbkLoadVC (int id)
 // --------------------------------------------------------------
 // Respond to virtual cockpit mouse event
 // --------------------------------------------------------------
-bool Atlantis::clbkVCMouseEvent (int id, int _event, VECTOR3 &p)
+bool Atlantis::clbkVCMouseEvent(int id, int _event, VECTOR3 &p)
 {
-	bool bRet=false;
-  static bool counting = false;
-  static double t0 = 0.0;
-
-  //sprintf_s(oapiDebugString(), 255, "VCMouseEvent: id %d event %d p %f %f %f",id,_event,p.x,p.y,p.z);
-
-  bRet=pgForward.OnVCMouseEvent(id, _event, p);
-  if(!bRet) bRet=pgLeft.OnVCMouseEvent(id, _event, p);
-  if(!bRet) bRet=pgRight.OnVCMouseEvent(id, _event, p);
-  if(!bRet) bRet=pgCenter.OnVCMouseEvent(id, _event, p);
-  if(!bRet) bRet=pgOverhead.OnVCMouseEvent(id, _event, p);
-  if(!bRet) bRet=pgOverheadAft.OnVCMouseEvent(id, _event, p);
-  if(!bRet) bRet=pgAft.OnVCMouseEvent(id, _event, p);
-  if(!bRet) bRet=pgAftStbd.OnVCMouseEvent(id, _event, p);
-
-  switch (id) 
-  {
-  // handle MFD selection buttons
-  /*case AID_CDR1_BUTTONS:
-  case AID_CDR2_BUTTONS:
-  case AID_PLT1_BUTTONS:
-  case AID_PLT2_BUTTONS:
-  case AID_CRT1_BUTTONS:
-  case AID_CRT2_BUTTONS:
-  case AID_CRT3_BUTTONS:
-  case AID_CRT4_BUTTONS:
-  case AID_MFD1_BUTTONS:
-  case AID_MFD2_BUTTONS:
-  case AID_AFD_BUTTONS: 
-	  {
-		  
-    int mfd = id-AID_CDR1_BUTTONS+MFD_LEFT;
-    int bt = (int)(p.x*5.99);
-    if (bt < 5) oapiProcessMFDButton (mfd, bt, _event);
-    else {
-      if (_event & PANEL_MOUSE_LBDOWN) {
-        t0 = oapiGetSysTime();
-        counting = true;
-      } else if ((_event & PANEL_MOUSE_LBUP) && counting) {
-        oapiSendMFDKey (mfd, OAPI_KEY_F2);
-        counting = false;
-      } else if ((_event & PANEL_MOUSE_LBPRESSED) && counting && (oapiGetSysTime()-t0 >= 1.0)) {
-        oapiSendMFDKey (mfd, OAPI_KEY_F1);
-        counting = false;
-      }
-    }
-	sprintf(oapiDebugString(), "MDU %d EDGE KEY %d", mfd, bt);
-	
-    } return true;
-
-  // D. Beachy: handle power buttons
-  case AID_CDR1_PWR:
-  case AID_CDR2_PWR:
-  case AID_PLT1_PWR:
-  case AID_PLT2_PWR:
-  case AID_CRT1_PWR:
-  case AID_CRT2_PWR:
-  case AID_CRT3_PWR:
-  case AID_CRT4_PWR:
-  case AID_MFD1_PWR:
-  case AID_MFD2_PWR:
-  case AID_AFD_PWR: 
-	  {
-        int mfd = id - AID_CDR1_PWR+MFD_LEFT;
-		sprintf(oapiDebugString(), "POWER BUTTON %d", mfd);
-        //oapiSendMFDKey(mfd, OAPI_KEY_ESCAPE);
-       } 
-	  return true;
-
-  // handle MFD brightness buttons
-  case AID_CDR1_BRT:
-  case AID_CDR2_BRT:
-  case AID_PLT1_BRT:
-  case AID_PLT2_BRT:
-  case AID_CRT1_BRT:
-  case AID_CRT2_BRT:
-  case AID_CRT3_BRT:
-  case AID_CRT4_BRT:
-  case AID_MFD1_BRT:
-  case AID_MFD2_BRT:
-  case AID_AFD_BRT: 
-	  {
-		static double t0, brt0;
-		static bool up;
-		int mfd = id-AID_CDR1_BRT;
-		sprintf(oapiDebugString(), "BRT BUTTON %d", mfd);
-
-		/*
-		if (event & PANEL_MOUSE_LBDOWN) {
-			up = (p.x >= 0.5);
-			t0 = oapiGetSysTime();
-			brt0 = mfdbright[mfd];
-		} else if (event & PANEL_MOUSE_LBPRESSED) 
-		{
-			double dt = oapiGetSysTime()-t0;
-			double brt, dbrt = dt * 0.2;
-			if (up) 
-				brt = min (1.0, brt0 + dbrt);
-			else    
-				brt = max (0.25, brt0 - dbrt);
-			mfdbright[mfd] = brt;
-			if (vis) {
-				MESHHANDLE hMesh = GetMesh (vis, mesh_vc);
-				MATERIAL *mat = oapiMeshMaterial (hMesh, 10+mfd);
-				mat->emissive.r = mat->emissive.g = mat->emissive.b = (float)brt;
-			}
-		}
-		
-	} 
-	return false;*/
-  // handle panel R13L events (payload bay operations)
-  case AID_R13L:
-    return plop->VCMouseEvent (id, _event, p);
-  case AID_A4:
-	return panela4->VCMouseEvent (id, _event, p);
-  /*case AID_A8:
-	if(panela8) return panela8->VCMouseEvent (id, _event, p);
-	else break;*/
-  //case AID_F6:
-    //return gop->VCMouseEvent (id, _event, p);
-  case AID_F7:
-//	return panelf7->VCMouseEvent(id, _event, p);
-	  return false;
-  case AID_C2:
-	return panelc2->VCMouseEvent(id, _event, p);
-  //case AID_C3:
-	//return panelc3->VCMouseEvent (id, _event, p);
-  case AID_O3:
-	return panelo3->VCMouseEvent(id, _event, p);
-  case AID_KYBD_CDR:
-	//sprintf(oapiDebugString(), "AID_KYBD_CDR event");
-    return CDRKeyboard->VCMouseEvent(id, _event, p);
-  case AID_KYBD_PLT:
-    return PLTKeyboard->VCMouseEvent(id, _event, p);
-  //case AID_R2:
-	//return panelr2->VCMouseEvent (id, _event, p);
-  }
-
-  if(AID_CUSTOM_PANELS_MIN <= id && id <= AID_CUSTOM_PANELS_MAX)
-  {
-	  if(pA7A8Panel)
-		  pA7A8Panel->OnVCMouseEvent(id, _event, p);
-  }
-
-  return bRet;
+	if (pgForward.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgLeft.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgCenter.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgRight.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgOverhead.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgOverheadAft.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgAftPort.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgAft.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgAftStbd.OnVCMouseEvent( id, _event, p ))
+		return true;
+	return false;
 }
 
 // --------------------------------------------------------------
 // Respond to virtual cockpit area redraw request
 // --------------------------------------------------------------
-bool Atlantis::clbkVCRedrawEvent (int id, int _event, SURFHANDLE surf)
+bool Atlantis::clbkVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 {
-	//switch (id) {
-		/*case AID_CDR1_BUTTONS:
-		case AID_CDR2_BUTTONS:
-		case AID_PLT1_BUTTONS:
-		case AID_PLT2_BUTTONS:
-		case AID_CRT1_BUTTONS:
-		case AID_CRT2_BUTTONS:
-		case AID_CRT3_BUTTONS:
-		case AID_CRT4_BUTTONS:
-		case AID_MFD1_BUTTONS:
-		case AID_MFD2_BUTTONS:
-		case AID_AFD_BUTTONS:
-			//int mfd = id-AID_CDR1_BUTTONS+MFD_LEFT;
-			//RedrawPanel_MFDButton (surf, mfd);
-			return true;*/
-	//	default:
-			if (id >= AID_A4_MIN && id <= AID_A4_MAX)
-				return panela4->VCRedrawEvent (id, _event, surf);
-			/*if (id >= AID_A8_MIN && id <= AID_A8_MAX && panela8)
-				return panela8->VCRedrawEvent (id, _event, surf);*/
-			/*if (id >= AID_R2_MIN && id <= AID_R2_MAX)
-				return panelr2->VCRedrawEvent (id, _event, surf);*/
-			if (id >= AID_R13L_MIN && id <= AID_R13L_MAX)
-				return plop->VCRedrawEvent (id, _event, surf);
-			//if (id >= AID_F6_MIN && id <= AID_F6_MAX)
-				//return gop->VCRedrawEvent (id, _event, surf);
-			//if (id >= AID_F7_MIN && id <= AID_F7_MAX)
-			//	return panelf7->VCRedrawEvent (id, event, surf);
-			//return false;
-			//if (id >= AID_C3_MIN && id <= AID_C3_MAX)
-				//return panelc3->VCRedrawEvent (id, _event, surf);
-			if (id >= AID_C2_MIN && id <= AID_C2_MAX)
-				return panelc2->VCRedrawEvent (id, _event, surf);
-			if (id >= AID_O3_MIN && id <= AID_O3_MAX)
-				return panelo3->VCRedrawEvent (id, _event, surf);		
-			//break;
-	//}
-	if(pgForward.OnVCRedrawEvent(id, _event, surf))
+	if (pgForward.OnVCRedrawEvent(id, _event, surf))
 		return true;
-	if(pgCenter.OnVCRedrawEvent(id, _event, surf))
+	if (pgLeft.OnVCRedrawEvent(id, _event, surf))
 		return true;
-	if(pgOverhead.OnVCRedrawEvent(id, _event, surf))
+	if (pgCenter.OnVCRedrawEvent(id, _event, surf))
 		return true;
-	if(pgOverheadAft.OnVCRedrawEvent(id, _event, surf))
+	if (pgRight.OnVCRedrawEvent(id, _event, surf))
 		return true;
-	if(pgLeft.OnVCRedrawEvent(id, _event, surf))
+	if (pgOverhead.OnVCRedrawEvent(id, _event, surf))
 		return true;
-	if(pgRight.OnVCRedrawEvent(id, _event, surf))
+	if (pgOverheadAft.OnVCRedrawEvent(id, _event, surf))
 		return true;
-	if(pgAft.OnVCRedrawEvent(id, _event, surf))
+	if (pgAftPort.OnVCRedrawEvent(id, _event, surf))
 		return true;
-	if(pgAftStbd.OnVCRedrawEvent(id, _event, surf))
+	if (pgAft.OnVCRedrawEvent(id, _event, surf))
 		return true;
-	if(pgAftPort.OnVCRedrawEvent(id, _event, surf))
+	if (pgAftStbd.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	return false;
 }
 
 bool Atlantis::RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU)
 {
-	if(usMDUID < 11)
+	if (usMDUID < 11)
 	{
-		if(mdus[usMDUID] != NULL)
+		if (mdus[usMDUID] != NULL)
 		{
 			return false;
-		} else {
+		}
+		else {
 			mdus[usMDUID] = pMDU;
 			return true;
 		}
-	} else {
+	}
+	else {
 		return false;
 	}
 }
-
-/*void Atlantis::UpdateRMSAngles()
-{
-	sy_angle=linterp(0,-180,1,180,arm_sy);
-	sp_angle=linterp(0,shoulder_min,1,shoulder_max,arm_sp);
-	ep_angle=linterp(0,elbow_min,1,elbow_max,arm_ep);
-	wp_angle=linterp(0, wrist_min, 1, wrist_max, arm_wp);
-	wy_angle=linterp(0, wrist_yaw_min, 1, wrist_yaw_max, arm_wy);
-	wr_angle=linterp(0, wrist_roll_min, 1, wrist_roll_max, arm_wr);
-}*/
-
-/*void Atlantis::AutoGrappleSequence()
-{
-	sprintf_s(oapiDebugString(), 255, "AutoGrapple: %d", EEGrappleMode);
-	if(!bGrappleInProgress) {
-		bGrappleInProgress=true;
-		bReleaseInProgress=false;
-		if(!Grapple.Closed()) {
-			Grapple.action=AnimState::CLOSING;
-			if(Extend.Moving()) Extend.action=AnimState::STOPPED;
-			if(Rigidize.Moving()) Rigidize.action=AnimState::STOPPED;
-		}
-		else {
-			if(!Extend.Closed()) {
-				Extend.action=AnimState::CLOSING;
-				if(Rigidize.Moving()) Rigidize.action=AnimState::STOPPED;
-			}
-			else {
-				Rigidize.action=AnimState::CLOSING;
-			}
-		}
-	}
-	else {
-		bGrappleInProgress=false;
-		if(Grapple.Moving()) Grapple.action=AnimState::STOPPED;
-		if(Extend.Moving()) Extend.action=AnimState::STOPPED;
-		if(Rigidize.Moving()) Rigidize.action=AnimState::STOPPED;
-	}
-	if(panela8) panela8->UpdateVC();
-}
-
-void Atlantis::AutoReleaseSequence()
-{
-	if(!bReleaseInProgress) {
-		bReleaseInProgress=true;
-		bGrappleInProgress=false;
-		if(!Rigidize.Open()) {
-			Rigidize.action=AnimState::OPENING;
-			if(Extend.Moving()) Extend.action=AnimState::STOPPED;
-			if(Grapple.Moving()) Rigidize.action=AnimState::STOPPED;
-		}
-		else {
-			if(!Grapple.Open()) {
-				Grapple.action=AnimState::OPENING;
-				if(Extend.Moving()) Extend.action=AnimState::STOPPED;
-			}
-			else {
-				Extend.action=AnimState::OPENING;
-			}
-		}
-	}
-	else {
-		bReleaseInProgress=false;
-		if(Grapple.Moving()) Grapple.action=AnimState::STOPPED;
-		if(Extend.Moving()) Extend.action=AnimState::STOPPED;
-		if(Rigidize.Moving()) Rigidize.action=AnimState::STOPPED;
-	}
-	if(panela8) panela8->UpdateVC();
-}*/
 
 // --------------------------------------------------------------
 // Keyboard interface handler (buffered key events)
 // --------------------------------------------------------------
-int Atlantis::clbkConsumeBufferedKey (DWORD key, bool down, char *kstate)
+int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 {
 	if (!down) {
-		if(KEYMOD_ALT(kstate)) {
-			if(VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) {
-				switch(key) {
-						case OAPI_KEY_LEFT:
-							//PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].ResetLine();
-							bPLBDCamPanLeft[VCMode-VC_PLBCAMFL] = false;
-							return 1;
-						case OAPI_KEY_RIGHT:
-							//PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].ResetLine();
-							bPLBDCamPanRight[VCMode-VC_PLBCAMFL] = false;
-							return 1;
-						case OAPI_KEY_UP:
-							//PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].ResetLine();
-							bPLBDCamTiltUp[VCMode-VC_PLBCAMFL] = false;
-							return 1;
-						case OAPI_KEY_DOWN:
-							//PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].ResetLine();
-							bPLBDCamTiltDown[VCMode-VC_PLBCAMFL] = false;
-							return 1;
-						default:
-							return 0;
-				}
-			}
-		}
-		else if(!KEYMOD_ALT(kstate) && !KEYMOD_SHIFT(kstate)) { // Ctrl or unmodified
-			switch(key) {
-					case OAPI_KEY_LEFT:
-					case OAPI_KEY_RIGHT:
-						AltKybdInput.y=0.0;
-						return 1;
-					case OAPI_KEY_INSERT:
-					case OAPI_KEY_DELETE:
-						AltKybdInput.x=0.0;
-						return 1;
-					case OAPI_KEY_UP:
-					case OAPI_KEY_DOWN:
-						AltKybdInput.z=0.0;
-						return 1;
-					case OAPI_KEY_RETURN:
-					case OAPI_KEY_BACK:
-						RMSGrapple.ResetLine();
-						RMSRelease.ResetLine();
-						return 1;
-					default:
-						return 0;
-			}
-		}
-	}
-
-  if(pCommModeHandler->IsInCommMode())
-  {
-	  return pCommModeHandler->ConsumeBufferedKey(key, down, kstate);
-  }
-
-    if (KEYMOD_CONTROL (kstate)) {
-	switch (key) {
-    /*case OAPI_KEY_SPACE: // open RMS control dialog
-      oapiOpenDialogEx (g_Param.hDLL, IDD_CTRL, Atlantis_DlgProc, DLG_CAPTIONCLOSE, this);
-      return 1;*/
-	case OAPI_KEY_G:
-		//gop->ArmGear();
-		ArmGear();
-		return 1;
-	case OAPI_KEY_A:
-		ControlRMS=!ControlRMS;
-		if(ControlRMS) DisplayCameraLabel(TEXT_RMSCONTROL);
-		else DisplayCameraLabel(TEXT_RCSCONTROL);
-		return 1;
-	case OAPI_KEY_O:
-		if(RMSSpeedIn) RMSSpeedOut.ResetLine();
-		else RMSSpeedOut.SetLine();
-		return 1;
-	case OAPI_KEY_RETURN:
-		RMSGrapple.SetLine();
-		RMSRelease.ResetLine();
-		return 1;
-	case OAPI_KEY_BACK:
-		RMSGrapple.ResetLine();
-		RMSRelease.SetLine();
-		return 1;
-	/*case OAPI_KEY_X: //temporary
-		if(status == STATE_PRELAUNCH)
-		{
-			bSSMEGOXVent = !bSSMEGOXVent;
-		}
-		/*else if(status == STATE_ORBITER)
-		{
-			if(RMS && !Playback() && plop->MechPwr[0]==PayloadBayOp::MP_ON && plop->MechPwr[1]==PayloadBayOp::MP_ON && ArmCradled() && plop->BayDoorStatus.pos==1.0 ) {
-				if(RMSRollout.action==AnimState::CLOSED) {
-					RMSRollout.action=AnimState::OPENING;
-				}
-				else {
-					RMSRollout.action=AnimState::CLOSING;
-				}
-			}
-		}*
-		return 1;*/
-	case OAPI_KEY_1: //temporary
-		/*if(DisplayJointAngles) {
-			DisplayJointAngles=false;
-			sprintf(oapiDebugString(), "");
-		}
-		else DisplayJointAngles=true;*/
-		if(pRMS) pRMS->ToggleJointAngleDisplay();
-		return 1;
-	case OAPI_KEY_2:
-		FireAllNextManifold();
-		return 1;
-	case OAPI_KEY_3:
-		//if(pA7A8Panel)
-		//{
-		//	pA7A8Panel->ToggleCoordinateDisplayMode();
-		//}
-		pgForward.ToggleCoordinateDisplayMode();
-		pgCenter.ToggleCoordinateDisplayMode();
-		pgRight.ToggleCoordinateDisplayMode();
-		pgLeft.ToggleCoordinateDisplayMode();
-		pgOverhead.ToggleCoordinateDisplayMode();
-		pgOverheadAft.ToggleCoordinateDisplayMode();
-		pgAft.ToggleCoordinateDisplayMode();
-		pgAftStbd.ToggleCoordinateDisplayMode();
-		pgAftPort.ToggleCoordinateDisplayMode();
-		sprintf_s(oapiDebugString(), 255, "COORDINATE DISPLAY MODE");
-		return 1;
-	}
-	} else if(KEYMOD_ALT(kstate)) {
-		if(VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) {
-			switch(key) {
+		if (KEYMOD_ALT(kstate)) {
+			if (VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) {
+				switch (key) {
 				case OAPI_KEY_LEFT:
-					//PLBDCamPanLeft_Out[VCMode-VC_PLBCAMFL].SetLine();
-					bPLBDCamPanLeft[VCMode-VC_PLBCAMFL] = true;
+					bPLBCamPanLeft_Man = false;
 					return 1;
 				case OAPI_KEY_RIGHT:
-					//PLBDCamPanRight_Out[VCMode-VC_PLBCAMFL].SetLine();
-					bPLBDCamPanRight[VCMode-VC_PLBCAMFL] = true;
+					bPLBCamPanRight_Man = false;
 					return 1;
 				case OAPI_KEY_UP:
-					//PLBDCamTiltUp_Out[VCMode-VC_PLBCAMFL].SetLine();
-					bPLBDCamTiltUp[VCMode-VC_PLBCAMFL] = true;
+					bPLBCamTiltUp_Man = false;
 					return 1;
 				case OAPI_KEY_DOWN:
-					//PLBDCamTiltDown_Out[VCMode-VC_PLBCAMFL].SetLine();
-					bPLBDCamTiltDown[VCMode-VC_PLBCAMFL] = true;
+					bPLBCamTiltDown_Man = false;
 					return 1;
 				default:
 					return 0;
+				}
 			}
 		}
-  } else if(!KEYMOD_SHIFT(kstate) && !KEYMOD_ALT(kstate)) { // unmodified keys
-    switch (key) {
-	/*case OAPI_KEY_TAB:
-		pCommModeHandler->EnterCommMode();
-		break;*/
-    case OAPI_KEY_J:  // "Jettison"
-      if (!Playback()) bManualSeparate = true;
-      return 1;
-    case OAPI_KEY_8:
-      ToggleGrapple();
-      return 1;
-    /*case OAPI_KEY_E:
-      do_eva = true;
-      return 1;*/
-	case OAPI_KEY_COMMA:
-		// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
-		if(!Playback() && panelr2->HydraulicPressure() && pSimpleGPC->GetMajorMode()>=304) IncThrusterGroupLevel(THGROUP_MAIN, -0.05);
-		return 1;
-	case OAPI_KEY_PERIOD:
-		// speedbrake is tied to throttle setting, so close sppedbrake by decrementing Orbiter main engine throttle
-		if(!Playback() && panelr2->HydraulicPressure() && pSimpleGPC->GetMajorMode()>=304) IncThrusterGroupLevel(THGROUP_MAIN, 0.05);
-		return 1;
-	case OAPI_KEY_G:
-		//gop->RevertLandingGear();
-		DeployLandingGear();
-		return 1;
-	case OAPI_KEY_MULTIPLY: // NUMPAD *
-		for(int i=0;i<3;i++) SSMEShutdown[i].SetLine();
-		return 0; // this key is used by Orbitersim, so make sure Orbitersim processes it as well
-	case OAPI_KEY_LEFT:
-		AltKybdInput.y=-1.0;
-		return 1;
-	case OAPI_KEY_RIGHT:
-		AltKybdInput.y=1.0;
-		return 1;
-	case OAPI_KEY_INSERT:
-		AltKybdInput.x=-1.0;
-		return 1;
-	case OAPI_KEY_DELETE:
-		AltKybdInput.x=1.0;
-		return 1;
-	case OAPI_KEY_UP:
-		AltKybdInput.z=1.0;
-		return 1;
-	case OAPI_KEY_DOWN:
-		AltKybdInput.z=-1.0;
-		return 1;
-	/*case OAPI_KEY_NUMPADENTER:
-		for(int i = 0; i<3; i++) {
-			SetThrusterLevel(th_main[i], 1.0);
+		else if (!KEYMOD_ALT(kstate) && !KEYMOD_SHIFT(kstate)) { // Ctrl or unmodified
+			switch (key) {
+			case OAPI_KEY_LEFT:
+			case OAPI_KEY_RIGHT:
+				AltKybdInput.y = 0.0;
+				return 1;
+			case OAPI_KEY_INSERT:
+			case OAPI_KEY_DELETE:
+				AltKybdInput.x = 0.0;
+				return 1;
+			case OAPI_KEY_UP:
+			case OAPI_KEY_DOWN:
+				AltKybdInput.z = 0.0;
+				return 1;
+			case OAPI_KEY_RETURN:
+			case OAPI_KEY_BACK:
+				RMSGrapple.ResetLine();
+				RMSRelease.ResetLine();
+				return 1;
+			case OAPI_KEY_K:
+			case OAPI_KEY_L:
+				RPTAinput = 0.0;
+				return 1;
+			case OAPI_KEY_MINUS:
+				SBTCTOinput = false;
+				return 1;
+			default:
+				return 0;
+			}
 		}
-		return 1;*/
 	}
-  }
-  return 0;
-}
 
-void Atlantis::ShowODS() const
-{
-	ShowExtAL();
-	SetMeshVisibilityMode(mesh_ods, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-}
+	if (pCommModeHandler->IsInCommMode())
+	{
+		return pCommModeHandler->ConsumeBufferedKey(key, down, kstate);
+	}
 
-void Atlantis::HideODS() const
-{
-	SetMeshVisibilityMode(mesh_ods, MESHVIS_NEVER);
-}
-
-void Atlantis::ShowExtAL() const
-{
-	SetMeshVisibilityMode(mesh_extal, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-	oapiWriteLog("Showing ExtAL");
-}
-
-void Atlantis::HideExtAL() const
-{	
-	SetMeshVisibilityMode(mesh_extal, MESHVIS_NEVER);
-	oapiWriteLog("Hiding ExtAL");
+	if (KEYMOD_CONTROL(kstate)) {
+		switch (key) {
+		case OAPI_KEY_G:
+			ArmGear();
+			return 1;
+		case OAPI_KEY_A:
+			ControlRMS = !ControlRMS;
+			if (ControlRMS) DisplayCameraLabel(TEXT_RMSCONTROL);
+			else DisplayCameraLabel(TEXT_RCSCONTROL);
+			return 1;
+		case OAPI_KEY_O:
+			if (RMSSpeedIn) RMSSpeedOut.ResetLine();
+			else RMSSpeedOut.SetLine();
+			return 1;
+		case OAPI_KEY_RETURN:
+			RMSGrapple.SetLine();
+			RMSRelease.ResetLine();
+			return 1;
+		case OAPI_KEY_BACK:
+			RMSGrapple.ResetLine();
+			RMSRelease.SetLine();
+			return 1;
+		case OAPI_KEY_X: //temporary
+			if (status == STATE_PRELAUNCH)
+			{
+				bSSMEGOXVent = true;//!bSSMEGOXVent;
+			}
+			return 1;
+		case OAPI_KEY_1: //temporary
+			if (pRMS) pRMS->ToggleJointAngleDisplay();
+			return 1;
+		case OAPI_KEY_2:
+			FireAllNextManifold();
+			return 1;
+		case OAPI_KEY_3:
+			pgForward.ToggleCoordinateDisplayMode();
+			pgLeft.ToggleCoordinateDisplayMode();
+			pgCenter.ToggleCoordinateDisplayMode();
+			pgRight.ToggleCoordinateDisplayMode();
+			pgOverhead.ToggleCoordinateDisplayMode();
+			pgOverheadAft.ToggleCoordinateDisplayMode();
+			pgAftPort.ToggleCoordinateDisplayMode();
+			pgAft.ToggleCoordinateDisplayMode();
+			pgAftStbd.ToggleCoordinateDisplayMode();
+			sprintf_s(oapiDebugString(), 255, "COORDINATE DISPLAY MODE");
+			return 1;
+		}
+	}
+	else if (KEYMOD_ALT(kstate)) {
+		if (VCMode >= VC_PLBCAMFL && VCMode <= VC_RMSCAM) {
+			switch (key) {
+			case OAPI_KEY_LEFT:
+				bPLBCamPanLeft_Man = true;
+				return 1;
+			case OAPI_KEY_RIGHT:
+				bPLBCamPanRight_Man = true;
+				return 1;
+			case OAPI_KEY_UP:
+				bPLBCamTiltUp_Man = true;
+				return 1;
+			case OAPI_KEY_DOWN:
+				bPLBCamTiltDown_Man = true;
+				return 1;
+			default:
+				return 0;
+			}
+		}
+	}
+	else if (!KEYMOD_SHIFT(kstate) && !KEYMOD_ALT(kstate)) { // unmodified keys
+		switch (key) {
+			/*case OAPI_KEY_TAB:
+				pCommModeHandler->EnterCommMode();
+				break;*/
+		case OAPI_KEY_8:
+			ToggleGrapple();
+			return 1;
+		/*case OAPI_KEY_COMMA:
+			return 1;
+		case OAPI_KEY_PERIOD:
+			return 1;*/
+		case OAPI_KEY_K:
+			RPTAinput = -1.0;
+			return 1;
+		case OAPI_KEY_L:
+			RPTAinput = 1.0;
+			return 1;
+		case OAPI_KEY_G:
+			DeployLandingGear();
+			return 1;
+		case OAPI_KEY_LEFT:
+			AltKybdInput.y = -1.0;
+			return 1;
+		case OAPI_KEY_RIGHT:
+			AltKybdInput.y = 1.0;
+			return 1;
+		case OAPI_KEY_INSERT:
+			AltKybdInput.x = 1.0;
+			return 1;
+		case OAPI_KEY_DELETE:
+			AltKybdInput.x = -1.0;
+			return 1;
+		case OAPI_KEY_UP:
+			AltKybdInput.z = -1.0;
+			return 1;
+		case OAPI_KEY_DOWN:
+			AltKybdInput.z = 1.0;
+			return 1;
+		case OAPI_KEY_MULTIPLY: // NUMPAD *
+			for (int i = 0; i < 3; i++) SSMEPBAnalog[i].SetLine();
+			return 0; // this key is used by Orbitersim, so make sure Orbitersim processes it as well
+		case OAPI_KEY_ADD:
+			SBTCinput = -0.05;// back
+			return 0;
+		case OAPI_KEY_SUBTRACT:
+			SBTCinput = 0.05;// forward
+			return 1;
+		case OAPI_KEY_MINUS:
+			SBTCTOinput = true;
+			return 1;
+		}
+	}
+	return 0;
 }
 
 bool Atlantis::SetSSMEParams(unsigned short usMPSNo, double fThrust0, double fISP0, double fISP1)
 {
-	if(usMPSNo == 0) {
+	if (usMPSNo == 0) {
 		//Set all
 		return SetSSMEParams(1, fThrust0, fISP0, fISP1) &&
 			SetSSMEParams(2, fThrust0, fISP0, fISP1) &&
 			SetSSMEParams(3, fThrust0, fISP0, fISP1);
-	} else if(usMPSNo>3) {
+	}
+	else if (usMPSNo > 3) {
 		//error
 		return false;
-	} else {
-		if(th_main[usMPSNo-1] == NULL) {
-			if(!fSSMEHandleErrorFlag) {
+	}
+	else {
+		if (th_main[usMPSNo - 1] == NULL) {
+			if (!fSSMEHandleErrorFlag) {
 				oapiWriteLog("Atlantis::SetSSMEParams : No SSME handle ready");
 				fSSMEHandleErrorFlag = true;
 			}
 			return false;
 		}
 
-		SetThrusterMax0(th_main[usMPSNo-1], fThrust0);
-		SetThrusterIsp(th_main[usMPSNo-1], fISP0, fISP1);
+		SetThrusterMax0(th_main[usMPSNo - 1], fThrust0);
+		SetThrusterIsp(th_main[usMPSNo - 1], fISP0, fISP1);
 		fSSMEHandleErrorFlag = false;
 		return true;
 	}
-	fSSMEHandleErrorFlag = false;
-	return true;
 }
 
 bool Atlantis::SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir)
 {
-	if(usMPSNo == 0) {
+	if (usMPSNo == 0) {
 		//Set all
 		return SetSSMEDir(1, dir) &&
 			SetSSMEDir(2, dir) &&
 			SetSSMEDir(3, dir);
-	} else if(usMPSNo>3) {
+	}
+	else if (usMPSNo > 3) {
 		//error
 		return false;
-	} else {
-		if(th_main[usMPSNo-1] == NULL) {
-			if(!fSSMEHandleErrorFlag) {
+	}
+	else {
+		if (th_main[usMPSNo - 1] == NULL) {
+			if (!fSSMEHandleErrorFlag) {
 				oapiWriteLog("Atlantis::SetSSMEDir : No SSME handle ready");
 				fSSMEHandleErrorFlag = true;
 			}
 			return false;
 		}
-		SetThrusterDir(th_main[usMPSNo-1], dir);
+		SetThrusterDir(th_main[usMPSNo - 1], dir);
 	}
 	fSSMEHandleErrorFlag = false;
 	return true;
@@ -6727,77 +6312,154 @@ bool Atlantis::SetSSMEDir(unsigned short usMPSNo, const VECTOR3& dir)
 
 bool Atlantis::SetSSMEGimbalAngles(unsigned usMPSNo, double degPitch, double degYaw)
 {
-	if(usMPSNo == 0) {
-		return SetSSMEGimbalAngles(1, degPitch, degYaw) &&
-			SetSSMEGimbalAngles(2, degPitch, degYaw) &&
-			SetSSMEGimbalAngles(3, degPitch, degYaw);
-	}
-	else if(usMPSNo > 3) {
-		return false; // error
-	}
-	else {
-		VECTOR3 dir=RotateVectorX(SSMENullDirection[usMPSNo-1], range(-10.5, degPitch, 10.5));
-		dir=RotateVectorY(dir, range(-8.5, degYaw, 8.5));
-		//sprintf_s(oapiDebugString(), 255, "SSME gimbal angles: %d %f %f", static_cast<int>(usMPSNo), degPitch, degYaw);
-		//oapiWriteLog(oapiDebugString());
-		return SetSSMEDir(usMPSNo, dir);
+	// HACK has temporary exception for the start of the simulation, so scenario setting can be used
+	switch (usMPSNo)
+	{
+		case 0:
+			return SetSSMEGimbalAngles(1, degPitch, degYaw) &&
+				SetSSMEGimbalAngles(2, degPitch, degYaw) &&
+				SetSSMEGimbalAngles(3, degPitch, degYaw);
+		case 1:
+			if ((pAPU[0]->GetHydraulicPressure() >= 1500) || (pAPU[2]->GetHydraulicPressure() >= 1500) || (oapiGetSimTime() == 0.0))
+			{
+				VECTOR3 dir = RotateVectorX( SSMEInstalledNullPos[0], range( -10.5, degPitch, 10.5 ) );
+				SSMECurrentPos[0] = RotateVectorY( dir, range( -8.5, degYaw, 8.5 ) );
+				UpdateSSMEGimbalAnimations();
+				return SetSSMEDir( 1, SSMECurrentPos[0] );
+			}
+			return true;
+		case 2:
+			if ((pAPU[1]->GetHydraulicPressure() >= 1500) || (pAPU[0]->GetHydraulicPressure() >= 1500) || (oapiGetSimTime() == 0.0))
+			{
+				VECTOR3 dir = RotateVectorX( SSMEInstalledNullPos[1], range( -10.5, degPitch, 10.5 ) );
+				SSMECurrentPos[1] = RotateVectorY( dir, range( -8.5, degYaw, 8.5 ) );
+				UpdateSSMEGimbalAnimations();
+				return SetSSMEDir( 2, SSMECurrentPos[1] );
+			}
+			return true;
+		case 3:
+			if ((pAPU[2]->GetHydraulicPressure() >= 1500) || (pAPU[1]->GetHydraulicPressure() >= 1500) || (oapiGetSimTime() == 0.0))
+			{
+				VECTOR3 dir = RotateVectorX( SSMEInstalledNullPos[2], range( -10.5, degPitch, 10.5 ) );
+				SSMECurrentPos[2] = RotateVectorY( dir, range( -8.5, degYaw, 8.5 ) );
+				UpdateSSMEGimbalAnimations();
+				return SetSSMEDir( 3, SSMECurrentPos[2] );
+			}
+			return true;
+
+		default:
+			return false; // error
 	}
 }
 
 bool Atlantis::SetSSMEThrustLevel(unsigned short usMPSNo, double fThrustLevel) {
-	if(usMPSNo == 0) {
+	if (usMPSNo == 0) {
 		//Set all
 		return SetSSMEThrustLevel(1, fThrustLevel) &&
 			SetSSMEThrustLevel(2, fThrustLevel) &&
 			SetSSMEThrustLevel(3, fThrustLevel);
-	} else if(usMPSNo>3) {
+	}
+	else if (usMPSNo > 3) {
 		//error
 		oapiWriteLog("Atlantis::SetSSMEThrustLevel : Wrong MPS ID");
 		return false;
-	} else {
-		if(th_main[usMPSNo-1] == NULL) {
-			if(!fSSMEHandleErrorFlag) {
+	}
+	else {
+		if (th_main[usMPSNo - 1] == NULL) {
+			if (!fSSMEHandleErrorFlag) {
 				oapiWriteLog("Atlantis::SetSSMEThrustLevel : No SSME handle ready");
 				fSSMEHandleErrorFlag = true;
 			}
 			return false;
 		}
-		SetThrusterLevel(th_main[usMPSNo-1], fThrustLevel/SSME_MAX_POWER_LEVEL);
+		SetThrusterLevel(th_main[usMPSNo - 1], fThrustLevel / SSME_MAX_POWER_LEVEL);
 	}
 	fSSMEHandleErrorFlag = false;
 	return true;
 }
 
-double Atlantis::GetSSMEThrustLevel( unsigned short usMPSNo )
+double Atlantis::GetSSMEThrustLevel(unsigned short usMPSNo)
 {
-	if(usMPSNo == 0) return (GetSSMEThrustLevel(1)+GetSSMEThrustLevel(2)+GetSSMEThrustLevel(3))/3.0; // return average thrust
+	if (usMPSNo == 0) return (GetSSMEThrustLevel(1) + GetSSMEThrustLevel(2) + GetSSMEThrustLevel(3)) / 3.0; // return average thrust
 	if (th_main[usMPSNo - 1] == NULL)
 	{
-		if(!fSSMEHandleErrorFlag) {
-			oapiWriteLog( "Atlantis::GetSSMEThrustLevel: No SSME handle ready" );
+		if (!fSSMEHandleErrorFlag) {
+			oapiWriteLog("Atlantis::GetSSMEThrustLevel: No SSME handle ready");
 			fSSMEHandleErrorFlag = true;
 		}
 		return -1;
 	}
 	fSSMEHandleErrorFlag = false;
-	return GetThrusterLevel( th_main[usMPSNo - 1] )*SSME_MAX_POWER_LEVEL;
+	return GetThrusterLevel(th_main[usMPSNo - 1])*SSME_MAX_POWER_LEVEL;
 }
 
 void Atlantis::SetSRBGimbalAngles(SIDE SRB, double degPitch, double degYaw)
 {
-	VECTOR3 dir=RotateVectorX(SRBNullDirection[SRB], range(-5.0, degPitch, 5.0));
-	dir=RotateVectorY(dir, range(-5.0, degYaw, 5.0));
-	//sprintf_s(oapiDebugString(), 255, "SRB gimbal angles: %d %f %f", SRB, degPitch, degYaw);
-	//oapiWriteLog(oapiDebugString());
+	VECTOR3 dir = RotateVectorX(SRBNullDirection[SRB], range(-5.0, degPitch, 5.0));
+	dir = RotateVectorY(dir, range(-5.0, degYaw, 5.0));
 	SetThrusterDir(th_srb[SRB], dir);
 }
 
 void Atlantis::IgniteSRBs()
 {
 	double thrust_level, prop_level;
-	GetSRB_State (0.0, thrust_level, prop_level);
-		for (int i = 0; i < 2; i++)
-			SetThrusterLevel (th_srb[i], thrust_level);
+	GetSRB_State(0.0, thrust_level, prop_level);
+	for (int i = 0; i < 2; i++)
+		SetThrusterLevel(th_srb[i], thrust_level);
+}
+
+void Atlantis::SetMPSDumpLevel(int vent, double level)
+{
+	assert((vent >= 0) && (vent <= 7) && " Atlantis::SetMPSDumpLevel.vent");
+	assert((level >= 0) && (level <= 1) && " Atlantis::SetMPSDumpLevel.level");
+	if (thMPSDump[vent] != NULL) SetThrusterLevel(thMPSDump[vent], level);
+	return;
+}
+
+void Atlantis::SetSSMEGH2burn(int eng, bool burn)
+{
+	assert((eng >= 1) && (eng <= 3) && " Atlantis::SetSSMEGH2burn.eng");
+	if (SSMEGH2burn[eng - 1] != NULL) DelExhaustStream(SSMEGH2burn[eng - 1]);
+
+	if (burn == false)
+	{
+		SSMEGH2burn[eng - 1] = NULL;
+		return;
+	}
+
+	static PARTICLESTREAMSPEC psSSMEGH2burn = {
+		0,
+		0.2,
+		40,
+		35,
+		0.4,
+		0.4,
+		5,
+		5,
+		PARTICLESTREAMSPEC::EMISSIVE,
+		PARTICLESTREAMSPEC::LVL_FLAT,
+		1, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+	if (GetAtmPressure() > 25000)
+	{
+		//psSSMEGH2burn.srcrate = 40;
+		//psSSMEGH2burn.growthrate = 5;
+		//psSSMEGH2burn.levelmap = PARTICLESTREAMSPEC::LVL_FLAT;
+		psSSMEGH2burn.tex = oapiRegisterParticleTexture("SSU\\SSMEstream");
+	}
+	else
+	{
+		psSSMEGH2burn.srcrate = 80;
+		psSSMEGH2burn.growthrate = 15;
+		psSSMEGH2burn.levelmap = PARTICLESTREAMSPEC::LVL_LIN;
+		psSSMEGH2burn.tex = 0;
+	}
+
+	SSMEGH2burn[eng - 1] = AddExhaustStream(th_main[eng - 1], &psSSMEGH2burn);
+	return;
 }
 
 
@@ -6808,107 +6470,110 @@ void Atlantis::IgniteSRBs()
 // --------------------------------------------------------------
 // Module initialisation
 // --------------------------------------------------------------
-DLLCLBK void InitModule (HINSTANCE hModule)
+DLLCLBK void InitModule(HINSTANCE hModule)
 {
-  g_Param.hDLL = hModule;
-  oapiRegisterCustomControls (hModule);
+	g_Param.hDLL = hModule;
 
-  // initialize aerodynamic lookup tables
-  elevonVerticalLookup.Init("Config/SSU_Elevon.csv");
-  verticalLookup.Init("Config/SSU_Aero.csv");
-  bodyFlapVerticalLookup.Init("Config/SSU_BodyFlap.csv");
-  horizontalLookup.Init("Config/SSU_HorizontalAero.csv", true);
-  aileronHorizontalLookup.Init("Config/SSU_Aileron.csv", true);
+	// initialize aerodynamic lookup tables
+	elevonVerticalLookup.Init("Config/SSU_Elevon.csv");
+	verticalLookup.Init("Config/SSU_Aero.csv");
+	bodyFlapVerticalLookup.Init("Config/SSU_BodyFlap.csv");
+	groundEffectLookup.Init("Config/SSU_GroundEffect.csv");
+	groundEffectBodyFlapLookup.Init("Config/SSU_GroundEffectBodyFlap.csv");
+	horizontalLookup.Init("Config/SSU_HorizontalAero.csv", true);
+	aileronHorizontalLookup.Init("Config/SSU_Aileron.csv", true);
 
-  g_Param.tkbk_label = oapiCreateSurface (LOADBMP (IDB_TKBKLABEL));
-  g_Param.pbi_lights = oapiCreateSurface (LOADBMP (IDB_PBILIGHTS));
-  if(g_Param.pbi_lights == NULL) {
-	  oapiWriteLog("Loading bitmap \"PBI_LIGHTS\" failed.");
-  }
-  g_Param.clock_digits = oapiCreateSurface (LOADBMP (IDB_CLOCKDIGITS));
-  if(g_Param.clock_digits == NULL) {
-	  oapiWriteLog("Loading bitmap \"CLOCK_DIGITS\" failed.");
-  }
-  g_Param.digits_7seg = oapiCreateSurface (LOADBMP (IDB_7SEGDIGITS));
-  if(g_Param.digits_7seg == NULL) {
-	  oapiWriteLog("Loading bitmap \"DIGITS_7SEG\" failed.");
-  }
+	g_Param.clock_digits = oapiCreateSurface(LOADBMP(IDB_CLOCKDIGITS));
+	if (g_Param.clock_digits == NULL) {
+		oapiWriteLog("Loading bitmap \"CLOCK_DIGITS\" failed.");
+	}
 
-  g_Param.odslights = oapiCreateSurface (LOADBMP (IDB_ODSBUTTONS));
-  if(g_Param.odslights == NULL) {
-	  oapiWriteLog("Loading bitmap \"ODSBUTTONS\" failed.");
-  }
+	g_Param.deu_characters = LOADBMP(IDB_DEUCHARACTERS);
+	HDC Temp1DC = CreateDC( "DISPLAY", NULL, NULL, NULL );
+	g_Param.DeuCharBitmapDC = CreateCompatibleDC( Temp1DC );
+	SelectObject( g_Param.DeuCharBitmapDC, g_Param.deu_characters );
+	SetStretchBltMode( g_Param.DeuCharBitmapDC, HALFTONE );
+	StretchBlt( g_Param.DeuCharBitmapDC, 0, 0, 284, 256, g_Param.DeuCharBitmapDC, 0, 0, 512, 512, SRCCOPY );
+	//DeleteDC( Temp1DC );
 
-  g_Param.deu_characters = LOADBMP (IDB_DEUCHARACTERS);
-  
-  g_Param.ssme_lights = oapiCreateSurface (LOADBMP (IDB_SSMELIGHTS));
-  if(g_Param.ssme_lights == NULL) {
-	  oapiWriteLog("Loading bitmap \"SSME_LIGHTS\" failed.");
-  }
+	g_Param.deu_characters_overbright = LOADBMP(IDB_DEUCHARACTERSOVERBRIGHT);
+	//Temp1DC = CreateDC( "DISPLAY", NULL, NULL, NULL );
+	g_Param.DeuCharOvrBrgtBitmapDC = CreateCompatibleDC( Temp1DC );
+	SelectObject( g_Param.DeuCharOvrBrgtBitmapDC, g_Param.deu_characters_overbright );
+	SetStretchBltMode( g_Param.DeuCharOvrBrgtBitmapDC, HALFTONE );
+	StretchBlt( g_Param.DeuCharOvrBrgtBitmapDC, 0, 0, 284, 256, g_Param.DeuCharOvrBrgtBitmapDC, 0, 0, 512, 512, SRCCOPY );
+	//DeleteDC( Temp1DC );
 
-  HDC Temp1DC=CreateDC("DISPLAY", NULL, NULL, NULL);
-  //HDC TempDC=CreateCompatibleDC(Temp1DC);
-  g_Param.DeuCharBitmapDC=CreateCompatibleDC(Temp1DC);
-  //HBITMAP BMP=CreateCompatibleBitmap(Temp1DC, 816, 806);
-  //SelectObject(g_Param.DeuCharBitmapDC, BMP);
-  SelectObject(g_Param.DeuCharBitmapDC, g_Param.deu_characters);
-  SetStretchBltMode(g_Param.DeuCharBitmapDC, HALFTONE);
-  StretchBlt(g_Param.DeuCharBitmapDC, 0, 0, 80, 144, g_Param.DeuCharBitmapDC, 0, 0, 288, 528 , SRCCOPY);
-  //DeleteDC(TempDC);
-  DeleteDC(Temp1DC);
+	g_Param.deu_characters_fault = LOADBMP(IDB_DEUCHARACTERSFAULT);
+	//Temp1DC = CreateDC( "DISPLAY", NULL, NULL, NULL );
+	g_Param.DeuCharFaultBitmapDC = CreateCompatibleDC( Temp1DC );
+	SelectObject( g_Param.DeuCharFaultBitmapDC, g_Param.deu_characters_fault );
+	SetStretchBltMode( g_Param.DeuCharOvrBrgtBitmapDC, HALFTONE );
+	StretchBlt( g_Param.DeuCharFaultBitmapDC, 0, 0, 284, 256, g_Param.DeuCharFaultBitmapDC, 0, 0, 512, 512, SRCCOPY );
+	DeleteDC( Temp1DC );
 
-  // allocate GDI resources
-  g_Param.font[0] = CreateFont (-11, 0, 0, 0, 400, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
+	g_Param.deu_charactersSH = oapiCreateSurface( LOADBMP(IDB_DEUCHARACTERS) );
+
+	g_Param.deu_characters_overbrightSH = oapiCreateSurface( LOADBMP(IDB_DEUCHARACTERSOVERBRIGHT) );
+
+	g_Param.deu_characters_faultSH = oapiCreateSurface( LOADBMP(IDB_DEUCHARACTERSFAULT) );
 }
 
-DLLCLBK void ExitModule (HINSTANCE hModule)
+DLLCLBK void ExitModule(HINSTANCE hModule)
 {
-  oapiUnregisterCustomControls (hModule);
-  DeleteDC(g_Param.DeuCharBitmapDC);
-  if(g_Param.tkbk_label)
-  {
-	oapiDestroySurface (g_Param.tkbk_label);
-  }
-  if(g_Param.pbi_lights)
-  {
-	  oapiDestroySurface (g_Param.pbi_lights);
-  }
-  if(g_Param.clock_digits)
-  {
-	  oapiDestroySurface (g_Param.clock_digits);
-  }
-  if(g_Param.digits_7seg)
-  {
-	oapiDestroySurface (g_Param.digits_7seg);
-  }
-  if(g_Param.odslights)
-  {
-	oapiDestroySurface (g_Param.odslights);
-  }
+	if (g_Param.clock_digits)
+	{
+		oapiDestroySurface(g_Param.clock_digits);
+	}
 
-  if(g_Param.deu_characters)
-  {
-	  DeleteObject(g_Param.deu_characters);
-  }
+	DeleteDC( g_Param.DeuCharBitmapDC );
+	if (g_Param.deu_characters)
+	{
+		DeleteObject( g_Param.deu_characters );
+	}
 
-  // deallocate GDI resources
-  DeleteObject (g_Param.font[0]);
+	DeleteDC( g_Param.DeuCharOvrBrgtBitmapDC );
+	if (g_Param.deu_characters_overbright)
+	{
+		DeleteObject( g_Param.deu_characters_overbright );
+	}
+
+	DeleteDC( g_Param.DeuCharFaultBitmapDC );
+	if (g_Param.deu_characters_fault)
+	{
+		DeleteObject( g_Param.deu_characters_fault );
+	}
+
+	if (g_Param.deu_charactersSH)
+	{
+		oapiDestroySurface( g_Param.deu_charactersSH );
+	}
+
+	if (g_Param.deu_characters_overbrightSH)
+	{
+		oapiDestroySurface( g_Param.deu_characters_overbrightSH );
+	}
+
+	if (g_Param.deu_characters_faultSH)
+	{
+		oapiDestroySurface( g_Param.deu_characters_faultSH );
+	}
 }
 
 // --------------------------------------------------------------
 // Vessel initialisation
 // --------------------------------------------------------------
-DLLCLBK VESSEL *ovcInit (OBJHANDLE hvessel, int flightmodel)
+DLLCLBK VESSEL *ovcInit(OBJHANDLE hvessel, int flightmodel)
 {
-  return new Atlantis (hvessel, flightmodel);
+	return new Atlantis(hvessel, flightmodel);
 }
 
 // --------------------------------------------------------------
 // Vessel cleanup
 // --------------------------------------------------------------
-DLLCLBK void ovcExit (VESSEL *vessel)
+DLLCLBK void ovcExit(VESSEL *vessel)
 {
-  if (vessel) delete (Atlantis*)vessel;
+	if (vessel) delete (Atlantis*)vessel;
 }
 
 DLLCLBK bool gpcReadValue(VESSEL* pVessel, UINT gpc, UINT val_index, DWORD* value)
@@ -6929,18 +6594,18 @@ bool Atlantis::GetLiftOffFlag() const
 void Atlantis::TriggerLiftOff()
 {
 	bLiftOff = true;
-	t0=oapiGetSimTime(); //update t0 value to actual (instead of planned) liftoff time
+	t0 = oapiGetSimTime(); //update t0 value to actual (instead of planned) liftoff time
 	pMTU->StartMET();
 }
 
 short Atlantis::GetSRBChamberPressure(unsigned short which_srb)
 {
-	if(which_srb < 2 && status < 2)
+	if (which_srb < 2 && status < 2)
 	{
-		return (short)(1000 * GetThrusterLevel(th_srb[which_srb]));
+		return (short)(530 * GetThrusterLevel(th_srb[which_srb]));
 	}
 	else
-		return -1;
+		return 0;
 }
 
 unsigned short Atlantis::GetGPCMET(unsigned short usGPCID, unsigned short &usDay, unsigned short &usHour, unsigned short &usMin, unsigned short &usSec)
@@ -6954,24 +6619,41 @@ unsigned short Atlantis::GetGPCMET(unsigned short usGPCID, unsigned short &usDay
 
 short Atlantis::GetETPropellant() const
 {
-	if(status < 3)
-	{
-		return min((short)(100.0*GetPropellantMass(ph_tank)/TANK_MAX_PROPELLANT_MASS), 99);
-	} else
-	 return -1;
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et != NULL) return min((short)et->GetPropellantLevel(), 99);
+	else return -1;
 }
 
-double Atlantis::GetETPropellant_B( void ) const
+double Atlantis::GetETPropellant_B(void) const
 {
-	if (status < 3) return 100.0 * GetPropellantMass( ph_tank ) / TANK_MAX_PROPELLANT_MASS;
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et != NULL) return et->GetPropellantLevel();
 	else return -1;
+}
+
+double Atlantis::GetETLOXUllagePressure(void) const
+{
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et != NULL) return et->GetLOXUllagePressure();
+	else return 0;
+}
+
+double Atlantis::GetETLH2UllagePressure(void) const
+{
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et != NULL) return et->GetLH2UllagePressure();
+	else return 0;
 }
 
 dps::IDP* Atlantis::GetIDP(unsigned short usIDPNumber) const
 {
-	if(usIDPNumber == 0 || usIDPNumber > 4)
+	if (usIDPNumber == 0 || usIDPNumber > 4)
 		return NULL;
-	return pIDP[usIDPNumber-1];
+	return pIDP[usIDPNumber - 1];
 }
 
 unsigned short Atlantis::GetGPCLVLHVel(unsigned short usGPCID, VECTOR3 &vel)
@@ -6979,22 +6661,23 @@ unsigned short Atlantis::GetGPCLVLHVel(unsigned short usGPCID, VECTOR3 &vel)
 	VECTOR3 tmpVel;
 	this->GetRelativeVel(GetSurfaceRef(), tmpVel);
 	this->GetRelativePos(GetSurfaceRef(), LVLH_Z);
-	
+
 	double magVel = length(tmpVel);
 
-	if(magVel != 0.0)
+	if (magVel != 0.0)
 	{
-		LVLH_X = tmpVel/length(tmpVel);
-		LVLH_Z = -LVLH_Z/length(LVLH_Z);
-	
+		LVLH_X = tmpVel / length(tmpVel);
+		LVLH_Z = -LVLH_Z / length(LVLH_Z);
+
 		LVLH_Y = crossp(LVLH_X, LVLH_Z);
 
-		vel.x = dotp(LVLH_X,tmpVel) * MPS2FPS;
+		vel.x = dotp(LVLH_X, tmpVel) * MPS2FPS;
 		vel.y = dotp(LVLH_Y, tmpVel)* MPS2FPS;
 		vel.z = dotp(LVLH_Z, tmpVel) * MPS2FPS;
 
 		return 0;
-	} else 
+	}
+	else
 	{
 		return 1;
 	}
@@ -7002,26 +6685,31 @@ unsigned short Atlantis::GetGPCLVLHVel(unsigned short usGPCID, VECTOR3 &vel)
 
 short Atlantis::GetGPCRefHDot(unsigned short usGPCID, double &fRefHDot)
 {
-	switch(pSimpleGPC->GetMajorMode())
+	switch (pSimpleGPC->GetMajorMode())
 	{
 	case 102:
-		if(met < 30.0)
+		if (met < 30.0)
 		{
 			fRefHDot = met * 21.33;
-		} else if(met < 50.0)
+		}
+		else if (met < 50.0)
 		{
-			fRefHDot = 640 + (met-30.0) * 16.7;
-		} else if(met < 70.0)
+			fRefHDot = 640 + (met - 30.0) * 16.7;
+		}
+		else if (met < 70.0)
 		{
-			fRefHDot = 974 + (met-50.0) * 21.65;
-		} else if(met < 90)
+			fRefHDot = 974 + (met - 50.0) * 21.65;
+		}
+		else if (met < 90)
 		{
-			fRefHDot = 1407 + (met-70.0) * 23.4;
-		} else if (met < 110.0)
+			fRefHDot = 1407 + (met - 70.0) * 23.4;
+		}
+		else if (met < 110.0)
 		{
-			fRefHDot = 1875 + (met-90.0) * 15.6;
-		} else {
-			fRefHDot = 2187 + (met-110.0) * 15.6;
+			fRefHDot = 1875 + (met - 90.0) * 15.6;
+		}
+		else {
+			fRefHDot = 2187 + (met - 110.0) * 15.6;
 		}
 		//TODO: Generate VSpeed Table.
 		return VARSTATE_OK;
@@ -7031,22 +6719,12 @@ short Atlantis::GetGPCRefHDot(unsigned short usGPCID, double &fRefHDot)
 
 vc::MDU* Atlantis::GetMDU(unsigned short usMDUID) const
 {
-	if(usMDUID >= 0 && usMDUID < 11)
+	if (usMDUID < 11)
 	{
 		return mdus[usMDUID];
-	} else 
+	}
+	else
 		return NULL;
-}
-
-bool Atlantis::HasExternalAirlock() const
-{
-	return true;
-}
-
-inline double angle(const VECTOR3 dir, const VECTOR3 dir0)
-{
-	return acos(dotp(dir, dir0)/
-		(length(dir) * length(dir0)));
 }
 
 void Atlantis::UpdateSSMEGimbalAnimations()
@@ -7054,110 +6732,102 @@ void Atlantis::UpdateSSMEGimbalAnimations()
 
 	const double YAWS = 2 * sin(8.5 * RAD);
 	const double PITCHS = 2 * sin(10 * RAD);
-	
-	VECTOR3 SSME_DIR;
+
 	double fDeflYaw, fDeflPitch;
 
-	GetThrusterDir(th_main[0], SSME_DIR);
+	// center engine
+	fDeflPitch = asin(-SSMECurrentPos[0].y);
+	fDeflYaw = asin(SSMECurrentPos[0].x / cos(fDeflPitch));
 
-	//fDeflYaw = 0.5+angle(SSME_DIR, SSMET_DIR0)/YAWS;
+	SetAnimation(anim_ssmeTyaw, fDeflYaw / YAWS + 0.5);
+	SetAnimation(anim_ssmeTpitch, (fDeflPitch - 16.0 *RAD) / PITCHS + 0.5);
 
-	//fDeflYaw = acos(SSME_DIR.x);
-	//fDeflPitch = acos(SSME_DIR.y/sin(fDeflYaw));
-
-	fDeflPitch = asin(-SSME_DIR.y);
-	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
-
-	//sprintf(oapiDebugString(), "SSMET %f° %f° (%f, %f, %f)", fDeflPitch*DEG, fDeflYaw*DEG, SSME_DIR.x, SSME_DIR.y, SSME_DIR.z);
-
-
-	//fDeflPitch = 0.5+acos((SSME_DIR.y * SSMET_DIR0.y + SSME_DIR.z * SSMET_DIR0.z)/
-	//	(sqrt(pow(SSME_DIR.y,2)+pow(SSME_DIR.z, 2)) * sqrt(pow(SSMET_DIR0.y, 2) + pow(SSMET_DIR0.z, 2))))/PITCHS;
-	SetAnimation(anim_ssmeTyaw, fDeflYaw/YAWS + 0.5);
-	SetAnimation(anim_ssmeTpitch, (fDeflPitch - 16.0 *RAD)/PITCHS + 0.5);
-
-	if(th_ssme_gox[0] != NULL) {
-		SetThrusterDir(th_ssme_gox[0], SSME_DIR);
-		SetThrusterRef(th_ssme_gox[0], orbiter_ofs+SSMET_GOX_REF1);
+	if (th_ssme_gox[0] != NULL) {
+		SetThrusterDir(th_ssme_gox[0], SSMECurrentPos[0]);
+		SetThrusterRef(th_ssme_gox[0], orbiter_ofs + SSMET_GOX_REF1);
 	}
 
-
-	GetThrusterDir(th_main[1], SSME_DIR);
-	
-	if(th_ssme_gox[1] != NULL) {
-		SetThrusterDir(th_ssme_gox[1], SSME_DIR);
-		SetThrusterRef(th_ssme_gox[1], orbiter_ofs+SSMEL_GOX_REF1);
+	if (thMPSDump[0] != NULL)
+	{
+		SetThrusterDir(thMPSDump[0], SSMECurrentPos[0]);
+		SetThrusterRef(thMPSDump[0], orbiter_ofs + SSMET_GOX_REF1 + _V(-1.15, 0, -1));
 	}
 
-	fDeflPitch = asin(-SSME_DIR.y);
-	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
+	// left engine
+	fDeflPitch = asin(-SSMECurrentPos[1].y);
+	fDeflYaw = asin(SSMECurrentPos[1].x / cos(fDeflPitch));
 
-	SetAnimation(anim_ssmeLyaw, (fDeflYaw - 3.5 * RAD)/YAWS + 0.5);
-	SetAnimation(anim_ssmeLpitch, (fDeflPitch - 10 * RAD)/PITCHS + 0.5);
+	SetAnimation(anim_ssmeLyaw, (fDeflYaw - 3.5 * RAD) / YAWS + 0.5);
+	SetAnimation(anim_ssmeLpitch, (fDeflPitch - 10 * RAD) / PITCHS + 0.5);
 
-
-	GetThrusterDir(th_main[2], SSME_DIR);
-
-	fDeflPitch = asin(-SSME_DIR.y);
-	fDeflYaw = asin(SSME_DIR.x / cos(fDeflPitch));
-
-	SetAnimation(anim_ssmeRyaw, (fDeflYaw + 3.5 * RAD)/YAWS + 0.5);
-	SetAnimation(anim_ssmeRpitch, (fDeflPitch - 10 * RAD)/PITCHS + 0.5);
-
-	if(th_ssme_gox[2] != NULL) {
-		SetThrusterDir(th_ssme_gox[2], SSME_DIR);
-		SetThrusterRef(th_ssme_gox[2], orbiter_ofs+SSMER_GOX_REF1);
+	if (th_ssme_gox[1] != NULL) {
+		SetThrusterDir(th_ssme_gox[1], SSMECurrentPos[1]);
+		SetThrusterRef(th_ssme_gox[1], orbiter_ofs + SSMEL_GOX_REF1);
 	}
 
-	
-	
-	
-	
+	if (thMPSDump[1] != NULL)
+	{
+		SetThrusterDir(thMPSDump[1], SSMECurrentPos[1]);
+		SetThrusterRef(thMPSDump[1], orbiter_ofs + SSMEL_GOX_REF1 + _V(0, -1.15, -1));
+	}
+
+	// right engine
+	fDeflPitch = asin(-SSMECurrentPos[2].y);
+	fDeflYaw = asin(SSMECurrentPos[2].x / cos(fDeflPitch));
+
+	SetAnimation(anim_ssmeRyaw, (fDeflYaw + 3.5 * RAD) / YAWS + 0.5);
+	SetAnimation(anim_ssmeRpitch, (fDeflPitch - 10 * RAD) / PITCHS + 0.5);
+
+	if (th_ssme_gox[2] != NULL) {
+		SetThrusterDir(th_ssme_gox[2], SSMECurrentPos[2]);
+		SetThrusterRef(th_ssme_gox[2], orbiter_ofs + SSMER_GOX_REF1);
+	}
+
+	if (thMPSDump[2] != NULL)
+	{
+		SetThrusterDir(thMPSDump[2], SSMECurrentPos[2]);
+		SetThrusterRef(thMPSDump[2], orbiter_ofs + SSMER_GOX_REF1 + _V(-1.15, 0, -1));
+	}
 }
 
 void Atlantis::AddKUBandVisual(const VECTOR3 ofs)
 {
 	if (mesh_kuband == MESH_UNDEFINED && bHasKUBand)
 	{
-		
 		mesh_kuband = AddMesh(hKUBandMesh, &ofs);
-		
-		SetMeshVisibilityMode(mesh_kuband, MESHVIS_EXTERNAL|MESHVIS_VC|MESHVIS_EXTPASS);
-		
-	}
 
+		SetMeshVisibilityMode(mesh_kuband, MESHVIS_EXTERNAL | MESHVIS_VC | MESHVIS_EXTPASS);
+	}
 }
 
 void Atlantis::DefineKUBandAnimations()
 {
-  UINT kidx = mesh_kuband;
-	  // ***** 3. Ku-band antenna animation *****
+	UINT kidx = mesh_kuband;
+	// ***** 3. Ku-band antenna animation *****
 
-  static UINT KuBand1Grp[4] = {GRP_DEA_KU, GRP_DEAA_KU, GRP_DEAB_KU, GRP_DEA_EQUIPMENT_KU};
-  static MGROUP_ROTATE KuBand1 (kidx, KuBand1Grp, 4,
-    _V(2.46,-1.1058,9.44), _V(0,1,0), (float)(-145*RAD));
+	static UINT KuBand1Grp[3] = { GRP_DEA_KU, GRP_DEA_MOUNT_KU, GRP_DEA_EQUIPMENT_KU };
+	static MGROUP_ROTATE KuBand1(kidx, KuBand1Grp, 3,
+		_V(2.5299, 0.3521, 9.4444), _V(0, 1, 0), (float)(-138 * RAD)); // This angle puts the Alpha/Beta gimbal boom center point at the correct orbiter relative coordinates (Xo566, Yo135)
 
-  static UINT KuBand2Grp[1] = {GRP_ALPHA_GIMBAL_KU};
-  static MGROUP_ROTATE KuBand2 (kidx, KuBand2Grp, 1,
-	_V(2.22, -0.228, 8.456), _V(0.503871025524, 0.0, 0.863778900898), (float)(-116.5*RAD)); //Data from the Ku band System Workbook
+	static UINT KuBand2Grp[1] = { GRP_ALPHA_GIMBAL_KU };
+	static MGROUP_ROTATE KuBand2(kidx, KuBand2Grp, 1,
+		_V(2.30575, 0.81235, 8.66813), _V(0.503871025524, 0.0, 0.863778900898), (float)(360*RAD)); //Data from the Ku band System Workbook
 
-  static UINT KuBand3Grp[4] = {GRP_BETA_GIMBAL_BOOM_KU, GRP_GIMBAL_LOCK_STRUCTURE_KU, GRP_DISH_KU, GRP_DISH_RECEIVER_SUPPORTS_KU};
-  static MGROUP_ROTATE KuBand3 (kidx, KuBand3Grp, 4,
-	_V(2.094,-0.128,8.45), _V(-0.468631, 0.841773, 0.267962), (float)(23.25*RAD));//Data from the Ku band System Workbook
+	static UINT KuBand3Grp[4] = { GRP_BETA_GIMBAL_BOOM_KU, GRP_GIMBAL_LOCK_STRUCTURE_KU, GRP_DISH_KU, GRP_DISH_RECEIVER_SUPPORTS_KU };
+	static MGROUP_ROTATE KuBand3(kidx, KuBand3Grp, 4,
+		_V(2.2132, 0.7822, 8.44489), _V(-0.468631, 0.841773, 0.267962), (float)(160*RAD));//Data from the Ku band System Workbook
 
-  anim_kubd = CreateAnimation (0);
-  LogAnim("anim_kubd", anim_kubd);
-  ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent (anim_kubd, 0, 0.5, &KuBand1);
+	anim_kubd = CreateAnimation(0);
+	LogAnim("anim_kubd", anim_kubd);
+	ANIMATIONCOMPONENT_HANDLE parent = AddAnimationComponent(anim_kubd, 0, 1, &KuBand1);
 
-  anim_kualpha = CreateAnimation(0.0);
-  LogAnim("anim_kualpha", anim_kualpha);
-  parent = AddAnimationComponent (anim_kualpha, 0.81, 1, &KuBand2, parent);
+	anim_kualpha = CreateAnimation( 0.773611 );// 124.3º
+	LogAnim("anim_kualpha", anim_kualpha);
+	parent = AddAnimationComponent(anim_kualpha, 0, 1, &KuBand2, parent);
 
-  anim_kubeta = CreateAnimation(0.0);
-  LogAnim("anim_kubeta", anim_kubeta);
-  AddAnimationComponent (anim_kubeta, 0.61, 0.8, &KuBand3, parent);
-
-
+	anim_kubeta = CreateAnimation( 0.296875 );// -27.5º
+	LogAnim("anim_kubeta", anim_kubeta);
+	AddAnimationComponent(anim_kubeta, 0, 1, &KuBand3, parent);
 }
 
 void Atlantis::GLSAutoSeqStart()
@@ -7169,7 +6839,7 @@ void Atlantis::GLSAutoSeqStart()
 void Atlantis::SignalGSEBreakHDP()
 {
 	ISSUMLP* pMLP = GetMLPInterface();
-	if(pMLP) pMLP->OnT0();
+	if (pMLP) pMLP->OnT0();
 }
 
 void Atlantis::StartROFIs()
@@ -7180,12 +6850,11 @@ void Atlantis::StartROFIs()
 
 void Atlantis::CreateSSMEs(const VECTOR3 &ofs)
 {
-	if(!bSSMEsDefined) {
-		th_main[0] = CreateThruster (ofs + SSMET_REF, _V(0.0, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-		th_main[1] = CreateThruster (ofs + SSMEL_REF, _V(0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
-		th_main[2] = CreateThruster (ofs + SSMER_REF, _V(-0.065, -0.2447, 0.9674), ORBITER_MAIN_THRUST, ph_tank, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);	
+	if (!bSSMEsDefined) {
+		th_main[0] = CreateThruster(ofs + SSMET_REF, SSMECurrentPos[0], ORBITER_MAIN_THRUST, ph_mps, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+		th_main[1] = CreateThruster(ofs + SSMEL_REF, SSMECurrentPos[1], ORBITER_MAIN_THRUST, ph_mps, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
+		th_main[2] = CreateThruster(ofs + SSMER_REF, SSMECurrentPos[2], ORBITER_MAIN_THRUST, ph_mps, ORBITER_MAIN_ISP0, ORBITER_MAIN_ISP1);
 		bSSMEsDefined = true;
-		//thg_main = CreateThrusterGroup (th_main, 3, THGROUP_MAIN);
 	}
 
 	CreateMPSGOXVents(ofs);
@@ -7199,187 +6868,36 @@ void Atlantis::DefineSSMEExhaust()
 {
 	int i;
 
-	SURFHANDLE tex_main = oapiRegisterExhaustTexture ("SSU\\SSME_exhaust");
-  	for(i = 0; i<3; i++)
+	SURFHANDLE tex_main = oapiRegisterExhaustTexture("SSU\\SSME_exhaust");
+	for (i = 0; i < 3; i++)
 	{
-		if(ex_main[i])
+		if (ex_main[i])
 		{
 			DelExhaust(ex_main[i]);
 		}
-		ex_main[i] = AddExhaust(th_main[i], 70.0, 3.0, 0, tex_main);
+		ex_main[i] = AddExhaust(th_main[i], 55.0, 3.0, 3.5, tex_main);
 	}
 }
 
 void Atlantis::UpdateNullDirections()
 {
-	// calculate null direction for each engine 
-	for(unsigned short i=0;i<3;i++) {
-		if(th_main[i]) {
-			GetThrusterRef(th_main[i], SSMENullDirection[i]);
-			SSMENullDirection[i]=Normalize(-SSMENullDirection[i]);
-			SetThrusterDir(th_main[i], SSMENullDirection[i]);
-		}
-	}
-	if(status <= STATE_STAGE1) {
-		for(unsigned short i=0;i<2;i++) {
-			if(th_srb[i]) {
+	// calculate null direction for each engine
+	if (status <= STATE_STAGE1) {
+		for (unsigned short i = 0; i < 2; i++) {
+			if (th_srb[i]) {
 				GetThrusterRef(th_srb[i], SRBNullDirection[i]);
 				SRBNullDirection[i].x = 0.0; // keep both SRBs pointing up without any gimballing left/right (otherwise, we get some losses fomr both SRBs thrusting in opposing directions)
-				SRBNullDirection[i]=Normalize(-SRBNullDirection[i]);
+				SRBNullDirection[i] = Normalize(-SRBNullDirection[i]);
 				SetThrusterDir(th_srb[i], SRBNullDirection[i]);
 			}
 		}
 	}
 }
 
-void Atlantis::SetKuGimbalAngles(double fAlpha, double fbeta)
+void Atlantis::SetKuGimbalAngles( double fAlpha, double fBeta )
 {
-	//No checking of subsystem state or latches, only animation
-	if(bHasKUBand)
-	{
-		SetAnimation(anim_kualpha, fAlpha);
-		SetAnimation(anim_kubeta, fbeta);
-	}
-}
-
-double Atlantis::GetOMSPressure(OMS_REF oms_ref, unsigned short tank_id)
-{
-	return 50.0;
-}
-
-bool Atlantis::IsValidSPEC(int gpc, int spec) const
-{
-	switch(pSimpleGPC->GetMajorMode()/100)
-	{
-	case 0:
-		switch(spec)
-		{
-		case 1:
-		case 2:
-		case 6:
-			return true;
-		}
-		break;
-	case 1:
-		switch(spec)
-		{
-		case 0:
-		case 1:
-		case 6:
-		case 18:
-		case 23:
-		case 50:
-		case 51:
-		case 53:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	case 2:
-		switch(spec)
-		{
-		case 0:
-		case 1:
-		case 2:
-		case 6:
-		case 18:
-		case 19:
-		case 20:
-		case 21:
-		case 22:
-		case 23:
-		case 25:
-		case 33:
-		case 34:
-		case 55:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	case 3:
-		switch(spec)
-		{
-		case 0:
-		case 1:
-		case 6:
-		case 18:
-		case 21:
-		case 22:
-		case 23:
-		case 50:
-		case 51:
-		case 53:
-		case 55:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	case 6:
-		switch(spec)
-		{
-		case 0:
-		case 1:
-		case 6:
-		case 18:
-		case 23:
-		case 50:
-		case 51:
-		case 53:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	case 8:
-		switch(spec)
-		{
-		case 0:
-		case 1:
-		case 2:
-		case 6:
-		case 18:
-		case 19:
-		case 23:
-		case 40:
-		case 41:
-		case 42:
-		case 43:
-		case 44:
-		case 45:
-		case 55:
-			return true;
-		default:
-			return false;
-		}
-	case 9:
-		switch(spec)
-		{
-		case 0:
-		case 1:
-		case 2:
-		case 6:
-		case 55:
-		case 62:
-		case 100:
-		case 101:
-		case 102:
-		case 104:
-		case 105:
-		case 106:
-		case 112:
-		case 113:
-			return true;
-		default:
-			return false;
-		}
-		break;
-	
-
-	}
-	return false;
+	SetAnimation( anim_kualpha, fAlpha );
+	SetAnimation( anim_kubeta, fBeta );
 }
 
 unsigned int Atlantis::GetGPCMajorMode() const
@@ -7404,7 +6922,7 @@ double Atlantis::GetActSpeedbrakePosition() const
 
 double Atlantis::GetKEAS() const
 {
-	return 661.47 * GetMachNumber() * sqrt(GetAtmPressure()/101325.0);
+	return 661.47 * GetMachNumber() * sqrt(GetAtmPressure() / 101325.0);
 }
 
 AnimState::Action Atlantis::GetGearState() const
@@ -7415,123 +6933,88 @@ AnimState::Action Atlantis::GetGearState() const
 void Atlantis::CreateOrbiterTanks()
 {
 	int i;
-	if (!ph_oms)  ph_oms  = CreatePropellantResource (ORBITER_MAX_PROPELLANT_MASS); // OMS propellant
-	for(i=0;i<3;i++) {
-	  //if(!apu_tank[i]) apu_tank[i]=CreatePropellantResource(APU_FUEL_TANK_MASS);
-		//pAPU[i]->CreateTanks();
+	if (!ph_oms)
+		ph_oms = CreatePropellantResource(ORBITER_MAX_PROPELLANT_MASS); // OMS propellant
+	for (i = 0; i < 3; i++) {
 		PROPELLANT_HANDLE phTank = CreatePropellantResource(APU_FUEL_TANK_MASS);
 		pAPU[i]->DefineTank(phTank);
 	}
-	for(i=0;i<2;i++) {
-	  if(!oms_helium_tank[i]) oms_helium_tank[i]=CreatePropellantResource(OMS_HELIUM_TANK_MASS);
+
+	for (i = 0; i < 2; i++) {
+		if (!oms_helium_tank[i])
+			oms_helium_tank[i] = CreatePropellantResource(OMS_HELIUM_TANK_MASS);
 	}
-	if(!ph_frcs) 
+	if (!ph_frcs)
 		ph_frcs = CreatePropellantResource(ORBITER_FRCS_PROPELLANT_MASS);
-	if(!ph_lrcs) 
-		ph_lrcs = CreatePropellantResource(ORBITER_FRCS_PROPELLANT_MASS);
-	if(!ph_rrcs) 
-		ph_rrcs = CreatePropellantResource(ORBITER_FRCS_PROPELLANT_MASS);
-	if(!ph_controller)
+	if (!ph_lrcs)
+		ph_lrcs = CreatePropellantResource(ORBITER_LEFT_ARCS_PROPELLANT_MASS);
+	if (!ph_rrcs)
+		ph_rrcs = CreatePropellantResource(ORBITER_RIGHT_ARCS_PROPELLANT_MASS);
+	if (!ph_controller)
 		ph_controller = CreatePropellantResource(0.01); //dummy tank for controller input
 }
 
 void Atlantis::CreateFRCS(const VECTOR3 &ref_pos)
 {
-	//=================================================================================================
-	// Downwards firing thrusters 
-	//=================================================================================================
-	if(thManFRCS1[RCS_F1D] == NULL) {
-		thManFRCS1[RCS_F1D] = CreateThruster (ref_pos + RCS_F1D_OFS, RCS_F1D_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
-			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS1[RCS_F1D]);
-	}
-	if(thManFRCS2[RCS_F2D] == NULL) {
-		thManFRCS2[RCS_F2D] = CreateThruster (ref_pos + RCS_F2D_OFS, RCS_F2D_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
-			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS2[RCS_F2D]);
-	}
-	if(thManFRCS3[RCS_F3D] == NULL)	{
-		thManFRCS3[RCS_F3D] = CreateThruster (ref_pos + RCS_F3D_OFS, RCS_F3D_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
-			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS3[RCS_F3D]);
-	}
-	if(thManFRCS4[RCS_F4D] == NULL)	{
-		thManFRCS4[RCS_F4D] = CreateThruster (ref_pos + RCS_F4D_OFS, RCS_F4D_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
-			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS4[RCS_F4D]);
-	}
-	//=================================================================================================
-	// Upwards firing thrusters 
-	//=================================================================================================
-	if(thManFRCS1[RCS_F1U] == NULL) {
-		thManFRCS1[RCS_F1U] = CreateThruster (ref_pos + RCS_F1U_OFS, RCS_F1U_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
-			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS1[RCS_F1U]);
-	}
-	if(thManFRCS2[RCS_F2U] == NULL) {
-		thManFRCS2[RCS_F2U] = CreateThruster (ref_pos + RCS_F2U_OFS, RCS_F2U_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
-			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS2[RCS_F2U]);
-	}
-	if(thManFRCS3[RCS_F3U] == NULL)	{
-		thManFRCS3[RCS_F3U] = CreateThruster (ref_pos + RCS_F3U_OFS, RCS_F3U_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
-			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS3[RCS_F3U]);
-	}
-	//=================================================================================================
-	// Left firing thrusters 
-	//=================================================================================================
-	if(thManFRCS1[RCS_F1L] == NULL) {
-		thManFRCS1[RCS_F1L] = CreateThruster (ref_pos + RCS_F1L_OFS, RCS_F1L_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
-			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS1[RCS_F1L]);
-	}
-	if(thManFRCS2[RCS_F3L] == NULL) {
-		thManFRCS2[RCS_F3L] = CreateThruster (ref_pos + RCS_F3L_OFS, RCS_F3L_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
-			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS2[RCS_F3L]);
-	}
-	//=================================================================================================
-	// Right firing thrusters 
-	//=================================================================================================
-	if(thManFRCS1[RCS_F2R] == NULL) {
-		thManFRCS1[RCS_F2R] = CreateThruster (ref_pos + RCS_F2R_OFS, RCS_F2R_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
-			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS1[RCS_F2R]);
-	}
-	if(thManFRCS2[RCS_F4R] == NULL) {
-		thManFRCS2[RCS_F4R] = CreateThruster (ref_pos + RCS_F4R_OFS, RCS_F4R_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
-			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS2[RCS_F4R]);
-	}
-	//=================================================================================================
-	// Forwards firing thrusters 
-	//=================================================================================================
-	if(thManFRCS1[RCS_F1F] == NULL) {
-		thManFRCS1[RCS_F1F] = CreateThruster (ref_pos + RCS_F1F_OFS, RCS_F1F_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
-			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS1[RCS_F1F]);
-	}
-	if(thManFRCS2[RCS_F2F] == NULL) {
-		thManFRCS2[RCS_F2F] = CreateThruster (ref_pos + RCS_F2F_OFS, RCS_F2F_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
-			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS2[RCS_F2F]);
-	}
-	if(thManFRCS3[RCS_F3F] == NULL)	{
-		thManFRCS3[RCS_F3F] = CreateThruster (ref_pos + RCS_F3F_OFS, RCS_F3F_DIR, ORBITER_RCS_THRUST, ph_frcs, ORBITER_RCS_ISP0, 
-			ORBITER_RCS_ISP1);
-		AddPrimaryRCSExhaust(thManFRCS3[RCS_F3F]);
-	}
+	ssuAssert(ph_frcs != NULL, "Forward RCS tank resource was not defined");
+
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F2F], ref_pos + RCS_F2F_OFS, RCS_F2F_DIR, RCS_F2F_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F3F], ref_pos + RCS_F3F_OFS, RCS_F3F_DIR, RCS_F3F_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F1F], ref_pos + RCS_F1F_OFS, RCS_F1F_DIR, RCS_F1F_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F1L], ref_pos + RCS_F1L_OFS, RCS_F1L_DIR, RCS_F1L_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F3L], ref_pos + RCS_F3L_OFS, RCS_F3L_DIR, RCS_F3L_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F2R], ref_pos + RCS_F2R_OFS, RCS_F2R_DIR, RCS_F2R_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F4R], ref_pos + RCS_F4R_OFS, RCS_F4R_DIR, RCS_F4R_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F2U], ref_pos + RCS_F2U_OFS, RCS_F2U_DIR, RCS_F2U_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F3U], ref_pos + RCS_F3U_OFS, RCS_F3U_DIR, RCS_F3U_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F1U], ref_pos + RCS_F1U_OFS, RCS_F1U_DIR, RCS_F1U_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F2D], ref_pos + RCS_F2D_OFS, RCS_F2D_DIR, RCS_F2D_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F1D], ref_pos + RCS_F1D_OFS, RCS_F1D_DIR, RCS_F1D_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F4D], ref_pos + RCS_F4D_OFS, RCS_F4D_DIR, RCS_F4D_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F3D], ref_pos + RCS_F3D_OFS, RCS_F3D_DIR, RCS_F3D_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F5R], ref_pos + RCS_F5R_OFS, RCS_F5R_DIR, RCS_F5R_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thFRCS[RCS_F5L], ref_pos + RCS_F5L_OFS, RCS_F5L_DIR, RCS_F5L_THRUST0, ph_frcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 }
 
 void Atlantis::CreateLeftARCS(const VECTOR3 &ref_pos)
 {
+	ssuAssert(ph_lrcs != NULL, "Left RCS tank resource was not defined");
+
+	CreateOrRedefineRCSThruster(&thLRCS[RCS_L3A], ref_pos + RCS_L3A_OFS, RCS_L3A_DIR, RCS_L3A_THRUST0, ph_lrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thLRCS[RCS_L1A], ref_pos + RCS_L1A_OFS, RCS_L1A_DIR, RCS_L1A_THRUST0, ph_lrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thLRCS[RCS_L4L], ref_pos + RCS_L4L_OFS, RCS_L4L_DIR, RCS_L4L_THRUST0, ph_lrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thLRCS[RCS_L2L], ref_pos + RCS_L2L_OFS, RCS_L2L_DIR, RCS_L2L_THRUST0, ph_lrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thLRCS[RCS_L3L], ref_pos + RCS_L3L_OFS, RCS_L3L_DIR, RCS_L3L_THRUST0, ph_lrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thLRCS[RCS_L1L], ref_pos + RCS_L1L_OFS, RCS_L1L_DIR, RCS_L1L_THRUST0, ph_lrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thLRCS[RCS_L4U], ref_pos + RCS_L4U_OFS, RCS_L4U_DIR, RCS_L4U_THRUST0, ph_lrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thLRCS[RCS_L2U], ref_pos + RCS_L2U_OFS, RCS_L2U_DIR, RCS_L2U_THRUST0, ph_lrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thLRCS[RCS_L1U], ref_pos + RCS_L1U_OFS, RCS_L1U_DIR, RCS_L1U_THRUST0, ph_lrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thLRCS[RCS_L4D], ref_pos + RCS_L4D_OFS, RCS_L4D_DIR, RCS_L4D_THRUST0, ph_lrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thLRCS[RCS_L2D], ref_pos + RCS_L2D_OFS, RCS_L2D_DIR, RCS_L2D_THRUST0, ph_lrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thLRCS[RCS_L3D], ref_pos + RCS_L2D_OFS, RCS_L3D_DIR, RCS_L3D_THRUST0, ph_lrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thLRCS[RCS_L5D], ref_pos + RCS_L5D_OFS, RCS_L5D_DIR, RCS_L5D_THRUST0, ph_lrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thLRCS[RCS_L5L], ref_pos + RCS_L5L_OFS, RCS_L5L_DIR, RCS_L5L_THRUST0, ph_lrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 
 }
 
 void Atlantis::CreateRightARCS(const VECTOR3 &ref_pos)
 {
+	ssuAssert(ph_rrcs != NULL, "Right RCS tank resource was not defined");
 
+	CreateOrRedefineRCSThruster(&thRRCS[RCS_R3A], ref_pos + RCS_R3A_OFS, RCS_R3A_DIR, RCS_R3A_THRUST0, ph_rrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thRRCS[RCS_R1A], ref_pos + RCS_R1A_OFS, RCS_R1A_DIR, RCS_R1A_THRUST0, ph_rrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thRRCS[RCS_R4R], ref_pos + RCS_R4R_OFS, RCS_R4R_DIR, RCS_R4R_THRUST0, ph_rrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thRRCS[RCS_R2R], ref_pos + RCS_R2R_OFS, RCS_R2R_DIR, RCS_R2R_THRUST0, ph_rrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thRRCS[RCS_R3R], ref_pos + RCS_R3R_OFS, RCS_R3R_DIR, RCS_R3R_THRUST0, ph_rrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thRRCS[RCS_R1R], ref_pos + RCS_R1R_OFS, RCS_R1R_DIR, RCS_R1R_THRUST0, ph_rrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thRRCS[RCS_R4U], ref_pos + RCS_R4U_OFS, RCS_R4U_DIR, RCS_R4U_THRUST0, ph_rrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thRRCS[RCS_R2U], ref_pos + RCS_R2U_OFS, RCS_R2U_DIR, RCS_R2U_THRUST0, ph_rrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thRRCS[RCS_R1U], ref_pos + RCS_R1U_OFS, RCS_R1U_DIR, RCS_R1U_THRUST0, ph_rrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thRRCS[RCS_R4D], ref_pos + RCS_R4D_OFS, RCS_R4D_DIR, RCS_R4D_THRUST0, ph_rrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thRRCS[RCS_R2D], ref_pos + RCS_R2D_OFS, RCS_R2D_DIR, RCS_R2D_THRUST0, ph_rrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thRRCS[RCS_R3D], ref_pos + RCS_R2D_OFS, RCS_R3D_DIR, RCS_R3D_THRUST0, ph_rrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thRRCS[RCS_R5D], ref_pos + RCS_R5D_OFS, RCS_R5D_DIR, RCS_R5D_THRUST0, ph_rrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
+	CreateOrRedefineRCSThruster(&thRRCS[RCS_R5R], ref_pos + RCS_R5R_OFS, RCS_R5R_DIR, RCS_R5R_THRUST0, ph_rrcs, ORBITER_RCS_ISP0, ORBITER_RCS_ISP1);
 }
 
 void Atlantis::AddPrimaryRCSExhaust(THRUSTER_HANDLE thX)
@@ -7539,75 +7022,83 @@ void Atlantis::AddPrimaryRCSExhaust(THRUSTER_HANDLE thX)
 	VECTOR3 pos, dir;
 	GetThrusterRef(thX, pos);
 	GetThrusterDir(thX, dir);
-	AddRCSExhaust(thX, pos, dir);
+	AddRCSExhaust(thX, pos, -dir);
+}
+
+void Atlantis::AddVernierRCSExhaust(THRUSTER_HANDLE thX)
+{
+	VECTOR3 pos, dir;
+	GetThrusterRef(thX, pos);
+	GetThrusterDir(thX, dir);
+	AddVRCSExhaust(thX, pos, -dir);
 }
 
 void Atlantis::FireAllNextManifold()
 {
 	StopAllManifolds();
 	int i;
-	switch(___iCurrentManifold)
+	switch (___iCurrentManifold)
 	{
 	case 0:
 		//Fire none
 		return;
 	case 1:
 		//Fire Manifold 1
-		for(i = 0; i<4; i++)
+		for (i = 0; i < 4; i++)
 		{
-			if(thManFRCS1[i])
+			if (thFRCS[i])
 			{
-				SetThrusterLevel(thManFRCS1[i], 1.0);
+				SetThrusterLevel(thFRCS[i], 1.0);
 			}
-	
+
 		}
 		___iCurrentManifold++;
 		return;
 	case 2:
 		//Fire manifold 2
-		for(i = 0; i<4; i++)
+		for (i = 0; i < 4; i++)
 		{
-			if(thManFRCS2[i])
+			if (thFRCS[i])
 			{
-				SetThrusterLevel(thManFRCS2[i], 1.0);
+				SetThrusterLevel(thFRCS[i], 1.0);
 			}
-	
+
 		}
 		___iCurrentManifold++;
 		return;
 	case 3:
 		//Fire manifold 3
-		for(i = 0; i<4; i++)
+		for (i = 0; i < 4; i++)
 		{
-			if(thManFRCS3[i])
+			if (thFRCS[i])
 			{
-				SetThrusterLevel(thManFRCS3[i], 1.0);
+				SetThrusterLevel(thFRCS[i], 1.0);
 			}
-	
+
 		}
 		___iCurrentManifold++;
 		return;
 	case 4:
 		//Fire manifold 4
-		for(i = 0; i<2; i++)
+		for (i = 0; i < 2; i++)
 		{
-			if(thManFRCS4[i])
+			if (thFRCS[i])
 			{
-				SetThrusterLevel(thManFRCS4[i], 1.0);
+				SetThrusterLevel(thFRCS[i], 1.0);
 			}
-	
+
 		}
 		___iCurrentManifold++;
 		return;
 	case 5:
 		//Fire manifold 5 (vernier)
-		for(i = 0; i<2; i++)
+		for (i = 0; i < 2; i++)
 		{
-			if(thManFRCS5[i])
+			if (thFRCS[i])
 			{
-				SetThrusterLevel(thManFRCS5[i], 1.0);
+				SetThrusterLevel(thFRCS[i], 1.0);
 			}
-	
+
 		}
 		___iCurrentManifold++;
 		return;
@@ -7617,54 +7108,47 @@ void Atlantis::FireAllNextManifold()
 	}
 }
 
-double Atlantis::GetETGOXMassFlow() const {
-	return 0.0;
-}
-double Atlantis::GetETGH2MassFlow() const {
-	return 0.0;
-}
-	
-
 void Atlantis::StopAllManifolds()
 {
 	int i;
-	for(i = 0; i<4; i++)
+	for (i = 0; i < 4; i++)
 	{
-		if(thManFRCS1[i])
+		if (thFRCS[i])
 		{
-			SetThrusterLevel(thManFRCS1[i], 0.0);
+			SetThrusterLevel(thFRCS[i], 0.0);
 		}
 
-		if(thManFRCS2[i])
+		if (thFRCS[i])
 		{
-			SetThrusterLevel(thManFRCS2[i], 0.0);
+			SetThrusterLevel(thFRCS[i], 0.0);
 		}
 
-		if(thManFRCS3[i])
+		if (thFRCS[i])
 		{
-			SetThrusterLevel(thManFRCS3[i], 0.0);
+			SetThrusterLevel(thFRCS[i], 0.0);
 		}
 
-		
+
 	}
-	for(i=0; i<2; i++)
+	for (i = 0; i < 2; i++)
 	{
-		if(thManFRCS4[i])
+		if (thFRCS[i])
 		{
-			SetThrusterLevel(thManFRCS4[i], 0.0);
+			SetThrusterLevel(thFRCS[i], 0.0);
 		}
-		if(thManFRCS5[i])
+		if (thFRCS[i])
 		{
-			SetThrusterLevel(thManFRCS5[i], 0.0);
+			SetThrusterLevel(thFRCS[i], 0.0);
 		}
 	}
 }
 
 void Atlantis::SetAirDataProbeDeployment(int side, double position)
 {
-	if(side == 1) {
+	if (side == 1) {
 		SetAnimation(anim_adpr, position);
-	} else if(side == 0) {
+	}
+	else if (side == 0) {
 		SetAnimation(anim_adpl, position);
 	}
 }
@@ -7676,53 +7160,175 @@ void Atlantis::DisplayCameraLabel(const char* pszLabel)
 	fTimeCameraLabel = 5.0;
 }
 
-void Atlantis::SetLastCreatedMFD(unsigned short usMDU)
-{
-	usLastMDUID = usMDU;
-}
-
-short Atlantis::GetLastCreatedMFD() const
-{
-	return usLastMDUID;
-}
-
 void Atlantis::CreateMPSGOXVents(const VECTOR3& ref_pos)
 {
 	int i;
-/*SRCSIZE=0.06
-SRCRATE=140
-V0=10
-SRCSPREAD=0
-LIFETIME=1.25
-GROWTHRATE=1.1
-ATMSLOWDOWN=1.25
-LTYPE=EMISSIVE
-LEVELMAP=LVL_SQRT
-LMIN=0
-LMAX=1
-ATMSMAP=ATM_PLOG
-AMIN=1e-1140
-AMAX=1
-TEX=Contrail1*/
 
 	static PARTICLESTREAMSPEC gox_stream = {
-	  0, 0.06, 140, 10, 0, 1.2, 1.2, 1.35, PARTICLESTREAMSPEC::DIFFUSE, 
-	  PARTICLESTREAMSPEC::LVL_FLAT, 1, 1, 
-	  PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
-	  };
+		0, 0.06, 140, 10, 0, 0.8, 1.2, 1.35, PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_FLAT, 1, 1,
+		PARTICLESTREAMSPEC::ATM_PLOG, 1e-50, 1
+	};
 
-	gox_stream.tex = oapiRegisterParticleTexture ("contrail1");
+	gox_stream.tex = oapiRegisterParticleTexture("contrail1");
 
 
-	th_ssme_gox[0] = CreateThruster(ref_pos + SSMET_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_tank, 250.0, 100.0);
-	th_ssme_gox[1] = CreateThruster(ref_pos + SSMEL_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_tank, 250.0, 100.0);
-	th_ssme_gox[2] = CreateThruster(ref_pos + SSMER_GOX_REF, _V(0,-0.121,0.992), 0.0, ph_tank, 250.0, 100.0);
-	
-	for(i = 0; i<3; i++)
+	th_ssme_gox[0] = CreateThruster(ref_pos + SSMET_GOX_REF, _V(0, -0.121, 0.992), 0.0, ph_mps, 250.0, 100.0);
+	th_ssme_gox[1] = CreateThruster(ref_pos + SSMEL_GOX_REF, _V(0, -0.121, 0.992), 0.0, ph_mps, 250.0, 100.0);
+	th_ssme_gox[2] = CreateThruster(ref_pos + SSMER_GOX_REF, _V(0, -0.121, 0.992), 0.0, ph_mps, 250.0, 100.0);
+
+	for (i = 0; i < 3; i++)
 	{
 		AddExhaustStream(th_ssme_gox[i], &gox_stream);
 	}
-	
+
+}
+
+void Atlantis::CreateMPSDumpVents(void)
+{
+	static PARTICLESTREAMSPEC psLOXdump_SSME = {
+		0,
+		2,
+		80,
+		20,
+		0.4,
+		0.4,
+		10,
+		5,
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLOXdump_FD = {
+		0,
+		0.2,
+		80,
+		20,
+		0.4,
+		0.4,
+		5,
+		5,
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLH2dump_BU = {
+		0,
+		0.0381,///<     particle size at creation [m]
+		200,///<     average particle creation rate [Hz]
+		15,///<     emission velocity [m/s]
+		0.2,///<     velocity spread during creation
+		0.3,///<     average particle lifetime [s]
+		6,///<     particle growth rate [m/s]
+		7,///<     slowdown rate in atmosphere
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLH2dump_FD = {
+		0,
+		0.2,///<     particle size at creation [m]
+		200,///<     average particle creation rate [Hz]
+		15,///<     emission velocity [m/s]
+		0.2,///<     velocity spread during creation
+		0.35,///<     average particle lifetime [s]
+		7,///<     particle growth rate [m/s]
+		7,///<     slowdown rate in atmosphere
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLH2dump_FDLN = {
+		0,
+		0.0254,///<     particle size at creation [m]
+		200,///<     average particle creation rate [Hz]
+		15,///<     emission velocity [m/s]
+		0.1,///<     velocity spread during creation
+		0.3,///<     average particle lifetime [s]
+		2,///<     particle growth rate [m/s]
+		7,///<     slowdown rate in atmosphere
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	static PARTICLESTREAMSPEC psLOXdump_FDLN = {
+		0,
+		0.0254,///<     particle size at creation [m]
+		200,///<     average particle creation rate [Hz]
+		20,///<     emission velocity [m/s]
+		0.1,///<     velocity spread during creation
+		0.4,///<     average particle lifetime [s]
+		2,///<     particle growth rate [m/s]
+		5,///<     slowdown rate in atmosphere
+		PARTICLESTREAMSPEC::DIFFUSE,
+		PARTICLESTREAMSPEC::LVL_PLIN,
+		0, 1,
+		PARTICLESTREAMSPEC::ATM_FLAT,
+		1, 1,
+		0
+	};
+
+	// LOX dump -> dv = 9-11 fps
+	// LOX dump SSME 1
+	if (thMPSDump[0] != NULL) DelThruster(thMPSDump[0]);
+	thMPSDump[0] = CreateThruster(orbiter_ofs + SSMET_GOX_REF1 + _V(-1.15, 0, -1), SSMECurrentPos[0], 4000, phLOXdump, 80, 80);
+	AddExhaustStream(thMPSDump[0], &psLOXdump_SSME);
+
+	// LOX dump SSME 2
+	if (thMPSDump[1] != NULL) DelThruster(thMPSDump[1]);
+	thMPSDump[1] = CreateThruster(orbiter_ofs + SSMEL_GOX_REF1 + _V(-1.15, 0, -1), SSMECurrentPos[1], 4000, phLOXdump, 80, 80);
+	AddExhaustStream(thMPSDump[1], &psLOXdump_SSME);
+
+	// LOX dump SSME 3
+	if (thMPSDump[2] != NULL) DelThruster(thMPSDump[2]);
+	thMPSDump[2] = CreateThruster(orbiter_ofs + SSMER_GOX_REF1 + _V(-1.15, 0, -1), SSMECurrentPos[2], 4000, phLOXdump, 80, 80);
+	AddExhaustStream(thMPSDump[2], &psLOXdump_SSME);
+
+	// LH2 dump B/U
+	if (thMPSDump[3] != NULL) DelThruster(thMPSDump[3]);
+	thMPSDump[3] = CreateThruster(orbiter_ofs + _V(-2.7432, -2.4155, -9.4365), _V(0.993373, -0.094977, -0.064729), 60, phLH2dump, 60, 60);
+	AddExhaustStream(thMPSDump[3], &psLH2dump_BU);
+
+	// LH2 dump F/D
+	if (thMPSDump[4] != NULL) DelThruster(thMPSDump[4]);
+	thMPSDump[4] = CreateThruster(orbiter_ofs + _V(-2.9718, -0.4596, -12.4591), _V(1, 0, 0), 90, phLH2dump, 30, 30);
+	AddExhaustStream(thMPSDump[4], &psLH2dump_FD);
+
+	// LOX dump F/D
+	if (thMPSDump[5] != NULL) DelThruster(thMPSDump[5]);
+	thMPSDump[5] = CreateThruster(orbiter_ofs + _V(2.9718, -0.4596, -12.4591), _V(-1, 0, 0), 600, phLOXdump, 60, 60);
+	AddExhaustStream(thMPSDump[5], &psLOXdump_FD);
+
+	// LH2 FDLN Relief vent
+	if (thMPSDump[6] != NULL) DelThruster(thMPSDump[6]);
+	thMPSDump[6] = CreateThruster(orbiter_ofs + _V(-0.4171, 1.5138, -11.1097), _V(0, -0.993572, -0.113203), 34, phLH2dump, 60, 60);
+	AddExhaustStream(thMPSDump[6], &psLH2dump_FDLN);
+
+	// LOX FDLN Relief vent
+	if (thMPSDump[7] != NULL) DelThruster(thMPSDump[7]);
+	thMPSDump[7] = CreateThruster(orbiter_ofs + _V(2.92116, -2.5624, -11.4256), _V(-0.993373, -0.094977, -0.064729), 331, phLOXdump, 60, 60);
+	AddExhaustStream(thMPSDump[7], &psLOXdump_FDLN);
+	return;
 }
 
 void Atlantis::RealizeSubsystemConnections() {
@@ -7732,7 +7338,7 @@ void Atlantis::RealizeSubsystemConnections() {
 	pBus->ConnectTo(&(pGPC[1]->channel[5]));
 	pBus->ConnectTo(&(pGPC[2]->channel[5]));
 	pBus->ConnectTo(&(pGPC[3]->channel[5]));
-	pBus->ConnectTo(&(pGPC[4]->channel[5]));	
+	pBus->ConnectTo(&(pGPC[4]->channel[5]));
 
 	pBus = BusManager()->GetBus("DK2");
 	pBus->ConnectTo(&(pIDP[1]->dk_channel));
@@ -7758,7 +7364,7 @@ void Atlantis::RealizeSubsystemConnections() {
 	pBus->ConnectTo(&(pGPC[3]->channel[8]));
 	pBus->ConnectTo(&(pGPC[4]->channel[8]));
 
-	
+
 	pBus = BusManager()->GetBus("IC1");
 	pBus->ConnectTo(&(pGPC[0]->channel[0]));
 	pBus->ConnectTo(&(pGPC[1]->channel[0]));
@@ -7783,7 +7389,7 @@ void Atlantis::RealizeSubsystemConnections() {
 	pBus->ConnectTo(&(pGPC[2]->channel[3]));
 	pBus->ConnectTo(&(pGPC[3]->channel[3]));
 	pBus->ConnectTo(&(pGPC[4]->channel[3]));
-	
+
 	pBus = BusManager()->GetBus("IC5");
 	pBus->ConnectTo(&(pGPC[0]->channel[4]));
 	pBus->ConnectTo(&(pGPC[1]->channel[4]));
@@ -7910,9 +7516,9 @@ void Atlantis::RealizeSubsystemConnections() {
 	pBus->ConnectTo(&(pGPC[3]->channel[12]));
 	pBus->ConnectTo(&(pGPC[4]->channel[12]));
 
-	discsignals::DiscreteBundle* pBundle = 
+	discsignals::DiscreteBundle* pBundle =
 		BundleManager()->CreateBundle("FMC1_STARTRACKER", 16);
-	
+
 	//pSTYDoorMotor->CmdDriveFwd.Connect(pBundle, 0);
 	//pSTYDoorMotor->CmdDriveRwd.Connect(pBundle, 1);
 	pSTYDoorMotor->PosLimit0.Connect(pBundle, 2);
@@ -7932,71 +7538,123 @@ void Atlantis::RealizeSubsystemConnections() {
 
 	pACBus = pACBusSystem->GetBus("AC2");
 	pACBus->ConnectToSource(pInverter[1]);
-	
+
 	pACBus = pACBusSystem->GetBus("AC3");
 	pACBus->ConnectToSource(pInverter[2]);
-	
+
 }
-
-/*void Atlantis::SetExternalAirlockVisual(bool fExtAl, bool fODS) {
-	if(fExtAl) {
-		SetMeshVisibilityMode(mesh_extal, MESHVIS_ALWAYS|MESHVIS_VC|MESHVIS_EXTPASS);
-	} else {
-		SetMeshVisibilityMode(mesh_extal, MESHVIS_NEVER);
-	}
-
-	if(fODS) {
-		SetMeshVisibilityMode(mesh_ods, MESHVIS_ALWAYS|MESHVIS_VC|MESHVIS_EXTPASS);
-	} else {
-		SetMeshVisibilityMode(mesh_ods, MESHVIS_NEVER);
-	}
-}*/
 
 void Atlantis::SynchronizeCountdown(double launch_mjd)
 {
-	dps::RSLS_old* pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware( "RSLS_old" ));
-	pRSLS->SychronizeCountdown( launch_mjd );
-	//if(rsls) rsls->SychronizeCountdown(launch_mjd);
+	pRSLS->SychronizeCountdown(launch_mjd);
 }
 
 void Atlantis::StartRSLSSequence()
 {
-	dps::RSLS_old* pRSLS = static_cast<dps::RSLS_old*>(pSimpleGPC->FindSoftware( "RSLS_old" ));
 	pRSLS->StartRSLSSequence();
-	//if(rsls) rsls->StartRSLSSequence();
 }
 
-void Atlantis::PSN4( void )
+bool Atlantis::GetRSLSAbortFlag() const
 {
-	pEIU[0]->command( 0xBC00 );
-	pEIU[1]->command( 0xBC00 );
-	pEIU[2]->command( 0xBC00 );
+	return pRSLS->GetRSLSAbortFlag();
 }
 
-int Atlantis::GetSSMEPress( int eng )
+void Atlantis::PSN4(void)
 {
-	if (pSSME_SOP == NULL) pSSME_SOP = static_cast<dps::SSME_SOP*>(pSimpleGPC->FindSoftware( "SSME_SOP" ));
-	return round(pSSME_SOP->GetPercentChamberPressVal( eng ));
+	pEIU[0]->command(0xBC00);
+	pEIU[1]->command(0xBC00);
+	pEIU[2]->command(0xBC00);
 }
 
-void Atlantis::UpdateODSAttachment(const VECTOR3& pos, const VECTOR3& dir, const VECTOR3& up) {
-	if(ahDockAux)
+void Atlantis::SetSSMEActPos(int num, double Ppos, double Ypos)
+{
+	pATVC_SOP->SetSSMEActPos(num, Ppos, Ypos);
+	return;
+}
+
+int Atlantis::GetSSMEPress(int eng)
+{
+	return Round(pSSME_SOP->GetPercentChamberPressVal(eng));
+}
+
+int Atlantis::GetHeTankPress(int sys) const
+{
+	assert((sys >= 0) && (sys <= 3) && "Atlantis::GetHeTankPress");
+	if (sys == 0) return pHePneu->GetTankPress();
+	return pHeEng[sys - 1]->GetTankPress();
+}
+
+int Atlantis::GetHeRegPress(int sys) const
+{
+	assert((sys >= 0) && (sys <= 3) && "Atlantis::GetHeRegPress");
+	if (sys == 0) return pHePneu->GetRegPress();
+	return pHeEng[sys - 1]->GetRegPress();
+}
+
+void Atlantis::HeFillTank(int sys, double mass)
+{
+	assert((sys >= 0) && (sys <= 3) && "Atlantis::HeFillTank");
+	if (sys == 0) pHePneu->FillTank(mass);
+	else pHeEng[sys - 1]->FillTank(mass);
+}
+
+PROPELLANT_HANDLE Atlantis::GetLH2Tank(void) const
+{
+	return phLH2dump;
+}
+
+PROPELLANT_HANDLE Atlantis::GetLOXTank(void) const
+{
+	return phLOXdump;
+}
+
+double Atlantis::GetLOXManifPress(void) const
+{
+	return pMPS->GetLOXManifPress();
+}
+
+double Atlantis::GetLH2ManifPress(void) const
+{
+	return pMPS->GetLH2ManifPress();
+}
+
+void Atlantis::UpdateOrbiterTexture( const std::string& strTextureName )
+{
+	if (!hDevOrbiterMesh) return;// no mesh handle
+	hOVTexture = oapiLoadTexture( strTextureName.c_str() );
+	if (hOVTexture == NULL)
 	{
-		SetAttachmentParams(ahDockAux, pos, dir, up);
-	} else {
-		ahDockAux = CreateAttachment(false, pos, dir, up, "APAS");
+		char cbuf[256];
+		sprintf_s( cbuf, 255, "(SpaceShuttleUltra) ERROR: Could not load texture %s", strTextureName.c_str() );
+		oapiWriteLog( cbuf );
 	}
+	else oapiSetTexture( hDevOrbiterMesh, TEX_SSU_ATLANTIS_5THMOD, hOVTexture );
 }
 
-void Atlantis::UpdateOrbiterTexture(const std::string& strTextureName) {
-	if(!hDevOrbiterMesh) return; // no mesh handle
-	if(strTextureName.length()==0) return; // no texture specified
-	SURFHANDLE hTexture = oapiLoadTexture(strTextureName.c_str());
-	oapiSetTexture(hDevOrbiterMesh, 1, hTexture);
+void Atlantis::UpdateLOMSPodTexture( const std::string& strTextureName )
+{
+	if (!hDevOrbiterMesh) return;// no mesh handle
+	hLOMSTexture = oapiLoadTexture( strTextureName.c_str() );
+	if (hLOMSTexture == NULL)
+	{
+		char cbuf[256];
+		sprintf_s( cbuf, 255, "(SpaceShuttleUltra) ERROR: Could not load texture %s", strTextureName.c_str() );
+		oapiWriteLog( cbuf );
+	}
+	else oapiSetTexture( hDevOrbiterMesh, TEX_SSU_PORT_OMSPOD, hLOMSTexture );
 }
 
-ATTACHMENTHANDLE Atlantis::GetODSAttachment() const {
-	return ahDockAux;
+void Atlantis::UpdateROMSPodTexture( const std::string& strTextureName )
+{
+	if (!hDevOrbiterMesh) return;// no mesh handle
+	hROMSTexture = oapiLoadTexture( strTextureName.c_str() );
+	if (hROMSTexture == NULL)
+	{
+		char cbuf[256];
+		sprintf_s( cbuf, 255, "(SpaceShuttleUltra) ERROR: Could not load texture %s", strTextureName.c_str() );
+		oapiWriteLog( cbuf );
+	}
+	else oapiSetTexture( hDevOrbiterMesh, TEX_SSU_STBD_OMSPOD, hROMSTexture );
 }
 
 int Atlantis::GetSoundID() const {
@@ -8009,7 +7667,7 @@ bool Atlantis::AreMCADebugMessagesEnabled() const throw()
 }
 
 ANIMATIONCOMPONENT_HANDLE Atlantis::AddManagedAnimationComponent(UINT anim, double state0, double state1,
-		MGROUP_TRANSFORM *trans, ANIMATIONCOMPONENT_HANDLE parent)
+	MGROUP_TRANSFORM *trans, ANIMATIONCOMPONENT_HANDLE parent)
 {
 	vpAnimations.push_back(trans);
 	return AddAnimationComponent(anim, state0, state1, trans, parent);
@@ -8017,14 +7675,14 @@ ANIMATIONCOMPONENT_HANDLE Atlantis::AddManagedAnimationComponent(UINT anim, doub
 
 void Atlantis::OMSEngControl(unsigned short usEng)
 {
-	if(GetPropellantMass(oms_helium_tank[usEng])>0.0 && (OMSArm[usEng] || OMSArmPress[usEng])) {
+	if (GetPropellantMass(oms_helium_tank[usEng]) > 0.0 && (OMSArm[usEng] || OMSArmPress[usEng])) {
 		SetThrusterResource(th_oms[usEng], ph_oms);
 	}
-	else if(GetPropellantMass(oms_helium_tank[usEng])<=0.0 || (!OMSArm[usEng] && !OMSArmPress[usEng])) {
+	else if (GetPropellantMass(oms_helium_tank[usEng]) <= 0.0 || (!OMSArm[usEng] && !OMSArmPress[usEng])) {
 		SetThrusterResource(th_oms[usEng], NULL);
 	}
-	
-	if(OMSFire[usEng]) {
+
+	if (OMSFire[usEng]) {
 		SetThrusterLevel(th_oms[usEng], 1.0);
 	}
 	else {
@@ -8033,115 +7691,185 @@ void Atlantis::OMSEngControl(unsigned short usEng)
 
 	double pitch = OMSPitch[usEng].GetVoltage()*OMS_PITCH_RANGE;
 	double yaw = OMSYaw[usEng].GetVoltage()*OMS_YAW_RANGE;
-	if(!Eq(pitch, curOMSPitch[usEng], 0.01) || !Eq(yaw, curOMSYaw[usEng], 0.01)) {
+	if (!Eq(pitch, curOMSPitch[usEng], 0.01) || !Eq(yaw, curOMSYaw[usEng], 0.01)) {
 		GimbalOMS(usEng, pitch, yaw);
 	}
 }
 
-//void Atlantis::SSMEEngControl(unsigned short usEng) const
-//{
-//	if(status>=STATE_ORBITER) return; //th_main not defined
-//
-//	if((MPSPwr[0][usEng] || MPSPwr[1][usEng]) && (MPSHeIsolA[usEng] || MPSHeIsolB[usEng])) {
-//		SetThrusterResource(th_main[usEng], ph_tank);
-//	}
-//	else {
-//		SetThrusterResource(th_main[usEng], NULL);
-//	}
-//}
-
-bool Atlantis::AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment) const
+bool Atlantis::AttachChildAndUpdateMass(OBJHANDLE child, ATTACHMENTHANDLE attachment, ATTACHMENTHANDLE child_attachment)
 {
 	bool result = AttachChild(child, attachment, child_attachment);
-	if(result) {
-		double mass = GetEmptyMass();
-		mass += oapiGetMass(child);
-		SetEmptyMass(mass);
+	if (result) {
+		UpdateMassAndCoG(true);
 	}
 	return result;
 }
 
-bool Atlantis::DetachChildAndUpdateMass(ATTACHMENTHANDLE attachment, double vel) const
+bool Atlantis::DetachChildAndUpdateMass(ATTACHMENTHANDLE attachment, double vel)
 {
 	OBJHANDLE hChild = GetAttachmentStatus(attachment);
 	bool result = DetachChild(attachment, vel);
-	if(result && hChild) {
-		double mass = GetEmptyMass();
-		mass -= oapiGetMass(hChild);
-		SetEmptyMass(mass);
+	if (result && hChild) {
+		UpdateMassAndCoG(true);
 	}
 	return result;
 }
 
-double Atlantis::GetMassOfAttachedObjects() const
+double Atlantis::GetMassAndCoGOfAttachedObject(ATTACHMENTHANDLE ah, VECTOR3& CoG) const
 {
 	double mass = 0.0;
-	DWORD count = AttachmentCount(false);
-	//int attachedCount = 0;
-	for(DWORD i=0;i<count;i++) {
-		ATTACHMENTHANDLE hAtt = GetAttachmentHandle(false, i);
-		OBJHANDLE hV=GetAttachmentStatus(hAtt);
-		if(hV) {
-			mass += oapiGetMass(hV);
-			//attachedCount++;
+	CoG = _V(0, 0, 0);
+	OBJHANDLE hV = GetAttachmentStatus(ah);
+	if (hV) {
+		VESSEL* v = oapiGetVesselInterface(hV);
+		if (v) {
+			VECTOR3 childCoG;
+			mass = GetMassAndCoG(v, childCoG);
+			// get CoG of payload in Orbiter frame
+			VECTOR3 rpos;
+			v->GetRelativePos(GetHandle(), rpos);
+			MATRIX3 LocalToGlob, ChildToGlob;
+			GetRotationMatrix(LocalToGlob);
+			v->GetRotationMatrix(ChildToGlob);
+			CoG = tmul(LocalToGlob, mul(ChildToGlob, childCoG) + rpos) + currentCoG;
 		}
 	}
-
-	/*char pszBuf[50];
-	sprintf_s(pszBuf, 50, "Attach count: %d dMass: %f", attachedCount, mass);
-	oapiWriteLog(pszBuf);*/
 
 	return mass;
 }
 
-void Atlantis::UpdateMass() const
+void Atlantis::ETPressurization(double GOXmass, double GH2mass)
 {
-	SetEmptyMass(ORBITER_EMPTY_MASS + pl_mass + GetMassOfAttachedObjects());
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et != NULL) et->PressurantFlow(GOXmass, GH2mass);
+	return;
 }
 
-void Atlantis::UpdateCoG()
+void Atlantis::UpdateMPSManifold(void)
+{
+	Atlantis_Tank* et = GetTankInterface();
+
+	if (et == NULL) return;
+
+	double LH2deltamass = (LOXmass + LH2mass - GetPropellantMass(ph_mps)) / 7.032;
+	double LOXdeltamass = LH2deltamass * 6.032;
+
+	LOXmass -= LOXdeltamass;
+	LH2mass -= LH2deltamass;
+
+	et->PropellantFlow(LOXdeltamass, LH2deltamass);
+
+	LOXmass += LOXdeltamass;
+	if (LOXmass < 1) LOXmass = 0;// so it doesn't last forever
+	LH2mass += LH2deltamass;
+	if (LH2mass < 1) LH2mass = 0;// so it doesn't last forever
+
+	SetPropellantMass(ph_mps, LOXmass + LH2mass);
+
+	// HACK no clue... using 65-80% LOX mass
+	double lvl = 100 * LOXmass / MPS_MANIFOLD_MASS_LOX;
+	LO2LowLevelSensor[0].SetValue(lvl);
+	LO2LowLevelSensor[1].SetValue(lvl);
+	LO2LowLevelSensor[2].SetValue(lvl);
+	LO2LowLevelSensor[3].SetValue(lvl);
+	return;
+}
+
+void Atlantis::UpdateMassAndCoG(bool bUpdateAttachedVessels)
 {
 	// for the moment, only look at shuttle, ET and SRBs
 	// ignore payloads and shuttle consumables
+	// TODO: include subsystem CoG in calculations (at the moment, subsystem mass is assumed to be located at ORBITER_CG)
 	std::vector<double> masses;
 	std::vector<VECTOR3> positions;
 
+	//if (bUpdateAttachedVessels) {
+		payloadMass = 0.0;
+		payloadCoG = _V(0, 0, 0);
+
+		DWORD attachmentCount = AttachmentCount(false);
+		for (DWORD i = 0; i < attachmentCount; i++) {
+			ATTACHMENTHANDLE ah = GetAttachmentHandle(false, i);
+			if (ah != ahET && ah != ahLeftSRB && ah != ahRightSRB) {
+				if (GetAttachmentStatus(ah)) {
+					double mass;
+					VECTOR3 CoG;
+					mass = GetMassAndCoGOfAttachedObject(ah, CoG);
+					payloadMass += mass;
+					payloadCoG += CoG*mass;
+
+					if (bUpdateAttachedVessels)
+					{
+						char cbuf[255];
+						sprintf_s(cbuf, 255, "Payload: %s CoG: %f %f %f", oapiGetVesselInterface(GetAttachmentStatus(ah))->GetName(), CoG.x, CoG.y, CoG.z);
+						oapiWriteLog(cbuf);
+					}
+				}
+			}
+		}
+		if ((payloadMass > 0.1) && (bUpdateAttachedVessels)) payloadCoG = payloadCoG / payloadMass;
+		else payloadCoG = _V(0, 0, 0);
+
+		SetEmptyMass(pMission->GetOrbiterMass() + psubsystems->GetTotalSubsystemMass() + pl_mass + payloadMass);
+	//}
+
+	if (status <= STATE_STAGE2) {
+		double stackMass = 0.0; // mass of ET & SRBs (if attached)
+		if (status <= STATE_STAGE1) {
+			OBJHANDLE hLeftSRB = GetAttachmentStatus(ahLeftSRB);
+			if (hLeftSRB) stackMass += oapiGetMass(hLeftSRB);
+			OBJHANDLE hRightSRB = GetAttachmentStatus(ahRightSRB);
+			if (hRightSRB) stackMass += oapiGetMass(hRightSRB);
+		}
+		OBJHANDLE hET = GetAttachmentStatus(ahET);
+		if (hET) stackMass += oapiGetMass(hET);
+
+		double subsystemMass = psubsystems->GetTotalSubsystemMass();
+		SetEmptyMass(pMission->GetOrbiterMass() + subsystemMass + pl_mass + payloadMass + stackMass);
+	}
+
 	double shuttleMass = GetMass(); // as we add masses, subtract them from this parameter
-	if(status <= STATE_STAGE2) { // add ET mass
+	shuttleMass -= payloadMass;
+	masses.push_back(payloadMass);
+	positions.push_back(payloadCoG);
+	if (status <= STATE_STAGE2) { // add ET mass
 		// density in kg/m^3 (calculated from ET tank mass/volume values in SCOM)
 		const double LOX_DENSITY = 1138.43342579;
 		const double LH2_DENSITY = 70.8014107928;
 		const double TANK_RADIUS = 4.2;
 
 		VESSEL* pTank = GetTankInterface();
-		double ETMass = pTank->GetEmptyMass();
-		shuttleMass -= ETMass;
-		masses.push_back(ETMass);
-		positions.push_back(ET_EMPTY_CG);
+		if (pTank) {
+			double ETMass = pTank->GetEmptyMass();
+			shuttleMass -= ETMass;
+			masses.push_back(ETMass);
+			positions.push_back(ET_EMPTY_CG);
 
-		// approximate propellant tanks as cylinders where position of bottom of cylinder is known
-		double prop = GetPropellantLevel(ph_tank);
-		double LOXMass = LOX_MAX_PROPELLANT_MASS*(prop/100.0);
-		double LH2Mass = LH2_MAX_PROPELLANT_MASS*(prop/100.0);
-		//double LOXHeight = (LOXMass/LOX_DENSITY)/(2*PI*TANK_RADIUS); // height of LOX in cylindrical tank
-		//double LH2Height = (LH2Mass/LH2_DENSITY)/(2*PI*TANK_RADIUS); // height of LH2 in cylindrical tank
-		double LOXHeight = (LOXMass/LOX_DENSITY)/(PI*TANK_RADIUS*TANK_RADIUS); // height of LOX in cylindrical tank
-		double LH2Height = (LH2Mass/LH2_DENSITY)/(PI*TANK_RADIUS*TANK_RADIUS); // height of LH2 in cylindrical tank
-		shuttleMass -= LOXMass;
-		shuttleMass -= LH2Mass;
-		masses.push_back(LOXMass);
-		positions.push_back(ET_LOX_BASE + _V(0.0, 0.0, LOXHeight/2));
-		masses.push_back(LH2Mass);
-		positions.push_back(ET_LH2_BASE + _V(0.0, 0.0, LH2Height/2));
+			// approximate propellant tanks as cylinders where position of bottom of cylinder is known
+			double prop = GetETPropellant_B();
+			double LOXMass = LOX_MAX_PROPELLANT_MASS*(prop / 100.0);
+			double LH2Mass = LH2_MAX_PROPELLANT_MASS*(prop / 100.0);
+			double LOXHeight = LOXMass / (LOX_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LOX in cylindrical tank
+			double LH2Height = LH2Mass / (LH2_DENSITY*PI*TANK_RADIUS*TANK_RADIUS); // height of LH2 in cylindrical tank
+			shuttleMass -= LOXMass;
+			shuttleMass -= LH2Mass;
+			masses.push_back(LOXMass);
+			positions.push_back(ET_LOX_BASE + _V(0.0, 0.0, LOXHeight / 2));
+			masses.push_back(LH2Mass);
+			positions.push_back(ET_LH2_BASE + _V(0.0, 0.0, LH2Height / 2));
+		}
 	}
-	if(status <= STATE_STAGE1) { // add SRB mass (assume SRB CG doesn't change and SRBs are symmetric)
+	if (status <= STATE_STAGE1) { // add SRB mass (assume SRB CG doesn't change and SRBs are symmetric)
 		VESSEL* pLSRB = GetSRBInterface(LEFT);
-		double SRBMass = pLSRB->GetEmptyMass()+GetPropellantMass(ph_srb)/2.0;
-		shuttleMass -= 2.0*SRBMass;
-		masses.push_back(SRBMass);
-		positions.push_back(LSRB_CG);
-		masses.push_back(SRBMass);
-		positions.push_back(RSRB_CG);
+		if (pLSRB) {
+			double SRBMass = pLSRB->GetEmptyMass() + GetPropellantMass(ph_srb) / 2.0;
+			shuttleMass -= 2.0*SRBMass;
+			masses.push_back(SRBMass);
+			positions.push_back(LSRB_CG);
+			masses.push_back(SRBMass);
+			positions.push_back(RSRB_CG);
+		}
 	}
 	masses.push_back(shuttleMass);
 	positions.push_back(ORBITER_CG);
@@ -8149,69 +7877,76 @@ void Atlantis::UpdateCoG()
 	// calculate center of gravity (relative to center of Orbiter mesh)
 	double totalMass = 0.0;
 	VECTOR3 CoG = _V(0.0, 0.0, 0.0);
-	for(unsigned int i=0;i<masses.size();i++) {
+	for (unsigned int i = 0; i < masses.size(); i++) {
 		totalMass += masses[i];
-		CoG += positions[i]*masses[i];
+		CoG += positions[i] * masses[i];
 	}
-	CoG = CoG/totalMass;
-	if(length(CoG-currentCoG) > 0.1) { // to avoid rounding errors during launch, only shift CG when magnitude of change is large enough
-		VECTOR3 CoGShift = CoG-currentCoG;
-		ShiftCG (CoGShift);
+	CoG = CoG / totalMass;
+	if (length(CoG - currentCoG) > 0.1) { // to avoid rounding errors during launch, only shift CG when magnitude of change is large enough
+		VECTOR3 CoGShift = CoG - currentCoG;
+		ShiftCG(CoGShift);
 		currentCoG = CoG;
 		orbiter_ofs = -currentCoG;
 		//sprintf_s(oapiDebugString(), 255, "New CoG: %f %f %f", CoG.x, CoG.y, CoG.z);
 		//oapiWriteLog(oapiDebugString());
 
 		DefineTouchdownPoints();
-		
+
 		CreateAttControls_RCS(orbiter_ofs); // update RCS thruster positions
-		
+
 		// update PLBD light positions
-		for(int i=0;i<6;i++) PLBLightPosition[i] -= CoGShift;
+		for (int i = 0; i < 6; i++) PLBLightPosition[i] -= CoGShift;
 		DockingLightPos -= CoGShift;
 		FwdBulkheadLightPos -= CoGShift;
+		if (pRMS) pRMS->UpdateEELight();
 
-		if(hStackAirfoil) EditAirfoil(hStackAirfoil, 1, CoGShift, NULL, 0.0, 0.0, 0.0);
+		if (hStackAirfoil) EditAirfoil(hStackAirfoil, 1, CoGShift, NULL, 0.0, 0.0, 0.0);
 
-		if(status <= STATE_STAGE2) UpdateNullDirections();
+		if (status <= STATE_STAGE2) UpdateNullDirections();
 	}
 }
 
 void Atlantis::Twang(double timeToLaunch) const
 {
-	double twangParam=(1.0-timeToLaunch/6.0);
-	if(twangParam<0 || twangParam>1) return;
-	double twangAngle=(1-cos(twangParam*2*PI))*2.0/184.0; //Approximately 2 feet of twang on top of a 184 foot stack
-	//  sprintf(oapiDebugString(),"Twang TMinus %f twangParam %f twangAngle %f",TMinus,twangParam,twangAngle);
-	double c=cos(twangAngle);
-	double s=sin(twangAngle);
-	//SetAttachmentParams(ahHDP, POS_HDP, _V(0, -s, -c), _V(0.0, c, -s));
+	double twangParam = (1.0 - timeToLaunch / 5.0);
+	if (twangParam < 0 || twangParam>1) return;
+	double twangAngle = (1 - cos(twangParam * 2 * PI))*2.0 / 184.0; //Approximately 2 feet of twang on top of a 184 foot stack
+	double c = cos(twangAngle);
+	double s = sin(twangAngle);
+	SetAttachmentParams(ahHDP, POS_HDP - currentCoG, _V(0, -s, -c), _V(0.0, c, -s));
 }
-
-/*void Atlantis::ControlPLBLights()
-{
-	if(bPLBLights)
-	{
-		for(int i=0; i<6; ++i)
-		{
-			PLBLight[i]->Activate(false);
-			bspec[i].active = false;
-		}
-		bPLBLights = false;
-	}
-	else
-	{
-		for(int i=0; i<6; ++i)
-		{
-			PLBLight[i]->Activate(true);
-			bspec[i].active = true;
-		}
-		bPLBLights = true;
-	}
-}*/
 
 void Atlantis::CopyThrusterSettings(THRUSTER_HANDLE th, const VESSEL* v, THRUSTER_HANDLE th_ref)
 {
 	SetThrusterMax0(th, v->GetThrusterMax0(th_ref));
 	SetThrusterIsp(th, v->GetThrusterIsp0(th_ref), v->GetThrusterIsp(th_ref, 101.4e3), 101.4e3);
+}
+
+void Atlantis::loadMDMConfiguration()
+{
+	oapiWriteLog("(SpaceShuttleUltra) [INFO] Loading MDM configuration");
+	for (int i = 0; i < 4; i++)
+	{
+		pFF[i]->LoadMDM("FF.mdm");
+		pFA[i]->LoadMDM("FA.mdm");
+		pOF[i]->LoadMDM("OF.mdm");
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		pOA[i]->LoadMDM("OF.mdm");
+	}
+
+	for (int i = 0; i < 2; i++)
+	{
+		pPL[i]->LoadMDM("PL.mdm");
+		pLL[i]->LoadMDM("LL.mdm");
+		pLR[i]->LoadMDM("LR.mdm");
+	}
+
+	pLF1->LoadMDM("LF1.mdm");
+	pLM1->LoadMDM("LM1.mdm");
+	pLA1->LoadMDM("LA1.mdm");
+
+	oapiWriteLog("(SpaceShuttleUltra) [INFO] Finished MDM configuration");
 }

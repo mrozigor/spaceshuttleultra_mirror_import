@@ -1,72 +1,68 @@
-// ========================================================
-// Mesh resource file for Crawler_mainbody.msh
-// Generated with meshc on Sat Jun 18 21:00:41 2011
+// ======================================================
+// Created by ssumeshc 0.2
+// Date of conversion : Fri Nov 04 18:08:38 2016
 
-// ========================================================
+// Input file: Crawler_mainbody.msh
+// ======================================================
 
-// Number of mesh groups:
-#define NGRP 56
+#pragma once
 
-// Number of materials:
-#define NMAT 10
+const unsigned int NUMGRP = 56;
 
-// Number of textures:
-#define NTEX 3
+const unsigned int GRP_CORNER_D_FWD_BOTTOM_STEERING_CYLINDER	=	0;	//Corner_D_FWD_bottom_steering_cylinder
+const unsigned int GRP_CORNER_C_FWD_BOTTOM_STEERING_CYLINDER	=	1;	//Corner_C_FWD_bottom_steering_cylinder
+const unsigned int GRP_CORNER_D_FWD_BOTTOM_STEERING_CYLINDER_DUST_SHIELD	=	2;	//Corner_D_FWD_bottom_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_C_FWD_BOTTOM_STEERING_CYLINDER_DUST_SHIELD	=	3;	//Corner_C_FWD_bottom_steering_cylinder_dust_shield
+const unsigned int GRP_CABLE_TRAY	=	4;	//Cable_tray
+const unsigned int GRP_HAND_RAILS	=	5;	//Hand_rails
+const unsigned int GRP_INTERIOR_ELEMENTS	=	6;	//Interior_elements
+const unsigned int GRP_MAIN_STRUCTURE	=	7;	//Main_Structure
+const unsigned int GRP_CAB_1	=	8;	//Cab_1
+const unsigned int GRP_CAB_1_WINDOW_FRAMES_1	=	9;	//Cab_1_window_frames_1
+const unsigned int GRP_CAB_1_WINDOW_FRAMES_2	=	10;	//Cab_1_window_frames_2
+const unsigned int GRP_CAB_3_WINDOW_FRAMES_1	=	11;	//Cab_3_window_frames_1
+const unsigned int GRP_CAB_3_WINDOW_FRAMES_2	=	12;	//Cab_3_window_frames_2
+const unsigned int GRP_CRANE_BRACKETS	=	13;	//Crane_brackets
+const unsigned int GRP_CYLINDER639	=	14;	//Cylinder639
+const unsigned int GRP_CYLINDER641	=	15;	//Cylinder641
+const unsigned int GRP_DECALS	=	16;	//Decals
+const unsigned int GRP_FORWARD_CRANE_HOOK	=	17;	//Forward crane hook
+const unsigned int GRP_MUFFLER_BOXES1	=	18;	//Muffler_boxes1
+const unsigned int GRP_MUFFLER_BOXES2	=	19;	//Muffler_Boxes2
+const unsigned int GRP_MUFFLER_BRACKETS	=	20;	//Muffler_brackets
+const unsigned int GRP_MUFFLER_PIPES1	=	21;	//Muffler_pipes1
+const unsigned int GRP_MUFFLER_PIPES2	=	22;	//Muffler_pipes2
+const unsigned int GRP_MUFFLER_PIPES3	=	23;	//Muffler_pipes3
+const unsigned int GRP_CORNER_A_REAR_STEERING_CYLINDER	=	24;	//Corner_A_Rear_steering_cylinder
+const unsigned int GRP_CORNER_D_REAR_STEERING_CYLINDER	=	25;	//Corner_D_Rear_steering_cylinder
+const unsigned int GRP_CORNER_D_FWD_STEERING_CYLINDER	=	26;	//Corner_D_FWD_steering_cylinder
+const unsigned int GRP_CORNER_A_FWD_STEERING_CYLINDER	=	27;	//Corner_A_FWD_steering_cylinder
+const unsigned int GRP_CORNER_A_REAR_STEERING_CYLINDER_DUST_SHIELD	=	28;	//Corner_A_Rear_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_D_REAR_STEERING_CYLINDER_DUST_SHIELD	=	29;	//Corner_D_Rear_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_D_FWD_STEERING_CYLINDER_DUST_SHIELD	=	30;	//Corner_D_FWD_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_A_FWD_STEERING_CYLINDER_DUST_SHIELD	=	31;	//Corner_A_FWD_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_B_FWD_BOTTOM_STEERING_CYLINDER01	=	32;	//Corner_B_FWD_bottom_steering_cylinder01
+const unsigned int GRP_CORNER_A_FWD_BOTTOM_STEERING_CYLINDER	=	33;	//Corner_A_FWD_bottom_steering_cylinder
+const unsigned int GRP_CORNER_B_FWD_BOTTOM_STEERING_CYLINDER_DUST_SHIELD	=	34;	//Corner_B_FWD_bottom_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_A_FWD_BOTTOM_STEERING_CYLINDER_DUST_SHIELD01	=	35;	//Corner_A_FWD_bottom_steering_cylinder_dust_shield01
+const unsigned int GRP_CORNER_B_REAR_BOTTOM_STEERING_CYLINDER	=	36;	//Corner_B_Rear_bottom_steering_cylinder
+const unsigned int GRP_CORNER_A_REAR_BOTTOM_STEERING_CYLINDER	=	37;	//Corner_A_Rear_bottom_steering_cylinder
+const unsigned int GRP_CORNER_B_REAR_BOTTOM_STEERING_CYLINDER_DUST_SHIELD01	=	38;	//Corner_B_Rear_bottom_steering_cylinder_dust_shield01
+const unsigned int GRP_CORNER_A_REAR_BOTTOM_STEERING_CYLINDER_DUST_SHIELD01	=	39;	//Corner_A_Rear_bottom_steering_cylinder_dust_shield01
+const unsigned int GRP_CORNER_C_REAR_BOTTOM_STEERING_CYLINDER_DUST_SHIELD	=	40;	//Corner_C_Rear_bottom_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_D_REAR_BOTTOM_STEERING_CYLINDER	=	41;	//Corner_D_Rear_bottom_steering_cylinder
+const unsigned int GRP_CORNER_D_REAR_BOTTOM_STEERING_CYLINDER_DUST_SHIELD	=	42;	//Corner_D_Rear_bottom_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_C_REAR_BOTTOM_STEERING_CYLINDER	=	43;	//Corner_C_Rear_bottom_steering_cylinder
+const unsigned int GRP_CORNER_B_REAR_STEERING_CYLINDER	=	44;	//Corner_B_Rear_steering_cylinder
+const unsigned int GRP_CORNER_B_FWD_STEERING_CYLINDER	=	45;	//Corner_B_FWD_steering_cylinder
+const unsigned int GRP_CORNER_C_FWD_STEERING_CYLINDER	=	46;	//Corner_C_FWD_steering_cylinder
+const unsigned int GRP_CORNER_C_REAR_STEERING_CYLINDER	=	47;	//Corner_C_Rear_steering_cylinder
+const unsigned int GRP_CORNER_B_REAR_STEERING_CYLINDER_DUST_SHIELD	=	48;	//Corner_B_Rear_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_B_FWD_STEERING_CYLINDER_DUST_SHIELD	=	49;	//Corner_B_FWD_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_C_FWD_STEERING_CYLINDER_DUST_SHIELD	=	50;	//Corner_C_FWD_steering_cylinder_dust_shield
+const unsigned int GRP_CORNER_C_REAR_STEERING_CYLINDER_DUST_SHIELD	=	51;	//Corner_C_Rear_steering_cylinder_dust_shield
+const unsigned int GRP_CAB_3	=	52;	//Cab_3
+const unsigned int GRP_CAB_3_WINDOWS	=	53;	//Cab_3_windows
+const unsigned int GRP_CAB_1_WINDOWS	=	54;	//Cab_1_windows
+const unsigned int GRP_CATWALK_GRATING	=	55;	//Catwalk_grating
 
-// Named mesh groups:
-#define GRP_Corner_D_FWD_bottom_steering_cylinder 0
-#define GRP_Corner_C_FWD_bottom_steering_cylinder 1
-#define GRP_Corner_D_FWD_bottom_steering_cylinder_dust_shield 2
-#define GRP_Corner_C_FWD_bottom_steering_cylinder_dust_shield 3
-#define GRP_Cable_tray 4
-#define GRP_Hand_rails 5
-#define GRP_Interior_elements 6
-#define GRP_Main_Structure 7
-#define GRP_Cab_1 8
-#define GRP_Cab_1_window_frames_1 9
-#define GRP_Cab_1_window_frames_2 10
-#define GRP_Cab_3_window_frames_1 11
-#define GRP_Cab_3_window_frames_2 12
-#define GRP_Crane_brackets 13
-#define GRP_Cylinder639 14
-#define GRP_Cylinder641 15
-#define GRP_Decals 16
-#define GRP_Forward 17
-#define GRP_Muffler_boxes1 18
-#define GRP_Muffler_Boxes2 19
-#define GRP_Muffler_brackets 20
-#define GRP_Muffler_pipes1 21
-#define GRP_Muffler_pipes2 22
-#define GRP_Muffler_pipes3 23
-#define GRP_Corner_A_Rear_steering_cylinder 24
-#define GRP_Corner_D_Rear_steering_cylinder 25
-#define GRP_Corner_D_FWD_steering_cylinder 26
-#define GRP_Corner_A_FWD_steering_cylinder 27
-#define GRP_Corner_A_Rear_steering_cylinder_dust_shield 28
-#define GRP_Corner_D_Rear_steering_cylinder_dust_shield 29
-#define GRP_Corner_D_FWD_steering_cylinder_dust_shield 30
-#define GRP_Corner_A_FWD_steering_cylinder_dust_shield 31
-#define GRP_Corner_B_FWD_bottom_steering_cylinder01 32
-#define GRP_Corner_A_FWD_bottom_steering_cylinder 33
-#define GRP_Corner_B_FWD_bottom_steering_cylinder_dust_shield 34
-#define GRP_Corner_A_FWD_bottom_steering_cylinder_dust_shield01 35
-#define GRP_Corner_B_Rear_bottom_steering_cylinder 36
-#define GRP_Corner_A_Rear_bottom_steering_cylinder 37
-#define GRP_Corner_B_Rear_bottom_steering_cylinder_dust_shield01 38
-#define GRP_Corner_A_Rear_bottom_steering_cylinder_dust_shield01 39
-#define GRP_Corner_C_Rear_bottom_steering_cylinder_dust_shield 40
-#define GRP_Corner_D_Rear_bottom_steering_cylinder 41
-#define GRP_Corner_D_Rear_bottom_steering_cylinder_dust_shield 42
-#define GRP_Corner_C_Rear_bottom_steering_cylinder 43
-#define GRP_Corner_B_Rear_steering_cylinder 44
-#define GRP_Corner_B_FWD_steering_cylinder 45
-#define GRP_Corner_C_FWD_steering_cylinder 46
-#define GRP_Corner_C_Rear_steering_cylinder 47
-#define GRP_Corner_B_Rear_steering_cylinder_dust_shield 48
-#define GRP_Corner_B_FWD_steering_cylinder_dust_shield 49
-#define GRP_Corner_C_FWD_steering_cylinder_dust_shield 50
-#define GRP_Corner_C_Rear_steering_cylinder_dust_shield 51
-#define GRP_Cab_3 52
-#define GRP_Cab_3_windows 53
-#define GRP_Cab_1_windows 54
-#define GRP_Catwalk_grating 55

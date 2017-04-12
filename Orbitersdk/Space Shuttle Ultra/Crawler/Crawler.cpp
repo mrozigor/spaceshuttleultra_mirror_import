@@ -126,6 +126,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string>
+#include <cassert>
 #include <OrbiterSoundSDK40.h>
 #include "../resource_Crawler.h"
 
@@ -231,6 +232,8 @@ Crawler::Crawler(OBJHANDLE hObj, int fmodel)
 
 	hEarth = NULL;
 
+	strcpy( MLPclassname, "SSU_MLP" );
+
 	SoundID = ConnectToOrbiterSoundDLL(GetHandle());
 	SetMyDefaultWaveDirectory("Sound\\_CustomVesselsSounds\\SpaceShuttleUltra");
 	RequestLoadVesselWave(SoundID, ENGINE_SOUND_ID, "CrawlerEngine.wav", BOTHVIEW_FADED_MEDIUM);
@@ -252,16 +255,13 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	SetSize(40);
 	SetPMI(_V(133, 189, 89));
 
-	SetSurfaceFrictionCoeff(0.005, 0.5);
 	SetRotDrag (_V(0, 0, 0));
 	SetCW(0, 0, 0, 0);
 	SetPitchMomentScale(0);
-	SetBankMomentScale(0);
+	SetYawMomentScale( 0 );
 	SetLiftCoeffFunc(0); 
 
-	ClearMeshes();
-	ClearExhaustRefs();
-	ClearAttExhaustRefs();
+	ClearMeshes( true );
 
 	// Crawler
 	//meshoffset = _V(0.767, 3.387, 2.534);
@@ -311,10 +311,29 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 
 	DefineAnimations(mesh_1980);
 
+	char cbuf[255];
+	if (oapiReadItem_string( cfg, "MLPclass", cbuf ))
+	{
+		if (strlen( cbuf ) > 0)
+		{
+			strcpy( MLPclassname, cbuf );
+
+			oapiWriteLog( "Changed target MLP class to:" );
+			oapiWriteLog( MLPclassname );
+		}
+	}
+
 	//CreateAttachment(false, _V(0.0, 6.3, 0.0), _V(0, 1, 0), _V(1, 0, 0), "ML", false);
 	ahMLP = CreateAttachment(false, MLP_ATTACH_POS, _V(0, -1, 0), MLP_ATTACH_ROT, "XMLP");
 
-	SetTouchdownPoints(_V(  0, 0.01,  10), _V(-10, 0.01, -10), _V( 10, 0.01, -10));
+	DWORD ntdvtx = 4;
+	static TOUCHDOWNVTX tdvtx[4] ={
+		{_V( 0, 0.01, 20 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( -15, 0.01, -20 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 15, 0.01, -20 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 0, 5, 0 ), 1e5, 1e2, 0.5}// new point just to make a closed shape (more are not needed as the crawler is unlikely to get upside down)
+	};
+	SetTouchdownPoints( tdvtx, ntdvtx );
 	//ShiftCG(_V(0, -16, 0));
 
 	psubsystems->SetClassCaps(cfg);
@@ -324,22 +343,90 @@ void Crawler::clbkSetClassCaps(FILEHANDLE cfg) {
 	pgRearCab.DefineVCAnimations(rearVCIdx);
 }
 
-
-
 void Crawler::DefineAnimations(bool b1980Mesh)
 {
+	DefineDrivetruckAnimations();
+
+	if(b1980Mesh) Define1980StrutAnimations();
+	else DefineStrutAnimations();
+}
+
+void Crawler::DefineDrivetruckAnimations()
+{
 	// initialize array of groups needed for drivetruck translation animation
-	for(int i=0, j=0 ; i<NGRP_TRUCK ; i++) {
-		if(i!=GRP_JEL__Guide_cylinders_TRUCK && i!=GRP_JEL_Guide_cylinder_dust_shields_TRUCK) {
+	for(int i=0, j=0 ; i<NUMGRP_TRUCK ; i++) {
+		if(i!=GRP_JEL__GUIDE_CYLINDERS_TRUCK && i!=GRP_JEL_GUIDE_CYLINDER_DUST_SHIELDS_TRUCK && i!=GRP_DC_TRACTION_MOTOR_BRAKE_DISCS_INNER_TRUCK && i!=GRP_DC_TRACTION_MOTOR_BRAKE_DISCS_OUTER_TRUCK) {
+			assert(j < NUMGRP_TRUCK-4); // ensure index is within limits
 			DrivetruckGrpList[j]=i;
 			j++;
 		}
 	}
-	DrivetruckGrpList[NGRP_TRUCK-2]=GRP_JEL__Guide_cylinders_TRUCK;
-	DrivetruckGrpList[NGRP_TRUCK-1]=GRP_JEL_Guide_cylinder_dust_shields_TRUCK;
+	static UINT GRP_JEL_Cylinders = GRP_JEL__GUIDE_CYLINDERS_TRUCK;
+	static UINT GRP_Brake_Discs[2] = {GRP_DC_TRACTION_MOTOR_BRAKE_DISCS_INNER_TRUCK, GRP_DC_TRACTION_MOTOR_BRAKE_DISCS_OUTER_TRUCK};
 
-	if(b1980Mesh) Define1980StrutAnimations();
-	else DefineStrutAnimations();
+	static VECTOR3 dummy_vec[4];
+	anim_brake_discs = CreateAnimation(0.0);
+
+	MGROUP_ROTATE* Rot_Truck1 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[0]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
+	anim_truck_rot[0] = CreateAnimation(0.5);
+	ANIMATIONCOMPONENT_HANDLE parent = AddManagedAnimationComponent(anim_truck_rot[0], 0.0, 1.0, Rot_Truck1);
+	MGROUP_SCALE* Scale_Truck1 = new MGROUP_SCALE(meshidxTruck1, &GRP_JEL_Cylinders, 1, _V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
+	anim_truck_trans[0] = CreateAnimation(0.0);
+	AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Scale_Truck1, parent);
+	MGROUP_TRANSLATE* Trans_Truck1 = new MGROUP_TRANSLATE(meshidxTruck1, DrivetruckGrpList, NUMGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	parent = AddManagedAnimationComponent(anim_truck_trans[0], 0.0, 1.0, Trans_Truck1, parent);
+	//brake discs inner truck 1
+	InnerBrakeDiscs[0] = new MGROUP_ROTATE(meshidxTruck1,&GRP_Brake_Discs[0],1,_V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),static_cast<float>(360*RAD));
+	AddManagedAnimationComponent(anim_brake_discs,0,1,InnerBrakeDiscs[0],parent);
+	//brake discs outter
+	OutterBrakeDiscs[0] = new MGROUP_ROTATE(meshidxTruck1,&GRP_Brake_Discs[1],1,_V(OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-static_cast<float>(360*RAD));
+	AddAnimationComponent(anim_brake_discs,0,1,OutterBrakeDiscs[0], parent);
+	
+	MGROUP_ROTATE* Rot_Truck2 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[1]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
+	anim_truck_rot[1] = CreateAnimation(0.5);
+	parent = AddManagedAnimationComponent(anim_truck_rot[1], 0.0, 1.0, Rot_Truck2);
+	MGROUP_SCALE* Scale_Truck2 = new MGROUP_SCALE(meshidxTruck2, &GRP_JEL_Cylinders, 1, _V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
+	anim_truck_trans[1] = CreateAnimation(0.0);
+	AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Scale_Truck2, parent);
+	MGROUP_TRANSLATE* Trans_Truck2 = new MGROUP_TRANSLATE(meshidxTruck2, DrivetruckGrpList, NUMGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	parent = AddManagedAnimationComponent(anim_truck_trans[1], 0.0, 1.0, Trans_Truck2, parent);
+	//brake discs inner truck 2
+	InnerBrakeDiscs[1] = new MGROUP_ROTATE(meshidxTruck2,&GRP_Brake_Discs[0],1,_V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-static_cast<float>(360*RAD));
+	AddAnimationComponent(anim_brake_discs,0,1,InnerBrakeDiscs[1], parent);
+	//brake discs outter
+	OutterBrakeDiscs[1] = new MGROUP_ROTATE(meshidxTruck2,&GRP_Brake_Discs[1],1,_V(-OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),static_cast<float>(360*RAD));
+	AddAnimationComponent(anim_brake_discs,0,1,OutterBrakeDiscs[1], parent);
+
+
+	MGROUP_ROTATE* Rot_Truck3 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[2]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
+	anim_truck_rot[2] = CreateAnimation(0.5);
+	parent = AddManagedAnimationComponent(anim_truck_rot[2], 0.0, 1.0, Rot_Truck3);
+	MGROUP_SCALE* Scale_Truck3 = new MGROUP_SCALE(meshidxTruck3, &GRP_JEL_Cylinders, 1,_V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
+	anim_truck_trans[2] = CreateAnimation(0.0);
+	AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Scale_Truck3, parent);
+	MGROUP_TRANSLATE* Trans_Truck3 = new MGROUP_TRANSLATE(meshidxTruck3, DrivetruckGrpList, NUMGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	parent = AddManagedAnimationComponent(anim_truck_trans[2], 0.0, 1.0, Trans_Truck3, parent);
+	//brake discs inner truck 3
+	InnerBrakeDiscs[2] = new MGROUP_ROTATE(meshidxTruck3,&GRP_Brake_Discs[0],1,_V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),static_cast<float>(360*RAD));
+	AddAnimationComponent(anim_brake_discs,0,1,InnerBrakeDiscs[2], parent);
+	//brake discs outter
+	OutterBrakeDiscs[2] = new MGROUP_ROTATE(meshidxTruck3,&GRP_Brake_Discs[1],1,_V(OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-static_cast<float>(360*RAD));
+	AddAnimationComponent(anim_brake_discs,0,1,OutterBrakeDiscs[2], parent);
+
+	MGROUP_ROTATE* Rot_Truck4 = new MGROUP_ROTATE(LOCALVERTEXLIST, MAKEGROUPARRAY(&dummy_vec[3]), 1, _V(0, 0, 0), _V(-1, 0, 0), (float)(20.0*RAD));
+	anim_truck_rot[3] = CreateAnimation(0.5);
+	parent = AddManagedAnimationComponent(anim_truck_rot[3], 0.0, 1.0, Rot_Truck4);
+	MGROUP_SCALE* Scale_Truck4 = new MGROUP_SCALE(meshidxTruck4, &GRP_JEL_Cylinders, 1,_V(0, 2.548, 0), _V(1, 0.8*JACKING_MAX_HEIGHT, 1));
+	anim_truck_trans[3] = CreateAnimation(0.0);
+	AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Scale_Truck4, parent);
+	MGROUP_TRANSLATE* Trans_Truck4 = new MGROUP_TRANSLATE(meshidxTruck4, DrivetruckGrpList, NUMGRP_TRUCK-4, _V(0.0, -JACKING_MAX_HEIGHT, 0.0));
+	parent = AddManagedAnimationComponent(anim_truck_trans[3], 0.0, 1.0, Trans_Truck4, parent);
+	//brake discs inner truck 4
+	InnerBrakeDiscs[3] = new MGROUP_ROTATE(meshidxTruck4,&GRP_Brake_Discs[0],1,_V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y,INNER_BRAKE_DISK_REF_PT.z),_V(0,0,1),-static_cast<float>(360*RAD));
+	AddAnimationComponent(anim_brake_discs,0,1,InnerBrakeDiscs[3], parent);
+	//brake discs outter
+	OutterBrakeDiscs[3] = new MGROUP_ROTATE(meshidxTruck4,&GRP_Brake_Discs[1],1,_V(-OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y,OUTTER_BRAKE_DISK_REF_PT.z),_V(0,0,1),static_cast<float>(360*RAD));
+	AddAnimationComponent(anim_brake_discs,0,1,OutterBrakeDiscs[3], parent);
 }
 
 void Crawler::clbkPostCreation()
@@ -431,8 +518,6 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	port_currentSpeed.SetLine(static_cast<float>(currentSpeed));
 	port_targetSpeed.SetLine(static_cast<float>(targetSpeed));
 	
-	double timeW = oapiGetTimeAcceleration();
-
 	double lat, lon;
 	vs.version = 2;
 	GetStatusEx(&vs);
@@ -452,23 +537,23 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 	if(port_steering2Degrees) steeringAngleScaleFactor = 2.0/(MAX_TURN_ANGLE*DEG);
 	else steeringAngleScaleFactor = 1.0;
 	if(keyRight && (viewPos==VIEWPOS_FRONTCABIN || viewPos==VIEWPOS_REARCABIN)) {
-		double dAngle = STEERING_SPEED * simdt * steeringAngleScaleFactor;
-		if((steeringCommanded[viewPos]-dAngle-steeringActual[viewPos]) > (-1/(MAX_TURN_ANGLE*DEG))) {
-			steeringCommanded[viewPos] = max(-steeringAngleScaleFactor,steeringCommanded[viewPos] - dAngle);
-			if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
-			else if(crab) steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
-			port_steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
-			port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
-		}	
+		double dAngle = STEERING_SPEED * simdt*(1.0/oapiGetTimeAcceleration()) * steeringAngleScaleFactor;
+		steeringCommanded[viewPos] = max(-steeringAngleScaleFactor,steeringCommanded[viewPos] - dAngle);
+
+		if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
+		else if(crab) steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
+
+		port_steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
+		port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
 	} else if(keyLeft && (viewPos==VIEWPOS_FRONTCABIN || viewPos==VIEWPOS_REARCABIN)) {
-		double dAngle = STEERING_SPEED * simdt * steeringAngleScaleFactor;
-		if((steeringActual[viewPos]-steeringCommanded[viewPos]-dAngle) > (-1/(MAX_TURN_ANGLE*DEG))) {
-			steeringCommanded[viewPos] = min(steeringAngleScaleFactor, steeringCommanded[viewPos] + dAngle);
-			if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
-			else if(crab) steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
-			port_steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
-			port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
-		}
+		double dAngle = STEERING_SPEED * simdt*(1.0/oapiGetTimeAcceleration()) * steeringAngleScaleFactor;
+		steeringCommanded[viewPos] = min(steeringAngleScaleFactor, steeringCommanded[viewPos] + dAngle);
+
+		if(greatCircle) steeringCommanded[1-viewPos] = -steeringCommanded[viewPos];
+		else if(crab) steeringCommanded[1-viewPos] = steeringCommanded[viewPos];
+
+		port_steeringCommand[0].SetLine(static_cast<float>(steeringCommanded[0]));
+		port_steeringCommand[1].SetLine(static_cast<float>(steeringCommanded[1]));
 	} else if (keyCenter) {
 		for(unsigned short i=0;i<2;i++) {
 			steeringCommanded[i] = 0;
@@ -483,12 +568,12 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 		double steeringError = steeringCommanded[i]-steeringActual[i];
 		if(steeringError < -0.0001) {
 			double dAngle = TRACK_TURN_SPEED * simdt;
-			steeringActual[i] = max(steeringCommanded[i], steeringActual[i]-dAngle);
+			steeringActual[i] = max(steeringCommanded[i], steeringActual[i]-(dAngle/MAX_TURN_ANGLE));
 			port_steeringActual[i].SetLine(static_cast<float>(steeringActual[i]));
 		}
 		else if(steeringError > 0.0001) {			
 			double dAngle = TRACK_TURN_SPEED * simdt;
-			steeringActual[i] = min(steeringCommanded[i], steeringActual[i]+dAngle);
+			steeringActual[i] = min(steeringCommanded[i], steeringActual[i]+(dAngle/MAX_TURN_ANGLE));
 			port_steeringActual[i].SetLine(static_cast<float>(steeringActual[i]));
 		}
 	}
@@ -517,11 +602,10 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 
 	// check distance from pads; adjust touchdown points to simulate going up ramp
 	for(unsigned int i=0; i<vhLC39.size(); i++) {
-		VESSEL* pV=oapiGetVesselInterface(vhLC39[i]);
+		//VESSEL* pV=oapiGetVesselInterface(vhLC39[i]);
 
 		VECTOR3 rpos = CalcRelSurfPos(vhLC39[i], vs);
 
-		//sprintf_s(oapiDebugString(), 255, "RelPos: %f %f %f", rpos.x, rpos.y, rpos.z);
 		if(UpdateTouchdownPoints(rpos)) break;
 	}
 
@@ -539,12 +623,13 @@ void Crawler::clbkPreStep(double simt, double simdt, double mjd) {
 
 
 	//braking cylinders animation
-	if(oapiGetTimeAcceleration() == 1) //on time acceleration there are some offsets, so we don't want to animate when time accel is enabled
+	if(oapiGetTimeAcceleration() <= 5.0) //on time acceleration there are some offsets, so we don't want to animate when time accel is enabled
 	{
-		RedefineBrakingDiscsAnimationRefPoints();
 		brake_discs_state += (simdt*currentSpeed*0.44704/5.252742917)*168; //how many evolutions does the disc per second
-		if(brake_discs_state >= 1)
+		if(brake_discs_state > 1)
 			brake_discs_state = 0;
+		else if(brake_discs_state < 0)
+			brake_discs_state = 1;
 
 		SetAnimation(anim_brake_discs,brake_discs_state);
 	}
@@ -604,7 +689,7 @@ void Crawler::clbkLoadStateEx(FILEHANDLE scn, void *status) {
 		} else if (!_strnicmp (line, "VELOCITY", 8)) {
 			sscanf_s (line + 8, "%lf", &currentSpeed);
 		} else if (!_strnicmp (line, "TGT_VELOCITY", 12)) {
-			sscanf_s(line, "%lf", &targetSpeed);
+			sscanf_s(line + 12, "%lf", &targetSpeed);
 		} else if (!_strnicmp (line, "STEERING_ACTUAL", 15)) {
 			sscanf (line + 15, "%lf%lf", &steeringActual[0], &steeringActual[1]);
 		} else if (!_strnicmp (line, "STEERING_COMMANDED", 18)) {
@@ -739,7 +824,7 @@ int Crawler::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 			return 1;
 		}
 		else if(!down && key == OAPI_KEY_J) {
-			targetJackHeightIndex = min(targetJackHeightIndex+1, JACK_HEIGHT_COUNT);
+			targetJackHeightIndex = min(targetJackHeightIndex+1, JACK_HEIGHT_COUNT-1);
 			return 1;
 		}
 		else if(!down && key == OAPI_KEY_K) {
@@ -838,7 +923,7 @@ void Crawler::Attach() {
 
 		VESSEL* pVessel=oapiGetVesselInterface(hV);
 		std::string className=pVessel->GetClassName();
-		if(className == "SSU_MLP") { //found an MLP
+		if(className == MLPclassname) { //found an MLP
 			oapiWriteLog("Found MLP");
 			ATTACHMENTHANDLE ahAttach=pVessel->GetAttachmentHandle(true, 0);
 
@@ -1085,23 +1170,16 @@ bool Crawler::clbkLoadVC (int id)
 bool Crawler::clbkVCMouseEvent(int id, int _event, VECTOR3& p)
 {
 	oapiWriteLog("clbkVCMouseEvent called");
-	bool bRet = false;
 
-	bRet = pgFwdCab.OnVCMouseEvent(id, _event, p);
-	bRet = pgRearCab.OnVCMouseEvent(id, _event, p);
-
-	/*
-	if((id==AID_LDS_AREA) || (id==AID_LDS_AREA+AID_REAR_OFFSET))
-	{
-		KnobAction(p,id);  //LDS BUTTON ACTION
-	}
-	*/
-	return bRet;
+	if (pgFwdCab.OnVCMouseEvent( id, _event, p ))
+		return true;
+	if (pgRearCab.OnVCMouseEvent( id, _event, p ))
+		return true;
+	return false;
 }
 
 bool Crawler::clbkVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 {
-	//sprintf_s(oapiDebugString(), 255, "VC Redraw event: %d", id);
 	if(pgFwdCab.OnVCRedrawEvent(id, _event, surf))
 		return true;
 	if(pgRearCab.OnVCRedrawEvent(id, _event, surf))
@@ -1119,13 +1197,11 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 	front_dist = dist-20.0*abs(dCos);
 	back_dist = dist+20.0*abs(dCos);
 
-	//sprintf_s(oapiDebugString(), 255, "front_dist: %f back_dist: %f", front_dist, back_dist);
-
 	// ramp to LC39 starts 390 m from pad and ends 131.5 m from pad
 	if(front_dist < LC39_RAMP_START && abs(relPos.x)<10.0)
 	{
 		double front_dist2 = dist-(FWD_DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
-		double back_dist2 = dist+(REAR_DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
+		double back_dist2 = dist-(REAR_DRIVETRACK_Z_OFFSET-5.723)*abs(dCos);
 
 		double front_height = CalcRampHeight(front_dist);
 		double back_height = CalcRampHeight(back_dist);
@@ -1152,9 +1228,6 @@ bool Crawler::UpdateTouchdownPoints(const VECTOR3 &relPos)
 
 		UpdateTouchdownPoints();
 
-		//sprintf_s(oapiDebugString(), 255, "dists: %f %f Calc Heights %f Angle: %f %f", front_dist, back_dist, curHeight, curAngle*DEG,  0.5 + curAngle/(20.0*RAD));
-		//sprintf_s(oapiDebugString(), 255, "Angles: %f %f", fwdAngle*DEG, backAngle*DEG);
-		//sprintf_s(oapiDebugString(), 255, "Heights: Fwd %f %f %f Back %f %f %f Jack: %f", front_height, front_height2, back_height, back_height2);
 		return true;
 	}
 	else {
@@ -1185,7 +1258,14 @@ void Crawler::UpdateTouchdownPoints() const
 		back_rot_anim_pos = -back_rot_anim_pos;
 	}
 
-	SetTouchdownPoints(_V(0, jackHeight+curFrontHeight, 20.0), _V(-10, jackHeight+curFrontHeight, -20.0), _V(10, jackHeight+curFrontHeight, -20.0));
+	DWORD ntdvtx = 4;
+	static TOUCHDOWNVTX tdvtx[4] ={
+		{_V( 0, jackHeight + curFrontHeight, 20.0 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( -15, jackHeight + curFrontHeight, -20.0 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 15, jackHeight + curFrontHeight, -20.0 ), 1e5, 1e2, 0.5, 0.005},
+		{_V( 0, 5 + jackHeight + curFrontHeight, 0 ), 1e5, 1e2, 0.5},
+	};
+	SetTouchdownPoints( tdvtx, ntdvtx );
 	for(int i=0;i<2;i++) {
 		SetAnimation(anim_truck_rot[i+usFwdIndex], 0.5+fwd_rot_anim_pos);
 		SetAnimation(anim_truck_rot[i+usAftIndex], 0.5+back_rot_anim_pos);
@@ -1230,219 +1310,3 @@ MESHHANDLE Crawler::GetVCMesh(vc::CRAWLER_CAB cab) const
 	if(cab==vc::FWD) return hFwdVCMesh;
 	else return hRearVCMesh;
 }
-
-void Crawler::RedefineBrakingDiscsAnimationRefPoints()
-{
-	//static UINT GRP_Brake_Discs[2] = {GRP_DC_traction_motor_brake_discs_inner_TRUCK, GRP_DC_traction_motor_brake_discs_outer_TRUCK};
-
-	//brake discs inner truck 1
-	//MGROUP_ROTATE* InnerBrakeDiscs_1 = new MGROUP_ROTATE(meshidxTruck1,&GRP_Brake_Discs[0],1,_V(0.31,-0.97-jackHeight,0.54),_V(0,0,1),-(float)360*RAD);
-	//anim_brake_discs[0] = CreateAnimation(0.0);
-	//AddAnimationComponent(anim_brake_discs[0],0,1,InnerBrakeDiscs_1);
-	
-	InnerBrakeDiscs[0]->ref = _V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z);	
-	OutterBrakeDiscs[0]->ref = _V(OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z);
-
-	InnerBrakeDiscs[1]->ref = _V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z);	
-	OutterBrakeDiscs[1]->ref = _V(-OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z);
-
-	InnerBrakeDiscs[2]->ref = _V(INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z);	
-	OutterBrakeDiscs[2]->ref = _V(OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z);
-
-	InnerBrakeDiscs[3]->ref = _V(-INNER_BRAKE_DISK_REF_PT.x,INNER_BRAKE_DISK_REF_PT.y-jackHeight,INNER_BRAKE_DISK_REF_PT.z);	
-	OutterBrakeDiscs[3]->ref = _V(-OUTTER_BRAKE_DISK_REF_PT.x,OUTTER_BRAKE_DISK_REF_PT.y-jackHeight,OUTTER_BRAKE_DISK_REF_PT.z);
-
-}
-
-
-/*
-void Crawler::KnobAction(VECTOR3 pos, int panel)
-{
-	if(panel == 31)
-	{
-		//BUTTON x1.0
-		if(((pos.x >= 0) && (pos.x <= 0.24)) && ((pos.y >= 0) && (pos.y <= 0.35)))
-		{
-			//SET BUTTON TO OFF
-			SetAnimation(LeftFWDKnobAnim,OFF);
-			LeftFWDKnobState = OFF;
-		}
-		else if(((pos.x >= 0) && (pos.x <= 0.24)) && ((pos.y >= 0.8) && (pos.y <= 1)))
-		{
-			//SET BUTTON TO ON
-			SetAnimation(LeftFWDKnobAnim,ON);
-			LeftFWDKnobState = ON;
-		}
-
-		//==========================================================================================
-		//BUTTON x0.1
-		else if(((pos.x >= 0.38) && (pos.x <= 0.61)) && ((pos.y >= 0) && (pos.y <= 0.35)))
-		{
-			//SET BUTTON TO OFF
-			SetAnimation(CenterFWDKnobAnim,OFF);
-			CenterFWDKnobState = OFF;
-		}
-		else if(((pos.x >= 0.38) && (pos.x <= 0.61)) && ((pos.y >= 0.8) && (pos.y <= 1)))
-		{
-			//SET BUTTON TO ON
-			SetAnimation(CenterFWDKnobAnim,ON);
-			CenterFWDKnobState = ON;
-		}
-
-
-		//===========================================================================================
-		//BUTTON x0.01
-		else if(((pos.x >= 0.75) && (pos.x <= 1)) && ((pos.y >= 0) && (pos.y <= 0.35)))
-		{
-			//SET BUTTON TO OFF
-			SetAnimation(RightFWDKnobAnim,OFF);
-			RightFWDKnobState = OFF;
-		}
-		else if(((pos.x >= 0.75) && (pos.x <= 1)) && ((pos.y >= 0.8) && (pos.y <= 1)))
-		{
-			//SET BUTTON TO ON
-			SetAnimation(RightFWDKnobAnim,ON);
-			RightFWDKnobState = ON;
-		}
-	}
-	else if(panel == 81)
-	{
-		//BUTTON x1.0
-		if(((pos.x >= 0) && (pos.x <= 0.24)) && ((pos.y >= 0) && (pos.y <= 0.35)))
-		{
-			//SET BUTTON TO OFF
-			SetAnimation(LeftREARKnobAnim,OFF);
-			LeftREARKnobState = OFF;
-		}
-		else if(((pos.x >= 0) && (pos.x <= 0.24)) && ((pos.y >= 0.8) && (pos.y <= 1)))
-		{
-			//SET BUTTON TO ON
-			SetAnimation(LeftREARKnobAnim,ON);
-			LeftREARKnobState = ON;
-		}
-
-		//==========================================================================================
-		//BUTTON x0.1
-		else if(((pos.x >= 0.38) && (pos.x <= 0.61)) && ((pos.y >= 0) && (pos.y <= 0.35)))
-		{
-			//SET BUTTON TO OFF
-			SetAnimation(CenterREARKnobAnim,OFF);
-			CenterREARKnobState = OFF;
-		}
-		else if(((pos.x >= 0.38) && (pos.x <= 0.61)) && ((pos.y >= 0.8) && (pos.y <= 1)))
-		{
-			//SET BUTTON TO ON
-			SetAnimation(CenterREARKnobAnim,ON);
-			CenterREARKnobState = ON;
-		}
-
-
-		//===========================================================================================
-		//BUTTON x0.01
-		else if(((pos.x >= 0.75) && (pos.x <= 1)) && ((pos.y >= 0) && (pos.y <= 0.35)))
-		{
-			//SET BUTTON TO OFF
-			SetAnimation(RightREARKnobAnim,OFF);
-			RightREARKnobState = OFF;
-		}
-		else if(((pos.x >= 0.75) && (pos.x <= 1)) && ((pos.y >= 0.8) && (pos.y <= 1)))
-		{
-			//SET BUTTON TO ON
-			SetAnimation(RightREARKnobAnim,ON);
-			RightREARKnobState = ON;
-		}
-	}
-}
-
-void Crawler::DefineFWDCabKnobsAnimations()
-{	
-	//sprintf(oapiDebugString(),"%i",dmshnbr);
-	VECTOR3 LP1,LP2,CP1,CP2,RP1,RP2;
-	LP1 = _V(0.449,0.286,0.067);
-	LP2 = _V(0.409,0.286,0.036);
-	CP1 = _V(0.467,0.286,0.043);
-	CP2 = _V(0.427,0.286,0.012);
-	RP1 = _V(0.486,0.286,0.020);
-	RP2 = _V(0.446,0.286,-0.011);
-	
-	//LEFT KNOB ANIMATION
-	static UINT LeftKnobGrp[1] = {57};
-	VECTOR3 LResult = _V(LP2.x-LP1.x,LP2.y-LP1.y,LP2.z-LP1.z);
-	VECTOR3 LNormalised = LResult/dist(LP1,LP2);	
-	static MGROUP_ROTATE RotLeftKnob(5,LeftKnobGrp,1,LP1,LNormalised,120*RAD); //TRANSFORMED VECTOR
-	LeftFWDKnobAnim = CreateAnimation(0.0);
-	AddAnimationComponent(LeftFWDKnobAnim,0,1,&RotLeftKnob);
-
-	//CENTER KNOB ANIMATION
-	static UINT CenterKnobGrp[1] = {58};
-	VECTOR3 CResult = _V(CP2.x-CP1.x,CP2.y-CP1.y,CP2.z-CP1.z);
-	VECTOR3 CNormalised = CResult/dist(CP1,CP2);
-	static MGROUP_ROTATE RotCenterKnob(5,CenterKnobGrp,1,CP1,CNormalised,120*RAD);
-	CenterFWDKnobAnim = CreateAnimation(0.0);
-	AddAnimationComponent(CenterFWDKnobAnim,0,1,&RotCenterKnob);
-	
-	
-
-	//RIGHT KNOB ANIMATION
-	static UINT RightKnobGrp[1] = {59};
-	VECTOR3 RResult = _V(RP2.x-RP1.x,RP2.y-RP1.y,RP2.z-RP1.z);
-	VECTOR3 RNormalised = RResult/dist(RP1,RP2);
-	static MGROUP_ROTATE RotRightKnob(5,RightKnobGrp,1,RP1,RNormalised,120*RAD);
-	RightFWDKnobAnim = CreateAnimation(0.0);
-	AddAnimationComponent(RightFWDKnobAnim,0,1,&RotRightKnob);
-	
-}
-
-void Crawler::DefineREARCabKnobsAnimations()
-{	
-	//sprintf(oapiDebugString(),"%i",dmshnbr);
-	VECTOR3 LP1,LP2,CP1,CP2,RP1,RP2;
-	LP1 = _V(-0.449,0.286,-0.067);
-	LP2 = _V(-0.409,0.286,-0.036);
-	CP1 = _V(-0.467,0.286,-0.043);
-	CP2 = _V(-0.427,0.286,-0.012);
-	RP1 = _V(-0.486,0.286,-0.020);
-	RP2 = _V(-0.446,0.286,0.011);
-	
-	//LEFT KNOB ANIMATION
-	static UINT LeftKnobGrp[1] = {57};
-	VECTOR3 LResult = _V(LP2.x-LP1.x,LP2.y-LP1.y,LP2.z-LP1.z);
-	VECTOR3 LNormalised = LResult/dist(LP1,LP2);	
-	static MGROUP_ROTATE RotLeftKnob(6,LeftKnobGrp,1,LP1,LNormalised,120*RAD); //TRANSFORMED VECTOR
-	LeftREARKnobAnim = CreateAnimation(0.0);
-	AddAnimationComponent(LeftREARKnobAnim,0,1,&RotLeftKnob);
-
-	//CENTER KNOB ANIMATION
-	static UINT CenterKnobGrp[1] = {58};
-	VECTOR3 CResult = _V(CP2.x-CP1.x,CP2.y-CP1.y,CP2.z-CP1.z);
-	VECTOR3 CNormalised = CResult/dist(CP1,CP2);
-	static MGROUP_ROTATE RotCenterKnob(6,CenterKnobGrp,1,CP1,CNormalised,120*RAD);
-	CenterREARKnobAnim = CreateAnimation(0.0);
-	AddAnimationComponent(CenterREARKnobAnim,0,1,&RotCenterKnob);
-	
-	
-
-	//RIGHT KNOB ANIMATION
-	static UINT RightKnobGrp[1] = {59};
-	VECTOR3 RResult = _V(RP2.x-RP1.x,RP2.y-RP1.y,RP2.z-RP1.z);
-	VECTOR3 RNormalised = RResult/dist(RP1,RP2);
-	static MGROUP_ROTATE RotRightKnob(6,RightKnobGrp,1,RP1,RNormalised,120*RAD);
-	RightREARKnobAnim = CreateAnimation(0.0);
-	AddAnimationComponent(RightREARKnobAnim,0,1,&RotRightKnob);
-	
-}
-
-VECTOR3 Crawler::MlpAttachL2G()
-{
-	VECTOR3 global;
-	Local2Global(MLP_ATTACH_POS,global);
-	return global;
-}
-
-MATRIX3 Crawler::CTRotationMatrix()
-{
-	MATRIX3 rot;
-	GetRotationMatrix(rot);
-	return rot;
-}
-*/

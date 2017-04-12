@@ -1,0 +1,94 @@
+﻿<UserControl x:Class="SSUWorkbench.Scenario"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid>
+        <Label Content="Description" HorizontalAlignment="Left" Height="26" Margin="32,10,0,0" VerticalAlignment="Top" Width="75"/>
+        <TextBox x:Name="tbDescription" HorizontalAlignment="Left" Height="132" Margin="122,10,0,0" TextWrapping="Wrap" Text="{Binding scenario.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="631" VerticalScrollBarVisibility="Auto"/>
+        <ComboBox x:Name="cbCockpitType" HorizontalAlignment="Left" Height="24" Margin="163,298,0,0" VerticalAlignment="Top" Width="102" SelectedIndex="{Binding scenario.scnCockpitType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <ComboBoxItem>Normal</ComboBoxItem>
+            <ComboBoxItem>2D</ComboBoxItem>
+            <ComboBoxItem>3D</ComboBoxItem>
+        </ComboBox>
+        <Label Content="Cockpit Type" HorizontalAlignment="Left" Height="26" Margin="68,298,0,0" VerticalAlignment="Top" Width="90"/>
+        <ComboBox x:Name="cbHudType" HorizontalAlignment="Left" Height="24" Margin="163,329,0,0" VerticalAlignment="Top" Width="102" SelectedIndex="{Binding scenario.scnHUDType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <ComboBoxItem>Off</ComboBoxItem>
+            <ComboBoxItem>Orbit</ComboBoxItem>
+            <ComboBoxItem>Surface</ComboBoxItem>
+            <ComboBoxItem>Docking</ComboBoxItem>
+        </ComboBox>
+        <Label Content="HUD Type" HorizontalAlignment="Left" Height="26" Margin="68,329,0,0" VerticalAlignment="Top" Width="90"/>
+
+        <GroupBox Header="Camera" Margin="344,159,0,0" Height="184" Width="425" VerticalAlignment="Top" HorizontalAlignment="Left">
+            <Grid Margin="2,0,4,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="65" />
+                    <ColumnDefinition Width="138" />
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="26" />
+                    <RowDefinition Height="26" />
+                    <RowDefinition Height="26" />
+                    <RowDefinition Height="26" />
+                    <RowDefinition Height="26" />
+                    <RowDefinition Height="26" />
+                </Grid.RowDefinitions>
+                <ComboBox Grid.Row="0" Grid.Column="1" x:Name="cbCameraMode" HorizontalAlignment="Left" Height="24" VerticalAlignment="Top" Width="128" SelectedIndex="{Binding scenario.scnCameraMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="cbCameraMode_SelectionChanged">
+                    <ComboBoxItem>Cockpit</ComboBoxItem>
+                    <ComboBoxItem>External</ComboBoxItem>
+                </ComboBox>
+                <Label Grid.Row="0" Grid.Column="0" Content="Mode" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="65"/>
+                <TextBox Grid.Row="1" Grid.Column="1" x:Name="tbCameraFOV" Text="{Binding scenario.scnCameraFOV, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" Width="70" MaxLines="1" MaxLength="5"/>
+                <Label Grid.Row="1" Grid.Column="0" Content="FOV" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="55"/>
+                <ComboBox Grid.Row="0" Grid.Column="3" x:Name="cbCameraTrackMode" HorizontalAlignment="Left" Height="24" VerticalAlignment="Top" Width="124" SelectedIndex="{Binding scenario.scnCameraTrackMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="cbCameraTrackMode_SelectionChanged">
+                    <ComboBoxItem>Target Relative</ComboBoxItem>
+                    <ComboBoxItem>Absolute Direction</ComboBoxItem>
+                    <ComboBoxItem>Global Frame</ComboBoxItem>
+                    <ComboBoxItem>Target To</ComboBoxItem>
+                    <ComboBoxItem>Target From</ComboBoxItem>
+                    <ComboBoxItem>Ground</ComboBoxItem>
+                </ComboBox>
+                <TextBox Grid.Row="1" Grid.Column="3" x:Name="tbCameraTrackModeRef" Text="{Binding scenario.scnCameraTrackModeRef, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" Width="124" MaxLines="1" MaxLength="5"/>
+                <Label Grid.Row="0" Grid.Column="2" Content="Track Mode" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="80"/>
+                <TextBox Grid.Row="2" Grid.Column="3" x:Name="tbCameraPosX" Text="{Binding scenario.scnCameraPosX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" Width="70" MaxLines="1" MaxLength="5"/>
+                <Label Grid.Row="2" Grid.Column="2" Content="Position (X)" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="80"/>
+                <TextBox Grid.Row="3" Grid.Column="3" x:Name="tbCameraPosY" Text="{Binding scenario.scnCameraPosY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" Width="70" MaxLines="1" MaxLength="5"/>
+                <Label Grid.Row="3" Grid.Column="2" Content="Position (Y)" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="80"/>
+                <TextBox Grid.Row="4" Grid.Column="3" x:Name="tbCameraPosZ" Text="{Binding scenario.scnCameraPosZ, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" Width="70" MaxLines="1" MaxLength="5"/>
+                <Label Grid.Row="4" Grid.Column="2" Content="Position (Z)" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="80"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Date/Time" Margin="32,159,0,0" Height="106" Width="285" VerticalAlignment="Top" HorizontalAlignment="Left">
+            <Grid Margin="2,0,4,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70" />
+                    <ColumnDefinition Width="61" />
+                    <ColumnDefinition Width="79" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="26" />
+                    <RowDefinition Height="26" />
+                    <RowDefinition Height="26" />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" Width="33">Year</Label>
+                <TextBox x:Name="tbYear" Grid.Row="0" Grid.Column="1" Text="{Binding scenario.scnYear, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="2,3,0,0" MaxLength="4" MaxLines="1" />
+                <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" Width="45">Month</Label>
+                <TextBox x:Name="tbMonth" Grid.Row="1" Grid.Column="1" Text="{Binding scenario.scnMonth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="2,3,0,0" MaxLength="2" MaxLines="1" />
+                <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Right" Width="30">Day</Label>
+                <TextBox x:Name="tbDay" Grid.Row="2" Grid.Column="1" Text="{Binding scenario.scnDay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="2,3,0,0" MaxLength="2" MaxLines="1" />
+                <Label Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Width="37">Hour</Label>
+                <TextBox x:Name="tbHour" Grid.Row="0" Grid.Column="3" Text="{Binding scenario.scnHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="2,3,0,0" MaxLength="2" MaxLines="1" />
+                <Label Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Width="48">Minute</Label>
+                <TextBox x:Name="tbMinute" Grid.Row="1" Grid.Column="3" Text="{Binding scenario.scnMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="2,3,0,0" MaxLength="2" MaxLines="1" />
+                <Label Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right" Width="49">Second</Label>
+                <TextBox x:Name="tbSecond" Grid.Row="2" Grid.Column="3" Text="{Binding scenario.scnSecond, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="2,3,0,0" MaxLength="6" MaxLines="1" />
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

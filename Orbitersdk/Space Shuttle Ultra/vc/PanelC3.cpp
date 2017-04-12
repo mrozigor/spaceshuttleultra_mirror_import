@@ -1,26 +1,40 @@
 #include "PanelC3.h"
-#include "../meshres_vc.h"
-#include "../meshres_vc_additions.h"
+#include "..\Atlantis.h"
 #include "../Atlantis_defs.h"
+#include "..\CommonDefs.h"
+#include "..\meshres_vc_c3.h"
 
-extern GDIParams g_Param;
 
 namespace vc
 {
-	PanelC3::PanelC3(Atlantis *_sts)
-		: AtlantisPanel(_sts, "C3")
+	PanelC3::PanelC3( Atlantis *_sts, const std::string &orbiter ):AtlantisPanel(_sts, "C3")
 	{
+		hPanelMesh = oapiLoadMeshGlobal( DEFAULT_MESHNAME_PANELC3 );
+		mesh_index = MESH_UNDEFINED;
+
+		if (orbiter == "Columbia") OV102 = true;
+		else OV102 = false;
+
 		char cbuf[5];
 
 		for(int i=0;i<24;i++) {
 			sprintf_s(cbuf, 5, "%d", i+1);
-			std::string name="A6_PBI";
+			std::string name="C3_PBI";
 			name+=cbuf;
-			Add(pPBIs[i]=new PushButtonIndicator(_sts, name));
+			Add(pPBIs[i]=new PushButtonIndicatorSingleLight(_sts, name));
 		}
 
 		Add(pOMSArm[LEFT] = new LockableLever3(_sts, "LOMS Arm"));
 		Add(pOMSArm[RIGHT] = new LockableLever3(_sts, "ROMS Arm"));
+
+		Add( pBFCCRTDisplay = new StdSwitch2( _sts, "BFC CRT Display" ) );
+		pBFCCRTDisplay->SetLabel( 0, "OFF" );
+		pBFCCRTDisplay->SetLabel( 1, "ON" );
+
+		Add( pBFCCRTSelect = new StdSwitch3( _sts, "BFC CRT Select" ) );
+		pBFCCRTSelect->SetLabel( 0, "3+1" );
+		pBFCCRTSelect->SetLabel( 1, "2+3" );
+		pBFCCRTSelect->SetLabel( 2, "1+2" );
 
 		Add(pAirDataProbeStowEnable[LEFT] = new StdSwitch2(_sts, "LADP Stow Enable"));
 		Add(pAirDataProbeStowEnable[RIGHT] = new StdSwitch2(_sts, "RADP Stow Enable"));
@@ -48,14 +62,49 @@ namespace vc
 		Add( pSSMESDPBCover[0] = new StandardSwitchCover( _sts, "SSME Left S/D PB Cover" ) );
 		Add( pSSMESDPBCover[1] = new StandardSwitchCover( _sts, "SSME Ctr S/D PB Cover" ) );
 		Add( pSSMESDPBCover[2] = new StandardSwitchCover( _sts, "SSME Right S/D PB Cover" ) );
-
 		Add( pSSMESDPB[0] = new PushButton( _sts, "SSME Left S/D PB" ) );
 		Add( pSSMESDPB[1] = new PushButton( _sts, "SSME Ctr S/D PB" ) );
 		Add( pSSMESDPB[2] = new PushButton( _sts, "SSME Right S/D PB" ) );
+
+		Add( pSRBSEPSW = new StdSwitch2( _sts, "SRB Separation" ) );
+		pSRBSEPSW->SetLabel( 0, "AUTO" );
+		pSRBSEPSW->SetLabel( 1, "MAN/AUTO" );
+		Add( pSRBSEPCover = new StandardSwitchCover( _sts, "SRB Separation PB Cover" ) );
+		Add( pSRBSEPPB = new PushButton( _sts, "SRB Separation PB" ) );
+
+		Add( pETSEPSW = new LockableLever2( _sts, "ET Separation" ) );
+		pETSEPSW->SetLabel( 0, "AUTO" );
+		pETSEPSW->SetLabel( 1, "MAN" );
+		Add( pETSEPCover = new StandardSwitchCover( _sts, "ET Separation PB Cover" ) );
+		Add( pETSEPPB = new PushButton( _sts, "ET Separation PB" ) );
 	}
 
 	PanelC3::~PanelC3()
 	{
+	}
+
+	void PanelC3::AddMeshes( const VECTOR3 &ofs )
+	{
+		SetHasOwnVCMesh();
+
+		if (mesh_index == MESH_UNDEFINED)
+		{
+			mesh_index = STS()->AddMesh( hPanelMesh, &ofs );
+			STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_VC );
+		}
+		return;
+	}
+
+	void PanelC3::SetMeshVisibility( bool visible )
+	{
+		if (visible) STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_VC );
+		else STS()->SetMeshVisibilityMode( mesh_index, MESHVIS_NEVER );
+		return;
+	}
+
+	UINT PanelC3::GetVCMeshIndex( void ) const
+	{
+		return mesh_index;
 	}
 
 	void PanelC3::RegisterVC()
@@ -64,190 +113,269 @@ namespace vc
 		AtlantisPanel::RegisterVC();
 
 		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
-		SURFHANDLE panelc3_tex = oapiGetTextureHandle (STS()->hOrbiterVCMesh, TEX_PANELC3_VC);
 		oapiVCRegisterArea (AID_C3, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 
 		oapiVCSetAreaClickmode_Quadrilateral (AID_C3, _V(-0.2732771, 1.76045, 14.35651)+ofs, _V(0.2732771, 1.76045, 14.35651)+ofs, 
 			_V(-0.2732771, 1.69551,  13.73551)+ofs, _V(0.2732771, 1.69551,  13.73551)+ofs);
 
-		//register DAP PBIs
-		//A
-		oapiVCRegisterArea(AID_C3_PBI1, _R(155, 888, 197, 902), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//B
-		oapiVCRegisterArea(AID_C3_PBI2, _R(250, 887, 292, 901), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//AUTO
-		oapiVCRegisterArea(AID_C3_PBI3, _R(344, 888, 386, 902), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//INRTL
-		oapiVCRegisterArea(AID_C3_PBI4, _R(434, 889, 476, 903), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//LVLH
-		oapiVCRegisterArea(AID_C3_PBI5, _R(527, 889, 569, 903), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//FREE
-		oapiVCRegisterArea(AID_C3_PBI6, _R(622, 889, 664, 903), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//PCT
-		oapiVCRegisterArea(AID_C3_PBI7, _R(157, 1089, 199, 1103), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//LOW Z
-		oapiVCRegisterArea(AID_C3_PBI8, _R(247, 1089, 289, 1103), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//HIGH Z
-		oapiVCRegisterArea(AID_C3_PBI9, _R(339, 1090, 381, 1104), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//PRI
-		oapiVCRegisterArea(AID_C3_PBI10, _R(440, 1089, 482, 1103), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//ALT
-		oapiVCRegisterArea(AID_C3_PBI11, _R(531, 1090, 573, 1104), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//VERN
-		oapiVCRegisterArea(AID_C3_PBI12, _R(623, 1090, 665, 1104), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//TRANS X NORM
-		oapiVCRegisterArea(AID_C3_PBI13, _R(156, 1186, 198, 1200), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//TRANS Y NORM
-		oapiVCRegisterArea(AID_C3_PBI14, _R(249, 1186, 291, 1200), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//TRANS Z NORM
-		oapiVCRegisterArea(AID_C3_PBI15, _R(338, 1187, 380, 1201), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//ROT ROLL DISC RATE
-		oapiVCRegisterArea(AID_C3_PBI16, _R(439, 1186, 481, 1200), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//ROT PITCH DISC RATE
-		oapiVCRegisterArea(AID_C3_PBI17, _R(530, 1185, 572, 1199), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//ROT YAW DISC RATE
-		oapiVCRegisterArea(AID_C3_PBI18, _R(624, 1185, 666, 1199), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//TRANS X PULSE
-		oapiVCRegisterArea(AID_C3_PBI19, _R(158, 1284, 200, 1298), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//TRANS Y PULSE
-		oapiVCRegisterArea(AID_C3_PBI20, _R(249, 1284, 291, 1298), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//TRANS Z PULSE
-		oapiVCRegisterArea(AID_C3_PBI21, _R(339, 1285, 381, 1299), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//ROT ROLL PULSE
-		oapiVCRegisterArea(AID_C3_PBI22, _R(441, 1284, 483, 1298), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//ROT PITCH PULSE
-		oapiVCRegisterArea(AID_C3_PBI23, _R(531, 1285, 573, 1299), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
-		//ROT YAW PULSE
-		oapiVCRegisterArea(AID_C3_PBI24, _R(624, 1285, 666, 1299), PANEL_REDRAW_USER, PANEL_MOUSE_IGNORE, PANEL_MAP_NONE, panelc3_tex);
+		return;
 	}
 
 	void PanelC3::DefineVC()
 	{
 		const VECTOR3 switch_rot = _V(1, 0, 0);
-		const VECTOR3 pull_dir = _V(0, 1, 0);
+		const VECTOR3 pull_dir = _V( 0, 0.994522, -0.104528 );
+		const VECTOR3 push_dir = -pull_dir;
 
 		oapiWriteLog("PanelC3: DefineVC called");
 
 		AddAIDToMouseEventList(AID_C3);
 
-		for(int i=0;i<24;i++) {
-			pPBIs[i]->AddAIDToRedrawEventList(AID_C3_PBI1+i);
-			pPBIs[i]->SetSourceImage(g_Param.pbi_lights);
-			pPBIs[i]->SetBase(0, 0);
-			pPBIs[i]->SetSourceCoords(true, 0, 0);
-			pPBIs[i]->SetSourceCoords(false, 0, 14);
-			pPBIs[i]->SetDimensions(42, 14);
+		for (int i = 0; i < 24; i++)
+		{
+			pPBIs[i]->SetStateOffset( 1, 0.0f, 0.488281f );
+			pPBIs[i]->SetDirection( push_dir );
 		}
-		// PBI mouse regions
-		pPBIs[0]->SetMouseRegion(0.075540f, 0.421567f, 0.107636f, 0.455563f); //A
-		pPBIs[1]->SetMouseRegion(0.129797f, 0.423483f, 0.160799f, 0.456580f); //B
-		pPBIs[2]->SetMouseRegion(0.181586f, 0.424022f, 0.213814f, 0.455769f); //AUTO
-		pPBIs[3]->SetMouseRegion(0.231808f, 0.423959f, 0.263971f, 0.456584f); //INRTL
-		pPBIs[4]->SetMouseRegion(0.285346f, 0.423488f, 0.314472f, 0.455417f); //LVLH
-		pPBIs[5]->SetMouseRegion(0.336988f, 0.423070f, 0.370935f, 0.457239f); //FREE
-		// NOTE: PCT pbi does not work on PanelC3 (SiameseCat)
-		//pPBIs[6]->SetMouseRegion(0.653568f, 0.271157f, 0.699381f, 0.331649f); //PCT
-		pPBIs[9]->SetMouseRegion(0.235090f, 0.526461f, 0.268066f, 0.560655f); //PRI
-		pPBIs[10]->SetMouseRegion(0.285877f, 0.527114f, 0.319531f, 0.560210f); //ALT
-		pPBIs[11]->SetMouseRegion(0.337574f, 0.527336f, 0.372188f, 0.560061f); //VERN
-		pPBIs[12]->SetMouseRegion(0.075623f, 0.576277f, 0.110736f, 0.611008f); //X NORM
-		pPBIs[13]->SetMouseRegion(0.128061f, 0.576498f, 0.160462f, 0.609389f); //Y NORM
-		pPBIs[14]->SetMouseRegion(0.179329f, 0.576932f, 0.211752f, 0.609589f); //Z NORM
-		pPBIs[15]->SetMouseRegion(0.235932f, 0.575860f, 0.267935f, 0.609234f); //ROLL DISC RATE
-		pPBIs[16]->SetMouseRegion(0.288161f, 0.576933f, 0.318657f, 0.608937f); //PITCH DISC RATE
-		pPBIs[17]->SetMouseRegion(0.341027f, 0.575933f, 0.372842f, 0.608609f); //YAW DISC RATE
-		pPBIs[18]->SetMouseRegion(0.076191f, 0.627008f, 0.109321f, 0.661322f); //X PULSE
-		pPBIs[19]->SetMouseRegion(0.128366f, 0.626492f, 0.159067f, 0.660411f); //Y PULSE
-		pPBIs[20]->SetMouseRegion(0.177013f, 0.626544f, 0.213859f, 0.661142f); //Z PULSE
-		pPBIs[21]->SetMouseRegion(0.233781f, 0.625428f, 0.269470f, 0.661436f); //ROLL PULSE
-		pPBIs[22]->SetMouseRegion(0.284747f, 0.627472f, 0.318325f, 0.661340f); //PITCH PULSE
-		pPBIs[23]->SetMouseRegion(0.336868f, 0.626517f, 0.373105f, 0.660984f); //YAW PULSE
+		
+		// switch number: original name (current name)
+		pPBIs[0]->SetMouseRegion( 0.076792f, 0.420048f, 0.115283f, 0.455242f );// S1: SELECT - A (SELECT - A)
+		pPBIs[0]->DefineMeshGroup( mesh_index, GRP_A6_S1_C3_VC );
+
+		pPBIs[1]->SetMouseRegion( 0.126949f, 0.421518f, 0.166340f, 0.455293f );// S2: SELECT - B (SELECT - B)
+		pPBIs[1]->DefineMeshGroup( mesh_index, GRP_A6_S2_C3_VC );
+
+		pPBIs[2]->SetMouseRegion( 0.181124f, 0.421175f, 0.219444f, 0.455331f );// S3: CONTROL - AUTO (CONTROL - AUTO)
+		pPBIs[2]->DefineMeshGroup( mesh_index, GRP_A6_S3_C3_VC );
+
+		pPBIs[3]->SetMouseRegion( 0.231705f, 0.420583f, 0.271740f, 0.454928f );// S4: CONTROL - MAN (CONTROL - INRTL)
+		pPBIs[3]->DefineMeshGroup( mesh_index, GRP_A6_S4_C3_VC );
+
+		pPBIs[4]->SetMouseRegion( 0.284360f, 0.420678f, 0.325547f, 0.455212f );// S5: RCS JETS - NORM (CONTROL - LVLH)
+		pPBIs[4]->DefineMeshGroup( mesh_index, GRP_A6_S5_C3_VC );
+
+		pPBIs[5]->SetMouseRegion( 0.335767f, 0.420633f, 0.374571f, 0.455531f );// S6: RCS JETS - VERN (CONTROL - FREE)
+		pPBIs[5]->DefineMeshGroup( mesh_index, GRP_A6_S6_C3_VC );
+		
+		pPBIs[6]->SetMouseRegion( 0.076832f, 0.524369f, 0.115813f, 0.558626f );// S16: TRANSLATION X - HIGH ()
+		pPBIs[6]->DefineMeshGroup( mesh_index, GRP_A6_S16_C3_VC );
+
+		pPBIs[7]->SetMouseRegion( 0.126628f, 0.523217f, 0.166078f, 0.558785f );// S17: TRANSLATION Y - HIGH (TRANSLATION Y - LOW Z)
+		pPBIs[7]->DefineMeshGroup( mesh_index, GRP_A6_S17_C3_VC );
+
+		pPBIs[8]->SetMouseRegion( 0.178143f, 0.523321f, 0.218689f, 0.558025f );// S18: TRANSLATION Z - HIGH (TRANSLATION Z - HIGH Z)
+		pPBIs[8]->DefineMeshGroup( mesh_index, GRP_A6_S18_C3_VC );
+
+		pPBIs[9]->SetMouseRegion( 0.233175f, 0.523569f, 0.273972f, 0.558653f );// S7: ROTATION ROLL - DISC RATE (ROTATION ROLL - PRI)
+		pPBIs[9]->DefineMeshGroup( mesh_index, GRP_A6_S7_C3_VC );
+		
+		pPBIs[10]->SetMouseRegion( 0.285445f, 0.523146f, 0.325593f, 0.558556f );// S8: ROTATION PITCH - DISC RATE (ROTATION PITCH - ALT)
+		pPBIs[10]->DefineMeshGroup( mesh_index, GRP_A6_S8_C3_VC );
+		
+		pPBIs[11]->SetMouseRegion( 0.336362f, 0.524081f, 0.376589f, 0.558426f );// S9: ROTATION YAW - DISC RATE (ROTATION YAW - VERN)
+		pPBIs[11]->DefineMeshGroup( mesh_index, GRP_A6_S9_C3_VC );
+		
+		pPBIs[12]->SetMouseRegion( 0.074573f, 0.576707f, 0.115387f, 0.612468f );// S19: TRANSLATION X - NORM (TRANSLATION X - NORM)
+		pPBIs[12]->DefineMeshGroup( mesh_index, GRP_A6_S19_C3_VC );
+		
+		pPBIs[13]->SetMouseRegion( 0.126687f, 0.577016f, 0.165797f, 0.611745f );// S20: TRANSLATION Y - NORM (TRANSLATION Y - NORM)
+		pPBIs[13]->DefineMeshGroup( mesh_index, GRP_A6_S20_C3_VC );
+		
+		pPBIs[14]->SetMouseRegion( 0.178360f, 0.576320f, 0.218115f, 0.611317f );// S21: TRANSLATION Z - NORM (TRANSLATION Z - NORM)
+		pPBIs[14]->DefineMeshGroup( mesh_index, GRP_A6_S21_C3_VC );
+		
+		pPBIs[15]->SetMouseRegion( 0.234408f, 0.576546f, 0.273775f, 0.611331f );// S10: ROTATION ROLL - ACCEL (ROTATION ROLL - DISC RATE)
+		pPBIs[15]->DefineMeshGroup( mesh_index, GRP_A6_S10_C3_VC );
+		
+		pPBIs[16]->SetMouseRegion( 0.284538f, 0.575901f, 0.324818f, 0.611630f );// S11: ROTATION PITCH - ACCEL (ROTATION PITCH - DISC RATE)
+		pPBIs[16]->DefineMeshGroup( mesh_index, GRP_A6_S11_C3_VC );
+		
+		pPBIs[17]->SetMouseRegion( 0.335612f, 0.576493f, 0.377545f, 0.611941f );// S12: ROTATION YAW - ACCEL (ROTATION YAW - DISC RATE)
+		pPBIs[17]->DefineMeshGroup( mesh_index, GRP_A6_S12_C3_VC );
+		
+		pPBIs[18]->SetMouseRegion( 0.074080f, 0.625474f, 0.115904f, 0.660760f );// S22: TRANSLATION X - PULSE (TRANSLATION X - PULSE)
+		pPBIs[18]->DefineMeshGroup( mesh_index, GRP_A6_S22_C3_VC );
+		
+		pPBIs[19]->SetMouseRegion( 0.127879f, 0.625166f, 0.166948f, 0.661009f );// S23: TRANSLATION Y - PULSE (TRANSLATION Y - PULSE)
+		pPBIs[19]->DefineMeshGroup( mesh_index, GRP_A6_S23_C3_VC );
+		
+		pPBIs[20]->SetMouseRegion( 0.177976f, 0.626219f, 0.218171f, 0.660640f );// S24: TRANSLATION Z - PULSE (TRANSLATION Z - PULSE)
+		pPBIs[20]->DefineMeshGroup( mesh_index, GRP_A6_S24_C3_VC );
+		
+		pPBIs[21]->SetMouseRegion( 0.233390f, 0.625540f, 0.274357f, 0.660435f );// S13: ROTATION ROLL - PULSE (ROTATION ROLL - PULSE)
+		pPBIs[21]->DefineMeshGroup( mesh_index, GRP_A6_S13_C3_VC );
+		
+		pPBIs[22]->SetMouseRegion( 0.284311f, 0.625695f, 0.324971f, 0.660364f );// S14: ROTATION PITCH - PULSE (ROTATION PITCH - PULSE)
+		pPBIs[22]->DefineMeshGroup( mesh_index, GRP_A6_S14_C3_VC );
+
+		pPBIs[23]->SetMouseRegion( 0.336204f, 0.625340f, 0.376533f, 0.660289f );// S15: ROTATION YAW - PULSE (ROTATION YAW - PULSE)
+		pPBIs[23]->DefineMeshGroup( mesh_index, GRP_A6_S15_C3_VC );
 
 		pOMSArm[LEFT]->SetMouseRegion(0.063487f, 0.070910f, 0.117992f, 0.173581f);
-		pOMSArm[LEFT]->SetReference(_V(-0.2114868, 1.728119, 14.29085), switch_rot);
+		pOMSArm[LEFT]->SetReference(_V(-0.2114868, 1.7215, 14.2841), switch_rot);
 		pOMSArm[LEFT]->SetPullDirection(pull_dir);
-		pOMSArm[LEFT]->DefineSwitchGroup(GRP_C3B1_VC);
+		pOMSArm[LEFT]->DefineSwitchGroup( GRP_A1_S1_C3_VC );
 		pOMSArm[LEFT]->ConnectSwitchPosition(1, 1);
 		pOMSArm[LEFT]->SetInitialAnimState(0.5f);
 
 		pOMSArm[RIGHT]->SetMouseRegion(0.117992f, 0.070910f, 0.179360f, 0.173581f);
-		pOMSArm[RIGHT]->SetReference(_V(-0.1716415, 1.728119, 14.29085), switch_rot);
+		pOMSArm[RIGHT]->SetReference(_V(-0.1716415, 1.7215, 14.2841), switch_rot);
 		pOMSArm[RIGHT]->SetPullDirection(pull_dir);
-		pOMSArm[RIGHT]->DefineSwitchGroup(GRP_C3B2_VC);
+		pOMSArm[RIGHT]->DefineSwitchGroup( GRP_A1_S2_C3_VC );
 		pOMSArm[RIGHT]->ConnectSwitchPosition(1, 1);
 		pOMSArm[RIGHT]->SetInitialAnimState(0.5f);
 
+		pBFCCRTDisplay->SetMouseRegion( 0.204959f, 0.071767f, 0.231104f, 0.138565f );
+		pBFCCRTDisplay->SetReference( _V( -0.153415, 1.7302, 14.2963 ), switch_rot );
+		pBFCCRTDisplay->DefineSwitchGroup( GRP_A1_S17_C3_VC );
+		pBFCCRTDisplay->SetInitialAnimState( 0.5f );
+
+		pBFCCRTSelect->SetMouseRegion( 0.250595f, 0.071845f, 0.286626f, 0.133207f );
+		pBFCCRTSelect->SetReference( _V( -0.124915, 1.7302, 14.2954 ), switch_rot );
+		pBFCCRTSelect->DefineSwitchGroup( GRP_A1_S18_C3_VC );
+		pBFCCRTSelect->SetInitialAnimState( 0.5f );
+
 		pAirDataProbeStowEnable[LEFT]->SetMouseRegion(0.063720f, 0.255919f, 0.126235f, 0.321174f);
-		pAirDataProbeStowEnable[LEFT]->SetReference(_V(-0.2114868,  1.715764,  14.18536), switch_rot);
-		pAirDataProbeStowEnable[LEFT]->DefineSwitchGroup(GRP_C3B10_VC);
+		pAirDataProbeStowEnable[LEFT]->SetReference(_V(-0.2114868, 1.7178, 14.1801), switch_rot);
+		pAirDataProbeStowEnable[LEFT]->DefineSwitchGroup( GRP_A1_S19_C3_VC );
 		pAirDataProbeStowEnable[LEFT]->SetInitialAnimState(0.5f);
 
 		pAirDataProbeStowEnable[RIGHT]->SetMouseRegion(0.126235f, 0.255919f, 0.189637f, 0.321174f);		
-		pAirDataProbeStowEnable[RIGHT]->SetReference(_V(-0.1716415,  1.715764,  14.18536), switch_rot);
-		pAirDataProbeStowEnable[RIGHT]->DefineSwitchGroup(GRP_C3B11_VC);
+		pAirDataProbeStowEnable[RIGHT]->SetReference(_V(-0.1716415, 1.7178, 14.1801), switch_rot);
+		pAirDataProbeStowEnable[RIGHT]->DefineSwitchGroup( GRP_A1_S20_C3_VC );
 		pAirDataProbeStowEnable[RIGHT]->SetInitialAnimState(0.5f);
 
 		pAirDataProbeDeploy[LEFT]->SetMouseRegion(0.080556f, 0.753680f, 0.148883f, 0.864232f);
 		pAirDataProbeDeploy[LEFT]->SetReference(_V(-0.2114868, 1.680126, 13.8549), switch_rot);
 		pAirDataProbeDeploy[LEFT]->SetPullDirection(pull_dir);
-		pAirDataProbeDeploy[LEFT]->DefineSwitchGroup(GRP_C3B23_VC);
+		pAirDataProbeDeploy[LEFT]->DefineSwitchGroup( GRP_A5_S8_C3_VC );
 		pAirDataProbeDeploy[LEFT]->ConnectSwitchPosition(1, 1);
 		pAirDataProbeDeploy[LEFT]->SetInitialAnimState(0.5f);
 
 		pAirDataProbeDeploy[RIGHT]->SetMouseRegion(0.148883f, 0.753680f, 0.208679f, 0.864232f);		
 		pAirDataProbeDeploy[RIGHT]->SetReference(_V(-0.1716415, 1.680126, 13.8549), switch_rot);
 		pAirDataProbeDeploy[RIGHT]->SetPullDirection(pull_dir);
-		pAirDataProbeDeploy[RIGHT]->DefineSwitchGroup(GRP_C3B24_VC);
+		pAirDataProbeDeploy[RIGHT]->DefineSwitchGroup( GRP_A5_S9_C3_VC );
 		pAirDataProbeDeploy[RIGHT]->ConnectSwitchPosition(1, 1);
 		pAirDataProbeDeploy[RIGHT]->SetInitialAnimState(0.5f);
 
 		pSSMELimitShutDn->SetMouseRegion(0.302924f, 0.241994f, 0.357174f, 0.322577f);
 		pSSMELimitShutDn->SetReference(_V(-0.4785, 1.7175, 14.181), switch_rot);
-		pSSMELimitShutDn->DefineSwitchGroup(GRP_C3B13_VC);
+		pSSMELimitShutDn->DefineSwitchGroup( GRP_A1_S11_C3_VC );
 		pSSMELimitShutDn->SetInitialAnimState(0.5f);
 
 		pSSMESDPBCover[0]->SetMouseRegion( 0, 0.374513f, 0.282742f, 0.428198f, 0.344442f );
 		pSSMESDPBCover[0]->SetMouseRegion( 1, 0.368484f, 0.236416f, 0.423421f, 0.272399f );
 		pSSMESDPBCover[0]->SetReference( _V( -0.0545, 1.7466, 14.1836 ), switch_rot );
-		pSSMESDPBCover[0]->DefineCoverGroup( GRP_C3COVER1_VC );
+		pSSMESDPBCover[0]->DefineCoverGroup( GRP_A1_COVER12_C3_VC );
 
 		pSSMESDPBCover[1]->SetMouseRegion( 0, 0.441879f, 0.260643f, 0.496332f, 0.321328f );
 		pSSMESDPBCover[1]->SetMouseRegion( 1, 0.440854f, 0.217779f, 0.493692f, 0.257521f );
 		pSSMESDPBCover[1]->SetReference( _V( -0.0174, 1.7466, 14.1954 ), switch_rot );
-		pSSMESDPBCover[1]->DefineCoverGroup( GRP_C3COVER2_VC );
+		pSSMESDPBCover[1]->DefineCoverGroup( GRP_A1_COVER13_C3_VC );
 
 		pSSMESDPBCover[2]->SetMouseRegion( 0, 0.511570f, 0.281802f, 0.563658f, 0.340997f );
 		pSSMESDPBCover[2]->SetMouseRegion( 1, 0.514202f, 0.240377f, 0.563319f, 0.277074f );
 		pSSMESDPBCover[2]->SetReference( _V( 0.0197, 1.7466, 14.1826 ), switch_rot );
-		pSSMESDPBCover[2]->DefineCoverGroup( GRP_C3COVER3_VC );
+		pSSMESDPBCover[2]->DefineCoverGroup( GRP_A1_COVER14_C3_VC );
 
 		pSSMESDPB[0]->SetMouseRegion( 0.380817f, 0.295599f, 0.420386f, 0.331035f );
-		pSSMESDPB[0]->SetReference( _V( -0.0545, 1.7466, 14.1623 ), _V( 0, 0, 1 ) );
-		pSSMESDPB[0]->DefineGroup( GRP_LEFT_SSME_SHTDN_PB_VC );
+		pSSMESDPB[0]->SetDirection( push_dir );
+		pSSMESDPB[0]->DefineGroup( GRP_A1_S12_C3_VC );
 
 		pSSMESDPB[1]->SetMouseRegion( 0.448899f, 0.276360f, 0.488503f, 0.310700f );
-		pSSMESDPB[1]->SetReference( _V( -0.0174, 1.7466, 14.1736 ), _V( 0, 0, 1 ) );
-		pSSMESDPB[1]->DefineGroup( GRP_CTR_SSME_SHTDN_PB_VC );
+		pSSMESDPB[1]->SetDirection( push_dir );
+		pSSMESDPB[1]->DefineGroup( GRP_A1_S13_C3_VC );
 
 		pSSMESDPB[2]->SetMouseRegion( 0.515987f, 0.296511f, 0.556983f, 0.331199f );
-		pSSMESDPB[2]->SetReference( _V( 0.197, 1.7466, 14.16 ), _V( 0, 0, 1 ) );
-		pSSMESDPB[2]->DefineGroup( GRP_RIGHT_SSME_SHTDN_PB_VC );
+		pSSMESDPB[2]->SetDirection( push_dir );
+		pSSMESDPB[2]->DefineGroup( GRP_A1_S14_C3_VC );
+
+		pSRBSEPSW->SetMouseRegion( 0.462571f, 0.414336f, 0.509469f, 0.491312f );
+		pSRBSEPSW->SetReference( _V( 0.00608, 1.70746, 14.0791 ), switch_rot );
+		pSRBSEPSW->DefineSwitchGroup( GRP_A7_S1_C3_VC );
+		pSRBSEPSW->SetInitialAnimState( 0.5f );
+
+		pSRBSEPCover->SetMouseRegion( 0, 0.533090f, 0.424105f, 0.586752f, 0.485038f );
+		pSRBSEPCover->SetMouseRegion( 1, 0.532972f, 0.381586f, 0.579912f, 0.430505f );
+		pSRBSEPCover->SetReference( _V( -0.031, 1.734, 14.096 ), switch_rot );
+		pSRBSEPCover->DefineCoverGroup( GRP_A7_COVER2_C3_VC );
+		
+		pSRBSEPPB->SetMouseRegion( 0.537215f, 0.435073f, 0.574794f, 0.470203f );
+		pSRBSEPPB->SetDirection( push_dir );
+		pSRBSEPPB->DefineGroup( GRP_A7_S2_C3_VC );
+
+		pETSEPSW->SetMouseRegion( 0.629313f, 0.420718f, 0.675625f, 0.520487f );
+		pETSEPSW->SetReference( _V( -0.08218, 1.69955, 14.06513 ), switch_rot );
+		pETSEPSW->SetPullDirection( pull_dir );
+		pETSEPSW->DefineSwitchGroup( GRP_A7_S3_C3_VC );
+		pETSEPSW->SetInitialAnimState( 0.5f );
+		
+		pETSEPCover->SetMouseRegion( 0, 0.691866f, 0.422427f, 0.745989f, 0.482821f );
+		pETSEPCover->SetMouseRegion( 1, 0.703331f, 0.380311f, 0.735696f, 0.423886f );
+		pETSEPCover->SetReference( _V( -0.119, 1.734, 14.096 ), switch_rot );
+		pETSEPCover->DefineCoverGroup( GRP_A7_COVER4_C3_VC );
+
+		pETSEPPB->SetMouseRegion( 0.698907f, 0.432862f, 0.731796f, 0.463562f );
+		pETSEPPB->SetDirection( push_dir );
+		pETSEPPB->DefineGroup( GRP_A7_S4_C3_VC );
+	}
+
+	void PanelC3::DefineVCAnimations( UINT vcidx )
+	{
+		AtlantisPanel::DefineVCAnimations( mesh_index );
+		return;
 	}
 
 	void PanelC3::Realize()
 	{
 		DiscreteBundle* pBundle=STS()->BundleManager()->CreateBundle("DAP_PBIS1", 16);
-		for(int i=0;i<16;i++) {
-			pPBIs[i]->input.Connect(pBundle, i);
-			pPBIs[i]->output.Connect(pBundle, i);
-			pPBIs[i]->test.Connect(pBundle, i);
+		for (int i = 0; i < 16; i++)
+		{
+			if ((i == 6) || (i == 7) || (i == 8)) continue;// HACK don't connect "blank", low z and high z
+			pPBIs[i]->ConnectPushButton( pBundle, i );
 		}
 		pBundle=STS()->BundleManager()->CreateBundle("DAP_PBIS2", 16);
-		for(int i=16;i<24;i++) {
-			pPBIs[i]->input.Connect(pBundle, i-16);
-			pPBIs[i]->output.Connect(pBundle, i-16);
-			pPBIs[i]->test.Connect(pBundle, i-16);
-		}
+		for (int i = 16; i < 24; i++) pPBIs[i]->ConnectPushButton( pBundle, i - 16 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA1_1", 16 );
+		pPBIs[3]->ConnectLight( 0, pBundle, 3 );
+		pPBIs[4]->ConnectLight( 0, pBundle, 7 );
+		pPBIs[5]->ConnectLight( 0, pBundle, 11 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA1_2", 16 );
+		pPBIs[9]->ConnectLight( 0, pBundle, 3 );
+		pPBIs[10]->ConnectLight( 0, pBundle, 7 );
+		pPBIs[11]->ConnectLight( 0, pBundle, 11 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA1_3", 16 );
+		pPBIs[15]->ConnectLight( 0, pBundle, 3 );
+		pPBIs[16]->ConnectLight( 0, pBundle, 7 );
+		pPBIs[17]->ConnectLight( 0, pBundle, 11 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA1_4", 16 );
+		pPBIs[21]->ConnectLight( 0, pBundle, 3 );
+		pPBIs[22]->ConnectLight( 0, pBundle, 7 );
+		pPBIs[23]->ConnectLight( 0, pBundle, 11 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_1", 16 );
+		pPBIs[0]->ConnectLight( 0, pBundle, 3 );
+		pPBIs[1]->ConnectLight( 0, pBundle, 7 );
+		pPBIs[2]->ConnectLight( 0, pBundle, 11 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_2", 16 );
+		pPBIs[6]->ConnectLight( 0, pBundle, 3 );
+		pPBIs[7]->ConnectLight( 0, pBundle, 7 );
+		pPBIs[8]->ConnectLight( 0, pBundle, 11 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_3", 16 );
+		pPBIs[12]->ConnectLight( 0, pBundle, 3 );
+		pPBIs[13]->ConnectLight( 0, pBundle, 7 );
+		pPBIs[14]->ConnectLight( 0, pBundle, 11 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_4", 16 );
+		pPBIs[18]->ConnectLight( 0, pBundle, 3 );
+		pPBIs[19]->ConnectLight( 0, pBundle, 7 );
+		pPBIs[20]->ConnectLight( 0, pBundle, 11 );
 
 		pBundle=STS()->BundleManager()->CreateBundle("LOMS", 2);
 		pOMSArm[LEFT]->ConnectPort(2, pBundle, 0); // ARM
@@ -255,6 +383,11 @@ namespace vc
 		pBundle=STS()->BundleManager()->CreateBundle("ROMS", 2);
 		pOMSArm[RIGHT]->ConnectPort(2, pBundle, 0); // ARM
 		pOMSArm[RIGHT]->ConnectPort(1, pBundle, 1); // ARM/PRESS
+
+		pBundle = STS()->BundleManager()->CreateBundle( "BFCCRT", 3 );
+		pBFCCRTDisplay->output.Connect( pBundle, 0 );// ON
+		pBFCCRTSelect->ConnectPort( 1, pBundle, 1 ); // 3+1
+		pBFCCRTSelect->ConnectPort( 2, pBundle, 2 ); // 1+2
 
 		pBundle=STS()->BundleManager()->CreateBundle("LADP", 3);
 		pAirDataProbeStowEnable[LEFT]->output.Connect(pBundle, 0);
@@ -273,7 +406,34 @@ namespace vc
 		pSSMESDPB[1]->output.Connect( pBundle, 3 );// C
 		pSSMESDPB[2]->output.Connect( pBundle, 4 );// R
 
+		pBundle = STS()->BundleManager()->CreateBundle( "C3_SEP", 4 );
+		pSRBSEPSW->ConnectPort( 1, pBundle, 0 );// MAN/AUTO
+		pSRBSEPPB->output.Connect( pBundle, 1 );
+		pETSEPSW->ConnectPort( 1, pBundle, 2 );// MAN
+		pETSEPPB->output.Connect( pBundle, 3 );
+
 		// VC component DiscPorts need to be connected before Realize() is called
 		AtlantisPanel::Realize();
+	}
+
+	void PanelC3::VisualCreated( void )
+	{
+		if (OV102)
+		{
+			// show switch
+			DEVMESHHANDLE hDevMesh = STS()->GetDevMesh( STS()->vis, mesh_index );
+			GROUPEDITSPEC grpSpec;
+			grpSpec.flags = GRPEDIT_SETUSERFLAG;
+			grpSpec.UsrFlag = 0;
+			oapiEditMeshGroup( hDevMesh, GRP_A1_S21_C3_VC, &grpSpec );
+
+			// change texture
+			SURFHANDLE hTexture = oapiLoadTexture( "SSU\\panelC3_OV102.dds" );
+			if (hTexture == NULL) oapiWriteLog( "(SpaceShuttleUltra) ERROR: Could not load texture in panel C3" );
+			else oapiSetTexture( hDevMesh, TEX_SSU_PANELC3_C3_VC, hTexture );
+		}
+
+		AtlantisPanel::VisualCreated();
+		return;
 	}
 };

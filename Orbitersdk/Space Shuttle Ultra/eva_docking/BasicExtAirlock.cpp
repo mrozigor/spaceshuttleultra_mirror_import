@@ -50,8 +50,7 @@ namespace eva_docking {
 	NoExtAirlock::~NoExtAirlock() {
 	}
 
-	void NoExtAirlock::DefineAirlockAnimations(UINT midx_extal, 
-		UINT midx_ods, const VECTOR3& ofs) {
+	void NoExtAirlock::DefineAnimations(const VECTOR3& ofs) {
 			//No animations
 	}
 

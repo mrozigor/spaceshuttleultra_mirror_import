@@ -66,53 +66,89 @@ bool OrbitTgtSoftware::OnMajorModeChange(unsigned int newMajorMode)
 	return false;
 }
 
-bool OrbitTgtSoftware::ItemInput(int spec, int item, const char* Data)
+bool OrbitTgtSoftware::ItemInput(int spec, int item, const char* Data, bool &IllegalEntry )
 {
 	if(spec != 34) return false;
 
-	//int nValue;
-	//double dValue, dTemp;
+	int nValue;
+	double dValue;
 	double dTemp;
 	switch(item) {
 	case 2:
 	case 3:
 	case 4:
 	case 5:
-		TIG_T1[item-2] = atoi(Data);
-		// recalculate T2 TIG (defined as T1 TIG + DT)
-		dTemp = ConvertDDHHMMSSToSeconds(TIG_T1) + transferTime*60;
-		ConvertSecondsToDDHHMMSS(dTemp, TIG_T2);
-		bValuesChanged = true;
+		if (GetIntegerUnsigned( Data, nValue ))
+		{
+			if (((item == 2) && (nValue < 366)) || ((item == 3) && (nValue < 24)) || ((item == 4) && (nValue < 60)) || ((item == 5) && (nValue < 60)))
+			{
+				TIG_T1[item-2] = nValue;
+				// recalculate T2 TIG (defined as T1 TIG + DT)
+				dTemp = ConvertDDHHMMSSToSeconds(TIG_T1) + transferTime*60;
+				ConvertSecondsToDDHHMMSS(dTemp, TIG_T2);
+				bValuesChanged = true;
+			}
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	case 13:
 	case 14:
 	case 15:
 	case 16:
-		TIG_T2[item-13] = atoi(Data);
-		transferTime = ConvertDDHHMMSSToSeconds(TIG_T2) - ConvertDDHHMMSSToSeconds(TIG_T1);
-		bValuesChanged = true;
+		if (GetIntegerUnsigned( Data, nValue ))
+		{
+			if (((item == 13) && (nValue < 366)) || ((item == 14) && (nValue < 24)) || ((item == 15) && (nValue < 60)) || ((item == 16) && (nValue < 60)))
+			{
+				TIG_T2[item-13] = nValue;
+				transferTime = ConvertDDHHMMSSToSeconds(TIG_T2) - ConvertDDHHMMSSToSeconds(TIG_T1);
+				bValuesChanged = true;
+			}
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	case 17:
-		transferTime = atof(Data);
-		dTemp = ConvertDDHHMMSSToSeconds(TIG_T1) + transferTime*60;
-		ConvertSecondsToDDHHMMSS(dTemp, TIG_T2);
-		bValuesChanged = true;
+		if (GetDoubleSigned( Data, dValue ))
+		{
+			transferTime = dValue;
+			dTemp = ConvertDDHHMMSSToSeconds(TIG_T1) + transferTime*60;
+			ConvertSecondsToDDHHMMSS(dTemp, TIG_T2);
+			bValuesChanged = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	case 18:
 	case 19:
 	case 20:
-		relPos_T2.data[item-18] = atof(Data);
-		bValuesChanged = true;
+		if (GetDoubleSigned( Data, dValue ))
+		{
+			relPos_T2.data[item-18] = dValue;
+			bValuesChanged = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	case 21:
 	case 22:
 	case 23:
 	case 24:
-		BASE_TIME[item-21] = atoi(Data);
+		if (GetIntegerUnsigned( Data, nValue ))
+		{
+			if (((item == 21) && (nValue < 366)) || ((item == 22) && (nValue < 24)) || ((item == 23) && (nValue < 60)) || ((item == 24) && (nValue < 60)))
+			{
+				BASE_TIME[item-21] = nValue;
+			}
+			else IllegalEntry = true;
+		}
+		else IllegalEntry = true;
 		return true;
 	case 28:
-		bCalculatingT1Burn = true;
-		StartCalculatingT1Burn();
+		if (strlen( Data ) == 0)
+		{
+			bCalculatingT1Burn = true;
+			StartCalculatingT1Burn();
+		}
+		else IllegalEntry = true;
 		return true;
 	}
 
@@ -125,7 +161,7 @@ bool OrbitTgtSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 
 	char cbuf[51];
 
-	PrintCommonHeader("ORBIT TGT", pMDU);
+	PrintCommonHeader("   ORBIT TGT", pMDU);
 
 	pMDU->mvprint(1, 2, "MNVR");
 	pMDU->mvprint(11, 2, "TIG");
@@ -143,14 +179,18 @@ bool OrbitTgtSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 		if(STS()->GetMET() > tig) pMDU->mvprint(4, 3, "*");
 		sprintf_s(cbuf, 51, "%03.0f/%02.0f:%02.0f:%02.0f", TIG_T1[0], TIG_T1[1], TIG_T1[2], TIG_T1[3]);
 		pMDU->mvprint(6, 3, cbuf);
-		sprintf_s(cbuf, 51, "%+6.1f", DeltaV.x*MPS2FPS);
-		pMDU->mvprint(20, 3, cbuf);
-		sprintf_s(cbuf, 51, "%+5.1f", DeltaV.y*MPS2FPS);
-		pMDU->mvprint(28, 3, cbuf);
-		sprintf_s(cbuf, 51, "%+5.1f", DeltaV.z*MPS2FPS);
-		pMDU->mvprint(35, 3, cbuf);
-		sprintf_s(cbuf, 51, "%+6.1f", length(DeltaV)*MPS2FPS);
-		pMDU->mvprint(42, 3, cbuf);
+		sprintf_s(cbuf, 51, "%5.1f", fabs( DeltaV.x * MPS2FPS ));
+		pMDU->mvprint(21, 3, cbuf);
+		pMDU->NumberSign( 20, 3, DeltaV.x * MPS2FPS );
+		sprintf_s(cbuf, 51, "%4.1f", fabs( DeltaV.y * MPS2FPS ));
+		pMDU->mvprint(29, 3, cbuf);
+		pMDU->NumberSign( 28, 3, DeltaV.y * MPS2FPS );
+		sprintf_s(cbuf, 51, "%4.1f", fabs( DeltaV.z * MPS2FPS ));
+		pMDU->mvprint(36, 3, cbuf);
+		pMDU->NumberSign( 35, 3, DeltaV.z * MPS2FPS );
+		sprintf_s(cbuf, 51, "%5.1f", fabs( length( DeltaV ) * MPS2FPS ));
+		pMDU->mvprint(43, 3, cbuf);
+		pMDU->NumberSign( 42, 3, length( DeltaV ) * MPS2FPS );
 	}
 
 	pMDU->mvprint(1, 6, "INPUTS");
@@ -158,35 +198,77 @@ bool OrbitTgtSoftware::OnPaint(int spec, vc::MDU* pMDU) const
 	pMDU->mvprint(1, 8, "2 T1 TIG");
 	sprintf_s(cbuf, 51, "%03.0f/%02.0f:%02.0f:%02.0f", TIG_T1[0], TIG_T1[1], TIG_T1[2], TIG_T1[3]);
 	pMDU->mvprint(13, 8, cbuf);
+	pMDU->Underline( 13, 8 );
+	pMDU->Underline( 14, 8 );
+	pMDU->Underline( 15, 8 );
+	pMDU->Underline( 17, 8 );
+	pMDU->Underline( 18, 8 );
+	pMDU->Underline( 20, 8 );
+	pMDU->Underline( 21, 8 );
+	pMDU->Underline( 23, 8 );
+	pMDU->Underline( 24, 8 );
 	pMDU->mvprint(1, 9, "6   EL");
-	for(int y=10;y<=15;y++) pMDU->Delta(5, y);
-	pMDU->mvprint(1, 10, "7    X/DNRNG");
+	pMDU->mvprint(1, 10, "7    X/DNRN");
 	pMDU->mvprint(1, 11, "8    Y");
-	pMDU->Delta(8, 12);
 	pMDU->mvprint(1, 12, "9    Z/ H");
+	pMDU->Delta(8, 12);
 	for(int y=13;y<=15;y++) pMDU->DotCharacter(6, y);
 	pMDU->mvprint(0, 13, "10    X");
 	pMDU->mvprint(0, 14, "11    Y");
 	pMDU->mvprint(0, 15, "12    Z");
+	for(int y=10;y<=15;y++) pMDU->Delta(5, y);
 	pMDU->mvprint(0, 16, "13 T2 TIG");
 	sprintf_s(cbuf, 51, "%03.0f/%02.0f:%02.0f:%02.0f", TIG_T2[0], TIG_T2[1], TIG_T2[2], TIG_T2[3]);
 	pMDU->mvprint(13, 16, cbuf);
-	for(int y=17;y<=20;y++) pMDU->Delta(5, y);
+	pMDU->Underline( 13, 16 );
+	pMDU->Underline( 14, 16 );
+	pMDU->Underline( 15, 16 );
+	pMDU->Underline( 17, 16 );
+	pMDU->Underline( 18, 16 );
+	pMDU->Underline( 20, 16 );
+	pMDU->Underline( 21, 16 );
+	pMDU->Underline( 23, 16 );
+	pMDU->Underline( 24, 16 );
 	pMDU->mvprint(0, 17, "17    T");
-	sprintf_s(cbuf, 51, "%+6.1f", transferTime);
-	pMDU->mvprint(18, 17, cbuf);
+	sprintf_s(cbuf, 51, "%5.1f", fabs( transferTime ));
+	pMDU->mvprint(19, 17, cbuf);
+	pMDU->NumberSignBracket( 18, 17, transferTime );
+	pMDU->Underline( 19, 17 );
+	pMDU->Underline( 20, 17 );
+	pMDU->Underline( 21, 17 );
+	pMDU->Underline( 22, 17 );
+	pMDU->Underline( 23, 17 );
 	pMDU->mvprint(0, 18, "18    X");
-	sprintf_s(cbuf, 51, "%+7.2f", relPos_T2.x);
-	pMDU->mvprint(18, 18, cbuf);
+	sprintf_s(cbuf, 51, "%6.2f", fabs( relPos_T2.x ));
+	pMDU->mvprint(19, 18, cbuf);
+	pMDU->NumberSignBracket( 18, 18, relPos_T2.x );
+	pMDU->Underline( 19, 18 );
+	pMDU->Underline( 20, 18 );
+	pMDU->Underline( 21, 18 );
+	pMDU->Underline( 22, 18 );
+	pMDU->Underline( 23, 18 );
+	pMDU->Underline( 24, 18 );
 	pMDU->mvprint(0, 19, "19    Y");
-	sprintf_s(cbuf, 51, "%+7.2f", relPos_T2.y);
-	pMDU->mvprint(18, 19, cbuf);
+	sprintf_s(cbuf, 51, "%6.2f", fabs( relPos_T2.y ));
+	pMDU->mvprint(19, 19, cbuf);
+	pMDU->NumberSignBracket( 18, 19, relPos_T2.y );
 	pMDU->mvprint(0, 20, "20    Z");
-	sprintf_s(cbuf, 51, "%+7.2f", relPos_T2.z);
-	pMDU->mvprint(18, 20, cbuf);
+	sprintf_s(cbuf, 51, "%6.2f", fabs( relPos_T2.z ));
+	pMDU->mvprint(19, 20, cbuf);
+	pMDU->NumberSignBracket( 18, 20, relPos_T2.z );
+	for(int y=17;y<=20;y++) pMDU->Delta(5, y);
 	pMDU->mvprint(0, 21, "21 BASE TIME");
 	sprintf_s(cbuf, 51, "%03.0f/%02.0f:%02.0f:%02.0f", BASE_TIME[0], BASE_TIME[1], BASE_TIME[2], BASE_TIME[3]);
 	pMDU->mvprint(13, 21, cbuf);
+	pMDU->Underline( 13, 21 );
+	pMDU->Underline( 14, 21 );
+	pMDU->Underline( 15, 21 );
+	pMDU->Underline( 17, 21 );
+	pMDU->Underline( 18, 21 );
+	pMDU->Underline( 20, 21 );
+	pMDU->Underline( 21, 21 );
+	pMDU->Underline( 23, 21 );
+	pMDU->Underline( 24, 21 );
 
 	pMDU->mvprint(37, 6, "CONTROLS");
 	pMDU->mvprint(37, 9, "COMPUTE T1 28");

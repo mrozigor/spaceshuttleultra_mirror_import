@@ -26,14 +26,10 @@
 #define _mps_EIU_H_
 
 
-#include <orbitersdk.h>
 #include "..\AtlantisSubsystem.h"
 #include "..\dps\dps_defs.h"
 #include "..\dps\BIU.h"
 #include "DiscInPort.h"
-
-
-//#define _EIU_DATA_RECORDER
 
 
 namespace mps
@@ -45,16 +41,17 @@ namespace mps
 		private:
 			int ID;
 			SSME* eng;
-			DiscInPort* ACchA;
-			DiscInPort* ACchB;
+			DiscInPort ACchA;
+			DiscInPort ACchB;
 
 			unsigned short DataPri[32];
 			unsigned short DataSec[6];
-#ifdef _EIU_DATA_RECORDER
+
 			FILE* fp;
 
+			bool DataRecorderOn;
+
 			void DataRecorder( unsigned short* data, char* type );
-#endif// _EIU_DATA_RECORDER
 		public:
 			dps::BusTerminal mia[4];
 

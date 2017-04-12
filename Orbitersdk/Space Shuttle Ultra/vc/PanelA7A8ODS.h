@@ -27,6 +27,8 @@
 #include "StandardSwitch.h"
 #include "PushButton.h"
 #include "StandardLight.h"
+#include "StandardSwitchCover.h"
+
 
 namespace vc {
 	/**
@@ -35,30 +37,31 @@ namespace vc {
 	class PanelA7A8ODS: public AtlantisPanel
 	{
 
-		StandardLight* plADS;
-		StandardLight* plBDS;
-		StandardLight* plCDS;
-		StandardLight* plPowerOn;
-		StandardLight* plAPDSProtectCircOff;
-		StandardLight* plRingAligned;
-		StandardLight* plRingInitialPos;
-		StandardLight* plFixersOff;
-		StandardLight* plHooks1Open;
-		StandardLight* plHooks2Open;
-		StandardLight* plLatchesClosed;
-		StandardLight* plUndockComplete;
-		StandardLight* plInitialContact;
-		StandardLight* plCapture;
-		StandardLight* plRingForward;
-		StandardLight* plReadyToHook;
-		StandardLight* plInterpSealed;
-		StandardLight* plHooks1Closed;
-		StandardLight* plHooks2Closed;
-		StandardLight* plLatchesOpen;
-		StandardLight* plRingFinal;
-		StandardLight* plAp;
-		StandardLight* plBp;
-		StandardLight* plCp;
+		StandardSingleLight* plADS;
+		StandardSingleLight* plBDS;
+		StandardSingleLight* plCDS;
+		StandardSingleLight* plPowerOn;
+		StandardSingleLight* plAPDSProtectCircOff;
+		StandardSingleLight* plRingAligned;
+		StandardSingleLight* plRingInitialPos;
+		StandardSingleLight* plFixersOff;
+		StandardSingleLight* plHooks1Open;
+		StandardSingleLight* plHooks2Open;
+		StandardSingleLight* plLatchesClosed;
+		StandardSingleLight* plUndockComplete;
+		StandardSingleLight* plInitialContact;
+		StandardSingleLight* plCapture;
+		StandardSingleLight* plRingForward;
+		StandardSingleLight* plReadyToHook;
+		StandardSingleLight* plInterfSealed;
+		StandardSingleLight* plHooks1Closed;
+		StandardSingleLight* plHooks2Closed;
+		StandardSingleLight* plLatchesOpen;
+		StandardSingleLight* plRingFinal;
+		StandardSingleLight* plAp;
+		StandardSingleLight* plBp;
+		StandardSingleLight* plCp;
+		StandardSingleLight* pPyroProtectCircuitOff;
 
 		StdSwitch3* pSystemPowerMNA;
 		StdSwitch3* pSystemPowerMNB;
@@ -83,8 +86,8 @@ namespace vc {
 		StdSwitch2* pControlPanelPowerC;
 		
 		StdSwitch2* pHeatersDCUPowerH1;
-		StdSwitch2* pHeatersDCUPowerH2;
-		StdSwitch2* pHeatersDCUPowerH3;
+		StdSwitch2* pHeatersDCUPowerH2DCU;
+		StdSwitch2* pHeatersDCUPowerH3DCU;
 
 		StdSwitch2* pAPDSPowerA;
 		StdSwitch2* pAPDSPowerB;
@@ -104,6 +107,22 @@ namespace vc {
 		PushButton* pCloseLatches;
 		PushButton* pFixerOff;
 
+		PushButton* pPyroCircProtOff;
+		PushButton* pPyroCircProtOn;
+		PushButton* pActHooksFiring;
+		PushButton* pPasHooksFiring;
+		PushButton* pOpenHooks;
+		PushButton* pOpenLatches;
+		PushButton* pUndocking;
+		
+		StandardSwitchCover* pPyroCommands;
+		StandardSwitchCover* pAPDSControlCommands;
+
+		DiscInPort CNTL_PNL_A;
+		DiscInPort CNTL_PNL_V;
+		DiscInPort lighttest;
+		DiscInPort lightcmd[19];
+		DiscOutPort lightoutput[19];
 
 		UINT midx_odspanel;
 		MESHHANDLE mesh_odspanel;
@@ -117,5 +136,6 @@ namespace vc {
 		virtual UINT GetVCMeshIndex() const;
 		virtual void Realize();
 		virtual void RegisterVC();
+		virtual void OnPostStep( double SimT, double DeltaT, double MJD );
 	};
 };

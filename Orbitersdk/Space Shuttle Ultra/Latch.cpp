@@ -123,31 +123,6 @@ ATTACHMENTHANDLE LatchSystem::FindPayload(VESSEL** pVessel) const
 	// Not very scalable ...
 	for (DWORD i = 0; i < oapiGetVesselCount(); i++) {
 		OBJHANDLE hV = oapiGetVesselByIndex (i);
-		/*if (hV == STS()->GetHandle()) continue; // we don't want to grapple ourselves ...
-		oapiGetGlobalPos (hV, &gpos);
-		if (dist (gpos, grms) < oapiGetSize (hV)) { // in range
-			VESSEL *v = oapiGetVesselInterface (hV);
-			DWORD nAttach = v->AttachmentCount (true);
-			for (DWORD j = 0; j < nAttach; j++) { // now scan all attachment points of the candidate
-				ATTACHMENTHANDLE hAtt = v->GetAttachmentHandle (true, j);
-				const char *id = v->GetAttachmentId (hAtt);
-				if (strncmp (id, AttachID.c_str(), AttachID.length())) 
-					continue; // attachment point not compatible
-
-				v->GetAttachmentParams (hAtt, pos, dir, rot);
-				v->Local2Global (pos, gpos);
-				sprintf_s(oapiDebugString(), 255, "%s %s Dist: %f", v->GetName(), id, dist(gpos, grms));
-				//oapiWriteLog(oapiDebugString());
-				if (dist (gpos, grms) < MAX_GRAPPLING_DIST) { 
-					v->GlobalRot(dir, gdir);
-					double dot_product = range(-1, dotp(gdir, grmsdir), 1);
-					if(fabs(PI-acos(dot_product)) < MAX_GRAPPLING_ANGLE) {
-						if(pVessel) *pVessel=v;
-						return hAtt;
-					}
-				}
-			}
-		}*/
 		hAtt = CanAttach(hV, grms, grmsdir);
 		if(hAtt) {
 			if(pVessel) *pVessel = oapiGetVesselInterface(hV);
@@ -256,11 +231,13 @@ void ActiveLatchGroup::Realize()
 {
 	LatchSystem::Realize();
 
-	DiscreteBundle* pBundle = BundleManager()->CreateBundle(GetIdentifier(), 10);
+	DiscreteBundle* pBundle = BundleManager()->CreateBundle(GetIdentifier(), 12);
 	for(unsigned short i=0;i<5;i++) {
 		LatchSignal[i].Connect(pBundle, 2*i);
 		ReleaseSignal[i].Connect(pBundle, 2*i+1);
 	}
+	LogicPowerSys[0].Connect( pBundle, 10 );
+	LogicPowerSys[1].Connect( pBundle, 11 );
 
 	pBundle = BundleManager()->CreateBundle(GetIdentifier()+"_STATE", 15);
 	for(unsigned short i=0;i<5;i++) {
@@ -268,6 +245,10 @@ void ActiveLatchGroup::Realize()
 		Released[i].Connect(pBundle, 3*i+1);
 		ReadyToLatch[i].Connect(pBundle, 3*i+2);
 	}
+
+	pBundle = STS()->BundleManager()->CreateBundle( "RadiatorControlSW", 10 );
+	PLBayMechPWR[0].Connect( pBundle, 0 );
+	PLBayMechPWR[1].Connect( pBundle, 1 );
 }
 
 void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
@@ -275,21 +256,20 @@ void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
 	LatchSystem::OnPreStep(SimT, DeltaT, MJD);
 
 	for(unsigned short i=0;i<usLatchNum;i++) {
-		if(LatchSignal[i] && !LatchState[i].Closed()) {
+		if(LatchSignal[i] && ((PLBayMechPWR[0] && LogicPowerSys[0]) || (PLBayMechPWR[1] && LogicPowerSys[1])) && !LatchState[i].Closed()) {
 			LatchState[i].action=AnimState::CLOSING;
-			LatchState[i].Move(DeltaT/LATCH_CLOSE_TIME);
+			LatchState[i].Move(DeltaT * LATCH_OPERATION_SPEED * ((int)(PLBayMechPWR[0] & LogicPowerSys[0]) + (int)(PLBayMechPWR[1] & LogicPowerSys[1])) );
 			// if even one latch is closed, we can latch payload
 			if(LatchState[i].Closed()) {
 				Latch();
 				//sprintf_s(oapiDebugString(), 255, "%s: latched latch %d", GetIdentifier().c_str(), i);
 			}
 		}
-		else if(ReleaseSignal[i] && !LatchState[i].Open()) {
+		else if(ReleaseSignal[i] && ((PLBayMechPWR[0] && LogicPowerSys[0]) || (PLBayMechPWR[1] && LogicPowerSys[1])) && !LatchState[i].Open()) {
 			LatchState[i].action=AnimState::OPENING;
-			LatchState[i].Move(DeltaT/LATCH_CLOSE_TIME);
+			LatchState[i].Move(DeltaT * LATCH_OPERATION_SPEED * ((int)(PLBayMechPWR[0] & LogicPowerSys[0]) + (int)(PLBayMechPWR[1] & LogicPowerSys[1])) );
 			// if all latches are open, release payload
 			if(LatchState[i].Open()) {
-				sprintf_s(oapiDebugString(), 255, "%s: released latch %d", GetIdentifier().c_str(), i);
 				/*bool rel=true;
 				for(unsigned short j=0;j<usLatchNum;j++) {
 					if(!LatchState[j].Open()) rel=false;
@@ -323,7 +303,7 @@ void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
 	//Stopwatch st;
 	//st.Start();
 	if(CheckRTL()) {
-		sprintf_s(oapiDebugString(), 255, "%s: Ready to Latch %f", GetIdentifier().c_str(), oapiRand());
+		//sprintf_s(oapiDebugString(), 255, "%s: Ready to Latch %f", GetIdentifier().c_str(), oapiRand());
 		for(int i=0;i<5;i++) ReadyToLatch[i].SetLine();
 	}
 	else {
@@ -331,9 +311,6 @@ void ActiveLatchGroup::OnPreStep(double SimT, double DeltaT, double MJD)
 	}
 	//double time = st.Stop();
 	//sprintf_s(oapiDebugString(), 255, "Time: %f", time);
-
-	//sprintf_s(oapiDebugString(), 255, "Latch state: %f %f %f %f %f", LatchState[0].pos, LatchState[1].pos, LatchState[2].pos,
-		//LatchState[3].pos, LatchState[4].pos);
 }
 
 bool ActiveLatchGroup::OnParseLine(const char *line)
@@ -475,6 +452,5 @@ void ActiveLatchGroup::PopulatePayloadList()
 		if(hV == STS()->GetHandle()) continue;
 		oapiGetGlobalPos (hV, &gpos);
 		if(dist(grms, gpos) < 2*oapiGetSize(hV)) vhPayloads.push_back(hV);
-		//sprintf_s(oapiDebugString(), 255, "dist: %f", dist(grms, gpos));
 	}
 }

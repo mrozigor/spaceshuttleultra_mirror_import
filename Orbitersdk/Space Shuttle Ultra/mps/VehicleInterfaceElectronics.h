@@ -32,11 +32,15 @@
 namespace mps
 {
 	class SSMEController;
+	class PowerSupplyElectronics;
+	class ComputerInterfaceElectronics;
 
 	class VehicleInterfaceElectronics
 	{
 		protected:
 			SSMEController* Controller;
+			PowerSupplyElectronics* PSE[2];
+			ComputerInterfaceElectronics* CIE[2];
 
 			short Command[3];
 
@@ -53,6 +57,8 @@ namespace mps
 			// for use by the derived class
 			virtual void __OnSaveState( FILEHANDLE scn ) const = 0;
 			virtual bool __OnParseLine( const char* line ) = 0;
+
+			void Realize( void );
 
 			virtual void tmestp( double time ) = 0;
 

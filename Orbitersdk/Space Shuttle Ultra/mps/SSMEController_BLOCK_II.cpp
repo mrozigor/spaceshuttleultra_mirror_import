@@ -25,19 +25,14 @@ namespace mps
 		VIE = new VehicleInterfaceElectronics_BLOCK_II( this );
 		PSE[chA] = new PowerSupplyElectronics_BLOCK_II( chA, this );
 		PSE[chB] = new PowerSupplyElectronics_BLOCK_II( chB, this );
-		IE[chA] = new InputElectronics_BLOCK_II( chA, eng, this );
-		IE[chB] = new InputElectronics_BLOCK_II( chB, eng, this );
+		IE[chA] = new InputElectronics_BLOCK_II( chA, this );
+		IE[chB] = new InputElectronics_BLOCK_II( chB, this );
 		OE[chA] = new OutputElectronics_BLOCK_II( chA, eng, this );
 		OE[chB] = new OutputElectronics_BLOCK_II( chB, eng, this  );
 		DCU[chA] = new DigitalComputerUnit_BLOCK_II( chA, sw, this );
 		DCU[chB] = new DigitalComputerUnit_BLOCK_II( chB, sw, this );
 		CIE[chA] = new ComputerInterfaceElectronics_BLOCK_II( chA, this );
 		CIE[chB] = new ComputerInterfaceElectronics_BLOCK_II( chB, this );
-
-		DCU[chA]->GiveRefs( CIE[chA] );
-		DCU[chB]->GiveRefs( CIE[chB] );
-		CIE[chA]->GiveRefs( DCU[chA], IE[chA], IE[chB], CIE[chB] );
-		CIE[chB]->GiveRefs( DCU[chB], IE[chA], IE[chB], CIE[chA] );
 
 #ifdef _MPSDEBUG
 		sprintf_s( buffer, 100, " SSMEController_BLOCK_II::SSMEController_BLOCK_II out" );
@@ -73,8 +68,8 @@ namespace mps
 		DCU[chA]->tmestp( time, tmestp );
 		DCU[chB]->tmestp( time, tmestp );
 		VIE->tmestp( time );// after DCU
-		OE[chA]->tmestp( time );
-		OE[chB]->tmestp( time );
+		OE[chA]->tmestp( time, tmestp );
+		OE[chB]->tmestp( time, tmestp );
 		return;
 	}
 }

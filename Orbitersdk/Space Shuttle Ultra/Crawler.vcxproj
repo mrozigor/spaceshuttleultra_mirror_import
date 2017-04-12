@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Analysis (Debug)|Win32">
@@ -81,12 +81,12 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CRAWLER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PrecompiledHeaderOutputFile>.\Debug\Crawler/Crawler.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Debug\Crawler/</AssemblerListingLocation>
-      <ObjectFileName>.\Debug\Crawler/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Debug\Crawler/</ProgramDataBaseFileName>
-      <BrowseInformation>true</BrowseInformation>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
@@ -100,11 +100,12 @@
       <OutputFile>../../Modules/SSU_Crawler.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>LIBCMT;MSVCIRT;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>MSVCIRT;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Debug\Crawler/Crawler.pdb</ProgramDatabaseFile>
-      <ImportLibrary>.\Debug\Crawler/Crawler.lib</ImportLibrary>
+      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <ProfileGuidedDatabase>$(IntDir)$(TargetName).pgd</ProfileGuidedDatabase>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -127,14 +128,15 @@
       <AdditionalIncludeDirectories>../include;../libUltra/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CRAWLER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeaderOutputFile>.\Release\Crawler/Crawler.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Release\Crawler/</AssemblerListingLocation>
-      <ObjectFileName>.\Release\Crawler/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Release\Crawler/</ProgramDataBaseFileName>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -146,10 +148,11 @@
       <OutputFile>../../Modules/SSU_Crawler.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>LIBC;MSVCRT;msvcirt;libci;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ProgramDatabaseFile>.\Release\Crawler/Crawler.pdb</ProgramDatabaseFile>
-      <ImportLibrary>.\Release\Crawler/Crawler.lib</ImportLibrary>
+      <IgnoreSpecificDefaultLibraries>msvcirt.lib;MSVCRTD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <ProfileGuidedDatabase>$(IntDir)$(TargetName).pgd</ProfileGuidedDatabase>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -174,11 +177,11 @@
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PrecompiledHeaderOutputFile>.\Debug\Crawler/Crawler.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Debug\Crawler/</AssemblerListingLocation>
-      <ObjectFileName>.\Debug\Crawler/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Debug\Crawler/</ProgramDataBaseFileName>
-      <BrowseInformation>true</BrowseInformation>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
@@ -194,9 +197,10 @@
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMT;MSVCIRT;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Debug\Crawler/Crawler.pdb</ProgramDatabaseFile>
-      <ImportLibrary>.\Debug\Crawler/Crawler.lib</ImportLibrary>
+      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <ProfileGuidedDatabase>$(IntDir)$(TargetName).pgd</ProfileGuidedDatabase>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -222,19 +226,12 @@
     <ClCompile Include="Crawler\CrawlerRightPanel.cpp" />
     <ClCompile Include="Crawler\Define1980StrutAnimations.cpp" />
     <ClCompile Include="Crawler\DefineStrutAnimations.cpp" />
-    <ClCompile Include="..\libUltra\src\DiscInPort.cpp" />
-    <ClCompile Include="..\libUltra\src\DiscOutPort.cpp" />
-    <ClCompile Include="..\libUltra\src\DiscreteBundle.cpp" />
-    <ClCompile Include="..\libUltra\src\DiscreteBundleManager.cpp" />
-    <ClCompile Include="..\libUltra\src\DiscretePort.cpp" />
     <ClCompile Include="Crawler\LDSPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Crawler.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\libUltra\include\BasicPanel.h" />
-    <ClInclude Include="..\libUltra\include\BasicVCComponent.h" />
     <ClInclude Include="Crawler\Crawler.h" />
     <ClInclude Include="Crawler\Crawler_vc_defs.h" />
     <ClInclude Include="Crawler\CrawlerBarGauge.h" />
@@ -250,10 +247,7 @@
     <ClInclude Include="Crawler\meshres_crawler_1980.h" />
     <ClInclude Include="Crawler\meshres_crawler_vc.h" />
     <ClInclude Include="Crawler\meshres_drivetruck.h" />
-    <ClInclude Include="..\libUltra\include\PanelGroup.h" />
     <ClInclude Include="resource_Crawler.h" />
-    <ClInclude Include="..\libUltra\include\Subsystem.h" />
-    <ClInclude Include="..\libUltra\include\SubsystemDirector.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Bitmaps\Crawler_digits.bmp" />

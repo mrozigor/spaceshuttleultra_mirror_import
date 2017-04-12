@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  Panel A6 definition
+  Panel A1U definition
 
 
 
@@ -28,7 +28,7 @@
 #include "StandardSwitch.h"
 #include "StandardRotarySwitch.h"
 #include "Talkback.h"
-#include "PushButtonIndicator.h"
+
 
 namespace vc
 {
@@ -42,14 +42,7 @@ namespace vc
 		virtual void RegisterVC();
 		virtual void Realize();
 
-		virtual void OnPreStep(double SimT, double DeltaT, double MJD);
-
-		//virtual bool OnVCMouseEvent (int id, int _event, VECTOR3 &p);
-		//virtual bool OnVCRedrawEvent (int id, int _event, SURFHANDLE surf);
 	private:
-		//bool DrawPBILight(SURFHANDLE surf, int id, bool bOn);
-		//void UpdatePBIs();
-
 		StdSwitch3* pSignalStrengthSelect;
 		StdSwitch3* pSlewAzimuth;
 		StdSwitch3* pSlewElevation;
@@ -63,6 +56,9 @@ namespace vc
 		RotaryDemuxSwitch* pHighDataRateSP;
 		RotaryDemuxSwitch* pLowDataRateSP;
 		LockableLever2* pTAGSEncrypt;
+		StandardTalkback2* pScanWarnTB;
+		StandardTalkback2* pTrackTB;
+		StandardTalkback2* pSearchTB;
 
 	};
 };

@@ -36,6 +36,8 @@ namespace discsignals
 
 class DiscOutPort : public DiscretePort  
 {
+private:
+	float initval;
 public:
 	DiscOutPort();
 	virtual ~DiscOutPort();
@@ -43,6 +45,7 @@ public:
 	virtual void ResetLine();
 	void SetLine();
 	void SetLine(float fVoltage);
+	bool Connect( DiscreteBundle *pBundle, int iLine );
 	
 };
 

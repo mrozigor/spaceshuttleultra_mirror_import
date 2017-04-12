@@ -7,11 +7,13 @@
 
 const double SRB_MAX_PROPELLANT_MASS = 501673.161; // from ATK SRB fundamentals presentation
 const double FWC_SRB_MAX_PROPELLANT_MASS = 501440.015; // see SLC-6 thread on O-F; data from DM-6 test
+const double RSRM_SRB_MAX_PROPELLANT_MASS = 501673.161; // from ATK SRB fundamentals presentation
 // SRB propellant mass [kg]
 //total impulse is 1.32466E9 Ns
 
 const double SRB_EMPTY_MASS = 87603.65;
-const double FWC_SRB_EMPTY_MASS = 53103.8731; // see SLC-6 thread on O-F; data from DM-6 test
+const double FWC_SRB_EMPTY_MASS = 76263.84;// value derived from the ~25000lbs weight reduction from HPM to FWC
+const double RSRM_SRB_EMPTY_MASS = 87603.65;
 // SRB empty mass [kg]
 
 //const double SRB_ISP0 = 3574.68;
@@ -29,19 +31,14 @@ properties flight designation STS-41"
 // Vacuum SRB thrust per unit [N]
 const double SRB_THRUST = 14679131.3;
 const double FWC_SRB_THRUST = 14808129.8; // see SLC-6 thread on O-F; data from DM-6 test
+const double RSRM_SRB_THRUST = 14679131.3;
 
 //Lift-off thrust is 15.574012 MN
 //Equals vacuum thrust 17.67824672 MN 
 
-const double MAX_ATT_LAUNCH = 1e-5;
-const double MAX_ROLL_SRB = 2.5e-5;
-// Max attitude thrust during launch phase (temporary)
-
 const double SRB_STABILISATION_TIME = 6.6;
 // MET: -SRB ignition
 
-const double SRB_SEPARATION_TIME = 124.0;
-// MET: SRB separation
 const int SRB_nt = 30;
 
 const double SRB_CUTOUT_TIME = 130.0;
@@ -105,6 +102,8 @@ public:
 	void clbkSaveState(FILEHANDLE scn);
 
 private:
+	typedef enum {SRM, FWC, RSRM} SRM_TYPE;
+
 	void UpdateVisual(bool FWC) const;
 
 	MESHHANDLE hSRBMesh_Left;
@@ -129,6 +128,8 @@ private:
 	THRUSTER_HANDLE th_bolt;    // separation bolt
 	THRUSTER_HANDLE thBSM[3];	//represent engines by a single logical thruster for each group.
 	ATTACHMENTHANDLE ahToOrbiter;
+
+	LightEmitter* SRBLight;
 };
 
 #endif

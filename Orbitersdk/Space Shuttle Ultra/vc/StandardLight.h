@@ -28,37 +28,59 @@
 #include "DiscInPort.h"
 
 
-
 namespace vc {
 
-	using class discsignals::DiscInPort;
+	using discsignals::DiscInPort;
 
-	class StandardLight: public BasicLight {
-		SURFHANDLE shSource;
-		POINT sourceOn;
-		POINT sourceOff;
-		unsigned short usWidth;
-		unsigned short usHeight;
+	class StandardSingleLight : public BasicLight
+	{
+		protected:
+			UINT panelmesh;
+			UINT grpIndex;
 
-		bool bOldState;
-		bool bCurrentState;
-		bool bHasSourceImage;
-	public:
-		StandardLight(Atlantis* _sts, const string& _ident);
-		~StandardLight();
-		void SetSourceImage(SURFHANDLE _shSource);
-		void SetDimensions(unsigned short usWidth, unsigned short usHeight);
-		void SetSourceCoords(bool fState, unsigned short usX, unsigned short usY);
-//		virtual bool Connect(unsigned short usPort, ::discsignals::DiscreteBundle* pBundle, unsigned short usLine);
-		virtual void OnPostStep(double fSimT, double fDeltaT, double fMJD);
-		virtual bool OnVCRedrawEvent(int id, int _event, SURFHANDLE surf);
-		/**
-		 * Connect light to specifed port.
-		 * \param usPort 0 to connect input port, 1 to connect test port
-		 */
-		virtual bool Connect(unsigned short usPort, discsignals::DiscreteBundle* pBundle, unsigned short usLine);
+			float offsetU[2];
+			float offsetV[2];
 
-		DiscInPort input;
-		DiscInPort test;
+		public:
+			StandardSingleLight( Atlantis* _sts, const string& _ident );
+			~StandardSingleLight();
+			
+			virtual void SetDefaultState( unsigned int _state );
+			virtual void SetStateOffset( unsigned int _state, float _U, float _V );
+			virtual bool ConnectLight( unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine );
+
+			virtual void OnPostStep( double fSimT, double fDeltaT, double fMJD );
+
+			void UpdateUV( void );
+			void DefineMeshGroup( UINT _panelmesh, UINT _grpIndex );
+			void VisualCreated( void );
+
+			DiscInPort input[2];
+	};
+
+	class StandardDoubleLight : public BasicLight
+	{
+		protected:
+			UINT panelmesh;
+			UINT grpIndex;
+
+			float offsetU[4];
+			float offsetV[4];
+
+		public:
+			StandardDoubleLight( Atlantis* _sts, const string& _ident );
+			~StandardDoubleLight();
+			
+			virtual void SetDefaultState( unsigned int _state );
+			virtual void SetStateOffset( unsigned int _state, float _U, float _V );
+			virtual bool ConnectLight( unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine );
+
+			virtual void OnPostStep( double fSimT, double fDeltaT, double fMJD );
+
+			void UpdateUV( void );
+			void DefineMeshGroup( UINT _panelmesh, UINT _grpIndex );
+			void VisualCreated( void );
+
+			DiscInPort input[4];
 	};
 }

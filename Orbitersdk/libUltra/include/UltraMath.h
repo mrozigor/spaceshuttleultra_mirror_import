@@ -135,6 +135,14 @@ MATRIX3 ConvertPYOMToLVLH(double radP, double radY, double radOM);
  */
 MATRIX3 GetGlobalToLVLHMatrix(const VECTOR3& pos, const VECTOR3& vel, bool changeHandedness = false);
 
+/**
+ * Calculates rotation angle to be passed to SetCameraDefaultDirection function
+ * \param dir Camera direction vector (if equal to +/- Y-axis, will be changed slightly so Orbitersim doesn't ignore rotation angle)
+ * \param rot Vector in direction of vertical axis for camera view
+ * \returns rotation angle about direction vector
+ */
+double CalculateCameraRotationAngle(VECTOR3& dir, const VECTOR3& rot);
+
 //VECTOR3 GetPositionVector(OBJHANDLE hPlanet, double lat, double lng, double rad);
 //void ConvertEquToEcl(OBJHANDLE hPlanet, const VECTOR3& equPos, const VECTOR3& equVel, VECTOR3& eclPos, VECTOR3& eclVel);
 //interpolation
@@ -242,6 +250,46 @@ static inline double range(double min, double value, double max)
 	return value;
 }
 
+static inline double midval( double val_a, double val_b, double val_c )
+{
+	if (val_a > val_b)
+	{
+		if (val_b > val_c)
+		{
+			return val_b;
+		}
+		else
+		{
+			if (val_c > val_a)
+			{
+				return val_a;
+			}
+			else
+			{
+				return val_c;
+			}
+		}
+	}
+	else
+	{
+		if (val_a > val_c)
+		{
+			return val_a;
+		}
+		else
+		{
+			if (val_c > val_b)
+			{
+				return val_b;
+			}
+			else
+			{
+				return val_c;
+			}
+		}
+	}
+}
+
 /**
  * Converts time in DD/HH:MM:SS format (array of 4 doubles) to time in seconds
  */
@@ -264,7 +312,7 @@ inline void ConvertSecondsToDDHHMMSS(double seconds, double ddhhmmss[])
 	ddhhmmss[3] = seconds;
 }
 
-inline int round(double value)
+inline int Round(double value)
 {
 	return static_cast<int>(floor(value+0.5));
 }
@@ -286,6 +334,12 @@ static inline double SignedAngle(const VECTOR3& v1, const VECTOR3& v2, const VEC
 	// if cross product of v1 and v2 is in opposite direction to reference vector, angle is negative (alternatively, > 180 degrees)
 	if(dotp(ref, crossp(v1, v2)) < 0) angle = -angle;
 	return angle;
+}
+
+static inline double angle(const VECTOR3 dir, const VECTOR3 dir0)
+{
+	return acos(dotp(dir, dir0) /
+		(length(dir) * length(dir0)));
 }
 
 static inline VECTOR3 RotateVectorX(const VECTOR3 &v, double angle) //rotates about angle (in degrees) in X-axis

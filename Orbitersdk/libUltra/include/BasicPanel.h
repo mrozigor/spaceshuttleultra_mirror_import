@@ -40,6 +40,14 @@ namespace vc
 
 using namespace std;
 
+enum PanelState {
+	PS_UNKNOWN = 0,
+	PS_CREATED,
+	PS_DEFINED,
+	PS_REGISTERED,
+	PS_REALIZED
+};
+
 //template <class TVessel>
 //class BasicVCComponent;
 class BasicSwitch;
@@ -57,6 +65,8 @@ class BasicPanel
 
 	bool bHasOwnVCMesh;
 	bool bCoordinateDisplayMode;
+
+	PanelState pstate;
 protected:
 	//bool AddSwitch(BasicSwitch* pSwitch);
 	BasicSwitch* CreateSwitch2(const string& _name, const VECTOR3& _RefPos, UINT _GrpNum, RECT _r);
@@ -111,7 +121,16 @@ public:
 	bool DisableCoordinateDisplayMode() {bCoordinateDisplayMode = false; return true;};
 	bool ToggleCoordinateDisplayMode() {bCoordinateDisplayMode = !bCoordinateDisplayMode; return true;};
 
+	virtual void VisualCreated();
+	inline void SetPanelState(PanelState s)
+	{
+		pstate = s;
+	}
 
+	inline PanelState GetPanelState() const 
+	{
+		return pstate;
+	}
 };
 
 template <class TVessel>
@@ -121,6 +140,7 @@ BasicPanel<TVessel>::BasicPanel(TVessel* _v, const string& _name)
 	name = _name;
 	pv = _v;
 	bCoordinateDisplayMode = false;
+	pstate = PS_CREATED;
 }
 
 template <class TVessel>
@@ -162,6 +182,13 @@ template <class TVessel>
 void BasicPanel<TVessel>::DefineVCAnimations(UINT vcidx)
 {
 	char pszBuffer[256];
+	static char buf[100];
+	if (pstate != PS_CREATED)
+	{
+		sprintf_s(buf, 100, "(SpaceShuttleUltra) [DEBUG] Panel state violation in %s, not created at DefineVCAnimations", this->GetQualifiedIdentifier().c_str());
+		oapiWriteLog(buf);
+	}
+
 	sprintf_s(pszBuffer, 255, "BasicPanel[%s]:\tDefine VC Animations. %d components", 
 		GetQualifiedIdentifier().c_str(), components.size());
 	//local_vcidx = vcidx;
@@ -173,6 +200,7 @@ void BasicPanel<TVessel>::DefineVCAnimations(UINT vcidx)
 		(*iter)->DefineVCAnimations(vcidx);
 		iter++;
 	}
+	pstate = PS_DEFINED;
 }
 
 template <class TVessel>
@@ -232,23 +260,40 @@ UINT BasicPanel<TVessel>::GetVCMeshIndex() const
 template <class TVessel>
 void BasicPanel<TVessel>::RegisterVC()
 {
+	static char buf[100];
+	if (pstate != PS_REALIZED) 
+	{
+		sprintf_s(buf, 100, "(SpaceShuttleUltra) [DEBUG] Panel state violation in %s, not realized at RegisterVC()", this->GetQualifiedIdentifier().c_str());
+		oapiWriteLog(buf);
+	}
+
 	vector< BasicVCComponent<TVessel>* >::iterator iter = components.begin();
 	while(iter != components.end())
 	{
 		(*iter)->RegisterVC();
 		iter++;
 	}
+
+	pstate = PS_REGISTERED;
 }
 
 template <class TVessel>
 void BasicPanel<TVessel>::Realize()
 {
+	static char buf[100];
+	if (pstate != PS_DEFINED)
+	{
+		sprintf_s(buf, 100, "(SpaceShuttleUltra) [DEBUG] Panel state violation in %s, not defined at Realize()", this->GetQualifiedIdentifier().c_str());
+		oapiWriteLog(buf);
+	}
 	vector< BasicVCComponent<TVessel>* >::iterator iter = components.begin();
 	while(iter != components.end())
 	{
 		(*iter)->Realize();
 		iter++;
 	}
+
+	pstate = PS_REALIZED;
 }
 
 template <class TVessel>
@@ -270,10 +315,10 @@ bool BasicPanel<TVessel>::OnReadState (FILEHANDLE scn) {
 			oapiWriteLog("\t\tDone.");
 			return true;
 		} else if(!_strnicmp(line, "@OBJECT", 7)) {
-			//oapiWriteLog("\t\tEnter Multiline switch block...");
+			oapiWriteLog("\t\tEnter Multiline switch block...");
 			//Multi line object block
 			//Get identifier of object or switch
-			*line += 8;
+			line += 8;
 			unsigned long i = 0;
 			bool bStringFlag = false;
 			while((*line != '\0' && *line != ' ') || bStringFlag) {
@@ -288,7 +333,7 @@ bool BasicPanel<TVessel>::OnReadState (FILEHANDLE scn) {
 
 			pszBuffer[i] = '\0';
 			//Look up object
-			sprintf_s(pszBuffer2, "\tLook up switch \"%s\"...", 
+			sprintf_s(pszBuffer2, "\tLook up object \"%s\"...", 
 				pszBuffer);
 			oapiWriteLog(pszBuffer2);
 			//
@@ -302,7 +347,7 @@ bool BasicPanel<TVessel>::OnReadState (FILEHANDLE scn) {
 						break;
 				}
 			}
-			//oapiWriteLog("\t\tLeave Multiline switch block...");
+			oapiWriteLog("\t\tLeave Multiline switch block...");
 		} else {
 			//single line object block
 			//oapiWriteLog("\t\tEnter single line switch block...");
@@ -366,7 +411,7 @@ void BasicPanel<TVessel>::OnSaveState(FILEHANDLE scn)
 			oapiWriteScenario_string(scn, "@OBJECT", 
 				pszBuffer);
 			(*iter)->OnSaveState(scn);
-			oapiWriteLine(scn, "@ENDOBJECT");
+			oapiWriteLine(scn, "  @ENDOBJECT");
 		} else {
 			if((*iter)->GetStateString(255, pszBuffer)) {
 				sprintf_s(pszBuffer2, 255, "\"%s\"", 
@@ -404,7 +449,6 @@ bool BasicPanel<TVessel>::OnVCMouseEvent(int id, int _event, VECTOR3 &p)
 			
 			return DistributeMouseEvent(_event, p);
 		}
-		return true;
 	}
 	else {
 		return false;
@@ -516,6 +560,17 @@ void BasicPanel<TVessel>::AddAIDToMouseEventList(UINT aid)
 	if(availableForMouse.find(aid) == availableForMouse.end())
 	{
 		availableForMouse.insert(aid);
+	}
+}
+
+template <class TVessel>
+void BasicPanel<TVessel>::VisualCreated()
+{
+	vector< BasicVCComponent<TVessel>* >::iterator iter = components.begin();
+	while(iter != components.end())
+	{
+		(*iter)->VisualCreated();
+		iter++;
 	}
 }
 

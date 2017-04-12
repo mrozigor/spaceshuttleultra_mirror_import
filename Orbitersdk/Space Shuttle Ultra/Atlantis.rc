@@ -25,11 +25,9 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 IDB_CLOCKDIGITS         BITMAP                  "Bitmaps\\clocknums.bmp"
-IDB_7SEGDIGITS          BITMAP                  "Bitmaps\\digits.bmp"
 IDB_DEUCHARACTERS       BITMAP                  "Bitmaps\\DEU_Raw.bmp"
-IDB_PBILIGHTS           BITMAP                  "Bitmaps\\OrbitDAP_PBI_lights.bmp"
-IDB_ODSBUTTONS          BITMAP                  "Bitmaps\\ODSbuttons.bmp"
-IDB_SSMELIGHTS          BITMAP                  "Bitmaps\\SSME_lights.bmp"
+IDB_DEUCHARACTERSOVERBRIGHT BITMAP                  "Bitmaps\\DEU_Raw_overbright.bmp"
+IDB_DEUCHARACTERSFAULT  BITMAP                  "Bitmaps\\DEU_Raw_fault.bmp"
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -40,13 +38,6 @@ IDB_SSMELIGHTS          BITMAP                  "Bitmaps\\SSME_lights.bmp"
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 #pragma code_page(1252)
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
-
-IDB_TKBKLABEL           BITMAP                  "Bitmaps\\tkbk_label.bmp"
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -73,20 +64,6 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDI_UP                  ICON                    "icon1.ico"
-IDI_DOWN                ICON                    "down.ico"
-IDI_LEFT                ICON                    "ico00001.ico"
-IDI_RIGHT               ICON                    "ico00002.ico"
-IDI_RRIGHT              ICON                    "ico00003.ico"
-IDI_RLEFT               ICON                    "ico00004.ico"
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 

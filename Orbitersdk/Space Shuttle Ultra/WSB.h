@@ -43,7 +43,7 @@ class WSB : public AtlantisSubsystem
 	double waterMass[2];
 
 	// indicates controller selected and if controller is powered
-	DiscInPort ControllerPwr, ControllerA, ControllerB;
+	DiscInPort Power, ControllerPwr, ControllerA, ControllerB;
 	DiscInPort BoilerN2Supply;
 	DiscOutPort Ready;
 public:

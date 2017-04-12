@@ -29,7 +29,7 @@
 
 namespace gnc {
 
-	using class discsignals::DiscOutPort;
+	using namespace discsignals;
 
 	class AccAssembly: AtlantisSubsystem
 	{

@@ -1,4 +1,7 @@
 #include "OutputElectronics.h"
+#include "SSMEController.h"
+#include "PowerSupplyElectronics.h"
+#include "SSME.h"
 #include "MPSdefs.h"
 
 
@@ -8,7 +11,7 @@ namespace mps
 	{
 #ifdef _MPSDEBUG
 		char buffer[100];	
-		sprintf_s( buffer, 100, " OutputElectronics::OutputElectronics in" );
+		sprintf_s( buffer, 100, " OutputElectronics::OutputElectronics in || ch:%d", ch );
 		oapiWriteLog( buffer );
 #endif// _MPSDEBUG
 
@@ -24,6 +27,8 @@ namespace mps
 		SH[2] = 0;
 		SH[3] = 0;
 		SH[4] = 0;
+		triplevel[0] = 0.06;// chA
+		triplevel[1] = 0.1;// chB
 
 #ifdef _MPSDEBUG
 		sprintf_s( buffer, 100, " OutputElectronics::OutputElectronics out" );
@@ -39,79 +44,61 @@ namespace mps
 
 	void OutputElectronics::OnSaveState( FILEHANDLE scn ) const
 	{
-		char cbuf[255];
-		char cbuf_ch[255];
-
-		sprintf_s( cbuf_ch, 255, "OE_ch%c StorageRegister", ch + 65 );
-		oapiWriteScenario_int( scn, cbuf_ch, StorageRegister );
-
-		sprintf_s( cbuf_ch, 255, "OE_ch%c ONOFFCommandRegister", ch + 65 );
-		sprintf_s( cbuf, 255, "%d %d", ONOFFCommandRegister[0], ONOFFCommandRegister[1] );
-		oapiWriteScenario_string( scn, cbuf_ch, cbuf );
-
-		sprintf_s( cbuf_ch, 255, "OE_ch%c SH", ch + 65 );
-		sprintf_s( cbuf, 255, "%lf %lf %lf %lf %lf", SH[0], SH[1], SH[2], SH[3], SH[4] );
-		oapiWriteScenario_string( scn, cbuf_ch, cbuf );
-
 		__OnSaveState( scn );// write derived class
 		return;
 	}
 
 	bool OutputElectronics::OnParseLine( const char* line )
 	{
-		int read_i1 = 0;
-		int read_i2 = 0;
-		double read_f1 = 0;
-		double read_f2 = 0;
-		double read_f3 = 0;
-		double read_f4 = 0;
-		double read_f5 = 0;
-		char cbuf_ch[255];
-#ifdef _MPSDEBUG
-		char buffer[150];
-#endif// _MPSDEBUG
+		return __OnParseLine( line );// check if derived class wants line
+	}
 
-		sprintf_s( cbuf_ch, 255, "OE_ch%c", ch + 65 );
+	void OutputElectronics::Realize( discsignals::DiscreteBundle* bundle, discsignals::DiscreteBundle* bundleCCV, discsignals::DiscreteBundle* bundleMFV, discsignals::DiscreteBundle* bundleMOV, discsignals::DiscreteBundle* bundleFPOV, discsignals::DiscreteBundle* bundleOPOV )
+	{
+		PSE = Controller->PSE[ch];
+		CIE[chA] = Controller->CIE[chA];
+		CIE[chB] = Controller->CIE[chB];
 
-		if (!_strnicmp( line, cbuf_ch, 6 ))
-		{
-			if (!_strnicmp( line + 7, "StorageRegister", 15 ))
-			{
-				sscanf_s( line + 22, "%d", &read_i1 );
-				StorageRegister = read_i1;
-#ifdef _MPSDEBUG
-				sprintf_s( buffer, 150, " OutputElectronics::OnParseLine || %s StorageRegister:%d", cbuf_ch, StorageRegister );
-				oapiWriteLog( buffer );
-#endif// _MPSDEBUG
-				return true;
-			}
-			else if (!_strnicmp( line + 7, "ONOFFCommandRegister", 20 ))
-			{
-				sscanf_s( line + 27, "%d %d", &read_i1, &read_i2 );
-				ONOFFCommandRegister[0] = read_i1;
-				ONOFFCommandRegister[1] = read_i2;
-#ifdef _MPSDEBUG
-				sprintf_s( buffer, 150, " OutputElectronics::OnParseLine || %s ONOFFCommandRegister:%d|%d", cbuf_ch, ONOFFCommandRegister[0], ONOFFCommandRegister[1] );
-				oapiWriteLog( buffer );
-#endif// _MPSDEBUG
-				return true;
-			}
-			else if (!_strnicmp( line + 7, "SH", 2 ))
-			{
-				sscanf_s( line + 9, "%lf %lf %lf %lf %lf", &read_f1, &read_f2, &read_f3, &read_f4, &read_f5 );
-				SH[0] = read_f1;
-				SH[1] = read_f2;
-				SH[2] = read_f3;
-				SH[3] = read_f4;
-				SH[4] = read_f5;
-#ifdef _MPSDEBUG
-				sprintf_s( buffer, 150, " OutputElectronics::OnParseLine || %s SH:%lf|%lf|%lf|%lf|%lf", cbuf_ch, SH[0], SH[1], SH[2], SH[3], SH[4] );
-				oapiWriteLog( buffer );
-#endif// _MPSDEBUG
-				return true;
-			}
-		}
-		if (__OnParseLine( line )) return true;// check if derived class wants line
-		return false;
+		FuelSystemPurge_SV.Connect( bundle, 0 + ch );
+		BleedValvesControl_SV.Connect( bundle, 2 + ch );
+		EmergencyShutdown_SV.Connect( bundle, 4 + ch );
+		ShutdownPurge_SV.Connect( bundle, 6 + ch );
+		HPOTPISPurge_SV.Connect( bundle, 8 + ch );
+		AFV_SV.Connect( bundle, 10 + ch );
+		HPV_SV.Connect( bundle, 12 + ch );
+		
+		HSV_pos[0].Connect( bundleCCV, 0 + ch );
+		FO_SS[0].Connect( bundleCCV, 2 + ch );
+		FS_SS[0].Connect( bundleCCV, 4 + ch );
+
+		HSV_pos[1].Connect( bundleMFV, 0 + ch );
+		FO_SS[1].Connect( bundleMFV, 2 + ch );
+		FS_SS[1].Connect( bundleMFV, 4 + ch );
+
+		HSV_pos[2].Connect( bundleMOV, 0 + ch );
+		FO_SS[2].Connect( bundleMOV, 2 + ch );
+		FS_SS[2].Connect( bundleMOV, 4 + ch );
+
+		HSV_pos[3].Connect( bundleFPOV, 0 + ch );
+		FO_SS[3].Connect( bundleFPOV, 2 + ch );
+		FS_SS[3].Connect( bundleFPOV, 4 + ch );
+
+		HSV_pos[4].Connect( bundleOPOV, 0 + ch );
+		FO_SS[4].Connect( bundleOPOV, 2 + ch );
+		FS_SS[4].Connect( bundleOPOV, 4 + ch );
+
+		////////////////////////////////////////////////////////
+		// get initial positions so we're all on the same page
+		SVmodel_cur[0] = eng->ptrCCV->GetPos();
+		SVmodel_tgt[0] = SVmodel_cur[0];
+		SVmodel_cur[1] = eng->ptrMFV->GetPos();
+		SVmodel_tgt[1] = SVmodel_cur[1];
+		SVmodel_cur[2] = eng->ptrMOV->GetPos();
+		SVmodel_tgt[2] = SVmodel_cur[2];
+		SVmodel_cur[3] = eng->ptrFPOV->GetPos();
+		SVmodel_tgt[3] = SVmodel_cur[3];
+		SVmodel_cur[4] = eng->ptrOPOV->GetPos();
+		SVmodel_tgt[4] = SVmodel_cur[4];
+		return;
 	}
 }

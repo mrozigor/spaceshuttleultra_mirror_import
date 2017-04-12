@@ -7,7 +7,7 @@ namespace mps
 	PowerSupplyElectronics_BLOCK_II::PowerSupplyElectronics_BLOCK_II( int ch, SSMEController* Controller ):PowerSupplyElectronics( ch, Controller )
 	{
 #ifdef _MPSDEBUG
-		char buffer[100];	
+		char buffer[100];
 		sprintf_s( buffer, 100, " PowerSupplyElectronics_BLOCK_II::PowerSupplyElectronics_BLOCK_II in" );
 		oapiWriteLog( buffer );
 #endif// _MPSDEBUG
