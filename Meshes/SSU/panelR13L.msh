@@ -3758,7 +3758,7 @@ MATERIAL levers
 0 0 0 1 39
 0.752941 0.752941 0.752941 1
 TEXTURES 4
-SSU/r13l.dds
+SSU/panelR13L.dds
 SSU/panelC3.dds
 SSU/R2.dds
 SSU/talkback.dds

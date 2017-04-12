@@ -118,79 +118,79 @@ namespace vc
 		AddAIDToMouseEventList( AID_L12U_CENTAUR );
 
 		pSUPER_ZIP_PRI_FIRE->SetInitialAnimState( 0.5f );
-		pSUPER_ZIP_PRI_FIRE->DefineSwitchGroup( GRP_L12US2_CENTAUR_VC );
+		pSUPER_ZIP_PRI_FIRE->DefineSwitchGroup( GRP_S2_L12U_CENTAUR_VC );
 		pSUPER_ZIP_PRI_FIRE->SetReference( _V( -1.4561, 2.3776, 12.3233 ), SWITCH_ROT );
 		pSUPER_ZIP_PRI_FIRE->SetMouseRegion( 0.116959f, 0.351245f, 0.159764f, 0.441283f );
 		pSUPER_ZIP_PRI_FIRE->SetSpringLoaded( true, 1 );
 
 		pSUPER_ZIP_PRI_ARM->SetInitialAnimState( 0.5f );
-		pSUPER_ZIP_PRI_ARM->DefineSwitchGroup( GRP_L12US3_CENTAUR_VC );
+		pSUPER_ZIP_PRI_ARM->DefineSwitchGroup( GRP_S3_L12U_CENTAUR_VC );
 		pSUPER_ZIP_PRI_ARM->SetReference( _V( -1.4561, 2.3776, 12.3233 ), SWITCH_ROT );
 		pSUPER_ZIP_PRI_ARM->SetMouseRegion( 0.191898f, 0.352835f, 0.236525f, 0.441156f );
 
 		pDA_PRI_ROT->SetInitialAnimState( 0.5f );
-		pDA_PRI_ROT->DefineSwitchGroup( GRP_L12US5_CENTAUR_VC );
+		pDA_PRI_ROT->DefineSwitchGroup( GRP_S5_L12U_CENTAUR_VC );
 		pDA_PRI_ROT->SetReference( _V( -1.4561, 2.3776, 12.3233 ), SWITCH_ROT );
 		pDA_PRI_ROT->SetMouseRegion( 0.317172f, 0.354949f, 0.358382f, 0.442820f );
 		pDA_PRI_ROT->SetSpringLoaded( true );
 
 		pLOGIC_PRI_PWR->SetInitialAnimState( 0.5f );
-		pLOGIC_PRI_PWR->DefineSwitchGroup( GRP_L12US6_CENTAUR_VC );
+		pLOGIC_PRI_PWR->DefineSwitchGroup( GRP_S6_L12U_CENTAUR_VC );
 		pLOGIC_PRI_PWR->SetReference( _V( -1.4561, 2.3776, 12.3233 ), SWITCH_ROT );
 		pLOGIC_PRI_PWR->SetMouseRegion( 0.375559f, 0.353634f, 0.422636f, 0.441116f );
 
 		pSSP_PRI_PWR->SetInitialAnimState( 0.5f );
-		pSSP_PRI_PWR->DefineSwitchGroup( GRP_L12US8_CENTAUR_VC );
+		pSSP_PRI_PWR->DefineSwitchGroup( GRP_S8_L12U_CENTAUR_VC );
 		pSSP_PRI_PWR->SetReference( _V( -1.3684, 2.3204, 12.2933 ), SWITCH_ROT );
 		pSSP_PRI_PWR->SetMouseRegion( 0.123397f, 0.813643f, 0.167096f, 0.903715f );
 
 		pMECH_PRI_PWR->SetInitialAnimState( 0.5f );
-		pMECH_PRI_PWR->DefineSwitchGroup( GRP_L12US9_CENTAUR_VC );
+		pMECH_PRI_PWR->DefineSwitchGroup( GRP_S9_L12U_CENTAUR_VC );
 		pMECH_PRI_PWR->SetReference( _V( -1.3684, 2.3204, 12.2933 ), SWITCH_ROT );
 		pMECH_PRI_PWR->SetMouseRegion( 0.199524f, 0.813388f, 0.244427f, 0.904525f );
 		pMECH_PRI_PWR->SetSpringLoaded( true );
 
 
 		pSUPER_ZIP_BKUP_FIRE->SetInitialAnimState( 0.5f );
-		pSUPER_ZIP_BKUP_FIRE->DefineSwitchGroup( GRP_L12US14_CENTAUR_VC );
+		pSUPER_ZIP_BKUP_FIRE->DefineSwitchGroup( GRP_S14_L12U_CENTAUR_VC );
 		pSUPER_ZIP_BKUP_FIRE->SetReference( _V( -1.4561, 2.3776, 12.3233 ), SWITCH_ROT );
 		pSUPER_ZIP_BKUP_FIRE->SetMouseRegion( 0.591131f, 0.352536f, 0.636050f, 0.443414f );
 		pSUPER_ZIP_BKUP_FIRE->SetSpringLoaded( true, 1 );
 
 		pSUPER_ZIP_BKUP_ARM->SetInitialAnimState( 0.5f );
-		pSUPER_ZIP_BKUP_ARM->DefineSwitchGroup( GRP_L12US15_CENTAUR_VC );
+		pSUPER_ZIP_BKUP_ARM->DefineSwitchGroup( GRP_S15_L12U_CENTAUR_VC );
 		pSUPER_ZIP_BKUP_ARM->SetReference( _V( -1.4561, 2.3776, 12.3233 ), SWITCH_ROT );
 		pSUPER_ZIP_BKUP_ARM->SetMouseRegion( 0.670413f, 0.351977f, 0.715270f, 0.443036f );
 
 		pDA_BKUP_ROT->SetInitialAnimState( 0.5f );
-		pDA_BKUP_ROT->DefineSwitchGroup( GRP_L12US17_CENTAUR_VC );
+		pDA_BKUP_ROT->DefineSwitchGroup( GRP_S17_L12U_CENTAUR_VC );
 		pDA_BKUP_ROT->SetReference( _V( -1.4561, 2.3776, 12.3233 ), SWITCH_ROT );
 		pDA_BKUP_ROT->SetMouseRegion( 0.792740f, 0.353993f, 0.837321f, 0.444548f );
 		pDA_BKUP_ROT->SetSpringLoaded( true );
 
 		pLOGIC_BKUP_PWR->SetInitialAnimState( 0.5f );
-		pLOGIC_BKUP_PWR->DefineSwitchGroup( GRP_L12US18_CENTAUR_VC );
+		pLOGIC_BKUP_PWR->DefineSwitchGroup( GRP_S18_L12U_CENTAUR_VC );
 		pLOGIC_BKUP_PWR->SetReference( _V( -1.4561, 2.3776, 12.3233 ), SWITCH_ROT );
 		pLOGIC_BKUP_PWR->SetMouseRegion( 0.852032f, 0.356422f, 0.896194f, 0.440456f );
 
 		pSSP_BKUP_PWR->SetInitialAnimState( 0.5f );
-		pSSP_BKUP_PWR->DefineSwitchGroup( GRP_L12US20_CENTAUR_VC );
+		pSSP_BKUP_PWR->DefineSwitchGroup( GRP_S20_L12U_CENTAUR_VC );
 		pSSP_BKUP_PWR->SetReference( _V( -1.3684, 2.3204, 12.2933 ), SWITCH_ROT );
 		pSSP_BKUP_PWR->SetMouseRegion( 0.617838f, 0.812859f, 0.660512f, 0.903650f );
 
 		pMECH_BKUP_PWR->SetInitialAnimState( 0.5f );
-		pMECH_BKUP_PWR->DefineSwitchGroup( GRP_L12US21_CENTAUR_VC );
+		pMECH_BKUP_PWR->DefineSwitchGroup( GRP_S21_L12U_CENTAUR_VC );
 		pMECH_BKUP_PWR->SetReference( _V( -1.3684, 2.3204, 12.2933 ), SWITCH_ROT );
 		pMECH_BKUP_PWR->SetMouseRegion( 0.692812f, 0.812956f, 0.735333f, 0.902322f );
 		pMECH_BKUP_PWR->SetSpringLoaded( true );
 
-		pSUPER_ZIP_PRI_ARM_TB->DefineMeshGroups( mesh_index, GRP_TB_PRI_ARM_U_CENTAUR_VC, GRP_TB_PRI_ARM_L_CENTAUR_VC );
-		pPosition_PRI_TB->DefineMeshGroups( mesh_index, GRP_TB_DA_PRI_ROT_U_CENTAUR_VC, GRP_TB_DA_PRI_ROT_L_CENTAUR_VC );
-		pMECH_PRI_PWR_TB->DefineMeshGroups( mesh_index, GRP_TB_MECH_PRI_PWR_U_CENTAUR_VC, GRP_TB_MECH_PRI_PWR_L_CENTAUR_VC );
+		pSUPER_ZIP_PRI_ARM_TB->DefineMeshGroups( mesh_index, GRP_DS3_U_L12U_CENTAUR_VC, GRP_DS3_L_L12U_CENTAUR_VC );
+		pPosition_PRI_TB->DefineMeshGroups( mesh_index, GRP_DS5_U_L12U_CENTAUR_VC, GRP_DS5_L_L12U_CENTAUR_VC );
+		pMECH_PRI_PWR_TB->DefineMeshGroups( mesh_index, GRP_DS9_U_L12U_CENTAUR_VC, GRP_DS9_L_L12U_CENTAUR_VC );
 
-		pSUPER_ZIP_BKUP_ARM_TB->DefineMeshGroups( mesh_index, GRP_TB_BKUP_ARM_U_CENTAUR_VC, GRP_TB_BKUP_ARM_L_CENTAUR_VC );
-		pPosition_BKUP_TB->DefineMeshGroups( mesh_index, GRP_TB_DA_BKUP_ROT_U_CENTAUR_VC, GRP_TB_DA_BKUP_ROT_L_CENTAUR_VC );
-		pMECH_BKUP_PWR_TB->DefineMeshGroups( mesh_index, GRP_TB_MECH_BKUP_PWR_U_CENTAUR_VC, GRP_TB_MECH_BKUP_PWR_L_CENTAUR_VC );
+		pSUPER_ZIP_BKUP_ARM_TB->DefineMeshGroups( mesh_index, GRP_DS15_U_L12U_CENTAUR_VC, GRP_DS15_L_L12U_CENTAUR_VC );
+		pPosition_BKUP_TB->DefineMeshGroups( mesh_index, GRP_DS17_U_L12U_CENTAUR_VC, GRP_DS17_L_L12U_CENTAUR_VC );
+		pMECH_BKUP_PWR_TB->DefineMeshGroups( mesh_index, GRP_DS21_U_L12U_CENTAUR_VC, GRP_DS21_L_L12U_CENTAUR_VC );
 		return;
 	}
 

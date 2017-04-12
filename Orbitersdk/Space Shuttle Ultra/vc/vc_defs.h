@@ -55,14 +55,18 @@
 #define AID_F8			1050
 #define AID_F8_MAX		1059
 
+#define AID_F9_MIN		1060
+#define AID_F9			1060
+#define AID_F9_MAX		1069
+
 // L
 #define AID_L1_MIN		2000
 #define AID_L1			2000
 #define AID_L1_MAX		2009
 
-#define AID_L10_MIN		2010
-#define AID_L10			2010
-#define AID_L10_MAX		2019
+#define AID_L10_IUS_MIN		2010
+#define AID_L10_IUS		2010
+#define AID_L10_IUS_MAX		2019
 
 #define AID_L12U_CENTAUR_MIN	2020
 #define AID_L12U_CENTAUR	2020
@@ -71,6 +75,18 @@
 #define AID_L12U_IUS_MIN	2030
 #define AID_L12U_IUS		2030
 #define AID_L12U_IUS_MAX	2039
+
+#define AID_L2_MIN		2040
+#define AID_L2			2040
+#define AID_L2_MAX		2049
+
+#define AID_L4_MIN		2050
+#define AID_L4			2050
+#define AID_L4_MAX		2059
+
+#define AID_L9_MIN		2060
+#define AID_L9			2060
+#define AID_L9_MAX		2069
 
 // C
 #define AID_C2_MIN		3000
@@ -102,6 +118,18 @@
 #define AID_R13L		4030
 #define AID_R13L_MAX		4039
 
+#define AID_R4_MIN		4040
+#define AID_R4			4040
+#define AID_R4_MAX		4049
+
+#define AID_R10_MIN		4050
+#define AID_R10			4050
+#define AID_R10_MAX		4059
+
+#define AID_R13U_MIN		4060
+#define AID_R13U		4060
+#define AID_R13U_MAX		4069
+
 // O
 #define AID_O1_MIN		5000
 #define AID_O1			5000
@@ -126,6 +154,22 @@
 #define AID_O17_MIN		5050
 #define AID_O17			5050
 #define AID_O17_MAX		5059
+
+#define AID_O5_MIN		5060
+#define AID_O5			5060
+#define AID_O5_MAX		5069
+
+#define AID_O7_MIN		5070
+#define AID_O7			5070
+#define AID_O7_MAX		5079
+
+#define AID_O9_MIN		5080
+#define AID_O9			5080
+#define AID_O9_MAX		5089
+
+#define AID_O13_MIN		5090
+#define AID_O13			5090
+#define AID_O13_MAX		5099
 
 // A
 #define AID_A1U_MIN		6000

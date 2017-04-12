@@ -22,8 +22,8 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#ifndef __VC_PANELL10_H
-#define __VC_PANELL10_H
+#ifndef __VC_PANELL10_IUS_H
+#define __VC_PANELL10_IUS_H
 
 
 #include "AtlantisPanel.h"
@@ -33,7 +33,7 @@
 
 namespace vc
 {
-	class PanelL10:public AtlantisPanel
+	class PanelL10_IUS:public AtlantisPanel
 	{
 		private:
 			MESHHANDLE hPanelMesh;
@@ -144,8 +144,8 @@ namespace vc
 			StandardTalkback2* pIUSDeploymentEnaAltTB;
 
 		public:
-			PanelL10( Atlantis* _sts );
-			virtual ~PanelL10();
+			PanelL10_IUS( Atlantis* _sts );
+			virtual ~PanelL10_IUS();
 
 			virtual void RegisterVC();
 			virtual void DefineVC();
@@ -157,4 +157,4 @@ namespace vc
 	};
 };
 
-#endif // __VC_PANELL10_H
+#endif // __VC_PANELL10_IUS_H

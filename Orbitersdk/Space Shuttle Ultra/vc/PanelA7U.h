@@ -36,6 +36,9 @@ namespace vc
 {
 	class PanelA7U : public AtlantisPanel
 	{
+		MESHHANDLE hPanelMesh;
+		UINT mesh_index;
+		
 		StandardTalkback2* pCameraPowerA_TB;
 		StandardTalkback2* pCameraPowerB_TB;
 		StandardTalkback2* pCameraPowerC_TB;
@@ -92,8 +95,12 @@ namespace vc
 		PanelA7U(Atlantis* _sts);
 		virtual ~PanelA7U();
 
+		virtual void AddMeshes( const VECTOR3& ofs );
+		virtual void SetMeshVisibility( bool visible );
+		virtual UINT GetVCMeshIndex( void ) const;
 		virtual void DefineVC();
 		virtual void RegisterVC();
+		virtual void DefineVCAnimations( UINT vcidx );
 		virtual void Realize();
 	};
 };

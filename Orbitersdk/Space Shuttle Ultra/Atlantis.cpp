@@ -57,11 +57,16 @@
 #include "vc/PanelF6.h"
 #include "vc/PanelF7.h"
 #include "vc/PanelF8.h"
+#include "vc/PanelF9.h"
 #include "vc/PanelO1.h"
 #include "vc/PanelO2.h"
 #include "vc/PanelO3.h"
+#include "vc/PanelO5.h"
 #include "vc/PanelO6.h"
+#include "vc/PanelO7.h"
 #include "vc/PanelO8.h"
+#include "vc/PanelO9.h"
+#include "vc/PanelO13.h"
 #include "vc/PanelO17.h"
 #include "vc/PanelA1U.h"
 #include "vc/PanelA2.h"
@@ -71,13 +76,19 @@
 #include "vc/PanelA7U.h"
 #include "vc/PanelR1.h"
 #include "vc/PanelR2.h"
+#include "vc/PanelR4.h"
+#include "vc/PanelR10.h"
 #include "vc/PanelR11.h"
+#include "vc/PanelR13U.h"
 #include "vc/PanelR13L.h"
 #include "vc/AftMDU.h"
 #include "vc/PanelC2.h"
 #include "vc/PanelC3.h"
 #include "vc/PanelL1.h"
-#include "vc/PanelL10.h"
+#include "vc/PanelL2.h"
+#include "vc/PanelL4.h"
+#include "vc/PanelL9.h"
+#include "vc/PanelL10_IUS.h"
 #include "vc/PanelL12U_IUS.h"
 #include "vc/PanelL12U_Centaur.h"
 #include "comm\GCIL.h"
@@ -397,9 +408,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	pgCenter.AddPanel(new vc::PanelC2(this));
 	
 	pgAft.AddPanel( new vc::PanelA1U( this ) );
-	pgAft.AddPanel( new vc::PanelA2( this ) );
-	pgAft.AddPanel(new vc::PanelA4(this));
-	pgAft.AddPanel(new vc::PanelA7U(this));
 	pgAft.AddPanel(new vc::AftMDU(this));
 	
 	pgAftStbd.AddPanel(new vc::PanelR11(this));
@@ -4160,23 +4168,39 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			pMission = ssuGetMission(pszBuffer);
 
 			/////// panels ///////
+			pgForward.AddPanel( new vc::PanelF9( this ) );
+
 			pgLeft.AddPanel( new vc::PanelL1( this ) );
+			pgLeft.AddPanel( new vc::PanelL2( this ) );
+			pgLeft.AddPanel( new vc::PanelL4( this ) );
 
 			pgCenter.AddPanel( new vc::PanelC3( this, pMission->GetOrbiter() ) );
 
 			pgRight.AddPanel( new vc::PanelR2( this ) );
 			pgRight.AddPanel( new vc::PanelR1( this ) );// HACK should be placed before R2, but click area on R2 is too big
+			pgRight.AddPanel( new vc::PanelR4( this ) );
 
 			pgOverhead.AddPanel( new vc::PanelO1( this ) );
 			pgOverhead.AddPanel( new vc::PanelO2( this ) );
 			pgOverhead.AddPanel( new vc::PanelO3( this ) );
+			pgOverhead.AddPanel( new vc::PanelO5( this ) );
 			pgOverhead.AddPanel( new vc::PanelO6( this ) );
+			pgOverhead.AddPanel( new vc::PanelO7( this ) );
 			pgOverhead.AddPanel( new vc::PanelO8( this ) );
+			pgOverhead.AddPanel( new vc::PanelO9( this ) );
 
+			pgOverheadAft.AddPanel( new vc::PanelO13( this ) );
 			pgOverheadAft.AddPanel( new vc::PanelO17( this ) );
 
-			pgAft.AddPanel( new vc::PanelA6U( this ) );
+			pgAftPort.AddPanel( new vc::PanelL9( this ) );
 
+			pgAft.AddPanel( new vc::PanelA2( this ) );
+			pgAft.AddPanel( new vc::PanelA4( this ) );
+			pgAft.AddPanel( new vc::PanelA6U( this ) );
+			pgAft.AddPanel( new vc::PanelA7U( this ) );
+
+			pgAftStbd.AddPanel( new vc::PanelR10( this ) );
+			pgAftStbd.AddPanel( new vc::PanelR13U( this ) );
 			pgAftStbd.AddPanel( new vc::PanelR13L( this ) );
 
 			/////// subsystems ///////
@@ -4216,7 +4240,7 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			if (pMission->UseASE_IUS())
 			{
 				psubsystems->AddSubsystem( pASE_IUS = new ASE_IUS( psubsystems, pMission->IsASELocationAft() ) );
-				pgAftPort.AddPanel( new vc::PanelL10( this ) );
+				pgAftPort.AddPanel( new vc::PanelL10_IUS( this ) );
 				pgAftPort.AddPanel( new vc::PanelL12U_IUS( this ) );
 			}
 

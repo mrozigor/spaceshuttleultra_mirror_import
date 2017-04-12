@@ -87,33 +87,33 @@ namespace vc
 		AddAIDToMouseEventList( AID_L12U_IUS );
 
 		pACT_ORD_ARM->SetInitialAnimState( 0.5f );
-		pACT_ORD_ARM->DefineSwitchGroup( GRP_L12US3_IUS_VC );
+		pACT_ORD_ARM->DefineSwitchGroup( GRP_S3_L12U_IUS_VC );
 		pACT_ORD_ARM->SetReference( _V( -1.4561, 2.3776, 12.3233 ), SWITCH_ROT );
 		pACT_ORD_ARM->SetMouseRegion( 0.194471f, 0.355979f, 0.233811f, 0.441061f );
 
 		pACT_1_DISENG->SetInitialAnimState( 0.5f );
-		pACT_1_DISENG->DefineSwitchGroup( GRP_L12US4_IUS_VC );
+		pACT_1_DISENG->DefineSwitchGroup( GRP_S4_L12U_IUS_VC );
 		pACT_1_DISENG->SetReference( _V( -1.4561, 2.3776, 12.3233 ), SWITCH_ROT );
 		pACT_1_DISENG->SetMouseRegion( 0.247067f, 0.354133f, 0.300532f, 0.438349f );
 
 		pIUS_RF_ANT_ED->SetInitialAnimState( 0.5f );
-		pIUS_RF_ANT_ED->DefineSwitchGroup( GRP_L12US5_IUS_VC );
+		pIUS_RF_ANT_ED->DefineSwitchGroup( GRP_S5_L12U_IUS_VC );
 		pIUS_RF_ANT_ED->SetReference( _V( -1.4561, 2.3776, 12.3233 ), SWITCH_ROT );
 		pIUS_RF_ANT_ED->SetMouseRegion( 0.317950f, 0.355818f, 0.359740f, 0.441822f );
 
 		pACT_2_DISENG->SetInitialAnimState( 0.5f );
-		pACT_2_DISENG->DefineSwitchGroup( GRP_L12US6_IUS_VC );
+		pACT_2_DISENG->DefineSwitchGroup( GRP_S6_L12U_IUS_VC );
 		pACT_2_DISENG->SetReference( _V( -1.4561, 2.3776, 12.2933 ), SWITCH_ROT );
 		pACT_2_DISENG->SetMouseRegion( 0.372846f, 0.353155f, 0.426563f, 0.437927f );
 
 		pACT_ORD_PREARM->SetInitialAnimState( 0.5f );
-		pACT_ORD_PREARM->DefineSwitchGroup( GRP_L12US10_IUS_VC );
+		pACT_ORD_PREARM->DefineSwitchGroup( GRP_S10_L12U_IUS_VC );
 		pACT_ORD_PREARM->SetReference( _V( -1.3684, 2.3204, 12.2933 ), SWITCH_ROT );
 		pACT_ORD_PREARM->SetMouseRegion( 0.260196f, 0.815091f, 0.303861f, 0.904874f );
 
-		pACT_ORD_ARM_TB->DefineMeshGroups( mesh_index, GRP_TB_ACT_ORD_ARM_U_IUS_VC, GRP_TB_ACT_ORD_ARM_L_IUS_VC );
-		pIUS_RF_ANT_ENA_TB->DefineMeshGroups( mesh_index, GRP_TB_IUS_RF_ANT_ENA_U_IUS_VC, GRP_TB_IUS_RF_ANT_ENA_L_IUS_VC );
-		pIUS_RF_ANT_DSBL_TB->DefineMeshGroups( mesh_index, GRP_TB_IUS_RF_ANT_DSBL_U_IUS_VC, GRP_TB_IUS_RF_ANT_DSBL_L_IUS_VC );
+		pACT_ORD_ARM_TB->DefineMeshGroups( mesh_index, GRP_DS3_U_L12U_IUS_VC, GRP_DS3_L_L12U_IUS_VC );
+		pIUS_RF_ANT_ENA_TB->DefineMeshGroups( mesh_index, GRP_DS5_U_L12U_IUS_VC, GRP_DS5_L_L12U_IUS_VC );
+		pIUS_RF_ANT_DSBL_TB->DefineMeshGroups( mesh_index, GRP_DS6_U_L12U_IUS_VC, GRP_DS6_L_L12U_IUS_VC );
 		return;
 	}
 
