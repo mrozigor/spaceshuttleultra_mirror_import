@@ -37,6 +37,9 @@ namespace vc
 	class PanelA4 : public AtlantisPanel
 	{
 		private:
+			MESHHANDLE hPanelMesh;
+			UINT mesh_index;
+
 			StdSwitch3* pMissionTimer;
 
 			_7SegDisp_MissionTime* pMissionTime;
@@ -46,8 +49,12 @@ namespace vc
 			PanelA4( Atlantis* _sts );
 			virtual ~PanelA4();
 
+			virtual void AddMeshes( const VECTOR3& ofs );
+			virtual void SetMeshVisibility( bool visible );
+			virtual UINT GetVCMeshIndex( void ) const;
 			virtual void DefineVC();
 			virtual void RegisterVC();
+			virtual void DefineVCAnimations( UINT vcidx );
 			virtual void Realize();
 	};
 }

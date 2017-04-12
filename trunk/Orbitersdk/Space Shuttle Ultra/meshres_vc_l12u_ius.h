@@ -1,48 +1,47 @@
 // ======================================================
-// Created by ssumeshc 0.2
-// Date of conversion : Tue Jan 17 21:29:46 2017
+// Created by ssumeshc 0.3
+// Date of conversion : Tue Apr 11 20:34:10 2017
 
-// Input file: L12U_SSP_IUS.msh
+// Input file: panelL12U_SSP_IUS.msh
 // ======================================================
 
 #pragma once
 
-const unsigned int NUMGRP_IUS_VC = 36;
+const unsigned int NUMGRP_L12U_IUS_VC = 36;
 
-const unsigned int GRP_L12UGUARD_IUS_VC	=	0;	//L12UGuard
-const unsigned int GRP_TB_ACT_ORD_ARM_U_IUS_VC	=	1;	//TB_ACT_ORD_ARM_U
-const unsigned int GRP_TB_ACT_ORD_ARM_L_IUS_VC	=	2;	//TB_ACT_ORD_ARM_L
-const unsigned int GRP_L12US19_IUS_VC	=	3;	//L12US19
-const unsigned int GRP_L12US17_IUS_VC	=	4;	//L12US17
-const unsigned int GRP_L12US15_IUS_VC	=	5;	//L12US15
-const unsigned int GRP_L12US14_IUS_VC	=	6;	//L12US14
-const unsigned int GRP_L12US13_IUS_VC	=	7;	//L12US13
-const unsigned int GRP_L12US7_IUS_VC	=	8;	//L12US7
-const unsigned int GRP_L12US5_IUS_VC	=	9;	//L12US5
-const unsigned int GRP_L12US3_IUS_VC	=	10;	//L12US3
-const unsigned int GRP_L12US2_IUS_VC	=	11;	//L12US2
-const unsigned int GRP_RECT_IUS_VC	=	12;	//rect
-const unsigned int GRP_L12US1_IUS_VC	=	13;	//L12US1
-const unsigned int GRP_L12US4_IUS_VC	=	14;	//L12US4
-const unsigned int GRP_L12US6_IUS_VC	=	15;	//L12US6
-const unsigned int GRP_L12US16_IUS_VC	=	16;	//L12US16
-const unsigned int GRP_L12US18_IUS_VC	=	17;	//L12US18
-const unsigned int GRP_L12US8_IUS_VC	=	18;	//L12US8
-const unsigned int GRP_L12US9_IUS_VC	=	19;	//L12US9
-const unsigned int GRP_L12US10_IUS_VC	=	20;	//L12US10
-const unsigned int GRP_L12US11_IUS_VC	=	21;	//L12US11
-const unsigned int GRP_L12US12_IUS_VC	=	22;	//L12US12
-const unsigned int GRP_L12US20_IUS_VC	=	23;	//L12US20
-const unsigned int GRP_L12US21_IUS_VC	=	24;	//L12US21
-const unsigned int GRP_L12US22_IUS_VC	=	25;	//L12US22
-const unsigned int GRP_L12US23_IUS_VC	=	26;	//L12US23
-const unsigned int GRP_L12US24_IUS_VC	=	27;	//L12US24
-const unsigned int GRP_TB_IUS_RF_ANT_ENA_U_IUS_VC	=	28;	//TB_IUS_RF_ANT_ENA_U
-const unsigned int GRP_TB_IUS_RF_ANT_ENA_L_IUS_VC	=	29;	//TB_IUS_RF_ANT_ENA_L
-const unsigned int GRP_L12UCB2_IUS_VC	=	30;	//L12UCB2
-const unsigned int GRP_L12UCB1_IUS_VC	=	31;	//L12UCB1
-const unsigned int GRP_L12UCB3_IUS_VC	=	32;	//L12UCB3
-const unsigned int GRP_L12UCB4_IUS_VC	=	33;	//L12UCB4
-const unsigned int GRP_TB_IUS_RF_ANT_DSBL_U_IUS_VC	=	34;	//TB_IUS_RF_ANT_DSBL_U
-const unsigned int GRP_TB_IUS_RF_ANT_DSBL_L_IUS_VC	=	35;	//TB_IUS_RF_ANT_DSBL_L
-
+const unsigned int GRP_PANEL_L12U_IUS_VC	=	0;	//panel
+const unsigned int GRP_GUARDS_L12U_IUS_VC	=	1;	//guards
+const unsigned int GRP_S1_L12U_IUS_VC	=	2;	//S1
+const unsigned int GRP_S2_L12U_IUS_VC	=	3;	//S2
+const unsigned int GRP_S3_L12U_IUS_VC	=	4;	//S3
+const unsigned int GRP_S4_L12U_IUS_VC	=	5;	//S4
+const unsigned int GRP_S5_L12U_IUS_VC	=	6;	//S5
+const unsigned int GRP_S6_L12U_IUS_VC	=	7;	//S6
+const unsigned int GRP_S7_L12U_IUS_VC	=	8;	//S7
+const unsigned int GRP_S8_L12U_IUS_VC	=	9;	//S8
+const unsigned int GRP_S9_L12U_IUS_VC	=	10;	//S9
+const unsigned int GRP_S10_L12U_IUS_VC	=	11;	//S10
+const unsigned int GRP_S11_L12U_IUS_VC	=	12;	//S11
+const unsigned int GRP_S12_L12U_IUS_VC	=	13;	//S12
+const unsigned int GRP_S13_L12U_IUS_VC	=	14;	//S13
+const unsigned int GRP_S14_L12U_IUS_VC	=	15;	//S14
+const unsigned int GRP_S15_L12U_IUS_VC	=	16;	//S15
+const unsigned int GRP_S16_L12U_IUS_VC	=	17;	//S16
+const unsigned int GRP_S17_L12U_IUS_VC	=	18;	//S17
+const unsigned int GRP_S18_L12U_IUS_VC	=	19;	//S18
+const unsigned int GRP_S19_L12U_IUS_VC	=	20;	//S19
+const unsigned int GRP_S20_L12U_IUS_VC	=	21;	//S20
+const unsigned int GRP_S21_L12U_IUS_VC	=	22;	//S21
+const unsigned int GRP_S22_L12U_IUS_VC	=	23;	//S22
+const unsigned int GRP_S23_L12U_IUS_VC	=	24;	//S23
+const unsigned int GRP_S24_L12U_IUS_VC	=	25;	//S24
+const unsigned int GRP_CB1_L12U_IUS_VC	=	26;	//CB1
+const unsigned int GRP_CB2_L12U_IUS_VC	=	27;	//CB2
+const unsigned int GRP_CB3_L12U_IUS_VC	=	28;	//CB3
+const unsigned int GRP_CB4_L12U_IUS_VC	=	29;	//CB4
+const unsigned int GRP_DS3_U_L12U_IUS_VC	=	30;	//DS3_U
+const unsigned int GRP_DS3_L_L12U_IUS_VC	=	31;	//DS3_L
+const unsigned int GRP_DS5_U_L12U_IUS_VC	=	32;	//DS5_U
+const unsigned int GRP_DS5_L_L12U_IUS_VC	=	33;	//DS5_L
+const unsigned int GRP_DS6_U_L12U_IUS_VC	=	34;	//DS6_U
+const unsigned int GRP_DS6_L_L12U_IUS_VC	=	35;	//DS6_L

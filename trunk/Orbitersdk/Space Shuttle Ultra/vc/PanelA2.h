@@ -36,6 +36,9 @@ namespace vc
 {
 	class PanelA2:public AtlantisPanel
 	{
+			MESHHANDLE hPanelMesh;
+			UINT mesh_index;
+
 			UINT anim_M1_AZ;
 			UINT anim_M1_EL;
 
@@ -61,6 +64,9 @@ namespace vc
 			PanelA2( Atlantis* _sts );
 			virtual ~PanelA2();
 
+			virtual void AddMeshes( const VECTOR3& ofs );
+			virtual void SetMeshVisibility( bool visible );
+			virtual UINT GetVCMeshIndex( void ) const;
 			virtual void DefineVC();
 			virtual void RegisterVC();
 			void DefineVCAnimations( UINT vcidx );
