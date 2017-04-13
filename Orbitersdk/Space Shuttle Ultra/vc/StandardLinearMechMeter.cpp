@@ -29,9 +29,12 @@ namespace vc
 
 	void StandardLinearMechMeter::OnPostStep( double SimT, double DeltaT, double MJD )
 	{
-		double val = range( 0.0, input.GetVoltage() / 5.0, 1.0 );
+		double tgt = range( 0.0, input.GetVoltage() / 5.0, 1.0 );
+		double cur = STS()->GetAnimation( anim );
+		double out = (0.5 * (tgt - cur)) + cur;
+		out = range( 0.0, range( cur - (2 * DeltaT), out, cur + (2 * DeltaT) ), 1.0 );// limit needle speed to 2s from end to end
 		
-		STS()->SetAnimation( anim, val );
+		STS()->SetAnimation( anim, out );
 		return;
 	}
 };

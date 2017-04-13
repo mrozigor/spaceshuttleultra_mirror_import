@@ -2,6 +2,7 @@
 #include "../Atlantis.h"
 #include "../dps/dps_defs.h"
 #include <OrbiterSoundSDK40.h>
+#include <assert.h>
 
 
 namespace vc
@@ -17,9 +18,10 @@ namespace vc
 	{
 	}
 
-	void Keyboard::ConnectIDP( int num, dps::IDP* p_idp )
+	void Keyboard::ConnectIDP( unsigned int num, dps::IDP* p_idp )
 	{
-		if (num >= 0 && num <= 1) pIDP[num] = p_idp;
+		assert( (num < 2) && "Keyboard::ConnectIDP.num" );
+		pIDP[num] = p_idp;
 		return;
 	}
 

@@ -45,7 +45,7 @@ public:
 	virtual void ResetLine();
 	void SetLine();
 	void SetLine(float fVoltage);
-	bool Connect( DiscreteBundle *pBundle, int iLine );
+	bool Connect( DiscreteBundle *pBundle, unsigned int iLine );
 	
 };
 
