@@ -41,8 +41,9 @@ namespace vc
 		MESHGROUPEX* mg = oapiMeshGroupEx( panelTemplate, grpIndex[component] );
 		DEVMESHHANDLE hDevpanelmesh = STS()->GetDevMesh( STS()->vis, panelmesh );
 
-		static NTVERTEX Vtx[8];
-		for (unsigned short i = 0; i < mg->nVtx; i++)
+		assert( (mg->nVtx == 4) && "_7SegDisp::UpdateUV.mg->nVtx" );
+		static NTVERTEX Vtx[4];
+		for (unsigned short i = 0; i < 4; i++)
 		{
 			Vtx[i].tu = mg->Vtx[i].tu + (_7SD_U_OFFSET[next_state[component]] - _7SD_U_OFFSET[default_state[component]]);
 			Vtx[i].tv = mg->Vtx[i].tv + (_7SD_V_OFFSET[next_state[component]] - _7SD_V_OFFSET[default_state[component]]);
@@ -52,7 +53,7 @@ namespace vc
 		GROUPEDITSPEC grpSpec;
 		grpSpec.flags = GRPEDIT_VTXTEX;
 		grpSpec.Vtx = Vtx;
-		grpSpec.nVtx = mg->nVtx;
+		grpSpec.nVtx = 4;
 		grpSpec.vIdx = NULL;
 
 		oapiEditMeshGroup( hDevpanelmesh, grpIndex[component], &grpSpec );

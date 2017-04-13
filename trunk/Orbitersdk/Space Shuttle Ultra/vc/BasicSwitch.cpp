@@ -5,6 +5,7 @@
 #include "BasicSwitch.h"
 #include "../Atlantis.h"
 #include <OrbiterSoundSDK40.h>
+#include <assert.h>
 
 //////////////////////////////////////////////////////////////////////
 // Konstruktion/Destruktion
@@ -190,7 +191,7 @@ void BasicSwitch::SetOrientation(bool bHorizontal)
 
 void BasicSwitch::SetSpringLoaded(bool IsSpringLoaded, unsigned short usPos)
 {
-	if(usPos>=usNumPositions) return;
+	assert( (usPos < usNumPositions) && "BasicSwitch::SetSpringLoaded.usPos" );
 
 	bSpringLoaded = bSpringLoaded || IsSpringLoaded;
 	vbSpringLoaded.at(usPos) = IsSpringLoaded;

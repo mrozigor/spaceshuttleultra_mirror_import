@@ -6053,19 +6053,15 @@ bool Atlantis::clbkVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 
 bool Atlantis::RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU)
 {
-	if (usMDUID < 11)
+	assert( (usMDUID < 11) && "Atlantis::RegisterMDU.usMDUID" );
+
+	if (mdus[usMDUID] != NULL)
 	{
-		if (mdus[usMDUID] != NULL)
-		{
-			return false;
-		}
-		else {
-			mdus[usMDUID] = pMDU;
-			return true;
-		}
+		return false;
 	}
 	else {
-		return false;
+		mdus[usMDUID] = pMDU;
+		return true;
 	}
 }
 
@@ -6574,16 +6570,6 @@ DLLCLBK VESSEL *ovcInit(OBJHANDLE hvessel, int flightmodel)
 DLLCLBK void ovcExit(VESSEL *vessel)
 {
 	if (vessel) delete (Atlantis*)vessel;
-}
-
-DLLCLBK bool gpcReadValue(VESSEL* pVessel, UINT gpc, UINT val_index, DWORD* value)
-{
-	return false;
-}
-
-DLLCLBK bool gpcSetValue(VESSEL* pVessel, UINT gpc, UINT val_index, const DWORD value)
-{
-	return false;
 }
 
 bool Atlantis::GetLiftOffFlag() const
@@ -7675,6 +7661,8 @@ ANIMATIONCOMPONENT_HANDLE Atlantis::AddManagedAnimationComponent(UINT anim, doub
 
 void Atlantis::OMSEngControl(unsigned short usEng)
 {
+	assert( (usEng < 2) && "Atlantis::OMSEngControl.usEng" );
+
 	if (GetPropellantMass(oms_helium_tank[usEng]) > 0.0 && (OMSArm[usEng] || OMSArmPress[usEng])) {
 		SetThrusterResource(th_oms[usEng], ph_oms);
 	}

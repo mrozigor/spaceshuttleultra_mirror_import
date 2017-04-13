@@ -41,7 +41,7 @@ namespace vc
 			Keyboard( Atlantis* _sts, const std::string& _ident, int ID );
 			virtual ~Keyboard();
 
-			void ConnectIDP( int num, dps::IDP* p_idp );
+			void ConnectIDP( unsigned int num, dps::IDP* p_idp );
 
 			virtual bool OnMouseEvent( int _event, float x, float y );
 	};

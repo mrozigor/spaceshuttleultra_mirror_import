@@ -45,7 +45,7 @@ void DiscOutPort::ResetLine()
 	else initval = 0.0f;
 }
 
-bool DiscOutPort::Connect( DiscreteBundle *pBundle, int iLine )
+bool DiscOutPort::Connect( DiscreteBundle *pBundle, unsigned int iLine )
 {
 	DiscretePort::Connect( pBundle, iLine );// connect
 
