@@ -599,8 +599,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	bUseRealRCS = true;
 	bEnableMCADebug = false;
 
-	___iCurrentManifold = 0;
-
 	//SRB slag effects
 	slag1 = 0.0;
 	slag2 = 0.0;
@@ -6134,10 +6132,14 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 			ArmGear();
 			return 1;
 		case OAPI_KEY_A:
-			ControlRMS = !ControlRMS;
-			if (ControlRMS) DisplayCameraLabel(TEXT_RMSCONTROL);
-			else DisplayCameraLabel(TEXT_RCSCONTROL);
-			return 1;
+			if (pRMS)
+			{
+				ControlRMS = !ControlRMS;
+				if (ControlRMS) DisplayCameraLabel(TEXT_RMSCONTROL);
+				else DisplayCameraLabel(TEXT_RCSCONTROL);
+				return 1;
+			}
+			else return 0;
 		case OAPI_KEY_O:
 			if (RMSSpeedIn) RMSSpeedOut.ResetLine();
 			else RMSSpeedOut.SetLine();
@@ -6155,12 +6157,6 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 			{
 				bSSMEGOXVent = true;//!bSSMEGOXVent;
 			}
-			return 1;
-		case OAPI_KEY_1: //temporary
-			if (pRMS) pRMS->ToggleJointAngleDisplay();
-			return 1;
-		case OAPI_KEY_2:
-			FireAllNextManifold();
 			return 1;
 		case OAPI_KEY_3:
 			pgForward.ToggleCoordinateDisplayMode();
@@ -7017,116 +7013,6 @@ void Atlantis::AddVernierRCSExhaust(THRUSTER_HANDLE thX)
 	GetThrusterRef(thX, pos);
 	GetThrusterDir(thX, dir);
 	AddVRCSExhaust(thX, pos, -dir);
-}
-
-void Atlantis::FireAllNextManifold()
-{
-	StopAllManifolds();
-	int i;
-	switch (___iCurrentManifold)
-	{
-	case 0:
-		//Fire none
-		return;
-	case 1:
-		//Fire Manifold 1
-		for (i = 0; i < 4; i++)
-		{
-			if (thFRCS[i])
-			{
-				SetThrusterLevel(thFRCS[i], 1.0);
-			}
-
-		}
-		___iCurrentManifold++;
-		return;
-	case 2:
-		//Fire manifold 2
-		for (i = 0; i < 4; i++)
-		{
-			if (thFRCS[i])
-			{
-				SetThrusterLevel(thFRCS[i], 1.0);
-			}
-
-		}
-		___iCurrentManifold++;
-		return;
-	case 3:
-		//Fire manifold 3
-		for (i = 0; i < 4; i++)
-		{
-			if (thFRCS[i])
-			{
-				SetThrusterLevel(thFRCS[i], 1.0);
-			}
-
-		}
-		___iCurrentManifold++;
-		return;
-	case 4:
-		//Fire manifold 4
-		for (i = 0; i < 2; i++)
-		{
-			if (thFRCS[i])
-			{
-				SetThrusterLevel(thFRCS[i], 1.0);
-			}
-
-		}
-		___iCurrentManifold++;
-		return;
-	case 5:
-		//Fire manifold 5 (vernier)
-		for (i = 0; i < 2; i++)
-		{
-			if (thFRCS[i])
-			{
-				SetThrusterLevel(thFRCS[i], 1.0);
-			}
-
-		}
-		___iCurrentManifold++;
-		return;
-	default:
-		___iCurrentManifold = 0;
-		return;
-	}
-}
-
-void Atlantis::StopAllManifolds()
-{
-	int i;
-	for (i = 0; i < 4; i++)
-	{
-		if (thFRCS[i])
-		{
-			SetThrusterLevel(thFRCS[i], 0.0);
-		}
-
-		if (thFRCS[i])
-		{
-			SetThrusterLevel(thFRCS[i], 0.0);
-		}
-
-		if (thFRCS[i])
-		{
-			SetThrusterLevel(thFRCS[i], 0.0);
-		}
-
-
-	}
-	for (i = 0; i < 2; i++)
-	{
-		if (thFRCS[i])
-		{
-			SetThrusterLevel(thFRCS[i], 0.0);
-		}
-		if (thFRCS[i])
-		{
-			SetThrusterLevel(thFRCS[i], 0.0);
-		}
-	}
 }
 
 void Atlantis::SetAirDataProbeDeployment(int side, double position)

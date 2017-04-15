@@ -53,8 +53,6 @@ RMSSystem::RMSSystem(AtlantisSubsystemDirector *_director)
 	for(int i=0;i<6;i++) joint_motion[i]=0;
 	for(int i=0;i<3;i++) ee_translation[i]=0;
 
-	display_angles=false;
-
 	bSoftStop = false;
 
 	bEECapture = false;
@@ -529,11 +527,6 @@ void RMSSystem::OnPreStep(double SimT, double DeltaT, double MJD)
 void RMSSystem::OnPostStep(double SimT, double DeltaT, double MJD)
 {
 	MPMSystem::OnPostStep(SimT, DeltaT, MJD);
-
-	if(display_angles) {
-		sprintf_s(oapiDebugString(), 255, "SY:%f SP:%f EP:%f WP:%f WY:%f WR:%f", joint_angle[SHOULDER_YAW], joint_angle[SHOULDER_PITCH], joint_angle[ELBOW_PITCH], 
-			joint_angle[WRIST_PITCH], joint_angle[WRIST_YAW], joint_angle[WRIST_ROLL]);
-	}
 	
 	// update end effector light position/direction
 	if(arm_moved || MPMRollout.Moving()) {
@@ -1052,12 +1045,6 @@ void RMSSystem::UpdateEELight( void )
 	pEELight->SetPosition(EELightPos);
 	pEELight->SetDirection(arm_tip[1]-arm_tip[0]);
 	return;
-}
-
-void RMSSystem::ToggleJointAngleDisplay()
-{
-	display_angles=!display_angles;
-	if(!display_angles) sprintf_s(oapiDebugString(), 255, "");
 }
 
 void RMSSystem::AutoGrappleSequence()

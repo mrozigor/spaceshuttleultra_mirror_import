@@ -330,7 +330,6 @@ public:
 	DragChute* pDragChute;
 
 	AnimState::Action spdb_status;
-	int ___iCurrentManifold;
 
 	// Actual Virtual Cockpit Mode
 	int VCMode;
@@ -662,9 +661,6 @@ private:
 	void CopyThrusterSettings(THRUSTER_HANDLE th, const VESSEL* v, THRUSTER_HANDLE th_ref);
 	
 	void OMSEngControl(unsigned short usEng);
-
-	void StopAllManifolds();
-	void FireAllNextManifold();
 
 	
 	//Helper functions for RCS creation
