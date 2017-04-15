@@ -106,11 +106,11 @@ Charles F. Bolden Jr. - NASA Administrator, 2015
 \section*{PREFACE}
 \begin{multicols*}{2}
 %\addcontentsline{toc}{section}{PREFACE}
-Space Shuttle Ultra (SSU) is an addon for Orbiter Space Flight Simulator.  The purpose of this addon is to fully simulate the NASA's Space Transportation System Program.  Currently only a few elements have been completed and work on others is ongoing.\\
+Space Shuttle Ultra (SSU) is an addon for Orbiter Space Flight Simulator (\url{http://orbit.medphys.ucl.ac.uk/}).  The purpose of this addon is to fully simulate the NASA's Space Transportation System Program.  Currently only a few elements have been completed and work on others is ongoing.\\
 \\
-The basis for this addon was the Space Shuttle Deluxe but through adding additional subsystems and taking full advantage of the 2016 version of Orbiter, the current SSU has few similarities to the original Deluxe.  Currently, SSU simulates a number of systems, displays, and procedures of the real shuttle and can be used along with real NASA Flight Data File (FDF) checklists to complete tasks.  These checklists can be found at the \href{http://www.nasa.gov/centers/johnson/news/flightdatafiles/index.html}{NASA Flight Data Files} web page (\url{http://www.nasa.gov/centers/johnson/news/flightdatafiles/index.html}), and provide a good reference for other procedures. The NASA Flight Data Files site includes checklists for all missions after STS-107, as well as generic checklists. \\
+The basis for this addon was the Space Shuttle Deluxe but through adding additional subsystems and taking full advantage of the 2016 version of Orbiter, the current SSU has few similarities to the original Deluxe.  Currently, SSU simulates a number of systems, displays, and procedures of the real shuttle and can be used along with real NASA Flight Data File (FDF) checklists to complete tasks.  These checklists can be found at the NASA Flight Data Files web page (\url{http://www.nasa.gov/centers/johnson/news/flightdatafiles/index.html}), and provide a good reference for other procedures. The NASA Flight Data Files site includes checklists for all missions after STS-107, as well as generic checklists. \\
 \\
-Additional documentation containing background information about the shuttle and its systems can be found \href{http://sourceforge.net/projects/shuttleultra/files/References/}{here} (\url{http://sourceforge.net/projects/shuttleultra/files/References/}).\\
+Additional documentation containing background information about the shuttle and its systems can be found at \url{http://sourceforge.net/projects/shuttleultra/files/References/}.\\
 \\
 Other good NASA references are the Shuttle Crew Operations Manual (SCOM), the DPS Dictionary, and the various Workbooks and Handbooks that are available on the Internet (these can also be found at the above link). \\
 \\
@@ -196,15 +196,18 @@ After MECO, the ET is jettisoned and the +Z RCS thrusters are automatically fire
 \\
 Procedures for this phase of the mission can be found in the NASA Ascent Checklist.
 \paragraph{Orbit Insertion and Circularization}
-The nominal ascent profile, referred to as "direct insertion," places the vehicle in a temporary elliptical orbit at MECO, with the perigee in the Earth's atmosphere. Orbital altitudes can very depending on mission requirements. The crew performs an OMS burn, designated as ``OMS 2'', to stabilize the orbit. This burn can add anywhere between 200 to 550 fps to the vehicle's orbital velocity, as necessary.\\
+The nominal ascent profile, referred to as "direct insertion," places the vehicle in a temporary elliptical orbit at MECO, with the perigee in the Earth's atmosphere. Orbital altitudes can very depending on mission requirements. The crew performs an OMS burn, designated as ``OMS 2'', to stabilize the orbit. This burn can add anywhere between 200 to 550 fps to the vehicle's orbital velocity, as necessary.
 %\\
 %In cases of severe performance problems during the ascent, the vehicle may find itself well short of the expected MECO velocity, and even suborbital. In such cases, the crew performs what is call an ``OMS 1'' burn shortly after MECO, which raises the orbit to a safe altitude. They then perform an OMS 2 burn to stabilize that orbit.\\
 \\
-When simulating early missions with SSU, the orbiter will perform what was known as a ``standard insertion''. This will place the orbiter in a heads down suborbital orbit at MECO and will require an OMS 1 burn to raise the apogee, followed by an OMS 2 burn.  This ascent profile was used for the first ten missions, STS-1 though STS-41B.\\
+When simulating early missions with SSU, the orbiter will perform what was known as a ``standard insertion''. This will place the orbiter in a heads down suborbital orbit at MECO and will require an OMS 1 burn to raise the apogee, followed by an OMS 2 burn.  This ascent profile was used for the first ten missions, STS-1 though STS-41B.
 \\
 After ET separation (and before the OMS 2 burn), the ET umbilical doors are closed.\\
 \\
-Procedures for this phase of the mission can be found in the NASA Ascent Checklist.
+Procedures for this phase of the mission can be found in the NASA Ascent Checklist.\\
+\\
+\WARNING{Scenario saving during the launch phase (MM102, 103 and 104) is currently not supported by SSU.}
+
 \paragraph{Orbit}
 On orbit, the forward and aft RCS jets provide attitude control of the orbiter, as well as any minor translation maneuvers along a given axis. The OMS engines are used to perform orbital transfers, such as those done to rendezvous with the International Space Station (ISS). Mission objectives while in orbit has ranged from ISS assembly and logistics, payload deployment and retrieval, to scientific experiments. Also several planned, but not flown, missions are able be simulated with SSU including Shuttle-Centaur flights and Vandenberg missions.
 \\
@@ -335,7 +338,7 @@ The RHCs on the real shuttle have a "soft stop" and a "hard stop" (the mechanica
 The Speedbrake/Thrust Controller (SBTC) controls both SSME throttling during ascent and the speedbrake setting during entry. In Orbiter, the SBTC is controlled in 5\% intervals, in the forward direction by the numpad \textit{Subtract} key, and in the aft direction via the numpad \textit{Add} key. The takeover switch, used to initiate manual control of the SSME throttle or speedbrake settings, is simulated by the \textit{Minus} key. The appropriate \textit{FLT CNTLR PWR} switch must be on for the SBTC to be active. Each SBTC is animated so the user can tell what setting is being commanded. During ascent, a full aft SBTC position corresponds to 67\% SSME throttle; full forward SBTC position corresponds to 104.5\% (109\% during some abort cases) SSME throttle. During entry, full aft SBTC position corresponds to the speedbrake being \textbf{fully open}; full forward SBTC position corresponds to the speedbrake being commanded \textbf{fully closed}.
 
 \paragraph{Ascent}
-During ascent, SSME throttling is usually controlled by autopilot; in this case, the \textit{AUTO} portion of the \textit{SPD BK/THROT} PBIs on Panel F2 \& Panel F4 is lit, and \textbf{THRTL: Auto} is displayed in the A/E PFD display. To takeover manual control of the SSME throttle command, press the SBTC takeover switch and move the SBTC to match the current SSME auto command (displayed in the Ascent Traj displays. When the SBTC takeover switch is pressed both \textit{AUTO} PBIs will go out, indicating a manual takeover is in progress, but not completed. When the SBTC-commanded SSME throttle setting matches the auto command within 4\%, the PLT \textit{SBD BK/THROT MAN} PBI will be lit and the \textbf{THRTL: Man} appears in the A/E PFD display, indicating that the SSME throttle is now under manual control. To return to auto SSME throttle control, press either \textit{SBD BK/THROT MAN} PBI. A manual MECO can be commanded by pressing the NUMPAD * key (in real life, this is done by simultaneously pressing all 3 \textit{MAIN ENGINE SHUT DOWN} push buttons on Panel C3; this is not possible in Orbiter).
+During ascent, SSME throttling is usually controlled by autopilot; in this case, the \textit{AUTO} portion of the \textit{SPD BK/THROT} PBIs on Panel F2 \& Panel F4 is lit, and \textbf{THRTL: Auto} is displayed in the A/E PFD display. To takeover manual control of the SSME throttle command, press the SBTC takeover switch and move the SBTC to match the current SSME auto command (displayed in the Ascent Traj displays. When the SBTC takeover switch is pressed both \textit{AUTO} PBIs will go out, indicating a manual takeover is in progress, but not completed. When the SBTC-commanded SSME throttle setting matches the auto command within 4\%, the PLT \textit{SBD BK/THROT MAN} PBI will be lit and \textbf{THRTL: Man} appears in the A/E PFD display, indicating that the SSME throttle is now under manual control. To return to auto SSME throttle control, press either \textit{SBD BK/THROT MAN} PBI. A manual MECO can be commanded by pressing the NUMPAD * key (in real life, this is done by simultaneously pressing all 3 \textit{MAIN ENGINE SHUT DOWN} push buttons on Panel C3; this is not possible in Orbiter).
 
 \paragraph{Entry}
 \label{sec:entry}
@@ -354,15 +357,15 @@ The Rudder Pedal Transducer Assembly (RPTA) allows the rudder during the later p
 
 \subsubsection{Camera Views}
 %\addcontentsline{toc}{subsection}{Camera Views}
-SSU includes the four payload bay cameras and the docking port centerline camera. The PLB cameras are controlled via their switches on panel A7U on the flight deck and are no longer controlled with a dialog window. In the PLB camera VC views, the cameras can be rotated using ALT+Arrow Key.
+SSU includes the four payload bay cameras and the docking port centerline camera. The PLB cameras are controlled via their switches on panel A7U on the flight deck and are no longer controlled with a dialog window. In the PLB camera VC views, the cameras can be rotated using Alt+Arrow Key.
 
 \subsubsection{Navigating the Virtual Cockpit}
 Changing between Virtual Cockpit (VC) views is identical to the system used in the default Atlantis but with several more positions around the cockpit that we call stations. You can switch between different stations using the Ctrl+Arrow key combination (See Chart below for all combinations.) The Commander (CDR) Station is the front left seat on the flight deck, while the Pilot (PLT) station is the right seat (while looking forward).\\
 
 Table \ref{tab:VC_navigation} is set up to show the different ways to move about the crew module. The first column is the camera position you are in and the other columns show the views you can change to using the Ctrl+Arrow key combination at the top of the table. For additional assistance in navigating the views, the name of the view is shown for a few seconds at the top of the screen during the simulation. The names in the table are identical to those that appear on-screen.
 \\
+In addition, each station has lean positions (Alt Gr+Arrow key) which allow better positioning to reach a specific panel or window.
 \\
-\WARNING{Scenario saving during the launch phase (MM102, 103 and 104) is currently not supported by SSU.}
 
 \end{multicols*}
 \begin{table}[H]
@@ -472,10 +475,11 @@ The mission file entries to define the ODS, External Airlock and TAA are defined
 $\rightarrow$ updated SSU to run in Orbiter 2016\\
 $\rightarrow$ integrated CRTMFD into the SpaceShuttleUltra vessel\\
 $\rightarrow$ moved HUD outputs in IUS and Centaur into own MFDs\\
-$\rightarrow$ extensive overhaul of the CRTMFD displays: corrected MDU screen aspect ratio, all displays reworked and converted to 512x512 resolution, separate code for MOGE and D3D9, added fonts, improved resource allocation\\
+$\rightarrow$ extensive overhaul of the CRTMFD displays: corrected MDU screen aspect ratio, all displays reworked and converted to 512x512 resolution, separate code for MOGE and D3D9, added fonts, improved resource allocation, blue hue in the background, added brightness control\\
 $\rightarrow$ improved CRT keyboard data entry\\
 $\rightarrow$ improved memory cleanup on exit\\
-$\rightarrow$ updated 7-segment displays to the \"UV system\"\\
+$\rightarrow$ updated all 7-segment displays to the "UV system"\\
+$\rightarrow$ updated all talkbacks to the "UV system"\\
 $\rightarrow$ improved VC mesh performance\\
 $\rightarrow$ corrected position of White Sands surface base\\
 $\rightarrow$ added manual control capability during ascent\\
@@ -484,6 +488,19 @@ $\rightarrow$ improved RHC, THC and SBTC simulation and added RPTA\\
 $\rightarrow$ fixed pad lights glare\\
 $\rightarrow$ changed IUS and Centaur engine gimbal to be rate command\\
 $\rightarrow$ fixed several RMS issues\\
+$\rightarrow$ improved HUD symbols\\
+$\rightarrow$ corrected PLBD animation\\
+$\rightarrow$ fixed left elevon and rudder\/speedbrake animations\\
+$\rightarrow$ finished ADI ball mesh\/texture for D3D9\\
+$\rightarrow$ added initial PDRS implementation (allows configuration of number of tank sets, but tank mass remains constant during the mission)\\
+$\rightarrow$ added capability to display EDO pallet in payload bay\\
+$\rightarrow$ added RMS master alarm, triggered when reach limits are exceeded\\
+$\rightarrow$ corrected GVA retraction time\\
+$\rightarrow$ improved ODS panel power logic\\
+$\rightarrow$ updated existing, and added all remaining, PBIs and lights to the "UV system"\\
+$\rightarrow$ corrected scenarios\\
+$\rightarrow$ corrected forward bulkhead hatch cover position\\
+$\rightarrow$ corrected Orbiter mesh\\
 
 \newpage
 \section{ACRONYM LIST}
