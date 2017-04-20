@@ -299,7 +299,7 @@ Scenarios\Space Shuttle Ultra\Testing scenarios\KSC15 final approach.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\MLP roll-off.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\Payload Latch Test.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\Rendezvous test scenario.scn
-Scenarios\Space Shuttle Ultra\Testing scenarios\SLC-6 Launch test.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\SLC-6 Launch pad test.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\STS-1 T-45s.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\STS-126 T-1m.scn
 Scenarios\Space Shuttle Ultra\Theoretical missions\STS-61F\Centaur rotation to deploy.scn
@@ -332,6 +332,28 @@ Sound\_CustomVesselsSounds\SpaceShuttleUltra\talkback_off.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\talkback_on.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\VAB_ambient_noise.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\VAB_crane_noise.wav
+Textures\Earth\Mask\15\000627\000675.dds
+Textures\Earth\Mask\15\000628\000675.dds
+Textures\Earth\Mask\15\000629\000675.dds
+Textures\Earth\Mask\15\000630\000675.dds
+Textures\Earth\Mask\15\000630\000676.dds
+Textures\Earth\Mask\15\000631\000676.dds
+Textures\Earth\Mask\15\000631\000677.dds
+Textures\Earth\Mask\15\000631\000678.dds
+Textures\Earth\Mask\15\000632\000677.dds
+Textures\Earth\Surf\15\000627\000675.dds
+Textures\Earth\Surf\15\000628\000675.dds
+Textures\Earth\Surf\15\000628\000676.dds
+Textures\Earth\Surf\15\000629\000675.dds
+Textures\Earth\Surf\15\000629\000676.dds
+Textures\Earth\Surf\15\000629\000677.dds
+Textures\Earth\Surf\15\000630\000675.dds
+Textures\Earth\Surf\15\000630\000676.dds
+Textures\Earth\Surf\15\000630\000677.dds
+Textures\Earth\Surf\15\000631\000676.dds
+Textures\Earth\Surf\15\000631\000677.dds
+Textures\Earth\Surf\15\000631\000678.dds
+Textures\Earth\Surf\15\000632\000677.dds
 Textures\SSU\10K_marker.dds
 Textures\SSU\11K_marker.dds
 Textures\SSU\12K_marker.dds
