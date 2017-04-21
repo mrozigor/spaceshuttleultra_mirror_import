@@ -1,6 +1,6 @@
 // ======================================================
 // Created by ssumeshc 0.3
-// Date of conversion : Wed Apr 05 11:37:51 2017
+// Date of conversion : Fri Apr 21 08:37:03 2017
 
 // Input file: Orbiter.msh
 // ======================================================
@@ -11,9 +11,9 @@ const unsigned int NUMGRP = 148;
 const unsigned int NUMMAT = 4;
 const unsigned int NUMTEX = 6;
 
-const unsigned int GRP_LEFT_MLG_DOOR	=	0;	//LEFT_MLG_DOOR
+const unsigned int GRP_LEFT_NLG_DOOR	=	0;	//LEFT_NLG_DOOR
 const unsigned int GRP_RIGHT_MLG_DOOR	=	1;	//RIGHT_MLG_DOOR
-const unsigned int GRP_LEFT_PLBD_EXT	=	2;	//LEFT_PLBD_EXT
+const unsigned int GRP_LEFT_PLBD_EXTERIOR	=	2;	//LEFT_PLBD_EXTERIOR
 const unsigned int GRP_RIGHT_OMSPOD	=	3;	//RIGHT_OMSpod
 const unsigned int GRP_LEFT_OMSPOD	=	4;	//LEFT_OMSpod
 const unsigned int GRP_XO576_BULKHEAD_	=	5;	//Xo576_BULKHEAD 
@@ -121,12 +121,12 @@ const unsigned int GRP_STBD_PLBD_INTERIOR	=	106;	//STBD_PLBD_INTERIOR
 const unsigned int GRP_FRCS_MODULE	=	107;	//FRCS_MODULE
 const unsigned int GRP_WING_RCC	=	108;	//Wing_RCC
 const unsigned int GRP_HATCH	=	109;	//hatch
-const unsigned int GRP_LEFT_NLG_DOOR	=	110;	//LEFT_NLG_DOOR
+const unsigned int GRP_LEFT_MLG_DOOR	=	110;	//LEFT_MLG_DOOR
 const unsigned int GRP_RIGHT_NLG_DOOR	=	111;	//RIGHT_NLG_DOOR
 const unsigned int GRP_WINGTOPS	=	112;	//Wingtops
 const unsigned int GRP_T0_UMBILICAL_PANELS	=	113;	//T0_UMBILICAL_PANELS
 const unsigned int GRP_BODYFLAP	=	114;	//BODYFLAP
-const unsigned int GRP_RIGHT_PLBD_EXT	=	115;	//RIGHT_PLBD_EXT
+const unsigned int GRP_RIGHT_PLBD_EXTERIOR	=	115;	//RIGHT_PLBD_EXTERIOR
 const unsigned int GRP_RIGHT_RSB_PANEL	=	116;	//RIGHT_RSB_PANEL
 const unsigned int GRP_LEFT_RSB_PANEL	=	117;	//LEFT_RSB_PANEL
 const unsigned int GRP_LEFT_INBOARD_ELEVON_SEAL_PANEL	=	118;	//LEFT_INBOARD_ELEVON_SEAL_PANEL

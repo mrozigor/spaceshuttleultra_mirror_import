@@ -1706,7 +1706,7 @@ void Atlantis::DefineAnimations(void)
 	BeginLoggingAnims();
 
 	// ***** 1. Payload bay door and radiator animations *****
-	static UINT PLBD_PORT_Grp[4] = {GRP_LEFT_PLBD_EXT, GRP_PORT_PLBD_INTERIOR, GRP_PORT_PLB_RADIATOR_3, GRP_PORT_PLB_RADIATOR_4};
+	static UINT PLBD_PORT_Grp[4] = {GRP_LEFT_PLBD_EXTERIOR, GRP_PORT_PLBD_INTERIOR, GRP_PORT_PLB_RADIATOR_3, GRP_PORT_PLB_RADIATOR_4};
 	MGROUP_ROTATE* PLBD_PORT = new MGROUP_ROTATE( midx, PLBD_PORT_Grp, 4, PLBD_PORT_P3, -PLBD_PORT_AXIS, (float)(360 * RAD) );
 	anim_door_port = CreateAnimation( 0.0 );
 	LogAnim( "anim_door_port", anim_door_port );
@@ -1737,7 +1737,7 @@ void Atlantis::DefineAnimations(void)
 	AddManagedAnimationComponent( anim_door_port_pushrod, 0.0, 1.0, PLBD_PUSH_ROD_PORT, parent );
 
 
-	static UINT PLBD_STBD_Grp[4] = {GRP_RIGHT_PLBD_EXT, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4};
+	static UINT PLBD_STBD_Grp[4] = {GRP_RIGHT_PLBD_EXTERIOR, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4};
 	MGROUP_ROTATE* PLBD_STBD = new MGROUP_ROTATE( midx, PLBD_STBD_Grp, 4, PLBD_STBD_P3, -PLBD_STBD_AXIS, (float)(360 * RAD) );
 	anim_door_stbd = CreateAnimation( 0.0 );
 	LogAnim( "anim_door_stbd", anim_door_stbd );
