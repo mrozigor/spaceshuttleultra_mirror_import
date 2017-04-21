@@ -106,10 +106,10 @@ void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
 
 	DWORD ntdvtx = 4;
 	static TOUCHDOWNVTX tdvtx[4] = {
-		{_V( 1.0, -4.5, 0.0 ), 1e8, 1e2, 5, 5},
-		{_V( -1.0, -4.5, 1.0 ), 1e8, 1e2, 5, 5},
-		{_V( -1.0, -4.5, -1.0 ), 1e8, 1e2, 5, 5},
-		{_V( 0, 50, 0 ), 1e8, 1e2, 5}
+		{_V( 1.0, -14.0, 0.0 ), 1e10, 1e2, 5, 5},
+		{_V( -1.0, -14.0, 1.0 ), 1e10, 1e2, 5, 5},
+		{_V( -1.0, -14.0, -1.0 ), 1e10, 1e2, 5, 5},
+		{_V( 0, 50, 0 ), 1e10, 1e2, 5}
 	};
 	SetTouchdownPoints( tdvtx, ntdvtx );
 	
