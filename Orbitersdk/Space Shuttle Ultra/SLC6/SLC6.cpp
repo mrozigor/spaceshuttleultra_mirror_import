@@ -89,7 +89,7 @@ void SLC6::clbkSetClassCaps(FILEHANDLE cfg)
 	sab_mesh_idx = AddMesh(hSABMesh, &SAB_MESH_OFFSET);
 	mst_mesh_idx = AddMesh(hMSTMesh, &MST_MESH_OFFSET);
 
-	ahHDP = CreateAttachment(false, _V( 0, 6.1, -2.7 ), _V(0.0, 1.0, 0.0), _V(0.0, 0.0, 1.0), "XHDP");
+	ahHDP = CreateAttachment(false, _V( 0, 6.825, -2.7 ), _V(0.0, 1.0, 0.0), _V(0.0, 0.0, 1.0), "XHDP");
 
 	DefineAnimations();
 	DefineROFIs();
@@ -575,13 +575,13 @@ void SLC6::DefineAnimations()
 	anim_IAA = CreateAnimation(0.0);
 	AddAnimationComponent(anim_IAA, 0.0, 1.0, pIAA);
 
-	static UINT LeftT0UmbGrp[1] = {GRP_SLC6_PAD_LH_T0_UMBILICALS};
+	static UINT LeftT0UmbGrp[1] = {GRP_SLC6_PAD_LH2_T0_UMBILICALS};
 	MGROUP_ROTATE* pLeftT0Umb = DefineRotation(pad_mesh_idx, LeftT0UmbGrp, 1, _V(5.30725, 9.1715, 6.0545), _V(-0.0867, 0.0, 0.9962), (float)(17.0*RAD));
-	static UINT RightT0UmbGrp[1] = {GRP_SLC6_PAD_RH_T0_UMBILICALS};
+	static UINT RightT0UmbGrp[1] = {GRP_SLC6_PAD_LOX_T0_UMBILICALS};
 	MGROUP_ROTATE* pRightT0Umb = DefineRotation(pad_mesh_idx, RightT0UmbGrp, 1, _V(-5.30725, 9.1715, 6.0545), _V(-0.0867, 0.0, -0.9962), (float)(17.0*RAD));
-	static UINT LeftT0UmbCoverGrp[1] = {GRP_SLC6_PAD_LH_TSM_BONNET};
+	static UINT LeftT0UmbCoverGrp[1] = {GRP_SLC6_PAD_LH2_TSM_BONNET};
 	MGROUP_ROTATE* pLeftT0UmbCover = DefineRotation(pad_mesh_idx, LeftT0UmbCoverGrp, 1, _V(5.75, 16.36, 6.088), _V(0.0867, 0.0, -0.9962), (float)(90.0*RAD));
-	static UINT RightT0UmbCoverGrp[1] = {GRP_SLC6_PAD_RH_TSM_BONNET};
+	static UINT RightT0UmbCoverGrp[1] = {GRP_SLC6_PAD_LOX_TSM_BONNET};
 	MGROUP_ROTATE* pRightT0UmbCover = DefineRotation(pad_mesh_idx, RightT0UmbCoverGrp, 1, _V(-5.75, 16.36, 6.088), _V(0.0867, 0.0, 0.9962), (float)(90.0*RAD));
 	anim_T0Umb = CreateAnimation(0.0);
 	AddAnimationComponent(anim_T0Umb, 0.5, 1, pLeftT0Umb);
@@ -593,7 +593,7 @@ void SLC6::DefineAnimations()
 	anim_PCR = CreateAnimation(0.0);
 	AddAnimationComponent(anim_PCR, 0.0, 1.0, pPCR);
 
-	MGROUP_TRANSLATE* pSAB = DefineTranslation(sab_mesh_idx, NULL, 0, _V(0, 0, -104.5));
+	MGROUP_TRANSLATE* pSAB = DefineTranslation(sab_mesh_idx, NULL, 0, _V(0, 0, -101.0));
 	anim_SAB = CreateAnimation(0.0);
 	AddAnimationComponent(anim_SAB, 0.0, 1.0, pSAB);
 
@@ -606,12 +606,12 @@ void SLC6::DefineAnimations()
 	MGROUP_ROTATE* pIAAStructure = DefineRotation(tower_mesh_idx, IAAStructureGrp, 9, _V(4.348, 0.0, -25.298), _V(0, 1, 0), static_cast<float>(-90.0*RAD)); // rotation angle is just a guess
 	AddAnimationComponent(anim_MST, 0.0, 0.05, pIAAStructure);
 
-	static UINT SABDoorGrp[7] = {GRP_Door_panel7_SAB, GRP_Door_panel6_SAB, GRP_Door_panel5_SAB, GRP_Door_panel4_SAB, GRP_Door_panel3_SAB, GRP_Door_panel2_SAB, GRP_Door_panel1_SAB};
+	static UINT SABDoorGrp[7] = {GRP_SLC6_SAB_DOOR_PANEL7, GRP_SLC6_SAB_DOOR_PANEL6, GRP_SLC6_SAB_DOOR_PANEL5, GRP_SLC6_SAB_DOOR_PANEL4, GRP_SLC6_SAB_DOOR_PANEL3, GRP_SLC6_SAB_DOOR_PANEL2, GRP_SLC6_SAB_DOOR_PANEL1};
 	MGROUP_TRANSLATE* pSABDoor[7];
 	anim_SABDoor = CreateAnimation(0.0);
 	double start = 0.0;
 	for(int i=0;i<7;i++) {
-		pSABDoor[i] = DefineTranslation(sab_mesh_idx, &SABDoorGrp[i], 1, _V(0, (7-i)*7.5, 0));
+		pSABDoor[i] = DefineTranslation(sab_mesh_idx, &SABDoorGrp[i], 1, _V(0, (7-i)*8.1386, 0));
 		AddAnimationComponent(anim_SABDoor, start, 1.0, pSABDoor[i]);
 		start += 1.0/7.0;
 	}
