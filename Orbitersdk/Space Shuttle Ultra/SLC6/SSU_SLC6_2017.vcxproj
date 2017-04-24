@@ -14,7 +14,7 @@
     <ProjectGuid>{DC60519C-4BAE-4244-AC36-35EEFBA34FE0}</ProjectGuid>
     <RootNamespace>SSU_SLC6</RootNamespace>
     <ProjectName>SSU_SLC6</ProjectName>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

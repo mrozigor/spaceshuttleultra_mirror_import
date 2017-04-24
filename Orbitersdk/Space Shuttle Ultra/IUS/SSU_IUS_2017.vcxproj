@@ -14,6 +14,7 @@
     <ProjectGuid>{060EBCE6-FC6D-44FE-8762-0BE22B496AE2}</ProjectGuid>
     <RootNamespace>SSU_IUS</RootNamespace>
     <ProjectName>SSU_IUS</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

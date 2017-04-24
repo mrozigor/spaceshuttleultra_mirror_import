@@ -18,7 +18,7 @@
     <ProjectGuid>{396E345C-7D91-4ECD-B912-6178511A25EA}</ProjectGuid>
     <RootNamespace>Xenon_Lights</RootNamespace>
     <ProjectName>Xenon_Lights</ProjectName>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'" Label="Configuration">
