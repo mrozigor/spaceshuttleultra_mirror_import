@@ -18,7 +18,7 @@
     <ProjectGuid>{863D8238-BF90-4D45-A9A6-EC74E8D17928}</ProjectGuid>
     <RootNamespace>SSU_Pad</RootNamespace>
     <ProjectName>SSU_Pad</ProjectName>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'" Label="Configuration">

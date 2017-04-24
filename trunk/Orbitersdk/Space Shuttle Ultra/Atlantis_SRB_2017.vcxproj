@@ -18,7 +18,7 @@
     <ProjectGuid>{F2CE1634-2D20-4F3A-A46C-FC277A423F2C}</ProjectGuid>
     <RootNamespace>Atlantis_SRB</RootNamespace>
     <ProjectName>Atlantis_SRB</ProjectName>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Analysis (Debug)|Win32'" Label="Configuration">
