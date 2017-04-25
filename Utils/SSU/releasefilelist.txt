@@ -332,6 +332,10 @@ Sound\_CustomVesselsSounds\SpaceShuttleUltra\talkback_off.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\talkback_on.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\VAB_ambient_noise.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\VAB_crane_noise.wav
+Textures\Earth\Elev_mod\15\000628\000675.elv
+Textures\Earth\Elev_mod\15\000628\000676.elv
+Textures\Earth\Elev_mod\15\000629\000675.elv
+Textures\Earth\Elev_mod\15\000630\000675.elv
 Textures\Earth\Mask\15\000627\000675.dds
 Textures\Earth\Mask\15\000628\000675.dds
 Textures\Earth\Mask\15\000629\000675.dds
