@@ -92,6 +92,7 @@ Doc\Space Shuttle Ultra\Tech Notes\RMS IK Code.odt
 Doc\Space Shuttle Ultra\Tech Notes\Shuttle_Ku_gimbal_equations.jpg
 Doc\Space Shuttle Ultra\Tech Notes\VC tech notes.odt
 Meshes\107payload.msh
+Meshes\SSU\ADI_MEDS.msh
 Meshes\SSU\Cockpit.msh
 Meshes\SSU\Crawler_drivetrucks.msh
 Meshes\SSU\Crawler_drivetrucks_reversed.msh
