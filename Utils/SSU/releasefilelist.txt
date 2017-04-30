@@ -386,6 +386,7 @@ Textures\SSU\A6A7.dds
 Textures\SSU\A8bottom.dds
 Textures\SSU\A8lights.dds
 Textures\SSU\A8top.dds
+Textures\SSU\ADI_MEDS.dds
 Textures\SSU\AftSkirt_bottom_foam.dds
 Textures\SSU\Atlantis_5thmod.dds
 Textures\SSU\Atlantis_original.dds
