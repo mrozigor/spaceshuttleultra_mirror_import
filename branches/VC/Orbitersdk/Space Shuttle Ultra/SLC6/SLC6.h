@@ -5,11 +5,11 @@
 #include "ISSUMLP.h"
 #include "../BaseSSUPad.h"
 
-static const char* DEFAULT_MESHNAME_PAD = "VandenbergAFB/SLC-6_STS_LaunchMount";
-static const char* DEFAULT_MESHNAME_TOWER = "VandenbergAFB/SLC-6_STS_AT";
-static const char* DEFAULT_MESHNAME_PCR = "VandenbergAFB/SLC-6_STS_PCR";
-static const char* DEFAULT_MESHNAME_SAB = "VandenbergAFB/SLC-6_STS_MAS";
-static const char* DEFAULT_MESHNAME_MST = "VandenbergAFB/SLC-6_STS_MST";
+static const char* DEFAULT_MESHNAME_PAD = "SSU/SLC-6_STS_LaunchMount";
+static const char* DEFAULT_MESHNAME_TOWER = "SSU/SLC-6_STS_AT";
+static const char* DEFAULT_MESHNAME_PCR = "SSU/SLC-6_STS_PCR";
+static const char* DEFAULT_MESHNAME_SAB = "SSU/SLC-6_STS_MAS";
+static const char* DEFAULT_MESHNAME_MST = "SSU/SLC-6_STS_MST";
 
 const double VERT_MESH_OFFSET = -2.0;
 const VECTOR3 PAD_MESH_OFFSET = _V(0, VERT_MESH_OFFSET, 0);

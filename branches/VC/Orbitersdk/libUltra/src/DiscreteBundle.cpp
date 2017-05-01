@@ -13,15 +13,13 @@
 namespace discsignals
 {
 
-DiscreteBundle::DiscreteBundle(const string& _ident, int nLines)
+DiscreteBundle::DiscreteBundle(const string& _ident, unsigned int nLines)
 {
-	if(nLines>16) {
-		oapiWriteLog("ERROR: too many lines in bundle");
-	}
-	assert(nLines <= 16);
+	assert( (nLines <= 16) && "DiscreteBundle::DiscreteBundle.nLines" );
+	
 	snLines = nLines;
 	ident = _ident;
-	for(int i=0;i<nLines;i++) fLines[i] = 0.0; // by default, all lines are not set
+	for(unsigned int i=0;i<nLines;i++) fLines[i] = 0.0; // by default, all lines are not set
 }
 
 DiscreteBundle::~DiscreteBundle()
@@ -38,24 +36,16 @@ const string& DiscreteBundle::GetIdentity() const
 	return ident;
 }
 
-void DiscreteBundle::SetDiscrete(int iIndex, float fVoltage)
+void DiscreteBundle::SetDiscrete(unsigned int iIndex, float fVoltage)
 {
-	if(iIndex < snLines)
-	{
-		fLines[iIndex] = fVoltage;
-	}
+	assert( (iIndex < snLines) && "DiscreteBundle::SetDiscrete.iIndex" );
+	fLines[iIndex] = fVoltage;
 }
 
-float DiscreteBundle::GetVoltage(int iIndex)
+float DiscreteBundle::GetVoltage(unsigned int iIndex)
 {
-	if(iIndex < snLines)
-	{
-		return fLines[iIndex];
-	}
-	else
-	{
-		return 0.0;
-	}
+	assert( (iIndex < snLines) && "DiscreteBundle::GetVoltage.iIndex" );
+	return fLines[iIndex];
 }
 
 void DiscreteBundle::SetLogMode(int iMode)

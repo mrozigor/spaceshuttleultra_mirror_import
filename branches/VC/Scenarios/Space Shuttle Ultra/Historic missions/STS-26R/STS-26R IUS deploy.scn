@@ -505,13 +505,13 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "PL Bay Door SYS 2" DISABLE
   "PL Bay Mech PWR SYS 1" OFF
   "PL Bay Mech PWR SYS 2" OFF
-  "PL Bay Door" OPEN
+  "PL Bay Door" STOP
   "Latch Control SYS A" OFF
   "Latch Control SYS B" OFF
   "Radiator Control SYS A" OFF
   "Radiator Control SYS B" OFF
   "KU Antenna Direct Stow" OFF
-  "KU Antenna" DEPLOY
+  "KU Antenna" GND
   @ENDPANEL 
   @PANEL A6U
   "SENSE" -X

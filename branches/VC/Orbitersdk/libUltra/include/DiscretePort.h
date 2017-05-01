@@ -40,10 +40,10 @@ protected:
 	DiscreteBundle* pBundle;
 	unsigned short usLine;
 public:
-	virtual bool Connect(DiscreteBundle* pBundle, int iLine);
+	virtual bool Connect(DiscreteBundle* pBundle, unsigned int iLine);
 	bool Disconnect();
 	DiscretePort();
-	DiscretePort(DiscreteBundle* pBundle, int iLine);
+	DiscretePort(DiscreteBundle* pBundle, unsigned int iLine);
 	virtual ~DiscretePort();
 };
 

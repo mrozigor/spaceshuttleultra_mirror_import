@@ -599,8 +599,6 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	bUseRealRCS = true;
 	bEnableMCADebug = false;
 
-	___iCurrentManifold = 0;
-
 	//SRB slag effects
 	slag1 = 0.0;
 	slag2 = 0.0;
@@ -1708,7 +1706,7 @@ void Atlantis::DefineAnimations(void)
 	BeginLoggingAnims();
 
 	// ***** 1. Payload bay door and radiator animations *****
-	static UINT PLBD_PORT_Grp[4] = {GRP_LEFT_PLBD_EXT, GRP_PORT_PLBD_INTERIOR, GRP_PORT_PLB_RADIATOR_3, GRP_PORT_PLB_RADIATOR_4};
+	static UINT PLBD_PORT_Grp[4] = {GRP_LEFT_PLBD_EXTERIOR, GRP_PORT_PLBD_INTERIOR, GRP_PORT_PLB_RADIATOR_3, GRP_PORT_PLB_RADIATOR_4};
 	MGROUP_ROTATE* PLBD_PORT = new MGROUP_ROTATE( midx, PLBD_PORT_Grp, 4, PLBD_PORT_P3, -PLBD_PORT_AXIS, (float)(360 * RAD) );
 	anim_door_port = CreateAnimation( 0.0 );
 	LogAnim( "anim_door_port", anim_door_port );
@@ -1739,7 +1737,7 @@ void Atlantis::DefineAnimations(void)
 	AddManagedAnimationComponent( anim_door_port_pushrod, 0.0, 1.0, PLBD_PUSH_ROD_PORT, parent );
 
 
-	static UINT PLBD_STBD_Grp[4] = {GRP_RIGHT_PLBD_EXT, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4};
+	static UINT PLBD_STBD_Grp[4] = {GRP_RIGHT_PLBD_EXTERIOR, GRP_STBD_PLBD_INTERIOR, GRP_STBD_PLB_RADIATOR_3, GRP_STBD_PLB_RADIATOR_4};
 	MGROUP_ROTATE* PLBD_STBD = new MGROUP_ROTATE( midx, PLBD_STBD_Grp, 4, PLBD_STBD_P3, -PLBD_STBD_AXIS, (float)(360 * RAD) );
 	anim_door_stbd = CreateAnimation( 0.0 );
 	LogAnim( "anim_door_stbd", anim_door_stbd );
@@ -6053,19 +6051,15 @@ bool Atlantis::clbkVCRedrawEvent(int id, int _event, SURFHANDLE surf)
 
 bool Atlantis::RegisterMDU(unsigned short usMDUID, vc::MDU* pMDU)
 {
-	if (usMDUID < 11)
+	assert( (usMDUID < 11) && "Atlantis::RegisterMDU.usMDUID" );
+
+	if (mdus[usMDUID] != NULL)
 	{
-		if (mdus[usMDUID] != NULL)
-		{
-			return false;
-		}
-		else {
-			mdus[usMDUID] = pMDU;
-			return true;
-		}
+		return false;
 	}
 	else {
-		return false;
+		mdus[usMDUID] = pMDU;
+		return true;
 	}
 }
 
@@ -6138,10 +6132,14 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 			ArmGear();
 			return 1;
 		case OAPI_KEY_A:
-			ControlRMS = !ControlRMS;
-			if (ControlRMS) DisplayCameraLabel(TEXT_RMSCONTROL);
-			else DisplayCameraLabel(TEXT_RCSCONTROL);
-			return 1;
+			if (pRMS)
+			{
+				ControlRMS = !ControlRMS;
+				if (ControlRMS) DisplayCameraLabel(TEXT_RMSCONTROL);
+				else DisplayCameraLabel(TEXT_RCSCONTROL);
+				return 1;
+			}
+			else return 0;
 		case OAPI_KEY_O:
 			if (RMSSpeedIn) RMSSpeedOut.ResetLine();
 			else RMSSpeedOut.SetLine();
@@ -6159,12 +6157,6 @@ int Atlantis::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate)
 			{
 				bSSMEGOXVent = true;//!bSSMEGOXVent;
 			}
-			return 1;
-		case OAPI_KEY_1: //temporary
-			if (pRMS) pRMS->ToggleJointAngleDisplay();
-			return 1;
-		case OAPI_KEY_2:
-			FireAllNextManifold();
 			return 1;
 		case OAPI_KEY_3:
 			pgForward.ToggleCoordinateDisplayMode();
@@ -6574,16 +6566,6 @@ DLLCLBK VESSEL *ovcInit(OBJHANDLE hvessel, int flightmodel)
 DLLCLBK void ovcExit(VESSEL *vessel)
 {
 	if (vessel) delete (Atlantis*)vessel;
-}
-
-DLLCLBK bool gpcReadValue(VESSEL* pVessel, UINT gpc, UINT val_index, DWORD* value)
-{
-	return false;
-}
-
-DLLCLBK bool gpcSetValue(VESSEL* pVessel, UINT gpc, UINT val_index, const DWORD value)
-{
-	return false;
 }
 
 bool Atlantis::GetLiftOffFlag() const
@@ -7031,116 +7013,6 @@ void Atlantis::AddVernierRCSExhaust(THRUSTER_HANDLE thX)
 	GetThrusterRef(thX, pos);
 	GetThrusterDir(thX, dir);
 	AddVRCSExhaust(thX, pos, -dir);
-}
-
-void Atlantis::FireAllNextManifold()
-{
-	StopAllManifolds();
-	int i;
-	switch (___iCurrentManifold)
-	{
-	case 0:
-		//Fire none
-		return;
-	case 1:
-		//Fire Manifold 1
-		for (i = 0; i < 4; i++)
-		{
-			if (thFRCS[i])
-			{
-				SetThrusterLevel(thFRCS[i], 1.0);
-			}
-
-		}
-		___iCurrentManifold++;
-		return;
-	case 2:
-		//Fire manifold 2
-		for (i = 0; i < 4; i++)
-		{
-			if (thFRCS[i])
-			{
-				SetThrusterLevel(thFRCS[i], 1.0);
-			}
-
-		}
-		___iCurrentManifold++;
-		return;
-	case 3:
-		//Fire manifold 3
-		for (i = 0; i < 4; i++)
-		{
-			if (thFRCS[i])
-			{
-				SetThrusterLevel(thFRCS[i], 1.0);
-			}
-
-		}
-		___iCurrentManifold++;
-		return;
-	case 4:
-		//Fire manifold 4
-		for (i = 0; i < 2; i++)
-		{
-			if (thFRCS[i])
-			{
-				SetThrusterLevel(thFRCS[i], 1.0);
-			}
-
-		}
-		___iCurrentManifold++;
-		return;
-	case 5:
-		//Fire manifold 5 (vernier)
-		for (i = 0; i < 2; i++)
-		{
-			if (thFRCS[i])
-			{
-				SetThrusterLevel(thFRCS[i], 1.0);
-			}
-
-		}
-		___iCurrentManifold++;
-		return;
-	default:
-		___iCurrentManifold = 0;
-		return;
-	}
-}
-
-void Atlantis::StopAllManifolds()
-{
-	int i;
-	for (i = 0; i < 4; i++)
-	{
-		if (thFRCS[i])
-		{
-			SetThrusterLevel(thFRCS[i], 0.0);
-		}
-
-		if (thFRCS[i])
-		{
-			SetThrusterLevel(thFRCS[i], 0.0);
-		}
-
-		if (thFRCS[i])
-		{
-			SetThrusterLevel(thFRCS[i], 0.0);
-		}
-
-
-	}
-	for (i = 0; i < 2; i++)
-	{
-		if (thFRCS[i])
-		{
-			SetThrusterLevel(thFRCS[i], 0.0);
-		}
-		if (thFRCS[i])
-		{
-			SetThrusterLevel(thFRCS[i], 0.0);
-		}
-	}
 }
 
 void Atlantis::SetAirDataProbeDeployment(int side, double position)
@@ -7675,6 +7547,8 @@ ANIMATIONCOMPONENT_HANDLE Atlantis::AddManagedAnimationComponent(UINT anim, doub
 
 void Atlantis::OMSEngControl(unsigned short usEng)
 {
+	assert( (usEng < 2) && "Atlantis::OMSEngControl.usEng" );
+
 	if (GetPropellantMass(oms_helium_tank[usEng]) > 0.0 && (OMSArm[usEng] || OMSArmPress[usEng])) {
 		SetThrusterResource(th_oms[usEng], ph_oms);
 	}

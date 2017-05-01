@@ -116,7 +116,7 @@ Thrust is provided by one Solid Rocket Motor (SRM) in each stage, and the Reacti
 \subsubsection{Configuration}
 \noindent
 The IUS can be installed in the payload bay in 2 possible positions: the forward position or the aft position (for large payloads). The position choice is defined in the mission file (section \ref{sec:mission-files}).\\
-The standard IUS configuration features 2 RCS tanks each with 55Kg of propellant. An additional tank can be used, for a total of 3, or only one tank can be used to reduce mass. In addition to the standard 2 omni-directional antennas in the $2^{nd}$ stage, a further 2 can be added, for a total of 4. Due to the nature of the solid propellant motors, fine control of the $\Delta$V is impossible during the burn, so the propellant quantity must be carefully set. Both SRMs have the capability to be offloaded up to 50\%.\\
+The standard IUS configuration features 2 RCS tanks each with 55Kg of propellant. An additional tank can be used, for a total of 3, or only one tank can be used to reduce mass. In addition to the standard 2 omni-directional antennas in the 2$^{nd}$ stage, a further 2 can be added, for a total of 4. Due to the nature of the solid propellant motors, fine control of the $\Delta$V is impossible during the burn, so the propellant quantity must be carefully set. Both SRMs have the capability to be offloaded up to 50\%.\\
 The number of RCS tanks, omni-directional antennas and SRM propellant offload quantity are controlled by scenario file parameters (section \ref{sec:scenario-files}).
 
 \subsubsection{Performance}
@@ -157,7 +157,7 @@ The IUS deployment sequence is controlled by panel L10.
 \\
 TODO
 \\
-Inhibits are placed on the operation of the RCS and of the $1^{st}$ stage motor, as to protect the orbiter vehicle. At deployment, timers are started to remove those inhibits. The status of those timers is displayed in the SSU\_IUS MFD (Ctrl+T), as well as the remaining RCS propellant.
+Inhibits are placed on the operation of the RCS and of the 1$^{st}$ stage motor, as to protect the orbiter vehicle. At deployment, timers are started to remove those inhibits. The status of those timers is displayed in the SSU\_IUS MFD (Ctrl+T), as well as the remaining RCS propellant.
 
 \subsubsection{Autonomous flight control}
 After separation from the ASE and the engine inhibits have been removed, the IUS is controlled by using the standard Orbiter keys. The ''+'' key is used to ignite the SRMs. During SRM burns the attitude in the pitch and yaw axis is controlled by gimballing the engine nozzle, while roll remains under RCS control.
@@ -167,7 +167,7 @@ After separation from the ASE and the engine inhibits have been removed, the IUS
 \\
 \\
 Manual command for the engine gimbal is available and when there is no user input, the rates will be automatically nulled. Once ignited, the SRMs will burn to depletion.\\
-After $1^{st}$ stage burnout, its separation is done by pressing the ''Ctrl+G'' key combination. After $1^{st}$ stage separation, the Extendable Exit Cone in the $2^{nd}$ stage will automatically deploy.\\
+After 1$^{st}$ stage burnout, its separation is done by pressing the ''Ctrl+G'' key combination. After 1$^{st}$ stage separation, the Extendable Exit Cone in the 2$^{nd}$ stage will automatically deploy.\\
 At the end of each SRM burn, the RCS can be used for velocity fine tuning.\\
 After all the burns are performed, payload separation is done by pressing the ''Ctrl+J'' key combination.
 

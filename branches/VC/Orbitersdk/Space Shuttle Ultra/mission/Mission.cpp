@@ -212,7 +212,11 @@ namespace mission {
 		}
 
 		oapiReadItem_int( hFile, "InternalPRSDTankSets", fInternalPRSDTankSets );
+		if (fInternalPRSDTankSets < 2) fInternalPRSDTankSets = 2;
+		else if (fInternalPRSDTankSets > 5) fInternalPRSDTankSets = 5;
+
 		if ((strOrbiter == "Columbia") || (strOrbiter == "Endeavour")) oapiReadItem_bool( hFile, "HasEDOKit", bHasEDOKit );
+		
 		int num = 0;
 		oapiReadItem_int( hFile, "EDOPallets", num );
 		if ((num == 2) && (strOrbiter == "Endeavour"))

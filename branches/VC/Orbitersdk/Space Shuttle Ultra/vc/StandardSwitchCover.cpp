@@ -1,5 +1,6 @@
 #include "StandardSwitchCover.h"
 #include "../Atlantis.h"
+#include <assert.h>
 
 namespace vc
 {
@@ -59,11 +60,11 @@ namespace vc
 
 	void StandardSwitchCover::SetMouseRegion(unsigned short position, float xmin, float ymin, float xmax, float ymax)
 	{
-		if(position<2) {
-			mouse_a[position].x=xmin;
-			mouse_a[position].y=ymin;
-			mouse_d[position].x=xmax;
-			mouse_d[position].y=ymax;
-		}
+		assert( (position < 2) && "StandardSwitchCover::SetMouseRegion.position" );
+		
+		mouse_a[position].x=xmin;
+		mouse_a[position].y=ymin;
+		mouse_d[position].x=xmax;
+		mouse_d[position].y=ymax;
 	}
 };

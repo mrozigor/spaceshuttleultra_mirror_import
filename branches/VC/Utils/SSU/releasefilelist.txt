@@ -92,6 +92,7 @@ Doc\Space Shuttle Ultra\Tech Notes\RMS IK Code.odt
 Doc\Space Shuttle Ultra\Tech Notes\Shuttle_Ku_gimbal_equations.jpg
 Doc\Space Shuttle Ultra\Tech Notes\VC tech notes.odt
 Meshes\107payload.msh
+Meshes\SSU\ADI_MEDS.msh
 Meshes\SSU\Cockpit.msh
 Meshes\SSU\Crawler_drivetrucks.msh
 Meshes\SSU\Crawler_drivetrucks_reversed.msh
@@ -138,6 +139,7 @@ Meshes\SSU\ODSVC.msh
 Meshes\SSU\OPF1_2.msh
 Meshes\SSU\OPF3.msh
 Meshes\SSU\Orbiter.msh
+Meshes\SSU\OrbiterLiftingFrame.msh
 Meshes\SSU\OTS_Vandenberg.msh
 Meshes\SSU\panelA2.msh
 Meshes\SSU\panelA4.msh
@@ -197,6 +199,14 @@ Meshes\SSU\RWY_marker_7K.msh
 Meshes\SSU\RWY_marker_8K.msh
 Meshes\SSU\RWY_marker_9K.msh
 Meshes\SSU\SILTSpod.msh
+Meshes\SSU\SLC-6_STS.msh
+Meshes\SSU\SLC-6_STS_AT.msh
+Meshes\SSU\SLC-6_STS_LaunchMount.msh
+Meshes\SSU\SLC-6_STS_MAS.msh
+Meshes\SSU\SLC-6_STS_MST.msh
+Meshes\SSU\SLC-6_STS_OMCF.msh
+Meshes\SSU\SLC-6_STS_PCR.msh
+Meshes\SSU\SLC-6_STS_PPR.msh
 Meshes\SSU\SLWT.msh
 Meshes\SSU\SRM_aft_segment_pallet.msh
 Meshes\SSU\SRM_lifting_sling.msh
@@ -218,6 +228,9 @@ Meshes\SSU\TAA.msh
 Meshes\SSU\VAB_exterior_1980.msh
 Meshes\SSU\VAB_interior_structure.msh
 Meshes\SSU\VAB_interior_structure_low-res.msh
+Meshes\SSU\VAFBasphalt.msh
+Meshes\SSU\VAFBtaxiway.msh
+Meshes\SSU\VAFBterminal.msh
 Meshes\SSU\VC.msh
 Meshes\SSU\Centaur\Centaur_DemoSat_adapter.msh
 Meshes\SSU\Centaur\Centaur_Mission_Kit_plumbing.msh
@@ -229,15 +242,6 @@ Meshes\SSU\IUS\IUS_ASE.msh
 Meshes\SSU\IUS\IUS_DemoSat_adapter.msh
 Meshes\SSU\IUS\IUS_SRM1.msh
 Meshes\SSU\IUS\IUS_SRM2.msh
-Meshes\VandenbergAFB\OrbiterLiftingFrame.msh
-Meshes\VandenbergAFB\SLC-6_STS.msh
-Meshes\VandenbergAFB\SLC-6_STS_AT.msh
-Meshes\VandenbergAFB\SLC-6_STS_LaunchMount.msh
-Meshes\VandenbergAFB\SLC-6_STS_MAS.msh
-Meshes\VandenbergAFB\SLC-6_STS_MST.msh
-Meshes\VandenbergAFB\SLC-6_STS_OMCF.msh
-Meshes\VandenbergAFB\SLC-6_STS_PCR.msh
-Meshes\VandenbergAFB\SLC-6_STS_PPR.msh
 Missions\SSU\STS-1.cfg
 Missions\SSU\STS-3.cfg
 Missions\SSU\STS-26R.cfg
@@ -296,7 +300,7 @@ Scenarios\Space Shuttle Ultra\Testing scenarios\KSC15 final approach.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\MLP roll-off.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\Payload Latch Test.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\Rendezvous test scenario.scn
-Scenarios\Space Shuttle Ultra\Testing scenarios\SLC-6 Launch test.scn
+Scenarios\Space Shuttle Ultra\Testing scenarios\SLC-6 Launch pad test.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\STS-1 T-45s.scn
 Scenarios\Space Shuttle Ultra\Testing scenarios\STS-126 T-1m.scn
 Scenarios\Space Shuttle Ultra\Theoretical missions\STS-61F\Centaur rotation to deploy.scn
@@ -329,6 +333,38 @@ Sound\_CustomVesselsSounds\SpaceShuttleUltra\talkback_off.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\talkback_on.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\VAB_ambient_noise.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\VAB_crane_noise.wav
+Textures\Earth\Elev_mod\13\000132\000525.elv
+Textures\Earth\Elev_mod\13\000132\000526.elv
+Textures\Earth\Elev_mod\13\000307\000111.elv
+Textures\Earth\Elev_mod\13\000333\000200.elv
+Textures\Earth\Elev_mod\15\000582\001739.elv
+Textures\Earth\Elev_mod\15\000583\001739.elv
+Textures\Earth\Elev_mod\15\000628\000675.elv
+Textures\Earth\Elev_mod\15\000628\000676.elv
+Textures\Earth\Elev_mod\15\000629\000675.elv
+Textures\Earth\Elev_mod\15\000630\000675.elv
+Textures\Earth\Mask\15\000627\000675.dds
+Textures\Earth\Mask\15\000628\000675.dds
+Textures\Earth\Mask\15\000629\000675.dds
+Textures\Earth\Mask\15\000630\000675.dds
+Textures\Earth\Mask\15\000630\000676.dds
+Textures\Earth\Mask\15\000631\000676.dds
+Textures\Earth\Mask\15\000631\000677.dds
+Textures\Earth\Mask\15\000631\000678.dds
+Textures\Earth\Mask\15\000632\000677.dds
+Textures\Earth\Surf\15\000627\000675.dds
+Textures\Earth\Surf\15\000628\000675.dds
+Textures\Earth\Surf\15\000628\000676.dds
+Textures\Earth\Surf\15\000629\000675.dds
+Textures\Earth\Surf\15\000629\000676.dds
+Textures\Earth\Surf\15\000629\000677.dds
+Textures\Earth\Surf\15\000630\000675.dds
+Textures\Earth\Surf\15\000630\000676.dds
+Textures\Earth\Surf\15\000630\000677.dds
+Textures\Earth\Surf\15\000631\000676.dds
+Textures\Earth\Surf\15\000631\000677.dds
+Textures\Earth\Surf\15\000631\000678.dds
+Textures\Earth\Surf\15\000632\000677.dds
 Textures\SSU\10K_marker.dds
 Textures\SSU\11K_marker.dds
 Textures\SSU\12K_marker.dds
@@ -350,6 +386,7 @@ Textures\SSU\A6A7.dds
 Textures\SSU\A8bottom.dds
 Textures\SSU\A8lights.dds
 Textures\SSU\A8top.dds
+Textures\SSU\ADI_MEDS.dds
 Textures\SSU\AftSkirt_bottom_foam.dds
 Textures\SSU\Atlantis_5thmod.dds
 Textures\SSU\Atlantis_original.dds
@@ -466,6 +503,8 @@ Textures\SSU\RSRM_RSRB_FWD_Skirt_Assy.dds
 Textures\SSU\RSStex_1.dds
 Textures\SSU\Seat2.dds
 Textures\SSU\ShuttleOTS_tex.dds
+Textures\SSU\SLC-6_STS_general_tex.dds
+Textures\SSU\slc6_org.dds
 Textures\SSU\SLWT_ETtex.dds
 Textures\SSU\SLWT_ETtex_norm.dds
 Textures\SSU\SpaceShuttle_VABTex_1980.dds
@@ -519,6 +558,11 @@ Textures\SSU\VAB_floor.dds
 Textures\SSU\VAB_HLD.dds
 Textures\SSU\VAB_interior_beams_1.dds
 Textures\SSU\VAB_VLD.dds
+Textures\SSU\VAFB_OMCF_accesspath.dds
+Textures\SSU\VAFB_SLC6_MSTtex.dds
+Textures\SSU\VAFBasphalt.dds
+Textures\SSU\VAFBconcrete.dds
+Textures\SSU\VAFBDeltaBlue.dds
 Textures\SSU\Airlock.dds
 Textures\SSU\Centaur\Centaur_G_tex.dds
 Textures\SSU\Centaur\Centaur_G_tex_norm.dds
@@ -540,7 +584,3 @@ Textures\SSU\IUS\IUS_ASE_tex2.dds
 Textures\SSU\IUS\IUS_common_tex.dds
 Textures\STS-107payloads\MPESS_FREESTAR_tex.dds
 Textures\STS-107payloads\SpaceHAB_RDM.dds
-Textures\VandenbergAFB\SLC-6_STS_general_tex.dds
-Textures\VandenbergAFB\slc6_org.dds
-Textures\VandenbergAFB\VAFB_SLC6_MSTtex.dds
-Textures\VandenbergAFB\VLS_OMCF_accesspath.dds
