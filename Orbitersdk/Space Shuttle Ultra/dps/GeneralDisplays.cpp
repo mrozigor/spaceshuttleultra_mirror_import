@@ -211,7 +211,7 @@ namespace dps
 						case 99:
 							OnPaint_DISP99_PASS( pMDU );// FAULT
 							return true;
-						default:
+						case dps::MODE_UNDEFINED:
 							switch (GetMajorMode())// only PASS XXXXXX TRAJ displays for now
 							{
 								case 101:
@@ -226,6 +226,8 @@ namespace dps
 								default:
 									return false;
 							}
+						default:
+							return false;
 					}
 				case 2:
 					switch (spec)

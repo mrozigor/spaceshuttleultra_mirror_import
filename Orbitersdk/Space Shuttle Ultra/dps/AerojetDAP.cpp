@@ -4552,16 +4552,17 @@ void AerojetDAP::LoadLandingSiteList()
 	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "YYR26", "YYR34" ) );// 22
 	//vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 13.323423 * RAD, -16.643910 * RAD, 0.0, 13.348584 * RAD, -16.664848 * RAD, 0.0, 321.0, 141.0, "BYD32", "BYD14", 11811 / MPS2FPS, 148 / MPS2FPS ) );// [22]
-	vLandingSites.push_back( LandingSiteData( 38.766205 * RAD, -27.102996 * RAD, 0.0, 38.742958 * RAD, -27.079116 * RAD, 0.0, 141.3, 321.3, "LAJ15", "LAJ33", 10870/MPS2FPS, 91.44 ) );// 23
+	vLandingSites.push_back( LandingSiteData( 38.766205 * RAD, -27.102996 * RAD, 58.0, 38.742958 * RAD, -27.079116 * RAD, 58.0, 141.3, 321.3, "LAJ15", "LAJ33", 10870/MPS2FPS, 91.44 ) );// 23
 	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "BEJ01L", "BEJ19R" ) );// 24
-	vLandingSites.push_back( LandingSiteData( 34.720606 * RAD, -120.567103 * RAD, 0.0, 34.750617 * RAD, -120.601304 * RAD, 0.0, 316.5, 136.5, "VBG30", "VBG12", 15000 / MPS2FPS, 200 / MPS2FPS ) );// [24]
+	vLandingSites.push_back( LandingSiteData( 34.720603 * RAD, -120.567097 * RAD, 126.0, 34.750615 * RAD, -120.601301 * RAD, 126.0, 316.5, 136.5, "VBG30", "VBG12", 15000 / MPS2FPS, 200 / MPS2FPS ) );// [24]
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "IKF20", "IKF29" ) );// 25
 	vLandingSites.back().SetSecRunwayParameters( 4000, 90 );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 52.694418 * RAD, -8.940019 * RAD, 0.0, 52.710227 * RAD, -8.910320 * RAD, 0.0, 48.7, 228.7, "INN06", "INN24", 9539 / MPS2FPS, 148 / MPS2FPS ) );// 26
 	vLandingSites.back().SetSecRunwayParameters( 9699 / MPS2FPS, 148 / MPS2FPS );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "FFA27", "FFA09" ) );// 27
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KBO14L", "KBO32R" ) );// 28
-	vLandingSites.push_back( LandingSiteData( 43.511129 * RAD, 4.932931 * RAD, 0.0, 43.540647 * RAD, 4.910444 * RAD, 0.0, 331.1, 151.1, "FMI33", "FMI15", 12300/MPS2FPS, 60.0456 ) );// 29
+	vLandingSites.push_back( LandingSiteData( 43.509755 * RAD, 4.934404 * RAD, 21.0, 43.537110 * RAD, 4.914338 * RAD, 21.0, 332, 152, "FMI33", "FMI15", 11303 / MPS2FPS, 60.0456 ) );// 29
+	vLandingSites.back().SetSecRunwayParameters( 12303 / MPS2FPS, 60.0456 );// length/width data above is for primary runway
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "ESN03R", "ESN21L" ) );// 30
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "KKI15R", "KKI33L" ) );// 31
 	vLandingSites.push_back( LandingSiteData( -7.319984 * RAD, 72.415794 * RAD, 0.0, -7.303044 * RAD, 72.387373 * RAD, 0.0, 301, 121, "JDG31", "JDG13", 12000/MPS2FPS, 60.96 ) );// 32
@@ -4574,8 +4575,8 @@ void AerojetDAP::LoadLandingSiteList()
 	vLandingSites.back().SetSecRunwayParameters( 9212 / MPS2FPS, 150 / MPS2FPS );// length/width data above is for primary runway [36]
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HNL08R", "HNL26L" ) );// 37
 	//vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "EDF24", "EDF06" ) );// 38
-	vLandingSites.push_back( LandingSiteData( -27.173447 * RAD, -109.406801 * RAD, 0.0, -27.159263 * RAD, -109.436664 * RAD, 0.0, 298.1, 118.1, "EIP28", "EIP10", 10000 / MPS2FPS, 60.96 ) );// [38]
-	vLandingSites.push_back( LandingSiteData( -18.053836 * RAD, -140.978030 * RAD, 0.0, -18.084687 * RAD, -140.944897 * RAD, 0.0, 134.4, 314.4, "HAO12", "HAO30", 10390/MPS2FPS, 44.8056 ) );// 39
+	vLandingSites.push_back( LandingSiteData( -27.171166 * RAD, -109.409521 * RAD, 64.0, -27.159561 * RAD, -109.433942 * RAD, 64.0, 298.1, 118.1, "EIP28", "EIP10", 9990 / MPS2FPS, 45.1104 ) );// [38]
+	vLandingSites.push_back( LandingSiteData( -18.066035 * RAD, -140.955891 * RAD, 4.0, -18.083833 * RAD, -140.937557 * RAD, 4.0, 135.4, 315.4, "HAO12", "HAO30", 10089 / MPS2FPS, 44.8056 ) );// 39
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "AWG25", "AWG07" ) );// 40
 	vLandingSites.push_back( LandingSiteData( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "HAW13", "HAW31" ) );// 41
 	vLandingSites.push_back( LandingSiteData( 32.960364 * RAD, -106.417364 * RAD, 0.0, 32.950714 * RAD, -106.403254 * RAD, 0.0, 187.2, 244.4, "NOR17", "NOR23", 15000 / MPS2FPS, 300 / MPS2FPS ) );// 42

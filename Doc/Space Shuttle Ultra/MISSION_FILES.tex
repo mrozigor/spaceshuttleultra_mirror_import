@@ -32,25 +32,55 @@ Parameter values are specified by having the parameter name, followed by the equ
 \\
 \textit{MECOFPA=0.827612}
 \\
-\textit{UseExtAL=FALSE}
-\\
-\textit{UseRMS=FALSE}
-\\
-\textit{UseODS=FALSE}
-\\
 \textit{PerformRollToHeadsUp=TRUE}
 \\
-\textit{OMSAssistEnable=true}
+\textit{OMSAssistEnable=TRUE}
 \\
 \textit{OMSAssistDuration=102.000000}
+\\
+\textit{MaxSSMEThrust=104.5}
 \\
 \textit{ThrottleDown=843.333}
 \\
 \textit{ThrottleUp=1154.266}
 \\
-\textit{SILTS=TRUE}
+\textit{UseRMS=FALSE}
+\\
+\textit{UseKUBand=TRUE}
+\\
+\textit{UseSTBDMPM=FALSE}
+\\
+\textit{UseODS=FALSE}
+\\
+\textit{UseExtAL=FALSE}
+\\
+\textit{UseTAA=TRUE}
+\\
+\textit{AftTAA=FALSE}
+\\
+\textit{HasBulkheadFloodlights=TRUE}
+\\
+\textit{HasDragChute=TRUE}
 \\
 \textit{Bridgerails=2,3,7,9,11}
+\\
+\textit{SILTS=TRUE}
+\\
+\textit{LogSSMEData=FALSE}
+\\
+\textit{UseCISS=FALSE}
+\\
+\textit{CISS\_GPrime=TRUE}
+\\
+\textit{UseASE\_IUS=FALSE}
+\\
+\textit{ASE\_IUS\_AftLocation=FALSE}
+\\
+\textit{InternalPRSDTankSets=5}
+\\
+\textit{HasEDOKit=TRUE}
+\\
+\textit{EDOPallets=1}
 \\
 \\
 The SSU installation already has some mission files for the included scenarios.
@@ -117,10 +147,10 @@ $\Rightarrow$ ''Atlantis\_original'', ''Atlantis\_5thmod''	& (the last on each O
 	MaxSSMEThrust & Number & Maximum SSME throttles commanded by GPC (\%) & 104.5\\
 	\hline
 	\rule{0pt}{2ex}
-	ThrottleDown & Number & $1^{st}$ stage SSME throttle down velocity (fps) & 792\\
+	ThrottleDown & Number & 1$^{st}$ stage SSME throttle down velocity (fps) & 792\\
 	\hline
 	\rule{0pt}{2ex}
-	ThrottleUp & Number & $1^{st}$ stage SSME throttle up velocity (fps) & 1304\\
+	ThrottleUp & Number & 1$^{st}$ stage SSME throttle up velocity (fps) & 1304\\
 	\hline
 	\rule{0pt}{2ex}
 	UseRMS & Boolean & RMS is installed & FALSE\\
@@ -176,6 +206,15 @@ N = 16-19 $\rightarrow$ Starboard attachment & - \\
 	\hline
 	\rule{0pt}{2ex}
 	ASE\_IUS\_AftLocation & Boolean & ASE for the IUS is installed in the aft position & FALSE\\
+	\hline
+	\rule{0pt}{2ex}
+	InternalPRSDTankSets & Number & Number of Internal PRSD Tank Sets (min 2, max 5) & 5\\
+	\hline
+	\rule{0pt}{2ex}
+	HasEDOKit & Boolean & EDO hardware is installed in the OV (Columbia and Endeavour only) & FALSE\\
+	\hline
+	\rule{0pt}{2ex}
+	EDOPallets & Number & Number of EDO pallets installed in the PLB (Columbia and Endeavour only, max 1 for Columbia, 2 for Endeavour) & 0\\
 	\hline
 	\caption{Mission File Parameters}
   \label{tab:Mission_File}

@@ -129,8 +129,6 @@ public:
 	void SetEECameraView(bool Active);
 	void SetElbowCamView(bool Active);
 
-	void ToggleJointAngleDisplay();
-
 	OBJHANDLE Grapple();
 	//void Grapple(VESSEL* vessel, ATTACHMENTHANDLE attachment);
 	void Ungrapple() {DetachPayload();};
@@ -258,8 +256,6 @@ private:
 	bool update_vectors, update_angles;
 
 	bool bFirstStep;
-
-	bool display_angles;
 
 	enum {NONE, EE, ELBOW} RMSCameraMode;
 

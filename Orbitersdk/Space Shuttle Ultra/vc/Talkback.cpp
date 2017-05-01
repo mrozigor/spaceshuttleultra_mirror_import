@@ -88,6 +88,7 @@ namespace vc
 		MESHGROUPEX* mg = oapiMeshGroupEx( panelTemplate, grpIndex_U );
 		DEVMESHHANDLE hDevpanelmesh = STS()->GetDevMesh( STS()->vis, panelmesh );
 
+		assert( (mg->nVtx == 4) && "StandardTalkback2::UpdateUV.mg->nVtx" );
 		static NTVERTEX Vtx[4];
 		for (unsigned short i = 0; i < 4; i++)
 		{
@@ -122,6 +123,7 @@ namespace vc
 
 	void StandardTalkback2::DefineMeshGroups( UINT _panelmesh, UINT _grpIndex_U, UINT _grpIndex_L )
 	{
+		assert( (_grpIndex_U != _grpIndex_L) && "StandardTalkback2::DefineMeshGroups._grpIndex" );
 		panelmesh = _panelmesh;
 		grpIndex_U = _grpIndex_U;
 		grpIndex_L = _grpIndex_L;
@@ -205,6 +207,7 @@ namespace vc
 		MESHGROUPEX* mg = oapiMeshGroupEx( panelTemplate, grpIndex );
 		DEVMESHHANDLE hDevpanelmesh = STS()->GetDevMesh( STS()->vis, panelmesh );
 
+		assert( (mg->nVtx == 4) && "StandardTalkback3::UpdateUV.mg->nVtx" );
 		static NTVERTEX Vtx[4];
 		for (unsigned short i = 0; i < 4; i++)
 		{
@@ -239,7 +242,7 @@ namespace vc
 
 	void StandardTalkback3::SetInput( unsigned short idx, DiscreteBundle* pBundle, unsigned short usLine, unsigned short usFlag )
 	{
-		assert( idx < 2 );
+		assert( (idx < 2) && "StandardTalkback3::SetInput.idx" );
 		input[idx].Connect( pBundle, usLine );
 		flags[idx]=usFlag;
 	}

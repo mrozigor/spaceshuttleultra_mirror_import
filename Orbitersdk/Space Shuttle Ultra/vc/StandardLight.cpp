@@ -20,7 +20,7 @@ namespace vc
 
 	void StandardSingleLight::SetDefaultState( unsigned int _state )
 	{
-		assert( _state < 2 );
+		assert( (_state < 2) && "StandardSingleLight::SetDefaultState._state" );
 		default_state = _state;
 		state = _state;
 		return;
@@ -28,7 +28,7 @@ namespace vc
 
 	void StandardSingleLight::SetStateOffset( unsigned int _state, float _U, float _V )
 	{
-		assert( _state < 2 );
+		assert( (_state < 2) && "StandardSingleLight::SetStateOffset._state" );
 		offsetU[_state] = _U;
 		offsetV[_state] = _V;
 		return;
@@ -36,7 +36,7 @@ namespace vc
 	
 	bool StandardSingleLight::ConnectLight( unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine )
 	{
-		assert( usPort < 2 );
+		assert( (usPort < 2) && "StandardSingleLight::ConnectLight.usPort" );
 		input[usPort].Connect( pBundle, usLine );
 		return true;
 	}
@@ -63,6 +63,7 @@ namespace vc
 		MESHGROUPEX* mg = oapiMeshGroupEx( panelTemplate, grpIndex );
 		DEVMESHHANDLE hDevpanelmesh = STS()->GetDevMesh( STS()->vis, panelmesh );
 
+		assert( (mg->nVtx <= 32) && "StandardSingleLight::UpdateUV.mg->nVtx" );
 		static NTVERTEX Vtx[32];
 		for (unsigned short i = 0; i < mg->nVtx; i++)
 		{
@@ -110,7 +111,7 @@ namespace vc
 
 	void StandardDoubleLight::SetDefaultState( unsigned int _state )
 	{
-		assert( _state < 4 );
+		assert( (_state < 4) && "StandardDoubleLight::SetDefaultState._state" );
 		default_state = _state;
 		state = _state;
 		return;
@@ -118,7 +119,7 @@ namespace vc
 
 	void StandardDoubleLight::SetStateOffset( unsigned int _state, float _U, float _V )
 	{
-		assert( _state < 4 );
+		assert( (_state < 4) && "StandardDoubleLight::SetStateOffset._state" );
 		offsetU[_state] = _U;
 		offsetV[_state] = _V;
 		return;
@@ -126,7 +127,7 @@ namespace vc
 	
 	bool StandardDoubleLight::ConnectLight( unsigned short usPort, DiscreteBundle* pBundle, unsigned short usLine )
 	{
-		assert( usPort < 4 );
+		assert( (usPort < 4) && "StandardDoubleLight::ConnectLight.usPort" );
 		input[usPort].Connect( pBundle, usLine );
 		return true;
 	}
@@ -161,6 +162,7 @@ namespace vc
 		MESHGROUPEX* mg = oapiMeshGroupEx( panelTemplate, grpIndex );
 		DEVMESHHANDLE hDevpanelmesh = STS()->GetDevMesh( STS()->vis, panelmesh );
 		
+		assert( (mg->nVtx <= 32) && "StandardDoubleLight::UpdateUV.mg->nVtx" );
 		static NTVERTEX Vtx[32];
 		for (unsigned short i = 0; i < mg->nVtx; i++)
 		{

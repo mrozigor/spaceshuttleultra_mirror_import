@@ -47,7 +47,7 @@ namespace discsignals
 class DiscreteBundle  
 {
 	string ident;
-	short snLines;
+	unsigned short snLines;
 	float fState;
 	float fLines[16];
 	/**
@@ -55,7 +55,7 @@ class DiscreteBundle
 	 */
 	bool bBrokenLine[16];
 public:
-	DiscreteBundle(const string& _ident, int nLines = 16);
+	DiscreteBundle(const string& _ident, unsigned int nLines = 16);
 	virtual ~DiscreteBundle();
 
 	unsigned int CountLines() const throw();
@@ -63,9 +63,9 @@ public:
 	 * Set the mode how the Discrete bundle class handles logging information
 	 */
 	void SetLogMode(int iMode);
-	float GetVoltage(int iIndex);
+	float GetVoltage(unsigned int iIndex);
 	const string& GetIdentity() const;
-	void SetDiscrete(int iIndex, float fVoltage);
+	void SetDiscrete(unsigned int iIndex, float fVoltage);
 };
 
 };
