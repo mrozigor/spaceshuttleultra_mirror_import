@@ -322,6 +322,8 @@ Sound\_CustomVesselsSounds\SpaceShuttleUltra\Cryo_noise.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\cw_tone.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\key_press.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\Orbiter_AC.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\OTS_idle_engine.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\OTS_accel_engine.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\RCS_Jet_Fire.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\RSS_Rotation.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\SSME_ignition.wav
