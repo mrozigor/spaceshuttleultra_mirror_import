@@ -522,7 +522,8 @@ Textures\SSU\SSME_TEX.dds
 Textures\SSU\SSME_TEX_spec.dds
 Textures\SSU\SSUbay.dds
 Textures\SSU\SSUbay_refl.dds
-Textures\SSU\SSUbay_spec.dds
+Textures\SSU\SSUbay_rghn.dds
+Textures\SSU\SSUbay_frsl.dds
 Textures\SSU\SSU_Bridgerail.dds
 Textures\SSU\STBD_OMSpod.dds
 Textures\SSU\STBD_OMSpod_spec.dds
