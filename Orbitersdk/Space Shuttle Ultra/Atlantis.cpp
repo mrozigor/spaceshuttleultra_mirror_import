@@ -3068,8 +3068,9 @@ void Atlantis::SetAnimationCameras() {
 	SetAnimation(anim_camBRpitch, anim_pitch);
 
 	if (oapiCameraInternal() && VCMode >= VC_PLBCAMFL && VCMode <= VC_PLBCAMFR) {
-		double a = 0;
-		double b = 0;
+		double a = 0.0;
+		double b = 0.0;
+		double c = 0.0;
 
 		switch (VCMode) {
 		case VC_PLBCAMFL:
@@ -3089,8 +3090,11 @@ void Atlantis::SetAnimationCameras() {
 			b = ((camPitch[CAM_C] - 90)*RAD);
 			break;
 		}
+		
+		if (b > 0.0) c = 180.0 * RAD;
+
 		SetCameraOffset(orbiter_ofs + plbCamPos[VCMode - VC_PLBCAMFL]);
-		SetCameraDefaultDirection(_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
+		SetCameraDefaultDirection( _V(cos(a)*sin(b), cos(b), sin(a)*sin(b)), c );
 		oapiCameraSetCockpitDir(0.0, 0.0);
 	}
 }
