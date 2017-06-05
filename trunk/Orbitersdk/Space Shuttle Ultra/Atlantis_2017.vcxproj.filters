@@ -559,6 +559,9 @@
     <ClCompile Include="WSB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="eva_docking\IntAirlock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vc\7SegDisp.h">
@@ -1237,6 +1240,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mps\VehicleInterfaceElectronics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="eva_docking\IntAirlock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
