@@ -1,7 +1,7 @@
 /****************************************************************************
   This file is part of Space Shuttle Ultra
 
-  External Airlock subsystem definition
+  Internal Airlock subsystem definition
 
 
 
@@ -22,34 +22,25 @@
   See http://spaceshuttleultra.sourceforge.net/license/ for more details.
 
   **************************************************************************/
-#pragma once
-#include "BasicExtAirlock.h"
+#ifndef __INTAL_H_
+#define __INTAL_H_
+
+
+#include "..\AtlantisSubsystem.h"
 
 
 namespace eva_docking
 {
-	const static char* DEFAULT_MESHNAME_EXTAL = "SSU\\ExtAL";
+	const double INTAL_MASS = 266.7123;// Kg
 
-	const VECTOR3 EXTERNAL_AIRLOCK_POS = _V( 0.0, -1.03, 0 );// Only X and Y axes used. Z pos is set in Mission.cpp (GetExternalAirlockZPos)
-	//const VECTOR3 EXTERNAL_AIRLOCK_POS = _V( 0.0, -1.1, 7 );// Only X and Y axes used. Z pos is set in Mission.cpp (GetExternalAirlockZPos)
-	
-	const double EXTAL_MASS = 1954.983;// Kg
+	class IntAirlock:public AtlantisSubsystem
+	{
+		public:
+			IntAirlock( AtlantisSubsystemDirector* _director, const string& _ident );
+			virtual ~IntAirlock();
 
-	class ExtAirlock: public BasicExternalAirlock {
-	protected:
-		double fHatchState;
-		double fExtALPress[2];
-
-		bool HideTopCover;
-
-		UINT mesh_extal;
-		MESHHANDLE hExtALMesh;
-	public:
-		ExtAirlock(AtlantisSubsystemDirector* pdirect, const string& _ident, bool HideTopCover = false);
-		virtual ~ExtAirlock();
-		virtual void AddMeshes(const VECTOR3& ofs);
-		virtual void DefineAnimations(const VECTOR3& ofs);
-		void VisualCreated( VISHANDLE vis );
-		virtual double GetSubsystemEmptyMass() const { return EXTAL_MASS; };
+			double GetSubsystemEmptyMass( void ) const {return INTAL_MASS;};
 	};
 };
+
+#endif// __INTAL_H_

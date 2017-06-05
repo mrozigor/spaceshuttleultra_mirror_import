@@ -101,6 +101,7 @@
 #include "eps\PRSD.h"
 #include "AnnunciatorControlAssembly.h"
 #include "VideoControlUnit.h"
+#include "eva_docking\IntAirlock.h"
 #include <UltraMath.h>
 #include <cassert>
 #include "gcAPI.h"
@@ -4234,8 +4235,14 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			{
 				psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
 				pgAft.AddPanel( new vc::PanelA7A8ODS( this ) );
+
+				if (!pMission->HasExtAL()) psubsystems->AddSubsystem( new eva_docking::IntAirlock( psubsystems, "InternalAirlock" ) );
 			}
-			else if (pMission->HasExtAL()) psubsystems->AddSubsystem( pExtAirlock = new eva_docking::ExtAirlock( psubsystems, "ExternalAirlock" ) );
+			else
+			{
+				if (pMission->HasExtAL()) psubsystems->AddSubsystem( pExtAirlock = new eva_docking::ExtAirlock( psubsystems, "ExternalAirlock" ) );
+				else psubsystems->AddSubsystem( new eva_docking::IntAirlock( psubsystems, "InternalAirlock" ) );
+			}
 
 			if (pMission->HasTAA()) psubsystems->AddSubsystem( pTAA = new eva_docking::TunnelAdapterAssembly( psubsystems, pMission->AftTAA() ) );
 
@@ -5926,7 +5933,7 @@ bool Atlantis::clbkLoadVC(int id)
 			SetCameraDefaultDirection( VC_DIR_MIDDECK );
 			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
 
-			if (pMission->HasExtAL()) oapiVCSetNeighbours( -1, -1, VC_PORTSTATION, VC_EXT_AL );
+			if (pMission->HasExtAL() || pMission->HasODS()) oapiVCSetNeighbours( -1, -1, VC_PORTSTATION, VC_EXT_AL );
 			else oapiVCSetNeighbours( -1, -1, VC_PORTSTATION, -1 );
 
 			ok = true;
