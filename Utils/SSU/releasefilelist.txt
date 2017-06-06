@@ -506,7 +506,7 @@ Textures\SSU\RSStex_1.dds
 Textures\SSU\Seat2.dds
 Textures\SSU\ShuttleOTS_tex.dds
 Textures\SSU\ShuttleOTS_tex_norm.dds
-Textures\SSU\ShuttleOTS_refl.dds
+Textures\SSU\ShuttleOTS_tex_refl.dds
 Textures\SSU\SLC-6_STS_general_tex.dds
 Textures\SSU\slc6_org.dds
 Textures\SSU\SLWT_ETtex.dds
