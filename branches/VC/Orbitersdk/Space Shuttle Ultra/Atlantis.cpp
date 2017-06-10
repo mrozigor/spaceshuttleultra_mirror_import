@@ -101,6 +101,7 @@
 #include "eps\PRSD.h"
 #include "AnnunciatorControlAssembly.h"
 #include "VideoControlUnit.h"
+#include "eva_docking\IntAirlock.h"
 #include <UltraMath.h>
 #include <cassert>
 #include "gcAPI.h"
@@ -3068,8 +3069,9 @@ void Atlantis::SetAnimationCameras() {
 	SetAnimation(anim_camBRpitch, anim_pitch);
 
 	if (oapiCameraInternal() && VCMode >= VC_PLBCAMFL && VCMode <= VC_PLBCAMFR) {
-		double a = 0;
-		double b = 0;
+		double a = 0.0;
+		double b = 0.0;
+		double c = 0.0;
 
 		switch (VCMode) {
 		case VC_PLBCAMFL:
@@ -3089,8 +3091,11 @@ void Atlantis::SetAnimationCameras() {
 			b = ((camPitch[CAM_C] - 90)*RAD);
 			break;
 		}
+		
+		if (b > 0.0) c = 180.0 * RAD;
+
 		SetCameraOffset(orbiter_ofs + plbCamPos[VCMode - VC_PLBCAMFL]);
-		SetCameraDefaultDirection(_V(cos(a)*sin(b), cos(b), sin(a)*sin(b)));
+		SetCameraDefaultDirection( _V(cos(a)*sin(b), cos(b), sin(a)*sin(b)), c );
 		oapiCameraSetCockpitDir(0.0, 0.0);
 	}
 }
@@ -4230,8 +4235,14 @@ void Atlantis::clbkLoadStateEx(FILEHANDLE scn, void *vs)
 			{
 				psubsystems->AddSubsystem(pExtAirlock = new eva_docking::ODS(psubsystems, "ODS"));
 				pgAft.AddPanel( new vc::PanelA7A8ODS( this ) );
+
+				if (!pMission->HasExtAL()) psubsystems->AddSubsystem( new eva_docking::IntAirlock( psubsystems, "InternalAirlock" ) );
 			}
-			else if (pMission->HasExtAL()) psubsystems->AddSubsystem( pExtAirlock = new eva_docking::ExtAirlock( psubsystems, "ExternalAirlock" ) );
+			else
+			{
+				if (pMission->HasExtAL()) psubsystems->AddSubsystem( pExtAirlock = new eva_docking::ExtAirlock( psubsystems, "ExternalAirlock" ) );
+				else psubsystems->AddSubsystem( new eva_docking::IntAirlock( psubsystems, "InternalAirlock" ) );
+			}
 
 			if (pMission->HasTAA()) psubsystems->AddSubsystem( pTAA = new eva_docking::TunnelAdapterAssembly( psubsystems, pMission->AftTAA() ) );
 
@@ -5922,7 +5933,7 @@ bool Atlantis::clbkLoadVC(int id)
 			SetCameraDefaultDirection( VC_DIR_MIDDECK );
 			SetCameraRotationRange( 144 * RAD, 144 * RAD, 72 * RAD, 72 * RAD );
 
-			if (pMission->HasExtAL()) oapiVCSetNeighbours( -1, -1, VC_PORTSTATION, VC_EXT_AL );
+			if (pMission->HasExtAL() || pMission->HasODS()) oapiVCSetNeighbours( -1, -1, VC_PORTSTATION, VC_EXT_AL );
 			else oapiVCSetNeighbours( -1, -1, VC_PORTSTATION, -1 );
 
 			ok = true;

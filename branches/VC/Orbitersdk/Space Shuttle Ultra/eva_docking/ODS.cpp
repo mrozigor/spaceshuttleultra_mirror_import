@@ -219,7 +219,7 @@ namespace eva_docking {
 	}
 
 	double ODS::GetSubsystemEmptyMass() const {
-		return 419.025; // According to a SSP PRCB presentation on the STS-125 pros/cons of Single Pad vs Dual Pad ops for LON, ODS mass is 925 lbs, this is for the ODS alone, not including the airlock hardware
+		return EXTAL_MASS + ODS_MASS;
 	}
 
 	void ODS::CalculateRodAnimation() 

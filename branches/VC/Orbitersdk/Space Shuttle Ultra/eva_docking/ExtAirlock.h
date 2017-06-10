@@ -33,6 +33,8 @@ namespace eva_docking
 	const VECTOR3 EXTERNAL_AIRLOCK_POS = _V( 0.0, -1.03, 0 );// Only X and Y axes used. Z pos is set in Mission.cpp (GetExternalAirlockZPos)
 	//const VECTOR3 EXTERNAL_AIRLOCK_POS = _V( 0.0, -1.1, 7 );// Only X and Y axes used. Z pos is set in Mission.cpp (GetExternalAirlockZPos)
 	
+	const double EXTAL_MASS = 1954.983;// Kg
+
 	class ExtAirlock: public BasicExternalAirlock {
 	protected:
 		double fHatchState;
@@ -48,5 +50,6 @@ namespace eva_docking
 		virtual void AddMeshes(const VECTOR3& ofs);
 		virtual void DefineAnimations(const VECTOR3& ofs);
 		void VisualCreated( VISHANDLE vis );
+		virtual double GetSubsystemEmptyMass() const { return EXTAL_MASS; };
 	};
 };

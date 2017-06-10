@@ -322,6 +322,8 @@ Sound\_CustomVesselsSounds\SpaceShuttleUltra\Cryo_noise.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\cw_tone.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\key_press.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\Orbiter_AC.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\OTS_idle_engine.wav
+Sound\_CustomVesselsSounds\SpaceShuttleUltra\OTS_accel_engine.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\RCS_Jet_Fire.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\RSS_Rotation.wav
 Sound\_CustomVesselsSounds\SpaceShuttleUltra\SSME_ignition.wav
@@ -503,6 +505,8 @@ Textures\SSU\RSRM_RSRB_FWD_Skirt_Assy.dds
 Textures\SSU\RSStex_1.dds
 Textures\SSU\Seat2.dds
 Textures\SSU\ShuttleOTS_tex.dds
+Textures\SSU\ShuttleOTS_tex_norm.dds
+Textures\SSU\ShuttleOTS_tex_refl.dds
 Textures\SSU\SLC-6_STS_general_tex.dds
 Textures\SSU\slc6_org.dds
 Textures\SSU\SLWT_ETtex.dds
@@ -518,7 +522,8 @@ Textures\SSU\SSME_TEX.dds
 Textures\SSU\SSME_TEX_spec.dds
 Textures\SSU\SSUbay.dds
 Textures\SSU\SSUbay_refl.dds
-Textures\SSU\SSUbay_spec.dds
+Textures\SSU\SSUbay_rghn.dds
+Textures\SSU\SSUbay_frsl.dds
 Textures\SSU\SSU_Bridgerail.dds
 Textures\SSU\STBD_OMSpod.dds
 Textures\SSU\STBD_OMSpod_spec.dds
