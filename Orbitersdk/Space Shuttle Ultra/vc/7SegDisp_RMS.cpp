@@ -168,6 +168,7 @@ namespace vc
 					int decimalpoint = 11;
 
 					double roll = RMSJointAngles[RMSSystem::WRIST_ROLL].GetVoltage() * 1999.8;
+					if (!isfinite( roll )) roll = 888.8;
 
 					if (fabs( roll ) < 9.999)
 					{
@@ -218,6 +219,7 @@ namespace vc
 					int decimalpoint = 6;
 
 					double yaw = RMSJointAngles[RMSSystem::WRIST_YAW].GetVoltage() * 1999.8;
+					if (!isfinite( yaw )) yaw = 888.8;
 
 					if (fabs( yaw ) < 9.999)
 					{
@@ -268,6 +270,7 @@ namespace vc
 					int decimalpoint = 1;
 
 					double pitch = RMSJointAngles[RMSSystem::WRIST_PITCH].GetVoltage() * 1999.8;
+					if (!isfinite( pitch )) pitch = 888.8;
 
 					if (fabs( pitch ) < 9.999)
 					{
@@ -318,6 +321,7 @@ namespace vc
 					int decimalpoint = 1;
 
 					double pitch = RMSJointAngles[RMSSystem::ELBOW_PITCH].GetVoltage() * 1999.8;
+					if (!isfinite( pitch )) pitch = 888.8;
 
 					if (fabs( pitch ) < 9.999)
 					{
@@ -368,6 +372,7 @@ namespace vc
 					int decimalpoint = 1;
 
 					double pitch = RMSJointAngles[RMSSystem::SHOULDER_PITCH].GetVoltage() * 1999.8;
+					if (!isfinite( pitch )) pitch = 888.8;
 
 					if (fabs( pitch ) < 9.999)
 					{
@@ -418,7 +423,8 @@ namespace vc
 					int decimalpoint = 6;
 
 					double yaw = -RMSJointAngles[RMSSystem::SHOULDER_YAW].GetVoltage() * 1999.8;// HACK minus added to fix wrong sign coming from RMSSystem
-					
+					if (!isfinite( yaw )) yaw = 888.8;
+
 					if (fabs( yaw ) < 9.999)
 					{
 						// X.XXX
@@ -469,6 +475,7 @@ namespace vc
 
 				// P
 				double att = EEAttitude[0].GetVoltage() * 2000.0;
+				if (!isfinite( att )) att = 888.8;
 				sprintf_s( cbuf, 8, "%5.1f", fabs( att ) );
 
 				for (int i = 3, j = 0; i >= 0; i--, j++)
@@ -486,6 +493,7 @@ namespace vc
 
 				// Y
 				att = EEAttitude[1].GetVoltage() * 2000.0;
+				if (!isfinite( att )) att = 888.8;
 				sprintf_s( cbuf, 8, "%5.1f", fabs( att ) );
 
 				for (int i = 8, j = 0; i >= 5; i--, j++)
@@ -503,6 +511,7 @@ namespace vc
 
 				// R
 				att = EEAttitude[2].GetVoltage() * 2000.0;
+				if (!isfinite( att )) att = 888.8;
 				sprintf_s( cbuf, 8, "%5.1f", fabs( att ) );
 
 				for (int i = 13, j = 0; i >= 10; i--, j++)
@@ -525,6 +534,7 @@ namespace vc
 
 				// X
 				double pos = EEPosition[0].GetVoltage() * 2000.0;
+				if (!isfinite( pos )) pos = 8888.0;
 				sprintf_s( cbuf, 8, "%4.0f", fabs( pos ) );
 
 				for (int i = 3, j = 0; i >= 0; i--, j++)
@@ -538,6 +548,7 @@ namespace vc
 
 				// Y
 				pos = EEPosition[1].GetVoltage() * 2000.0;
+				if (!isfinite( pos )) pos = 8888.0;
 				sprintf_s( cbuf, 8, "%4.0f", fabs( pos ) );
 
 				for (int i = 8, j = 0; i >= 5; i--, j++)
@@ -551,6 +562,7 @@ namespace vc
 
 				// Z
 				pos = EEPosition[2].GetVoltage() * 2000.0;
+				if (!isfinite( pos )) pos = 8888.0;
 				sprintf_s( cbuf, 8, "%4.0f", fabs( pos ) );
 
 				for (int i = 13, j = 0; i >= 10; i--, j++)

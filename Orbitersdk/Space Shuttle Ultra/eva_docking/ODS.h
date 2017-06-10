@@ -38,6 +38,8 @@ namespace eva_docking {
 
 	const VECTOR3 ODS_DOCKPOS_OFFSET = _V( 0.00444299, /*2.25302*/2.24, -0.317876 ); // offset between ODS mesh position and docking port position
 
+	const double ODS_MASS = 419.025;// According to a SSP PRCB presentation on the STS-125 pros/cons of Single Pad vs Dual Pad ops for LON, ODS mass is 925 lbs, this is for the ODS alone, not including the airlock hardware
+
 	using discsignals::DiscInPort;
 	using discsignals::DiscOutPort;
 

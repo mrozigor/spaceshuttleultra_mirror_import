@@ -370,7 +370,7 @@ namespace mission {
 
 	bool Mission::HasExtAL() const
 	{
-		return (bHasExtAL || bHasODS);
+		return bHasExtAL;
 	}
 
 	bool Mission::HasTAA() const
