@@ -440,29 +440,7 @@ namespace vc {
 		 */
 		virtual bool RealizeMFD(int id);
 
-		/**
-		 * define the Area ID of the MDU screen inside the VC. when in 
-		 * CRTMFD mode, it paints only the edge key menu area. 
-		 */
-		virtual bool DefineRegionAID(UINT aid);
 		virtual bool DefineVCGroup(UINT mgrp);
-
-		/**
-		 * Sets location of power button.
-		 * If this function is not called, power button location will be set to default values
-		 */
-		void SetPowerButtonArea(float xmin, float ymin, float xmax, float ymax);
-		/**
-		 * Sets location of brightness button.
-		 * If this function is not called, brightness button location will be set to default values
-		 */
-		void SetBrightnessButtonArea(float xmin, float ymin, float xmax, float ymax);
-		/**
-		 * Sets location of edgekeys.
-		 * Parameters specify row containing all 6 edgekeys.
-		 * If this function is not called, edgekey location will be set to default values
-		 */
-		void SetEdgekeyArea(float xmin, float ymin, float xmax, float ymax);
 
 		virtual void UpdateTextBuffer();
 		

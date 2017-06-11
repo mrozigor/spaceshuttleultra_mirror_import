@@ -378,9 +378,6 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   @PANEL F2
   "Drag Chute ARM Cover" [0]
   "Drag Chute DPY Cover" [0]
-  "HUD Mode" NORM
-  "HUD Brightness" [2]
-  "HUD Bright" AUTO
   @ENDPANEL 
   @PANEL F3
   "Drag Chute ARM Cover" [0]
@@ -404,6 +401,9 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "Landing Gear DN Cover" [0]
   "Landing Gear ARM" 0
   "Landing Gear DN" 0
+  "HUD Mode" NORM
+  "HUD Brightness" [2]
+  "HUD Bright" AUTO
   @ENDPANEL 
   @PANEL F7
   @ENDPANEL 

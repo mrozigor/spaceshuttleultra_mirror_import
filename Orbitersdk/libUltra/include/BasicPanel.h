@@ -79,8 +79,8 @@ protected:
 	void AddAIDToMouseEventList(UINT aid);
 	
 	void DeleteAllComponents();
-	bool DistributeMouseEvent(int _event, const VECTOR3& p);
-	bool FindComponent(const VECTOR3& p, BasicVCComponent<TVessel>** foundElement) const;
+	bool DistributeMouseEvent( UINT aid, int _event, const VECTOR3& p);
+	bool FindComponent( UINT aid, const VECTOR3& p, BasicVCComponent<TVessel>** foundElement) const;
 public:
 	BasicPanel(TVessel* v, const string& _name);
 	virtual ~BasicPanel();
@@ -204,34 +204,40 @@ void BasicPanel<TVessel>::DefineVCAnimations(UINT vcidx)
 }
 
 template <class TVessel>
-bool BasicPanel<TVessel>::DistributeMouseEvent(int _event, const VECTOR3& p)
+bool BasicPanel<TVessel>::DistributeMouseEvent( UINT aid, int _event, const VECTOR3& p)
 {
 	unsigned long i;
 	float mx = 0, my = 0;
 	for(i = 0; i<components.size(); i++)
 	{
 		BasicVCComponent<TVessel>* currentElement = components.at(i);
-		if(currentElement->IsPointOver((float)p.x, (float)p.y))
+		if (currentElement->GetMouseRegionID() == aid)
 		{
-			currentElement->ProjectMouse((float)p.x, (float)p.y, mx, my);	
-			if(currentElement->OnMouseEvent(_event, mx, my))
-				return true;
+			if(currentElement->IsPointOver((float)p.x, (float)p.y))
+			{
+				currentElement->ProjectMouse((float)p.x, (float)p.y, mx, my);	
+				if(currentElement->OnMouseEvent(_event, mx, my))
+					return true;
+			}
 		}
 	}
 	return false;
 }
 
 template <class TVessel>
-bool BasicPanel<TVessel>::FindComponent(const VECTOR3& p, BasicVCComponent<TVessel>** foundElement) const
+bool BasicPanel<TVessel>::FindComponent( UINT aid, const VECTOR3& p, BasicVCComponent<TVessel>** foundElement) const
 {
 	unsigned long i;
 	for(i = 0; i<components.size(); i++)
 	{
 		BasicVCComponent<TVessel>* currentElement = components.at(i);
-		if(currentElement->IsPointOver((float)p.x, (float)p.y))
+		if (currentElement->GetMouseRegionID() == aid)
 		{
-			*foundElement = currentElement;
-			return true;
+			if(currentElement->IsPointOver((float)p.x, (float)p.y))
+			{
+				*foundElement = currentElement;
+				return true;
+			}
 		}
 	}
 	return false;
@@ -434,20 +440,21 @@ bool BasicPanel<TVessel>::OnVCMouseEvent(int id, int _event, VECTOR3 &p)
 		if(bCoordinateDisplayMode)
 		{
 			BasicVCComponent<TVessel>* foundElement;
-			if(FindComponent(p, &foundElement))
+			if(FindComponent( id, p, &foundElement))
 			{
-				sprintf_s(oapiDebugString(), 255, "PANEL %s MOUSEEVENT (%d, %f, %f, %f) FOR %s",
-					name.c_str(), _event, p.x, p.y, p.z,
+				sprintf_s(oapiDebugString(), 255, "PANEL %s (%d) MOUSEEVENT (%d, %f, %f, %f) FOR %s",
+					name.c_str(), id, _event, p.x, p.y, p.z,
 					foundElement->GetQualifiedIdentifier().c_str());
-			} else 
-			{
-				sprintf_s(oapiDebugString(), 255, "PANEL %s MOUSEEVENT (%d, %f, %f, %f)",
-					name.c_str(), _event, p.x, p.y, p.z);
 			}
-			return DistributeMouseEvent(_event, p);
+			else
+			{
+				sprintf_s(oapiDebugString(), 255, "PANEL %s (%d) MOUSEEVENT (%d, %f, %f, %f)",
+					name.c_str(), id, _event, p.x, p.y, p.z);
+			}
+			return DistributeMouseEvent( id, _event, p);
 		} else {
 			
-			return DistributeMouseEvent(_event, p);
+			return DistributeMouseEvent( id, _event, p);
 		}
 	}
 	else {

@@ -354,142 +354,142 @@ namespace vc {
 		pPyroProtectCircuitOff->SetStateOffset( 1, 0.0f, 0.199219f );
 
 
-		pControlPanelPowerA->SetMouseRegion( 0.078607f, 0.121607f, 0.097529f, 0.202774f );
+		pControlPanelPowerA->SetMouseRegion( AID_A8A3, 0.078607f, 0.121607f, 0.097529f, 0.202774f );
 		pControlPanelPowerA->SetReference(_V(0.0, 2.443722, 12.41595), _V(-1.0, 0.0, 0.0));
 		pControlPanelPowerA->DefineSwitchGroup(GRP_A8A3S1_ODSVC);
 
-		pControlPanelPowerB->SetMouseRegion( 0.175489f, 0.123035f, 0.194648f, 0.204244f );
+		pControlPanelPowerB->SetMouseRegion( AID_A8A3, 0.175489f, 0.123035f, 0.194648f, 0.204244f );
 		pControlPanelPowerB->SetReference(_V(0.0, 2.443722, 12.41595), _V(-1.0, 0.0, 0.0));
 		pControlPanelPowerB->DefineSwitchGroup(GRP_A8A3S2_ODSVC);
 
-		pControlPanelPowerC->SetMouseRegion( 0.271936f, 0.122135f, 0.291739f, 0.203266f );
+		pControlPanelPowerC->SetMouseRegion( AID_A8A3, 0.271936f, 0.122135f, 0.291739f, 0.203266f );
 		pControlPanelPowerC->SetReference(_V(0.0, 2.443722, 12.41595), _V(-1.0, 0.0, 0.0));
 		pControlPanelPowerC->DefineSwitchGroup(GRP_A8A3S3_ODSVC);
 
-		pHeatersDCUPowerH1->SetMouseRegion( 0.078266f, 0.315846f, 0.097893f, 0.396873f );
+		pHeatersDCUPowerH1->SetMouseRegion( AID_A8A3, 0.078266f, 0.315846f, 0.097893f, 0.396873f );
 		pHeatersDCUPowerH1->SetReference(_V(0.0, 2.370605, 12.43914), _V(-1.0, 0.0, 0.0));
 		pHeatersDCUPowerH1->DefineSwitchGroup(GRP_A8A3S4_ODSVC);
 
-		pHeatersDCUPowerH2DCU->SetMouseRegion( 0.175297f, 0.316582f, 0.194602f, 0.397552f );
+		pHeatersDCUPowerH2DCU->SetMouseRegion( AID_A8A3, 0.175297f, 0.316582f, 0.194602f, 0.397552f );
 		pHeatersDCUPowerH2DCU->SetReference(_V(0.0, 2.370605, 12.43914),_V(-1.0, 0.0, 0.0));
 		pHeatersDCUPowerH2DCU->DefineSwitchGroup(GRP_A8A3S5_ODSVC);
 
-		pHeatersDCUPowerH3DCU->SetMouseRegion( 0.271984f, 0.315340f, 0.291396f, 0.397430f );
+		pHeatersDCUPowerH3DCU->SetMouseRegion( AID_A8A3, 0.271984f, 0.315340f, 0.291396f, 0.397430f );
 		pHeatersDCUPowerH3DCU->SetReference(_V(0.0, 2.370605, 12.43914), _V(-1.0, 0.0, 0.0));
 		pHeatersDCUPowerH3DCU->DefineSwitchGroup(GRP_A8A3S6_ODSVC);
 
-		pAPDSPowerA->SetMouseRegion( 0.078492f, 0.510377f, 0.097095f, 0.591183f );
+		pAPDSPowerA->SetMouseRegion( AID_A8A3, 0.078492f, 0.510377f, 0.097095f, 0.591183f );
 		pAPDSPowerA->SetReference(_V(0.0,  2.297854, 12.46215), _V(-1.0, 0.0, 0.0));
 		pAPDSPowerA->DefineSwitchGroup(GRP_A8A3S7_ODSVC);
 
-		pAPDSPowerB->SetMouseRegion( 0.175082f, 0.510769f, 0.194313f, 0.590632f );
+		pAPDSPowerB->SetMouseRegion( AID_A8A3, 0.175082f, 0.510769f, 0.194313f, 0.590632f );
 		pAPDSPowerB->SetReference(_V(0.0,  2.297854, 12.46215), _V(-1.0, 0.0, 0.0));
 		pAPDSPowerB->DefineSwitchGroup(GRP_A8A3S8_ODSVC);
 
-		pAPDSPowerC->SetMouseRegion( 0.271967f, 0.509268f, 0.291367f, 0.591272f );
+		pAPDSPowerC->SetMouseRegion( AID_A8A3, 0.271967f, 0.509268f, 0.291367f, 0.591272f );
 		pAPDSPowerC->SetReference(_V(0.0,  2.297854, 12.46215), _V(-1.0, 0.0, 0.0));
 		pAPDSPowerC->DefineSwitchGroup(GRP_A8A3S9_ODSVC);
 		
-		pPyrosAp->SetMouseRegion( 0.706286f, 0.120643f, 0.725018f, 0.203573f );
+		pPyrosAp->SetMouseRegion( AID_A8A3, 0.706286f, 0.120643f, 0.725018f, 0.203573f );
 		pPyrosAp->SetReference(_V(0.0, 2.443722, 12.41595), _V(-1.0, 0.0, 0.0));
 		pPyrosAp->DefineSwitchGroup(GRP_A8A3S10_ODSVC);
 
-		pPyrosBp->SetMouseRegion( 0.802748f, 0.123284f, 0.821752f, 0.204392f );
+		pPyrosBp->SetMouseRegion( AID_A8A3, 0.802748f, 0.123284f, 0.821752f, 0.204392f );
 		pPyrosBp->SetReference(_V(0.0, 2.443722, 12.41595), _V(-1.0, 0.0, 0.0));
 		pPyrosBp->DefineSwitchGroup(GRP_A8A3S11_ODSVC);
 
-		pPyrosCp->SetMouseRegion( 0.899503f, 0.122141f, 0.918277f, 0.203744f );
+		pPyrosCp->SetMouseRegion( AID_A8A3, 0.899503f, 0.122141f, 0.918277f, 0.203744f );
 		pPyrosCp->SetReference(_V(0.0, 2.443722, 12.41595), _V(-1.0, 0.0, 0.0));
 		pPyrosCp->DefineSwitchGroup(GRP_A8A3S12_ODSVC);
 
 		const VECTOR3 PB_VECTOR = _V( 0.0, -0.224951, -0.974370 );
 
-		pLampTest->SetMouseRegion(0.143f, 0.792f, 0.225f, 0.853f);
+		pLampTest->SetMouseRegion( AID_A8A3, 0.143f, 0.792f, 0.225f, 0.853f);
 		pLampTest->DefineGroup(GRP_LAMPTEST_ODSVC);
 		pLampTest->SetDirection(PB_VECTOR);
 		pLampTest->SetMotionLength( 0.004 );
 
-		pPowerOn->SetMouseRegion(0.625f, 0.787f, 0.708f, 0.851f);
+		pPowerOn->SetMouseRegion( AID_A8A3, 0.625f, 0.787f, 0.708f, 0.851f);
 		pPowerOn->DefineGroup(GRP_APDSCC_POWERON_ODSVC);
 		pPowerOn->SetDirection(PB_VECTOR);
 		pPowerOn->SetMotionLength( 0.004 );
 
-		pPowerOff->SetMouseRegion(0.708f, 0.787f, 0.7875f, 0.851f);
+		pPowerOff->SetMouseRegion( AID_A8A3, 0.708f, 0.787f, 0.7875f, 0.851f);
 		pPowerOff->DefineGroup(GRP_APDSCC_POWEROFF_ODSVC);
 		pPowerOff->SetDirection(PB_VECTOR);
 		pPowerOff->SetMotionLength( 0.004 );
 
-		pRingOut->SetMouseRegion(0.7875f, 0.787f, 0.8674f, 0.851f);
+		pRingOut->SetMouseRegion( AID_A8A3, 0.7875f, 0.787f, 0.8674f, 0.851f);
 		pRingOut->DefineGroup(GRP_APDSCC_RINGOUT_ODSVC);
 		pRingOut->SetDirection(PB_VECTOR);
 		pRingOut->SetMotionLength( 0.004 );
 
-		pRingIn->SetMouseRegion(0.8674f, 0.787f, 0.949f, 0.851f);
+		pRingIn->SetMouseRegion( AID_A8A3, 0.8674f, 0.787f, 0.949f, 0.851f);
 		pRingIn->DefineGroup(GRP_APDSCC_RINGIN_ODSVC);
 		pRingIn->SetDirection(PB_VECTOR);
 		pRingIn->SetMotionLength( 0.004 );
 	
-		pAPDSCircProtOff->SetMouseRegion(0.625f, 0.903f, 0.708f, 0.962f);
+		pAPDSCircProtOff->SetMouseRegion( AID_A8A3, 0.625f, 0.903f, 0.708f, 0.962f);
 		pAPDSCircProtOff->DefineGroup(GRP_APDSCC_APDS_CIRC_PROT_OFF_ODSVC);
 		pAPDSCircProtOff->SetDirection(PB_VECTOR);
 		pAPDSCircProtOff->SetMotionLength( 0.004 );
 		
-		pCloseHooks->SetMouseRegion(0.708f, 0.903f, 0.7875f, 0.962f);
+		pCloseHooks->SetMouseRegion( AID_A8A3, 0.708f, 0.903f, 0.7875f, 0.962f);
 		pCloseHooks->DefineGroup(GRP_APDSCC_CLOSEHOOKS_ODSVC);
 		pCloseHooks->SetDirection(PB_VECTOR);
 		pCloseHooks->SetMotionLength( 0.004 );
 
-		pCloseLatches->SetMouseRegion(0.7875f, 0.903f, 0.8674f, 0.962f);
+		pCloseLatches->SetMouseRegion( AID_A8A3, 0.7875f, 0.903f, 0.8674f, 0.962f);
 		pCloseLatches->DefineGroup(GRP_APDSCC_CLOSELATCHES_ODSVC);
 		pCloseLatches->SetDirection(PB_VECTOR);
 		pCloseLatches->SetMotionLength( 0.004 );
 
-		pFixerOff->SetMouseRegion(0.8674f, 0.903f, 0.949f, 0.962f);
+		pFixerOff->SetMouseRegion( AID_A8A3, 0.8674f, 0.903f, 0.949f, 0.962f);
 		pFixerOff->DefineGroup(GRP_APDSCC_FIXEROFF_ODSVC);
 		pFixerOff->SetDirection(PB_VECTOR);
 		pFixerOff->SetMotionLength( 0.004 );
 
-		pPyroCommands->SetMouseRegion( 0, 0.716620f, 0.422147f, 0.911504f, 0.555984f );
-		pPyroCommands->SetMouseRegion( 1, 0.921100f, 0.432651f, 0.951956f, 0.548972f );
+		pPyroCommands->SetMouseRegion( AID_A8A3, 0, 0.716620f, 0.422147f, 0.911504f, 0.555984f );
+		pPyroCommands->SetMouseRegion( AID_A8A3, 1, 0.921100f, 0.432651f, 0.951956f, 0.548972f );
 		pPyroCommands->SetReference( _V( -0.2320, 2.3437, 12.4556 ), _V( 0.0, -0.9499, 0.3126 ) );
 		pPyroCommands->DefineCoverGroup( GRP_PLATEGUARD1_ODSVC );
 
-		pAPDSControlCommands->SetMouseRegion( 0, 0.716260f, 0.572989f, 0.901355f, 0.712548f );
-		pAPDSControlCommands->SetMouseRegion( 1, 0.924516f, 0.581548f, 0.950181f, 0.694610f );
+		pAPDSControlCommands->SetMouseRegion( AID_A8A3, 0, 0.716260f, 0.572989f, 0.901355f, 0.712548f );
+		pAPDSControlCommands->SetMouseRegion( AID_A8A3, 1, 0.924516f, 0.581548f, 0.950181f, 0.694610f );
 		pAPDSControlCommands->SetReference( _V( -0.2320, 2.3437, 12.4556 ), _V( 0.0, -0.9499, 0.3126 ) );
 		pAPDSControlCommands->DefineCoverGroup( GRP_PLATEGUARD2_ODSVC );
 
-		pPyroCircProtOff->SetMouseRegion( 0.753635f, 0.449135f, 0.806399f, 0.484442f );
+		pPyroCircProtOff->SetMouseRegion( AID_A8A3, 0.753635f, 0.449135f, 0.806399f, 0.484442f );
 		pPyroCircProtOff->DefineGroup( GRP_PYRO_CIRC_PROT_OFF_ODSVC );
 		pPyroCircProtOff->SetDirection( PB_VECTOR );
 		pPyroCircProtOff->SetMotionLength( 0.004 );
 
-		pPyroCircProtOn->SetMouseRegion( 0.816807f, 0.448902f, 0.868185f, 0.483662f );
+		pPyroCircProtOn->SetMouseRegion( AID_A8A3, 0.816807f, 0.448902f, 0.868185f, 0.483662f );
 		pPyroCircProtOn->DefineGroup( GRP_PYRO_CIRC_PROT_ON_ODSVC );
 		pPyroCircProtOn->SetDirection( PB_VECTOR );
 		pPyroCircProtOn->SetMotionLength( 0.004 );
 
-		pActHooksFiring->SetMouseRegion( 0.753999f, 0.497091f, 0.805913f, 0.530741f );
+		pActHooksFiring->SetMouseRegion( AID_A8A3, 0.753999f, 0.497091f, 0.805913f, 0.530741f );
 		pActHooksFiring->DefineGroup( GRP_ACT_HOOKS_FIRING_ODSVC );
 		pActHooksFiring->SetDirection( PB_VECTOR );
 		pActHooksFiring->SetMotionLength( 0.004 );
 
-		pPasHooksFiring->SetMouseRegion( 0.816745f, 0.497108f, 0.868219f, 0.530819f );
+		pPasHooksFiring->SetMouseRegion( AID_A8A3, 0.816745f, 0.497108f, 0.868219f, 0.530819f );
 		pPasHooksFiring->DefineGroup( GRP_PAS_HOOKS_FIRING_ODSVC );
 		pPasHooksFiring->SetDirection( PB_VECTOR );
 		pPasHooksFiring->SetMotionLength( 0.004 );
 
-		pOpenHooks->SetMouseRegion( 0.754024f, 0.600301f, 0.806527f, 0.634483f );
+		pOpenHooks->SetMouseRegion( AID_A8A3, 0.754024f, 0.600301f, 0.806527f, 0.634483f );
 		pOpenHooks->DefineGroup( GRP_OPEN_HOOKS_ODSVC );
 		pOpenHooks->SetDirection( PB_VECTOR );
 		pOpenHooks->SetMotionLength( 0.004 );
 
-		pOpenLatches->SetMouseRegion( 0.816430f, 0.600107f, 0.868482f, 0.634369f );
+		pOpenLatches->SetMouseRegion( AID_A8A3, 0.816430f, 0.600107f, 0.868482f, 0.634369f );
 		pOpenLatches->DefineGroup( GRP_OPEN_LATCHES_ODSVC );
 		pOpenLatches->SetDirection( PB_VECTOR );
 		pOpenLatches->SetMotionLength( 0.004 );
 
-		pUndocking->SetMouseRegion( 0.815996f, 0.647695f, 0.868637f, 0.683079f );
+		pUndocking->SetMouseRegion( AID_A8A3, 0.815996f, 0.647695f, 0.868637f, 0.683079f );
 		pUndocking->DefineGroup( GRP_UNDOCKING_ODSVC );
 		pUndocking->SetDirection( PB_VECTOR );
 		pUndocking->SetMotionLength( 0.004 );

@@ -116,19 +116,19 @@ namespace vc
 		pCryoO2HtrAssyTemp->SetOffset( 45.0f );
 		pCryoO2HtrAssyTemp->SetInitialAnimState( 1.0 );
 		pCryoO2HtrAssyTemp->SetReference( _V( -0.0746, 2.7949, 14.3503 ), rotary_switch_rot );
-		pCryoO2HtrAssyTemp->SetMouseRegion( 0.098072f, 0.698591f, 0.253288f, 0.816324f );
+		pCryoO2HtrAssyTemp->SetMouseRegion( AID_O2, 0.098072f, 0.698591f, 0.253288f, 0.816324f );
 
 		pCryoPressQty->DefineSwitchGroup( GRP_S8_O2_VC );
 		pCryoPressQty->DefineRotationAngle( 120.0f );
 		pCryoPressQty->SetOffset( 120.0f );
 		pCryoPressQty->SetInitialAnimState( 1.0 );
 		pCryoPressQty->SetReference( _V( -0.0031, 2.7910, 14.3511 ), rotary_switch_rot );
-		pCryoPressQty->SetMouseRegion( 0.397906f, 0.715321f, 0.576245f, 0.827557f );
+		pCryoPressQty->SetMouseRegion( AID_O2, 0.397906f, 0.715321f, 0.576245f, 0.827557f );
 
 		pFuelCellStackTemp->DefineSwitchGroup( GRP_S9_O2_VC );
 		pFuelCellStackTemp->SetInitialAnimState( 0.5 );
 		pFuelCellStackTemp->SetReference( _V( 0.0523, 2.7866, 14.3599 ), switch_rot );
-		pFuelCellStackTemp->SetMouseRegion( 0.728346f, 0.749182f, 0.823905f, 0.834874f );
+		pFuelCellStackTemp->SetMouseRegion( AID_O2, 0.728346f, 0.749182f, 0.823905f, 0.834874f );
 		return;
 	}
 

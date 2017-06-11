@@ -31,6 +31,7 @@
 #include "PushButtonIndicator.h"
 #include "StandardSwitchCover.h"
 #include "StandardLight.h"
+#include "StandardRotarySwitch.h"
 
 
 namespace vc {
@@ -58,6 +59,10 @@ namespace vc {
 		StandardDoubleLight* pRangeSafeArm;
 
 		PushButtonIndicatorSingleLight* pAbort;
+
+		StdSwitch3* pHUDMode;
+		RotaryDemuxSwitch* pHUDBrightness;
+		StdSwitch3* pHUDBright;
 
 	public:
 		PanelF6(Atlantis* _sts);

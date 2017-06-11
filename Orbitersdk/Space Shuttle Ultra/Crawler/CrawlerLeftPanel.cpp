@@ -71,19 +71,19 @@ void CrawlerLeftPanel::DefineVC()
 	pParkingBrakePBI->SetSourceCoords(true, 0, PBI_ON_RED);
 	pParkingBrakePBI->AddAIDToRedrawEventList(AID_BRAKE_PBI+aid_ofs);
 	pParkingBrakePBI->AllowReset(true);
-	pParkingBrakePBI->SetMouseRegion(0.916822f, 0.518648f, 0.972010f, 0.795954f);
+	pParkingBrakePBI->SetMouseRegion( AID_LEFT_MIN + aid_ofs, 0.916822f, 0.518648f, 0.972010f, 0.795954f);
 
 	DefineEnginePBI(pFwdPBI);
 	pFwdPBI->AddAIDToRedrawEventList(AID_FWD_PBI+aid_ofs);
-	pFwdPBI->SetMouseRegion(0.144804f, 0.096366f, 0.199067f, 0.360672f);
+	pFwdPBI->SetMouseRegion( AID_LEFT_MIN + aid_ofs, 0.144804f, 0.096366f, 0.199067f, 0.360672f);
 
 	DefineEnginePBI(pRevPBI);
 	pRevPBI->AddAIDToRedrawEventList(AID_REV_PBI+aid_ofs);
-	pRevPBI->SetMouseRegion(0.246844f, 0.107135f, 0.299727f, 0.377244f);
+	pRevPBI->SetMouseRegion( AID_LEFT_MIN + aid_ofs, 0.246844f, 0.107135f, 0.299727f, 0.377244f);
 
 	DefineEnginePBI(pNeutPBI);
 	pNeutPBI->AddAIDToRedrawEventList(AID_NEUT_PBI+aid_ofs);
-	pNeutPBI->SetMouseRegion(0.195921f, 0.100198f, 0.249119f, 0.363231f);
+	pNeutPBI->SetMouseRegion( AID_LEFT_MIN + aid_ofs, 0.195921f, 0.100198f, 0.249119f, 0.363231f);
 
 	pParkingBrakeLight->SetBaseCoords(0, 0);
 	pParkingBrakeLight->SetDimensions(LIGHT_WIDTH, LIGHT_HEIGHT);

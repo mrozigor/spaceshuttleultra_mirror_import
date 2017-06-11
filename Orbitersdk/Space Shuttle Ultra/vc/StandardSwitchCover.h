@@ -41,6 +41,7 @@ namespace vc
 		UINT anim_cover;
 
 		VCMOUSEEVENTPOINT mouse_a[2], mouse_d[2];
+		UINT mouseregion;
 	public:
 		StandardSwitchCover(Atlantis* _sts, const std::string& _ident);
 		virtual ~StandardSwitchCover();
@@ -50,7 +51,7 @@ namespace vc
 		virtual void OnPositionChange(unsigned short usNewPosition);
 
 		void DefineCoverGroup(UINT _grpIndex);
-		void SetMouseRegion(unsigned short position, float xmin, float ymin, float xmax, float ymax);
+		void SetMouseRegion( UINT aid, unsigned short position, float xmin, float ymin, float xmax, float ymax);
 	};
 };
 

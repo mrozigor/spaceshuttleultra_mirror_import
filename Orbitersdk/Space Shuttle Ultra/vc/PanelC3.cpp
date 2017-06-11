@@ -138,184 +138,184 @@ namespace vc
 		}
 		
 		// switch number: original name (current name)
-		pPBIs[0]->SetMouseRegion( 0.076792f, 0.420048f, 0.115283f, 0.455242f );// S1: SELECT - A (SELECT - A)
+		pPBIs[0]->SetMouseRegion( AID_C3, 0.076792f, 0.420048f, 0.115283f, 0.455242f );// S1: SELECT - A (SELECT - A)
 		pPBIs[0]->DefineMeshGroup( mesh_index, GRP_A6_S1_C3_VC );
 
-		pPBIs[1]->SetMouseRegion( 0.126949f, 0.421518f, 0.166340f, 0.455293f );// S2: SELECT - B (SELECT - B)
+		pPBIs[1]->SetMouseRegion( AID_C3, 0.126949f, 0.421518f, 0.166340f, 0.455293f );// S2: SELECT - B (SELECT - B)
 		pPBIs[1]->DefineMeshGroup( mesh_index, GRP_A6_S2_C3_VC );
 
-		pPBIs[2]->SetMouseRegion( 0.181124f, 0.421175f, 0.219444f, 0.455331f );// S3: CONTROL - AUTO (CONTROL - AUTO)
+		pPBIs[2]->SetMouseRegion( AID_C3, 0.181124f, 0.421175f, 0.219444f, 0.455331f );// S3: CONTROL - AUTO (CONTROL - AUTO)
 		pPBIs[2]->DefineMeshGroup( mesh_index, GRP_A6_S3_C3_VC );
 
-		pPBIs[3]->SetMouseRegion( 0.231705f, 0.420583f, 0.271740f, 0.454928f );// S4: CONTROL - MAN (CONTROL - INRTL)
+		pPBIs[3]->SetMouseRegion( AID_C3, 0.231705f, 0.420583f, 0.271740f, 0.454928f );// S4: CONTROL - MAN (CONTROL - INRTL)
 		pPBIs[3]->DefineMeshGroup( mesh_index, GRP_A6_S4_C3_VC );
 
-		pPBIs[4]->SetMouseRegion( 0.284360f, 0.420678f, 0.325547f, 0.455212f );// S5: RCS JETS - NORM (CONTROL - LVLH)
+		pPBIs[4]->SetMouseRegion( AID_C3, 0.284360f, 0.420678f, 0.325547f, 0.455212f );// S5: RCS JETS - NORM (CONTROL - LVLH)
 		pPBIs[4]->DefineMeshGroup( mesh_index, GRP_A6_S5_C3_VC );
 
-		pPBIs[5]->SetMouseRegion( 0.335767f, 0.420633f, 0.374571f, 0.455531f );// S6: RCS JETS - VERN (CONTROL - FREE)
+		pPBIs[5]->SetMouseRegion( AID_C3, 0.335767f, 0.420633f, 0.374571f, 0.455531f );// S6: RCS JETS - VERN (CONTROL - FREE)
 		pPBIs[5]->DefineMeshGroup( mesh_index, GRP_A6_S6_C3_VC );
 		
-		pPBIs[6]->SetMouseRegion( 0.076832f, 0.524369f, 0.115813f, 0.558626f );// S16: TRANSLATION X - HIGH ()
+		pPBIs[6]->SetMouseRegion( AID_C3, 0.076832f, 0.524369f, 0.115813f, 0.558626f );// S16: TRANSLATION X - HIGH ()
 		pPBIs[6]->DefineMeshGroup( mesh_index, GRP_A6_S16_C3_VC );
 
-		pPBIs[7]->SetMouseRegion( 0.126628f, 0.523217f, 0.166078f, 0.558785f );// S17: TRANSLATION Y - HIGH (TRANSLATION Y - LOW Z)
+		pPBIs[7]->SetMouseRegion( AID_C3, 0.126628f, 0.523217f, 0.166078f, 0.558785f );// S17: TRANSLATION Y - HIGH (TRANSLATION Y - LOW Z)
 		pPBIs[7]->DefineMeshGroup( mesh_index, GRP_A6_S17_C3_VC );
 
-		pPBIs[8]->SetMouseRegion( 0.178143f, 0.523321f, 0.218689f, 0.558025f );// S18: TRANSLATION Z - HIGH (TRANSLATION Z - HIGH Z)
+		pPBIs[8]->SetMouseRegion( AID_C3, 0.178143f, 0.523321f, 0.218689f, 0.558025f );// S18: TRANSLATION Z - HIGH (TRANSLATION Z - HIGH Z)
 		pPBIs[8]->DefineMeshGroup( mesh_index, GRP_A6_S18_C3_VC );
 
-		pPBIs[9]->SetMouseRegion( 0.233175f, 0.523569f, 0.273972f, 0.558653f );// S7: ROTATION ROLL - DISC RATE (ROTATION ROLL - PRI)
+		pPBIs[9]->SetMouseRegion( AID_C3, 0.233175f, 0.523569f, 0.273972f, 0.558653f );// S7: ROTATION ROLL - DISC RATE (ROTATION ROLL - PRI)
 		pPBIs[9]->DefineMeshGroup( mesh_index, GRP_A6_S7_C3_VC );
 		
-		pPBIs[10]->SetMouseRegion( 0.285445f, 0.523146f, 0.325593f, 0.558556f );// S8: ROTATION PITCH - DISC RATE (ROTATION PITCH - ALT)
+		pPBIs[10]->SetMouseRegion( AID_C3, 0.285445f, 0.523146f, 0.325593f, 0.558556f );// S8: ROTATION PITCH - DISC RATE (ROTATION PITCH - ALT)
 		pPBIs[10]->DefineMeshGroup( mesh_index, GRP_A6_S8_C3_VC );
 		
-		pPBIs[11]->SetMouseRegion( 0.336362f, 0.524081f, 0.376589f, 0.558426f );// S9: ROTATION YAW - DISC RATE (ROTATION YAW - VERN)
+		pPBIs[11]->SetMouseRegion( AID_C3, 0.336362f, 0.524081f, 0.376589f, 0.558426f );// S9: ROTATION YAW - DISC RATE (ROTATION YAW - VERN)
 		pPBIs[11]->DefineMeshGroup( mesh_index, GRP_A6_S9_C3_VC );
 		
-		pPBIs[12]->SetMouseRegion( 0.074573f, 0.576707f, 0.115387f, 0.612468f );// S19: TRANSLATION X - NORM (TRANSLATION X - NORM)
+		pPBIs[12]->SetMouseRegion( AID_C3, 0.074573f, 0.576707f, 0.115387f, 0.612468f );// S19: TRANSLATION X - NORM (TRANSLATION X - NORM)
 		pPBIs[12]->DefineMeshGroup( mesh_index, GRP_A6_S19_C3_VC );
 		
-		pPBIs[13]->SetMouseRegion( 0.126687f, 0.577016f, 0.165797f, 0.611745f );// S20: TRANSLATION Y - NORM (TRANSLATION Y - NORM)
+		pPBIs[13]->SetMouseRegion( AID_C3, 0.126687f, 0.577016f, 0.165797f, 0.611745f );// S20: TRANSLATION Y - NORM (TRANSLATION Y - NORM)
 		pPBIs[13]->DefineMeshGroup( mesh_index, GRP_A6_S20_C3_VC );
 		
-		pPBIs[14]->SetMouseRegion( 0.178360f, 0.576320f, 0.218115f, 0.611317f );// S21: TRANSLATION Z - NORM (TRANSLATION Z - NORM)
+		pPBIs[14]->SetMouseRegion( AID_C3, 0.178360f, 0.576320f, 0.218115f, 0.611317f );// S21: TRANSLATION Z - NORM (TRANSLATION Z - NORM)
 		pPBIs[14]->DefineMeshGroup( mesh_index, GRP_A6_S21_C3_VC );
 		
-		pPBIs[15]->SetMouseRegion( 0.234408f, 0.576546f, 0.273775f, 0.611331f );// S10: ROTATION ROLL - ACCEL (ROTATION ROLL - DISC RATE)
+		pPBIs[15]->SetMouseRegion( AID_C3, 0.234408f, 0.576546f, 0.273775f, 0.611331f );// S10: ROTATION ROLL - ACCEL (ROTATION ROLL - DISC RATE)
 		pPBIs[15]->DefineMeshGroup( mesh_index, GRP_A6_S10_C3_VC );
 		
-		pPBIs[16]->SetMouseRegion( 0.284538f, 0.575901f, 0.324818f, 0.611630f );// S11: ROTATION PITCH - ACCEL (ROTATION PITCH - DISC RATE)
+		pPBIs[16]->SetMouseRegion( AID_C3, 0.284538f, 0.575901f, 0.324818f, 0.611630f );// S11: ROTATION PITCH - ACCEL (ROTATION PITCH - DISC RATE)
 		pPBIs[16]->DefineMeshGroup( mesh_index, GRP_A6_S11_C3_VC );
 		
-		pPBIs[17]->SetMouseRegion( 0.335612f, 0.576493f, 0.377545f, 0.611941f );// S12: ROTATION YAW - ACCEL (ROTATION YAW - DISC RATE)
+		pPBIs[17]->SetMouseRegion( AID_C3, 0.335612f, 0.576493f, 0.377545f, 0.611941f );// S12: ROTATION YAW - ACCEL (ROTATION YAW - DISC RATE)
 		pPBIs[17]->DefineMeshGroup( mesh_index, GRP_A6_S12_C3_VC );
 		
-		pPBIs[18]->SetMouseRegion( 0.074080f, 0.625474f, 0.115904f, 0.660760f );// S22: TRANSLATION X - PULSE (TRANSLATION X - PULSE)
+		pPBIs[18]->SetMouseRegion( AID_C3, 0.074080f, 0.625474f, 0.115904f, 0.660760f );// S22: TRANSLATION X - PULSE (TRANSLATION X - PULSE)
 		pPBIs[18]->DefineMeshGroup( mesh_index, GRP_A6_S22_C3_VC );
 		
-		pPBIs[19]->SetMouseRegion( 0.127879f, 0.625166f, 0.166948f, 0.661009f );// S23: TRANSLATION Y - PULSE (TRANSLATION Y - PULSE)
+		pPBIs[19]->SetMouseRegion( AID_C3, 0.127879f, 0.625166f, 0.166948f, 0.661009f );// S23: TRANSLATION Y - PULSE (TRANSLATION Y - PULSE)
 		pPBIs[19]->DefineMeshGroup( mesh_index, GRP_A6_S23_C3_VC );
 		
-		pPBIs[20]->SetMouseRegion( 0.177976f, 0.626219f, 0.218171f, 0.660640f );// S24: TRANSLATION Z - PULSE (TRANSLATION Z - PULSE)
+		pPBIs[20]->SetMouseRegion( AID_C3, 0.177976f, 0.626219f, 0.218171f, 0.660640f );// S24: TRANSLATION Z - PULSE (TRANSLATION Z - PULSE)
 		pPBIs[20]->DefineMeshGroup( mesh_index, GRP_A6_S24_C3_VC );
 		
-		pPBIs[21]->SetMouseRegion( 0.233390f, 0.625540f, 0.274357f, 0.660435f );// S13: ROTATION ROLL - PULSE (ROTATION ROLL - PULSE)
+		pPBIs[21]->SetMouseRegion( AID_C3, 0.233390f, 0.625540f, 0.274357f, 0.660435f );// S13: ROTATION ROLL - PULSE (ROTATION ROLL - PULSE)
 		pPBIs[21]->DefineMeshGroup( mesh_index, GRP_A6_S13_C3_VC );
 		
-		pPBIs[22]->SetMouseRegion( 0.284311f, 0.625695f, 0.324971f, 0.660364f );// S14: ROTATION PITCH - PULSE (ROTATION PITCH - PULSE)
+		pPBIs[22]->SetMouseRegion( AID_C3, 0.284311f, 0.625695f, 0.324971f, 0.660364f );// S14: ROTATION PITCH - PULSE (ROTATION PITCH - PULSE)
 		pPBIs[22]->DefineMeshGroup( mesh_index, GRP_A6_S14_C3_VC );
 
-		pPBIs[23]->SetMouseRegion( 0.336204f, 0.625340f, 0.376533f, 0.660289f );// S15: ROTATION YAW - PULSE (ROTATION YAW - PULSE)
+		pPBIs[23]->SetMouseRegion( AID_C3, 0.336204f, 0.625340f, 0.376533f, 0.660289f );// S15: ROTATION YAW - PULSE (ROTATION YAW - PULSE)
 		pPBIs[23]->DefineMeshGroup( mesh_index, GRP_A6_S15_C3_VC );
 
-		pOMSArm[LEFT]->SetMouseRegion(0.063487f, 0.070910f, 0.117992f, 0.173581f);
+		pOMSArm[LEFT]->SetMouseRegion( AID_C3, 0.063487f, 0.070910f, 0.117992f, 0.173581f);
 		pOMSArm[LEFT]->SetReference(_V(-0.2114868, 1.7215, 14.2841), switch_rot);
 		pOMSArm[LEFT]->SetPullDirection(pull_dir);
 		pOMSArm[LEFT]->DefineSwitchGroup( GRP_A1_S1_C3_VC );
 		pOMSArm[LEFT]->ConnectSwitchPosition(1, 1);
 		pOMSArm[LEFT]->SetInitialAnimState(0.5f);
 
-		pOMSArm[RIGHT]->SetMouseRegion(0.117992f, 0.070910f, 0.179360f, 0.173581f);
+		pOMSArm[RIGHT]->SetMouseRegion( AID_C3, 0.117992f, 0.070910f, 0.179360f, 0.173581f);
 		pOMSArm[RIGHT]->SetReference(_V(-0.1716415, 1.7215, 14.2841), switch_rot);
 		pOMSArm[RIGHT]->SetPullDirection(pull_dir);
 		pOMSArm[RIGHT]->DefineSwitchGroup( GRP_A1_S2_C3_VC );
 		pOMSArm[RIGHT]->ConnectSwitchPosition(1, 1);
 		pOMSArm[RIGHT]->SetInitialAnimState(0.5f);
 
-		pBFCCRTDisplay->SetMouseRegion( 0.204959f, 0.071767f, 0.231104f, 0.138565f );
+		pBFCCRTDisplay->SetMouseRegion( AID_C3, 0.204959f, 0.071767f, 0.231104f, 0.138565f );
 		pBFCCRTDisplay->SetReference( _V( -0.153415, 1.7302, 14.2963 ), switch_rot );
 		pBFCCRTDisplay->DefineSwitchGroup( GRP_A1_S17_C3_VC );
 		pBFCCRTDisplay->SetInitialAnimState( 0.5f );
 
-		pBFCCRTSelect->SetMouseRegion( 0.250595f, 0.071845f, 0.286626f, 0.133207f );
+		pBFCCRTSelect->SetMouseRegion( AID_C3, 0.250595f, 0.071845f, 0.286626f, 0.133207f );
 		pBFCCRTSelect->SetReference( _V( -0.124915, 1.7302, 14.2954 ), switch_rot );
 		pBFCCRTSelect->DefineSwitchGroup( GRP_A1_S18_C3_VC );
 		pBFCCRTSelect->SetInitialAnimState( 0.5f );
 
-		pAirDataProbeStowEnable[LEFT]->SetMouseRegion(0.063720f, 0.255919f, 0.126235f, 0.321174f);
+		pAirDataProbeStowEnable[LEFT]->SetMouseRegion( AID_C3, 0.063720f, 0.255919f, 0.126235f, 0.321174f);
 		pAirDataProbeStowEnable[LEFT]->SetReference(_V(-0.2114868, 1.7178, 14.1801), switch_rot);
 		pAirDataProbeStowEnable[LEFT]->DefineSwitchGroup( GRP_A1_S19_C3_VC );
 		pAirDataProbeStowEnable[LEFT]->SetInitialAnimState(0.5f);
 
-		pAirDataProbeStowEnable[RIGHT]->SetMouseRegion(0.126235f, 0.255919f, 0.189637f, 0.321174f);		
+		pAirDataProbeStowEnable[RIGHT]->SetMouseRegion( AID_C3, 0.126235f, 0.255919f, 0.189637f, 0.321174f);		
 		pAirDataProbeStowEnable[RIGHT]->SetReference(_V(-0.1716415, 1.7178, 14.1801), switch_rot);
 		pAirDataProbeStowEnable[RIGHT]->DefineSwitchGroup( GRP_A1_S20_C3_VC );
 		pAirDataProbeStowEnable[RIGHT]->SetInitialAnimState(0.5f);
 
-		pAirDataProbeDeploy[LEFT]->SetMouseRegion(0.080556f, 0.753680f, 0.148883f, 0.864232f);
+		pAirDataProbeDeploy[LEFT]->SetMouseRegion( AID_C3, 0.080556f, 0.753680f, 0.148883f, 0.864232f);
 		pAirDataProbeDeploy[LEFT]->SetReference(_V(-0.2114868, 1.680126, 13.8549), switch_rot);
 		pAirDataProbeDeploy[LEFT]->SetPullDirection(pull_dir);
 		pAirDataProbeDeploy[LEFT]->DefineSwitchGroup( GRP_A5_S8_C3_VC );
 		pAirDataProbeDeploy[LEFT]->ConnectSwitchPosition(1, 1);
 		pAirDataProbeDeploy[LEFT]->SetInitialAnimState(0.5f);
 
-		pAirDataProbeDeploy[RIGHT]->SetMouseRegion(0.148883f, 0.753680f, 0.208679f, 0.864232f);		
+		pAirDataProbeDeploy[RIGHT]->SetMouseRegion( AID_C3, 0.148883f, 0.753680f, 0.208679f, 0.864232f);		
 		pAirDataProbeDeploy[RIGHT]->SetReference(_V(-0.1716415, 1.680126, 13.8549), switch_rot);
 		pAirDataProbeDeploy[RIGHT]->SetPullDirection(pull_dir);
 		pAirDataProbeDeploy[RIGHT]->DefineSwitchGroup( GRP_A5_S9_C3_VC );
 		pAirDataProbeDeploy[RIGHT]->ConnectSwitchPosition(1, 1);
 		pAirDataProbeDeploy[RIGHT]->SetInitialAnimState(0.5f);
 
-		pSSMELimitShutDn->SetMouseRegion(0.302924f, 0.241994f, 0.357174f, 0.322577f);
+		pSSMELimitShutDn->SetMouseRegion( AID_C3, 0.302924f, 0.241994f, 0.357174f, 0.322577f);
 		pSSMELimitShutDn->SetReference(_V(-0.4785, 1.7175, 14.181), switch_rot);
 		pSSMELimitShutDn->DefineSwitchGroup( GRP_A1_S11_C3_VC );
 		pSSMELimitShutDn->SetInitialAnimState(0.5f);
 
-		pSSMESDPBCover[0]->SetMouseRegion( 0, 0.374513f, 0.282742f, 0.428198f, 0.344442f );
-		pSSMESDPBCover[0]->SetMouseRegion( 1, 0.368484f, 0.236416f, 0.423421f, 0.272399f );
+		pSSMESDPBCover[0]->SetMouseRegion( AID_C3, 0, 0.374513f, 0.282742f, 0.428198f, 0.344442f );
+		pSSMESDPBCover[0]->SetMouseRegion( AID_C3, 1, 0.368484f, 0.236416f, 0.423421f, 0.272399f );
 		pSSMESDPBCover[0]->SetReference( _V( -0.0545, 1.7466, 14.1836 ), switch_rot );
 		pSSMESDPBCover[0]->DefineCoverGroup( GRP_A1_COVER12_C3_VC );
 
-		pSSMESDPBCover[1]->SetMouseRegion( 0, 0.441879f, 0.260643f, 0.496332f, 0.321328f );
-		pSSMESDPBCover[1]->SetMouseRegion( 1, 0.440854f, 0.217779f, 0.493692f, 0.257521f );
+		pSSMESDPBCover[1]->SetMouseRegion( AID_C3, 0, 0.441879f, 0.260643f, 0.496332f, 0.321328f );
+		pSSMESDPBCover[1]->SetMouseRegion( AID_C3, 1, 0.440854f, 0.217779f, 0.493692f, 0.257521f );
 		pSSMESDPBCover[1]->SetReference( _V( -0.0174, 1.7466, 14.1954 ), switch_rot );
 		pSSMESDPBCover[1]->DefineCoverGroup( GRP_A1_COVER13_C3_VC );
 
-		pSSMESDPBCover[2]->SetMouseRegion( 0, 0.511570f, 0.281802f, 0.563658f, 0.340997f );
-		pSSMESDPBCover[2]->SetMouseRegion( 1, 0.514202f, 0.240377f, 0.563319f, 0.277074f );
+		pSSMESDPBCover[2]->SetMouseRegion( AID_C3, 0, 0.511570f, 0.281802f, 0.563658f, 0.340997f );
+		pSSMESDPBCover[2]->SetMouseRegion( AID_C3, 1, 0.514202f, 0.240377f, 0.563319f, 0.277074f );
 		pSSMESDPBCover[2]->SetReference( _V( 0.0197, 1.7466, 14.1826 ), switch_rot );
 		pSSMESDPBCover[2]->DefineCoverGroup( GRP_A1_COVER14_C3_VC );
 
-		pSSMESDPB[0]->SetMouseRegion( 0.380817f, 0.295599f, 0.420386f, 0.331035f );
+		pSSMESDPB[0]->SetMouseRegion( AID_C3, 0.380817f, 0.295599f, 0.420386f, 0.331035f );
 		pSSMESDPB[0]->SetDirection( push_dir );
 		pSSMESDPB[0]->DefineGroup( GRP_A1_S12_C3_VC );
 
-		pSSMESDPB[1]->SetMouseRegion( 0.448899f, 0.276360f, 0.488503f, 0.310700f );
+		pSSMESDPB[1]->SetMouseRegion( AID_C3, 0.448899f, 0.276360f, 0.488503f, 0.310700f );
 		pSSMESDPB[1]->SetDirection( push_dir );
 		pSSMESDPB[1]->DefineGroup( GRP_A1_S13_C3_VC );
 
-		pSSMESDPB[2]->SetMouseRegion( 0.515987f, 0.296511f, 0.556983f, 0.331199f );
+		pSSMESDPB[2]->SetMouseRegion( AID_C3, 0.515987f, 0.296511f, 0.556983f, 0.331199f );
 		pSSMESDPB[2]->SetDirection( push_dir );
 		pSSMESDPB[2]->DefineGroup( GRP_A1_S14_C3_VC );
 
-		pSRBSEPSW->SetMouseRegion( 0.462571f, 0.414336f, 0.509469f, 0.491312f );
+		pSRBSEPSW->SetMouseRegion( AID_C3, 0.462571f, 0.414336f, 0.509469f, 0.491312f );
 		pSRBSEPSW->SetReference( _V( 0.00608, 1.70746, 14.0791 ), switch_rot );
 		pSRBSEPSW->DefineSwitchGroup( GRP_A7_S1_C3_VC );
 		pSRBSEPSW->SetInitialAnimState( 0.5f );
 
-		pSRBSEPCover->SetMouseRegion( 0, 0.533090f, 0.424105f, 0.586752f, 0.485038f );
-		pSRBSEPCover->SetMouseRegion( 1, 0.532972f, 0.381586f, 0.579912f, 0.430505f );
+		pSRBSEPCover->SetMouseRegion( AID_C3, 0, 0.533090f, 0.424105f, 0.586752f, 0.485038f );
+		pSRBSEPCover->SetMouseRegion( AID_C3, 1, 0.532972f, 0.381586f, 0.579912f, 0.430505f );
 		pSRBSEPCover->SetReference( _V( -0.031, 1.734, 14.096 ), switch_rot );
 		pSRBSEPCover->DefineCoverGroup( GRP_A7_COVER2_C3_VC );
 		
-		pSRBSEPPB->SetMouseRegion( 0.537215f, 0.435073f, 0.574794f, 0.470203f );
+		pSRBSEPPB->SetMouseRegion( AID_C3, 0.537215f, 0.435073f, 0.574794f, 0.470203f );
 		pSRBSEPPB->SetDirection( push_dir );
 		pSRBSEPPB->DefineGroup( GRP_A7_S2_C3_VC );
 
-		pETSEPSW->SetMouseRegion( 0.629313f, 0.420718f, 0.675625f, 0.520487f );
+		pETSEPSW->SetMouseRegion( AID_C3, 0.629313f, 0.420718f, 0.675625f, 0.520487f );
 		pETSEPSW->SetReference( _V( -0.08218, 1.69955, 14.06513 ), switch_rot );
 		pETSEPSW->SetPullDirection( pull_dir );
 		pETSEPSW->DefineSwitchGroup( GRP_A7_S3_C3_VC );
 		pETSEPSW->SetInitialAnimState( 0.5f );
 		
-		pETSEPCover->SetMouseRegion( 0, 0.691866f, 0.422427f, 0.745989f, 0.482821f );
-		pETSEPCover->SetMouseRegion( 1, 0.703331f, 0.380311f, 0.735696f, 0.423886f );
+		pETSEPCover->SetMouseRegion( AID_C3, 0, 0.691866f, 0.422427f, 0.745989f, 0.482821f );
+		pETSEPCover->SetMouseRegion( AID_C3, 1, 0.703331f, 0.380311f, 0.735696f, 0.423886f );
 		pETSEPCover->SetReference( _V( -0.119, 1.734, 14.096 ), switch_rot );
 		pETSEPCover->DefineCoverGroup( GRP_A7_COVER4_C3_VC );
 
-		pETSEPPB->SetMouseRegion( 0.698907f, 0.432862f, 0.731796f, 0.463562f );
+		pETSEPPB->SetMouseRegion( AID_C3, 0.698907f, 0.432862f, 0.731796f, 0.463562f );
 		pETSEPPB->SetDirection( push_dir );
 		pETSEPPB->DefineGroup( GRP_A7_S4_C3_VC );
 	}

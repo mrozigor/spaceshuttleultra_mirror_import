@@ -78,47 +78,47 @@ namespace vc
 		pDragChuteARM->SetStateOffset( 2, 0.146484f, 0.488281f );// 2
 		pDragChuteARM->SetStateOffset( 3, 0.146484f, 0.0f );// 12
 		pDragChuteARM->SetDirection( push_dir );
-		pDragChuteARM->SetMouseRegion( 0.941485f, 0.155126f, 0.961229f, 0.349624f );
+		pDragChuteARM->SetMouseRegion( AID_F3, 0.941485f, 0.155126f, 0.961229f, 0.349624f );
 		pDragChuteARM->DefineMeshGroup( STS()->mesh_vc, GRP_F3_S8_VC );
 
 		pDragChuteDPY->SetStateOffset( 1, 0.0f, 0.488281f );// 1
 		pDragChuteDPY->SetStateOffset( 2, 0.146484f, 0.488281f );// 2
 		pDragChuteDPY->SetStateOffset( 3, 0.146484f, 0.0f );// 12
 		pDragChuteDPY->SetDirection( push_dir );
-		pDragChuteDPY->SetMouseRegion( 0.970976f, 0.154359f, 0.990583f, 0.348370f );
+		pDragChuteDPY->SetMouseRegion( AID_F3, 0.970976f, 0.154359f, 0.990583f, 0.348370f );
 		pDragChuteDPY->DefineMeshGroup( STS()->mesh_vc, GRP_F3_S9_VC );
 
 		pDragChuteJETT->SetStateOffset( 1, 0.0f, 0.488281f );// 1
 		pDragChuteJETT->SetStateOffset( 2, 0.146484f, 0.488281f );// 2
 		pDragChuteJETT->SetStateOffset( 3, 0.146484f, 0.0f );// 12
 		pDragChuteJETT->SetDirection( push_dir );
-		pDragChuteJETT->SetMouseRegion( 0.028511f, 0.158667f, 0.048433f, 0.349924f );
+		pDragChuteJETT->SetMouseRegion( AID_F3, 0.028511f, 0.158667f, 0.048433f, 0.349924f );
 		pDragChuteJETT->DefineMeshGroup( STS()->mesh_vc, GRP_F3_S7_VC );
 
-		pDragChuteARMCover->SetMouseRegion( 0, 0.938748f, 0.117915f, 0.963932f, 0.419314f );
-		pDragChuteARMCover->SetMouseRegion( 1, 0.933402f, 0.0f, 0.952428f, 0.066717f );
+		pDragChuteARMCover->SetMouseRegion( AID_F3, 0, 0.938748f, 0.117915f, 0.963932f, 0.419314f );
+		pDragChuteARMCover->SetMouseRegion( AID_F3, 1, 0.933402f, 0.0f, 0.952428f, 0.066717f );
 		pDragChuteARMCover->SetReference( _V( -0.5320, 2.5288, 14.6101 ), switch_rot );
 		pDragChuteARMCover->DefineCoverGroup( GRP_F3COVERS8_VC );
 
-		pDragChuteDPYCover->SetMouseRegion( 0, 0.968342f, 0.117915f, 0.992407f, 0.419314f );
-		pDragChuteDPYCover->SetMouseRegion( 1, 0.961976f, 0.0f, 0.986786f, 0.066717f );
+		pDragChuteDPYCover->SetMouseRegion( AID_F3, 0, 0.968342f, 0.117915f, 0.992407f, 0.419314f );
+		pDragChuteDPYCover->SetMouseRegion( AID_F3, 1, 0.961976f, 0.0f, 0.986786f, 0.066717f );
 		pDragChuteDPYCover->SetReference( _V( -0.5320, 2.5288, 14.6101 ), switch_rot );
 		pDragChuteDPYCover->DefineCoverGroup( GRP_F3COVERS9_VC );
 
-		pDragChuteJETTCover->SetMouseRegion( 0, 0.025776f, 0.120962f, 0.051179f, 0.428174f );
-		pDragChuteJETTCover->SetMouseRegion( 1, 0.025775f, 0.0f, 0.052357f, 0.073427f );
+		pDragChuteJETTCover->SetMouseRegion( AID_F3, 0, 0.025776f, 0.120962f, 0.051179f, 0.428174f );
+		pDragChuteJETTCover->SetMouseRegion( AID_F3, 1, 0.025775f, 0.0f, 0.052357f, 0.073427f );
 		pDragChuteJETTCover->SetReference( _V( -0.5320, 2.5288, 14.6101 ), switch_rot );
 		pDragChuteJETTCover->DefineCoverGroup( GRP_F3COVERS7_VC );
 		
 		pHUDPower[0]->DefineSwitchGroup( GRP_F3S1_VC );
 		pHUDPower[0]->SetInitialAnimState( 0.5 );
 		pHUDPower[0]->SetReference( _V( 0.5358, 2.4529, 14.5890 ), switch_rot );
-		pHUDPower[0]->SetMouseRegion( 0.021770f, 0.649764f, 0.044223f, 0.888632f );
+		pHUDPower[0]->SetMouseRegion( AID_F3, 0.021770f, 0.649764f, 0.044223f, 0.888632f );
 
 		pHUDPower[1]->DefineSwitchGroup( GRP_F3S6_VC );
 		pHUDPower[1]->SetInitialAnimState( 0.5 );
 		pHUDPower[1]->SetReference( _V( -0.5374, 2.4530, 14.5890 ), switch_rot );
-		pHUDPower[1]->SetMouseRegion( 0.976221f, 0.656113f, 0.997667f, 0.889501f );
+		pHUDPower[1]->SetMouseRegion( AID_F3, 0.976221f, 0.656113f, 0.997667f, 0.889501f );
 
 		pNWSFail->DefineMeshGroup( STS()->mesh_vc, GRP_F3_XDS3_VC );
 		pNWSFail->SetStateOffset( 1, 0.139648f, 0.0f );

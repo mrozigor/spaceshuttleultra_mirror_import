@@ -73,27 +73,27 @@ namespace vc
 		pEIUPowerLC->SetInitialAnimState(0.5f);
 		pEIUPowerLC->DefineSwitchGroup(GRP_S8_O17_VC);
 		pEIUPowerLC->SetReference(_V(0.7605, 3.1545, 13.336), SWITCH_ROT);
-		pEIUPowerLC->SetMouseRegion(0.073f, 0.625f, 0.159f, 0.7f);
+		pEIUPowerLC->SetMouseRegion( AID_O17, 0.073f, 0.625f, 0.159f, 0.7f);
 
 		pEIUPowerCR->SetInitialAnimState(0.5f);
 		pEIUPowerCR->DefineSwitchGroup(GRP_S7_O17_VC);
 		pEIUPowerCR->SetReference(_V(0.78925, 3.1325, 13.336), SWITCH_ROT);
-		pEIUPowerCR->SetMouseRegion(0.171f, 0.625f, 0.265f, 0.7f);
+		pEIUPowerCR->SetMouseRegion( AID_O17, 0.171f, 0.625f, 0.265f, 0.7f);
 
 		pEIUPowerRL->SetInitialAnimState(0.5f);
 		pEIUPowerRL->DefineSwitchGroup(GRP_S9_O17_VC);
 		pEIUPowerRL->SetReference(_V(0.81725, 3.1105, 13.3365), SWITCH_ROT);
-		pEIUPowerRL->SetMouseRegion(0.270f, 0.625f, 0.362f, 0.7f);
+		pEIUPowerRL->SetMouseRegion( AID_O17, 0.270f, 0.625f, 0.362f, 0.7f);
 
 		pMECPower[0]->SetInitialAnimState( 0.5f );
 		pMECPower[0]->DefineSwitchGroup( GRP_S5_O17_VC );
 		pMECPower[0]->SetReference( _V( 0.8507, 3.0852, 13.4520 ), SWITCH_ROT );
-		pMECPower[0]->SetMouseRegion( 0.296503f, 0.365015f, 0.346141f, 0.413497f );
+		pMECPower[0]->SetMouseRegion( AID_O17, 0.296503f, 0.365015f, 0.346141f, 0.413497f );
 
 		pMECPower[1]->SetInitialAnimState( 0.5f );
 		pMECPower[1]->DefineSwitchGroup( GRP_S6_O17_VC );
 		pMECPower[1]->SetReference( _V( 0.8507, 3.0852, 13.4520 ), SWITCH_ROT );
-		pMECPower[1]->SetMouseRegion( 0.390501f, 0.365165f, 0.439871f, 0.412690f );
+		pMECPower[1]->SetMouseRegion( AID_O17, 0.390501f, 0.365165f, 0.439871f, 0.412690f );
 	}
 
 	void PanelO17::RegisterVC()

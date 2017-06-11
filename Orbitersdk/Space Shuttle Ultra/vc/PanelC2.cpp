@@ -272,74 +272,74 @@ namespace vc
 
 		AddAIDToMouseEventList( AID_C2 );
 
-		pKeyboardCDR->SetMouseRegion( 0.040320f, 0.094652f, 0.220764f, 0.953784f );
+		pKeyboardCDR->SetMouseRegion( AID_C2, 0.040320f, 0.094652f, 0.220764f, 0.953784f );
 		
-		pKeyboardPLT->SetMouseRegion( 0.776391f, 0.096152f, 0.956499f, 0.953310f );
+		pKeyboardPLT->SetMouseRegion( AID_C2, 0.776391f, 0.096152f, 0.956499f, 0.953310f );
 
 
 		pIDPCRTPower[0]->SetInitialAnimState( 0.5f );
 		pIDPCRTPower[0]->DefineSwitchGroup( GRP_C2B1_VC );
 		pIDPCRTPower[0]->SetReference( _V( -0.10, 1.911417, 14.50198 ), switch_rot );
-		pIDPCRTPower[0]->SetMouseRegion( 0.289743f, 0.163456f, 0.324921f, 0.276103f );
+		pIDPCRTPower[0]->SetMouseRegion( AID_C2, 0.289743f, 0.163456f, 0.324921f, 0.276103f );
 
 		pIDPCRTPower[1]->SetInitialAnimState( 0.5f );
 		pIDPCRTPower[1]->DefineSwitchGroup( GRP_C2B5_VC );
 		pIDPCRTPower[1]->SetReference( _V( 0.07, 1.911417, 14.50198 ), switch_rot );
-		pIDPCRTPower[1]->SetMouseRegion( 0.613179f, 0.160406f, 0.650175f, 0.284562f );
+		pIDPCRTPower[1]->SetMouseRegion( AID_C2, 0.613179f, 0.160406f, 0.650175f, 0.284562f );
 
 		pIDPCRTPower[2]->SetInitialAnimState( 0.5f );
 		pIDPCRTPower[2]->DefineSwitchGroup( GRP_C2B3_VC );
 		pIDPCRTPower[2]->SetReference( _V( -0.02, 1.911417, 14.50198 ), switch_rot );
-		pIDPCRTPower[2]->SetMouseRegion( 0.449651f, 0.157388f, 0.487955f, 0.281491f );
+		pIDPCRTPower[2]->SetMouseRegion( AID_C2, 0.449651f, 0.157388f, 0.487955f, 0.281491f );
 
 
 		pIDPCRTMajFunc[0]->SetInitialAnimState( 0.5f );
 		pIDPCRTMajFunc[0]->DefineSwitchGroup( GRP_C2B2_VC );
 		pIDPCRTMajFunc[0]->SetReference( _V( -0.07, 1.911417, 14.50198 ), switch_rot );
-		pIDPCRTMajFunc[0]->SetMouseRegion( 0.344109f, 0.162173f, 0.382536f, 0.283917f );
+		pIDPCRTMajFunc[0]->SetMouseRegion( AID_C2, 0.344109f, 0.162173f, 0.382536f, 0.283917f );
 
 		pIDPCRTMajFunc[1]->SetInitialAnimState( 0.5f );
 		pIDPCRTMajFunc[1]->DefineSwitchGroup( GRP_C2B6_VC );
 		pIDPCRTMajFunc[1]->SetReference( _V( -0.10, 1.911417, 14.50198 ), switch_rot );
-		pIDPCRTMajFunc[1]->SetMouseRegion( 0.669981f, 0.161427f, 0.709157f, 0.283448f );
+		pIDPCRTMajFunc[1]->SetMouseRegion( AID_C2, 0.669981f, 0.161427f, 0.709157f, 0.283448f );
 
 		pIDPCRTMajFunc[2]->SetInitialAnimState( 0.5f );
 		pIDPCRTMajFunc[2]->DefineSwitchGroup( GRP_C2B4_VC );
 		pIDPCRTMajFunc[2]->SetReference( _V( 0.01, 1.911417, 14.50198 ), switch_rot );
-		pIDPCRTMajFunc[2]->SetMouseRegion( 0.507477f, 0.156221f, 0.546810f, 0.282617f );
+		pIDPCRTMajFunc[2]->SetMouseRegion( AID_C2, 0.507477f, 0.156221f, 0.546810f, 0.282617f );
 
 
 		pCRTSEL[0]->SetInitialAnimState( 0.5f );
 		pCRTSEL[0]->DefineSwitchGroup( GRP_C2B7V_VC );
 		pCRTSEL[0]->SetReference( _V( -0.100152, 1.859752, 14.45152 ), switch_rotH );
-		pCRTSEL[0]->SetMouseRegion( 0.295351f, 0.438155f, 0.343899f, 0.542759f );
+		pCRTSEL[0]->SetMouseRegion( AID_C2, 0.295351f, 0.438155f, 0.343899f, 0.542759f );
 		pCRTSEL[0]->SetOrientation( true );
 
 
 		pCRTSEL[1]->SetInitialAnimState( 0.5f );
 		pCRTSEL[1]->DefineSwitchGroup( GRP_C2B8V_VC );
 		pCRTSEL[1]->SetReference( _V( 0.100152, 1.859752, 14.45152 ), switch_rotH );
-		pCRTSEL[1]->SetMouseRegion( 0.665661f, 0.437980f, 0.712859f, 0.538354f );
+		pCRTSEL[1]->SetMouseRegion( AID_C2, 0.665661f, 0.437980f, 0.712859f, 0.538354f );
 		pCRTSEL[1]->SetOrientation( true );
 
 
 		pEventTimerMode->SetInitialAnimState( 0.5f );
 		pEventTimerMode->DefineSwitchGroup( GRP_C2B9_VC );
 		pEventTimerMode->SetReference( _V( 0.0, 1.801141, 14.3961 ), switch_rot );
-		pEventTimerMode->SetMouseRegion( 0.299141f, 0.727767f, 0.335464f, 0.850107f );
+		pEventTimerMode->SetMouseRegion( AID_C2, 0.299141f, 0.727767f, 0.335464f, 0.850107f );
 		pEventTimerMode->SetSpringLoaded( true, 0 );
 
 		pEventTimerControl->SetInitialAnimState( 0.5f );
 		pEventTimerControl->DefineSwitchGroup( GRP_C2B10_VC );
 		pEventTimerControl->SetReference( _V( -0.07, 1.801141, 14.3961 ), switch_rot );
-		pEventTimerControl->SetMouseRegion( 0.353268f, 0.726625f, 0.390057f, 0.850045f );
+		pEventTimerControl->SetMouseRegion( AID_C2, 0.353268f, 0.726625f, 0.390057f, 0.850045f );
 		pEventTimerControl->SetSpringLoaded( true, 0 );
 		pEventTimerControl->SetSpringLoaded( true, 2 );
 
 		pTimer->SetInitialAnimState( 0.5f );
 		pTimer->DefineSwitchGroup( GRP_C2B11_VC );
 		pTimer->SetReference( _V( 0.0994235, 1.801141, 14.3961 ), switch_rot );
-		pTimer->SetMouseRegion( 0.672017f, 0.727122f, 0.709002f, 0.851895f );
+		pTimer->SetMouseRegion( AID_C2, 0.672017f, 0.727122f, 0.709002f, 0.851895f );
 		pTimer->SetSpringLoaded( true, 0 );
 		pTimer->SetSpringLoaded( true, 2 );
 		return;

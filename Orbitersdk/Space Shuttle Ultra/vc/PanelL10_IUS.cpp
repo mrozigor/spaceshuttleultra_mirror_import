@@ -368,359 +368,359 @@ namespace vc
 		pPanelMode->SetInitialAnimState( 0.5f );
 		pPanelMode->DefineSwitchGroup( GRP_S61_L10_IUS_VC );
 		pPanelMode->SetReference( _V( -1.4702, 2.3884, 13.5557 ), SWITCH_ROT );
-		pPanelMode->SetMouseRegion( 0.852753f, 0.124612f, 0.882422f, 0.166456f );
+		pPanelMode->SetMouseRegion( AID_L10_IUS, 0.852753f, 0.124612f, 0.882422f, 0.166456f );
 		pPanelMode->SetPullDirection( SWITCH_PULL );
 		pPanelMode->SetInitialPosition( 2 );
 
 		pPowerSourceASEBatteriesPri->SetInitialAnimState( 0.5f );
 		pPowerSourceASEBatteriesPri->DefineSwitchGroup( GRP_S3_L10_IUS_VC );
 		pPowerSourceASEBatteriesPri->SetReference( _V( -1.4441, 2.3686, 13.1502 ), SWITCH_ROT );
-		pPowerSourceASEBatteriesPri->SetMouseRegion( 0.113853f, 0.180123f, 0.147586f, 0.219617f );
+		pPowerSourceASEBatteriesPri->SetMouseRegion( AID_L10_IUS, 0.113853f, 0.180123f, 0.147586f, 0.219617f );
 		pPowerSourceASEBatteriesPri->SetSpringLoaded( true, 0 );
 		pPowerSourceASEBatteriesPri->SetSpringLoaded( true, 2 );
 
 		pPowerSourceASEBatteriesAlt->SetInitialAnimState( 0.5f );
 		pPowerSourceASEBatteriesAlt->DefineSwitchGroup( GRP_S33_L10_IUS_VC );
 		pPowerSourceASEBatteriesAlt->SetReference( _V( -1.4441, 2.3686, 13.1502 ), SWITCH_ROT );
-		pPowerSourceASEBatteriesAlt->SetMouseRegion( 0.167758f, 0.180064f, 0.205525f, 0.220610f );
+		pPowerSourceASEBatteriesAlt->SetMouseRegion( AID_L10_IUS, 0.167758f, 0.180064f, 0.205525f, 0.220610f );
 		pPowerSourceASEBatteriesAlt->SetSpringLoaded( true, 0 );
 		pPowerSourceASEBatteriesAlt->SetSpringLoaded( true, 2 );
 
 		pPowerSourceOrbiterSCConvPwrPri->SetInitialAnimState( 0.5f );
 		pPowerSourceOrbiterSCConvPwrPri->DefineSwitchGroup( GRP_S4_L10_IUS_VC );
 		pPowerSourceOrbiterSCConvPwrPri->SetReference( _V( -1.4441, 2.3686, 13.1502 ), SWITCH_ROT );
-		pPowerSourceOrbiterSCConvPwrPri->SetMouseRegion( 0.237598f, 0.178404f, 0.269871f, 0.218495f );
+		pPowerSourceOrbiterSCConvPwrPri->SetMouseRegion( AID_L10_IUS, 0.237598f, 0.178404f, 0.269871f, 0.218495f );
 		pPowerSourceOrbiterSCConvPwrPri->SetSpringLoaded( true, 0 );
 		pPowerSourceOrbiterSCConvPwrPri->SetSpringLoaded( true, 2 );
 
 		pPowerSourceOrbiterSCConvPwrAlt->SetInitialAnimState( 0.5f );
 		pPowerSourceOrbiterSCConvPwrAlt->DefineSwitchGroup( GRP_S34_L10_IUS_VC );
 		pPowerSourceOrbiterSCConvPwrAlt->SetReference( _V( -1.4441, 2.3686, 13.1502 ), SWITCH_ROT );
-		pPowerSourceOrbiterSCConvPwrAlt->SetMouseRegion( 0.296558f, 0.179452f, 0.328858f, 0.218466f );
+		pPowerSourceOrbiterSCConvPwrAlt->SetMouseRegion( AID_L10_IUS, 0.296558f, 0.179452f, 0.328858f, 0.218466f );
 		pPowerSourceOrbiterSCConvPwrAlt->SetSpringLoaded( true, 0 );
 		pPowerSourceOrbiterSCConvPwrAlt->SetSpringLoaded( true, 2 );
 
 		pPowerSourceIUSSCBatteryPri->SetInitialAnimState( 0.5f );
 		pPowerSourceIUSSCBatteryPri->DefineSwitchGroup( GRP_S5_L10_IUS_VC );
 		pPowerSourceIUSSCBatteryPri->SetReference( _V( -1.4441, 2.3686, 13.1502 ), SWITCH_ROT );
-		pPowerSourceIUSSCBatteryPri->SetMouseRegion( 0.395487f, 0.180426f, 0.429601f, 0.220517f );
+		pPowerSourceIUSSCBatteryPri->SetMouseRegion( AID_L10_IUS, 0.395487f, 0.180426f, 0.429601f, 0.220517f );
 		pPowerSourceIUSSCBatteryPri->SetSpringLoaded( true, 0 );
 		pPowerSourceIUSSCBatteryPri->SetSpringLoaded( true, 2 );
 
 		pPowerSourceIUSSCBatteryAlt->SetInitialAnimState( 0.5f );
 		pPowerSourceIUSSCBatteryAlt->DefineSwitchGroup( GRP_S35_L10_IUS_VC );
 		pPowerSourceIUSSCBatteryAlt->SetReference( _V( -1.4441, 2.3686, 13.1502 ), SWITCH_ROT );
-		pPowerSourceIUSSCBatteryAlt->SetMouseRegion( 0.456171f, 0.180185f, 0.489332f, 0.219832f );
+		pPowerSourceIUSSCBatteryAlt->SetMouseRegion( AID_L10_IUS, 0.456171f, 0.180185f, 0.489332f, 0.219832f );
 		pPowerSourceIUSSCBatteryAlt->SetSpringLoaded( true, 0 );
 		pPowerSourceIUSSCBatteryAlt->SetSpringLoaded( true, 2 );
 
 		pPowerSourceIUSBusABatteriesPri->SetInitialAnimState( 0.5f );
 		pPowerSourceIUSBusABatteriesPri->DefineSwitchGroup( GRP_S9_L10_IUS_VC );
 		pPowerSourceIUSBusABatteriesPri->SetReference( _V( -1.4441, 2.3686, 13.1502 ), SWITCH_ROT );
-		pPowerSourceIUSBusABatteriesPri->SetMouseRegion( 0.530112f, 0.179549f, 0.562831f, 0.220697f );
+		pPowerSourceIUSBusABatteriesPri->SetMouseRegion( AID_L10_IUS, 0.530112f, 0.179549f, 0.562831f, 0.220697f );
 		pPowerSourceIUSBusABatteriesPri->SetSpringLoaded( true, 0 );
 		pPowerSourceIUSBusABatteriesPri->SetSpringLoaded( true, 2 );
 
 		pPowerSourceIUSBusABatteriesAlt->SetInitialAnimState( 0.5f );
 		pPowerSourceIUSBusABatteriesAlt->DefineSwitchGroup( GRP_S39_L10_IUS_VC );
 		pPowerSourceIUSBusABatteriesAlt->SetReference( _V( -1.4441, 2.3686, 13.1502 ), SWITCH_ROT );
-		pPowerSourceIUSBusABatteriesAlt->SetMouseRegion( 0.591074f, 0.179826f, 0.623668f, 0.220067f );
+		pPowerSourceIUSBusABatteriesAlt->SetMouseRegion( AID_L10_IUS, 0.591074f, 0.179826f, 0.623668f, 0.220067f );
 		pPowerSourceIUSBusABatteriesAlt->SetSpringLoaded( true, 0 );
 		pPowerSourceIUSBusABatteriesAlt->SetSpringLoaded( true, 2 );
 
 		pPowerSourceIUSBusBBatteriesPri->SetInitialAnimState( 0.5f );
 		pPowerSourceIUSBusBBatteriesPri->DefineSwitchGroup( GRP_S11_L10_IUS_VC );
 		pPowerSourceIUSBusBBatteriesPri->SetReference( _V( -1.4441, 2.3686, 13.1502 ), SWITCH_ROT );
-		pPowerSourceIUSBusBBatteriesPri->SetMouseRegion( 0.660245f, 0.179550f, 0.690858f, 0.218969f );
+		pPowerSourceIUSBusBBatteriesPri->SetMouseRegion( AID_L10_IUS, 0.660245f, 0.179550f, 0.690858f, 0.218969f );
 		pPowerSourceIUSBusBBatteriesPri->SetSpringLoaded( true, 0 );
 		pPowerSourceIUSBusBBatteriesPri->SetSpringLoaded( true, 2 );
 
 		pPowerSourceIUSBusBBatteriesAlt->SetInitialAnimState( 0.5f );
 		pPowerSourceIUSBusBBatteriesAlt->DefineSwitchGroup( GRP_S41_L10_IUS_VC );
 		pPowerSourceIUSBusBBatteriesAlt->SetReference( _V( -1.4441, 2.3686, 13.1502 ), SWITCH_ROT );
-		pPowerSourceIUSBusBBatteriesAlt->SetMouseRegion( 0.720762f, 0.180016f, 0.753149f, 0.219112f );
+		pPowerSourceIUSBusBBatteriesAlt->SetMouseRegion( AID_L10_IUS, 0.720762f, 0.180016f, 0.753149f, 0.219112f );
 		pPowerSourceIUSBusBBatteriesAlt->SetSpringLoaded( true, 0 );
 		pPowerSourceIUSBusBBatteriesAlt->SetSpringLoaded( true, 2 );
 
 		pIUSConvPwrPri->SetInitialAnimState( 0.5f );
 		pIUSConvPwrPri->DefineSwitchGroup( GRP_S1_L10_IUS_VC );
 		pIUSConvPwrPri->SetReference( _V( -1.3415, 2.3013, 13.1399 ), SWITCH_ROT );
-		pIUSConvPwrPri->SetMouseRegion( 0.094067f, 0.390423f, 0.126817f, 0.430282f );
+		pIUSConvPwrPri->SetMouseRegion( AID_L10_IUS, 0.094067f, 0.390423f, 0.126817f, 0.430282f );
 		pIUSConvPwrPri->SetSpringLoaded( true, 0 );
 		pIUSConvPwrPri->SetSpringLoaded( true, 2 );
 
 		pIUSConvPwrAlt->SetInitialAnimState( 0.5f );
 		pIUSConvPwrAlt->DefineSwitchGroup( GRP_S31_L10_IUS_VC );
 		pIUSConvPwrAlt->SetReference( _V( -1.3415, 2.3013, 13.1399 ), SWITCH_ROT );
-		pIUSConvPwrAlt->SetMouseRegion( 0.155074f, 0.390227f, 0.188251f, 0.431424f );
+		pIUSConvPwrAlt->SetMouseRegion( AID_L10_IUS, 0.155074f, 0.390227f, 0.188251f, 0.431424f );
 		pIUSConvPwrAlt->SetSpringLoaded( true, 0 );
 		pIUSConvPwrAlt->SetSpringLoaded( true, 2 );
 
 		pSCSupportSCRegPwrPri->SetInitialAnimState( 0.5f );
 		pSCSupportSCRegPwrPri->DefineSwitchGroup( GRP_S2_L10_IUS_VC );
 		pSCSupportSCRegPwrPri->SetReference( _V( -1.3572, 2.3106, 13.2181 ), SWITCH_ROT );
-		pSCSupportSCRegPwrPri->SetMouseRegion( 0.2372062f, 0.359336f, 0.271265f, 0.399214f );
+		pSCSupportSCRegPwrPri->SetMouseRegion( AID_L10_IUS, 0.2372062f, 0.359336f, 0.271265f, 0.399214f );
 		pSCSupportSCRegPwrPri->SetSpringLoaded( true, 0 );
 		pSCSupportSCRegPwrPri->SetSpringLoaded( true, 2 );
 
 		pSCSupportSCRegPwrAlt->SetInitialAnimState( 0.5f );
 		pSCSupportSCRegPwrAlt->DefineSwitchGroup( GRP_S32_L10_IUS_VC );
 		pSCSupportSCRegPwrAlt->SetReference( _V( -1.3572, 2.3106, 13.2181 ), SWITCH_ROT );
-		pSCSupportSCRegPwrAlt->SetMouseRegion( 0.297839f, 0.359164f, 0.330424f, 0.399969f );
+		pSCSupportSCRegPwrAlt->SetMouseRegion( AID_L10_IUS, 0.297839f, 0.359164f, 0.330424f, 0.399969f );
 		pSCSupportSCRegPwrAlt->SetSpringLoaded( true, 0 );
 		pSCSupportSCRegPwrAlt->SetSpringLoaded( true, 2 );
 
 		pSCSupportSCPowerPri->SetInitialAnimState( 0.5f );
 		pSCSupportSCPowerPri->DefineSwitchGroup( GRP_S6_L10_IUS_VC );
 		pSCSupportSCPowerPri->SetReference( _V( -1.3572, 2.3106, 13.2181 ), SWITCH_ROT );
-		pSCSupportSCPowerPri->SetMouseRegion( 0.392651f, 0.359357f, 0.426633f, 0.400193f );
+		pSCSupportSCPowerPri->SetMouseRegion( AID_L10_IUS, 0.392651f, 0.359357f, 0.426633f, 0.400193f );
 		pSCSupportSCPowerPri->SetSpringLoaded( true, 0 );
 		pSCSupportSCPowerPri->SetSpringLoaded( true, 2 );
 
 		pSCSupportSCPowerAlt->SetInitialAnimState( 0.5f );
 		pSCSupportSCPowerAlt->DefineSwitchGroup( GRP_S36_L10_IUS_VC );
 		pSCSupportSCPowerAlt->SetReference( _V( -1.3572, 2.3106, 13.2181 ), SWITCH_ROT );
-		pSCSupportSCPowerAlt->SetMouseRegion( 0.453977f, 0.360261f, 0.486132f, 0.400180f );
+		pSCSupportSCPowerAlt->SetMouseRegion( AID_L10_IUS, 0.453977f, 0.360261f, 0.486132f, 0.400180f );
 		pSCSupportSCPowerAlt->SetSpringLoaded( true, 0 );
 		pSCSupportSCPowerAlt->SetSpringLoaded( true, 2 );
 
 		pIUSSupportAFeedPri->SetInitialAnimState( 0.5f );
 		pIUSSupportAFeedPri->DefineSwitchGroup( GRP_S10_L10_IUS_VC );
 		pIUSSupportAFeedPri->SetReference( _V( -1.3415, 2.3013, 13.1399 ), SWITCH_ROT );
-		pIUSSupportAFeedPri->SetMouseRegion( 0.533648f, 0.390069f, 0.567750f, 0.430798f );
+		pIUSSupportAFeedPri->SetMouseRegion( AID_L10_IUS, 0.533648f, 0.390069f, 0.567750f, 0.430798f );
 		pIUSSupportAFeedPri->SetSpringLoaded( true, 0 );
 		pIUSSupportAFeedPri->SetSpringLoaded( true, 2 );
 
 		pIUSSupportAFeedAlt->SetInitialAnimState( 0.5f );
 		pIUSSupportAFeedAlt->DefineSwitchGroup( GRP_S40_L10_IUS_VC );
 		pIUSSupportAFeedAlt->SetReference( _V( -1.3415, 2.3013, 13.1399 ), SWITCH_ROT );
-		pIUSSupportAFeedAlt->SetMouseRegion( 0.596000f, 0.389347f, 0.626979f, 0.430596f );
+		pIUSSupportAFeedAlt->SetMouseRegion( AID_L10_IUS, 0.596000f, 0.389347f, 0.626979f, 0.430596f );
 		pIUSSupportAFeedAlt->SetSpringLoaded( true, 0 );
 		pIUSSupportAFeedAlt->SetSpringLoaded( true, 2 );
 
 		pIUSSupportBFeedPri->SetInitialAnimState( 0.5f );
 		pIUSSupportBFeedPri->DefineSwitchGroup( GRP_S12_L10_IUS_VC );
 		pIUSSupportBFeedPri->SetReference( _V( -1.3415, 2.3013, 13.1399 ), SWITCH_ROT );
-		pIUSSupportBFeedPri->SetMouseRegion( 0.660756f, 0.388670f, 0.691974f, 0.430090f );
+		pIUSSupportBFeedPri->SetMouseRegion( AID_L10_IUS, 0.660756f, 0.388670f, 0.691974f, 0.430090f );
 		pIUSSupportBFeedPri->SetSpringLoaded( true, 0 );
 		pIUSSupportBFeedPri->SetSpringLoaded( true, 2 );
 
 		pIUSSupportBFeedAlt->SetInitialAnimState( 0.5f );
 		pIUSSupportBFeedAlt->DefineSwitchGroup( GRP_S42_L10_IUS_VC );
 		pIUSSupportBFeedAlt->SetReference( _V( -1.3415, 2.3013, 13.1399 ), SWITCH_ROT );
-		pIUSSupportBFeedAlt->SetMouseRegion( 0.718953f, 0.390628f, 0.751530f, 0.430818f );
+		pIUSSupportBFeedAlt->SetMouseRegion( AID_L10_IUS, 0.718953f, 0.390628f, 0.751530f, 0.430818f );
 		pIUSSupportBFeedAlt->SetSpringLoaded( true, 0 );
 		pIUSSupportBFeedAlt->SetSpringLoaded( true, 2 );
 
 		pTestPri->SetInitialAnimState( 0.5f );
 		pTestPri->DefineSwitchGroup( GRP_S63_L10_IUS_VC );
 		pTestPri->SetReference( _V( -1.3415, 2.3013, 13.1399 ), SWITCH_ROT );
-		pTestPri->SetMouseRegion( 0.822632f, 0.390149f, 0.855152f, 0.430973f );
+		pTestPri->SetMouseRegion( AID_L10_IUS, 0.822632f, 0.390149f, 0.855152f, 0.430973f );
 		pTestPri->SetSpringLoaded( true, 0 );
 		pTestPri->SetSpringLoaded( true, 2 );
 
 		pTestAlt->SetInitialAnimState( 0.5f );
 		pTestAlt->DefineSwitchGroup( GRP_S73_L10_IUS_VC );
 		pTestAlt->SetReference( _V( -1.3415, 2.3013, 13.1399 ), SWITCH_ROT );
-		pTestAlt->SetMouseRegion( 0.883398f, 0.390262f, 0.914446f, 0.430280f );
+		pTestAlt->SetMouseRegion( AID_L10_IUS, 0.883398f, 0.390262f, 0.914446f, 0.430280f );
 		pTestAlt->SetSpringLoaded( true, 0 );
 		pTestAlt->SetSpringLoaded( true, 2 );
 
 		pIUSSupportHeatersBatteryPri->SetInitialAnimState( 0.5f );
 		pIUSSupportHeatersBatteryPri->DefineSwitchGroup( GRP_S21_L10_IUS_VC );
 		pIUSSupportHeatersBatteryPri->SetReference( _V( -1.2541, 2.2442, 13.1401 ), SWITCH_ROT );
-		pIUSSupportHeatersBatteryPri->SetMouseRegion( 0.095766f, 0.568545f, 0.126822f, 0.608904f );
+		pIUSSupportHeatersBatteryPri->SetMouseRegion( AID_L10_IUS, 0.095766f, 0.568545f, 0.126822f, 0.608904f );
 		pIUSSupportHeatersBatteryPri->SetSpringLoaded( true, 0 );
 		pIUSSupportHeatersBatteryPri->SetSpringLoaded( true, 2 );
 
 		pIUSSupportHeatersBatteryAlt->SetInitialAnimState( 0.5f );
 		pIUSSupportHeatersBatteryAlt->DefineSwitchGroup( GRP_S51_L10_IUS_VC );
 		pIUSSupportHeatersBatteryAlt->SetReference( _V( -1.2541, 2.2442, 13.1401 ), SWITCH_ROT );
-		pIUSSupportHeatersBatteryAlt->SetMouseRegion( 0.154715f, 0.568617f, 0.185813f, 0.608895f );
+		pIUSSupportHeatersBatteryAlt->SetMouseRegion( AID_L10_IUS, 0.154715f, 0.568617f, 0.185813f, 0.608895f );
 		pIUSSupportHeatersBatteryAlt->SetSpringLoaded( true, 0 );
 		pIUSSupportHeatersBatteryAlt->SetSpringLoaded( true, 2 );
 
 		pIUSSupportHeatersCriticalPri->SetInitialAnimState( 0.5f );
 		pIUSSupportHeatersCriticalPri->DefineSwitchGroup( GRP_S22_L10_IUS_VC );
 		pIUSSupportHeatersCriticalPri->SetReference( _V( -1.2541, 2.2442, 13.1401 ), SWITCH_ROT );
-		pIUSSupportHeatersCriticalPri->SetMouseRegion( 0.218462f, 0.567740f, 0.250986f, 0.608784f );
+		pIUSSupportHeatersCriticalPri->SetMouseRegion( AID_L10_IUS, 0.218462f, 0.567740f, 0.250986f, 0.608784f );
 		pIUSSupportHeatersCriticalPri->SetSpringLoaded( true, 0 );
 		pIUSSupportHeatersCriticalPri->SetSpringLoaded( true, 2 );
 
 		pIUSSupportHeatersCriticalAlt->SetInitialAnimState( 0.5f );
 		pIUSSupportHeatersCriticalAlt->DefineSwitchGroup( GRP_S52_L10_IUS_VC );
 		pIUSSupportHeatersCriticalAlt->SetReference( _V( -1.2541, 2.2442, 13.1401 ), SWITCH_ROT );
-		pIUSSupportHeatersCriticalAlt->SetMouseRegion( 0.278251f, 0.566908f, 0.311681f, 0.607395f );
+		pIUSSupportHeatersCriticalAlt->SetMouseRegion( AID_L10_IUS, 0.278251f, 0.566908f, 0.311681f, 0.607395f );
 		pIUSSupportHeatersCriticalAlt->SetSpringLoaded( true, 0 );
 		pIUSSupportHeatersCriticalAlt->SetSpringLoaded( true, 2 );
 
 		pIUSSupportWBDIPri->SetInitialAnimState( 0.5f );
 		pIUSSupportWBDIPri->DefineSwitchGroup( GRP_S23_L10_IUS_VC );
 		pIUSSupportWBDIPri->SetReference( _V( -1.2541, 2.2442, 13.1401 ), SWITCH_ROT );
-		pIUSSupportWBDIPri->SetMouseRegion( 0.360761f, 0.568326f, 0.394916f, 0.608589f );
+		pIUSSupportWBDIPri->SetMouseRegion( AID_L10_IUS, 0.360761f, 0.568326f, 0.394916f, 0.608589f );
 		pIUSSupportWBDIPri->SetSpringLoaded( true, 0 );
 		pIUSSupportWBDIPri->SetSpringLoaded( true, 2 );
 
 		pIUSSupportWBDIAlt->SetInitialAnimState( 0.5f );
 		pIUSSupportWBDIAlt->DefineSwitchGroup( GRP_S53_L10_IUS_VC );
 		pIUSSupportWBDIAlt->SetReference( _V( -1.2541, 2.2442, 13.1401 ), SWITCH_ROT );
-		pIUSSupportWBDIAlt->SetMouseRegion( 0.422435f, 0.568450f, 0.455397f, 0.608290f );
+		pIUSSupportWBDIAlt->SetMouseRegion( AID_L10_IUS, 0.422435f, 0.568450f, 0.455397f, 0.608290f );
 		pIUSSupportWBDIAlt->SetSpringLoaded( true, 0 );
 		pIUSSupportWBDIAlt->SetSpringLoaded( true, 2 );
 
 		pIUSPowerPri->SetInitialAnimState( 0.5f );
 		pIUSPowerPri->DefineSwitchGroup( GRP_S8_L10_IUS_VC );
 		pIUSPowerPri->SetReference( _V( -1.2541, 2.2442, 13.1401 ), SWITCH_ROT );
-		pIUSPowerPri->SetMouseRegion( 0.541147f, 0.568843f, 0.573920f, 0.609133f );
+		pIUSPowerPri->SetMouseRegion( AID_L10_IUS, 0.541147f, 0.568843f, 0.573920f, 0.609133f );
 		pIUSPowerPri->SetSpringLoaded( true, 0 );
 		pIUSPowerPri->SetSpringLoaded( true, 2 );
 
 		pIUSPowerAlt->SetInitialAnimState( 0.5f );
 		pIUSPowerAlt->DefineSwitchGroup( GRP_S38_L10_IUS_VC );
 		pIUSPowerAlt->SetReference( _V( -1.2541, 2.2442, 13.1401 ), SWITCH_ROT );
-		pIUSPowerAlt->SetMouseRegion( 0.599976f, 0.568463f, 0.631928f, 0.608484f );
+		pIUSPowerAlt->SetMouseRegion( AID_L10_IUS, 0.599976f, 0.568463f, 0.631928f, 0.608484f );
 		pIUSPowerAlt->SetSpringLoaded( true, 0 );
 		pIUSPowerAlt->SetSpringLoaded( true, 2 );
 
 		pNormBusPwrPri->SetInitialAnimState( 0.5f );
 		pNormBusPwrPri->DefineSwitchGroup( GRP_S7_L10_IUS_VC );
 		pNormBusPwrPri->SetReference( _V( -1.2541, 2.2442, 13.1401 ), SWITCH_ROT );
-		pNormBusPwrPri->SetMouseRegion( 0.683755f, 0.569051f, 0.716306f, 0.609468f );
+		pNormBusPwrPri->SetMouseRegion( AID_L10_IUS, 0.683755f, 0.569051f, 0.716306f, 0.609468f );
 		pNormBusPwrPri->SetSpringLoaded( true, 0 );
 		pNormBusPwrPri->SetSpringLoaded( true, 2 );
 
 		pNormBusPwrAlt->SetInitialAnimState( 0.5f );
 		pNormBusPwrAlt->DefineSwitchGroup( GRP_S37_L10_IUS_VC );
 		pNormBusPwrAlt->SetReference( _V( -1.2541, 2.2442, 13.1401 ), SWITCH_ROT );
-		pNormBusPwrAlt->SetMouseRegion( 0.743800f, 0.569090f, 0.776005f, 0.609276f );
+		pNormBusPwrAlt->SetMouseRegion( AID_L10_IUS, 0.743800f, 0.569090f, 0.776005f, 0.609276f );
 		pNormBusPwrAlt->SetSpringLoaded( true, 0 );
 		pNormBusPwrAlt->SetSpringLoaded( true, 2 );
 
 		pIUSSupportAutoShutdownStandbyModePri->SetInitialAnimState( 0.5f );
 		pIUSSupportAutoShutdownStandbyModePri->DefineSwitchGroup( GRP_S20_L10_IUS_VC );
 		pIUSSupportAutoShutdownStandbyModePri->SetReference( _V( -1.2541, 2.2442, 13.1401 ), SWITCH_ROT );
-		pIUSSupportAutoShutdownStandbyModePri->SetMouseRegion( 0.823231f, 0.569670f, 0.854505f, 0.609477f );
+		pIUSSupportAutoShutdownStandbyModePri->SetMouseRegion( AID_L10_IUS, 0.823231f, 0.569670f, 0.854505f, 0.609477f );
 		pIUSSupportAutoShutdownStandbyModePri->SetSpringLoaded( true, 0 );
 		pIUSSupportAutoShutdownStandbyModePri->SetSpringLoaded( true, 2 );
 
 		pIUSSupportAutoShutdownStandbyModeAlt->SetInitialAnimState( 0.5f );
 		pIUSSupportAutoShutdownStandbyModeAlt->DefineSwitchGroup( GRP_S50_L10_IUS_VC );
 		pIUSSupportAutoShutdownStandbyModeAlt->SetReference( _V( -1.2541, 2.2442, 13.1401 ), SWITCH_ROT );
-		pIUSSupportAutoShutdownStandbyModeAlt->SetMouseRegion( 0.882804f, 0.569229f, 0.914825f, 0.608940f );
+		pIUSSupportAutoShutdownStandbyModeAlt->SetMouseRegion( AID_L10_IUS, 0.882804f, 0.569229f, 0.914825f, 0.608940f );
 		pIUSSupportAutoShutdownStandbyModeAlt->SetSpringLoaded( true, 0 );
 		pIUSSupportAutoShutdownStandbyModeAlt->SetSpringLoaded( true, 2 );
 
 		pTiltTableActuatorDriveEnablePri1->SetInitialAnimState( 0.5f );
 		pTiltTableActuatorDriveEnablePri1->DefineSwitchGroup( GRP_S13_L10_IUS_VC );
 		pTiltTableActuatorDriveEnablePri1->SetReference( _V( -1.1797, 2.1957, 13.1493 ), SWITCH_ROT );
-		pTiltTableActuatorDriveEnablePri1->SetMouseRegion( 0.111635f, 0.719421f, 0.141082f, 0.759150f );
+		pTiltTableActuatorDriveEnablePri1->SetMouseRegion( AID_L10_IUS, 0.111635f, 0.719421f, 0.141082f, 0.759150f );
 
 		pTiltTableActuatorDriveEnableAlt2->SetInitialAnimState( 0.5f );
 		pTiltTableActuatorDriveEnableAlt2->DefineSwitchGroup( GRP_S43_L10_IUS_VC );
 		pTiltTableActuatorDriveEnableAlt2->SetReference( _V( -1.1797, 2.1957, 13.1493 ), SWITCH_ROT );
-		pTiltTableActuatorDriveEnableAlt2->SetMouseRegion( 0.171649f, 0.719137f, 0.201649f, 0.759119f );
+		pTiltTableActuatorDriveEnableAlt2->SetMouseRegion( AID_L10_IUS, 0.171649f, 0.719137f, 0.201649f, 0.759119f );
 
 		pTiltTableActuatorMotionPri1->SetInitialAnimState( 0.5f );
 		pTiltTableActuatorMotionPri1->DefineSwitchGroup( GRP_S14_L10_IUS_VC );
 		pTiltTableActuatorMotionPri1->SetReference( _V( -1.1797, 2.1957, 13.1493 ), SWITCH_ROT );
-		pTiltTableActuatorMotionPri1->SetMouseRegion( 0.254209f, 0.719156f, 0.285940f, 0.759275f );
+		pTiltTableActuatorMotionPri1->SetMouseRegion( AID_L10_IUS, 0.254209f, 0.719156f, 0.285940f, 0.759275f );
 		pTiltTableActuatorMotionPri1->SetSpringLoaded( true, 0 );
 		pTiltTableActuatorMotionPri1->SetSpringLoaded( true, 2 );
 
 		pTiltTableActuatorMotionAlt2->SetInitialAnimState( 0.5f );
 		pTiltTableActuatorMotionAlt2->DefineSwitchGroup( GRP_S44_L10_IUS_VC );
 		pTiltTableActuatorMotionAlt2->SetReference( _V( -1.1797, 2.1957, 13.1493 ), SWITCH_ROT );
-		pTiltTableActuatorMotionAlt2->SetMouseRegion( 0.314874f, 0.719508f, 0.347282f, 0.759363f );
+		pTiltTableActuatorMotionAlt2->SetMouseRegion( AID_L10_IUS, 0.314874f, 0.719508f, 0.347282f, 0.759363f );
 		pTiltTableActuatorMotionAlt2->SetSpringLoaded( true, 0 );
 		pTiltTableActuatorMotionAlt2->SetSpringLoaded( true, 2 );
 
 		pTiltTableActuatorAltDrAct1->SetInitialAnimState( 0.5f );
 		pTiltTableActuatorAltDrAct1->DefineSwitchGroup( GRP_S57_L10_IUS_VC );
 		pTiltTableActuatorAltDrAct1->SetReference( _V( -1.1782, 2.1988, 13.5538 ), SWITCH_ROT );
-		pTiltTableActuatorAltDrAct1->SetMouseRegion( 0.754145f, 0.717768f, 0.787739f, 0.759606f );
+		pTiltTableActuatorAltDrAct1->SetMouseRegion( AID_L10_IUS, 0.754145f, 0.717768f, 0.787739f, 0.759606f );
 		pTiltTableActuatorAltDrAct1->SetPullDirection( SWITCH_PULL );
 		pTiltTableActuatorAltDrAct1->SetSpringLoaded( true, 1 );
 
 		pCmdPathEnabled->SetInitialAnimState( 0.5f );
 		pCmdPathEnabled->DefineSwitchGroup( GRP_S65_L10_IUS_VC );
 		pCmdPathEnabled->SetReference( _V( -1.1782, 2.1988, 13.5538 ), SWITCH_ROT );
-		pCmdPathEnabled->SetMouseRegion( 0.838003f, 0.717705f, 0.870962f, 0.759780f );
+		pCmdPathEnabled->SetMouseRegion( AID_L10_IUS, 0.838003f, 0.717705f, 0.870962f, 0.759780f );
 		pCmdPathEnabled->SetPullDirection( SWITCH_PULL );
 
 		pPyroBusPri->SetInitialAnimState( 0.5f );
 		pPyroBusPri->DefineSwitchGroup( GRP_S24_L10_IUS_VC );
 		pPyroBusPri->SetReference( _V( -1.0958, 2.1410, 13.1492 ), SWITCH_ROT );
-		pPyroBusPri->SetMouseRegion( 0.111920f, 0.890384f, 0.145745f, 0.930124f );
+		pPyroBusPri->SetMouseRegion( AID_L10_IUS, 0.111920f, 0.890384f, 0.145745f, 0.930124f );
 		pPyroBusPri->SetSpringLoaded( true, 0 );
 		pPyroBusPri->SetSpringLoaded( true, 2 );
 
 		pPyroBusAlt->SetInitialAnimState( 0.5f );
 		pPyroBusAlt->DefineSwitchGroup( GRP_S54_L10_IUS_VC );
 		pPyroBusAlt->SetReference( _V( -1.0958, 2.1410, 13.1492 ), SWITCH_ROT );
-		pPyroBusAlt->SetMouseRegion( 0.172300f, 0.889325f, 0.203690f, 0.929150f );
+		pPyroBusAlt->SetMouseRegion( AID_L10_IUS, 0.172300f, 0.889325f, 0.203690f, 0.929150f );
 		pPyroBusAlt->SetSpringLoaded( true, 0 );
 		pPyroBusAlt->SetSpringLoaded( true, 2 );
 
 		pUmbilicalsEnaPri->SetInitialAnimState( 0.5f );
 		pUmbilicalsEnaPri->DefineSwitchGroup( GRP_S18_L10_IUS_VC );
 		pUmbilicalsEnaPri->SetReference( _V( -1.0958, 2.1410, 13.1492 ), SWITCH_ROT );
-		pUmbilicalsEnaPri->SetMouseRegion( 0.255508f, 0.889941f, 0.287612f, 0.930524f );
+		pUmbilicalsEnaPri->SetMouseRegion( AID_L10_IUS, 0.255508f, 0.889941f, 0.287612f, 0.930524f );
 		pUmbilicalsEnaPri->SetSpringLoaded( true, 0 );
 		pUmbilicalsEnaPri->SetSpringLoaded( true, 2 );
 
 		pUmbilicalsEnaAlt->SetInitialAnimState( 0.5f );
 		pUmbilicalsEnaAlt->DefineSwitchGroup( GRP_S48_L10_IUS_VC );
 		pUmbilicalsEnaAlt->SetReference( _V( -1.0958, 2.1410, 13.1492 ), SWITCH_ROT );
-		pUmbilicalsEnaAlt->SetMouseRegion( 0.316503f, 0.890866f, 0.347555f, 0.930231f );
+		pUmbilicalsEnaAlt->SetMouseRegion( AID_L10_IUS, 0.316503f, 0.890866f, 0.347555f, 0.930231f );
 		pUmbilicalsEnaAlt->SetSpringLoaded( true, 0 );
 		pUmbilicalsEnaAlt->SetSpringLoaded( true, 2 );
 
 		pUmbilicalsRelPri->SetInitialAnimState( 0.5f );
 		pUmbilicalsRelPri->DefineSwitchGroup( GRP_S19_L10_IUS_VC );
 		pUmbilicalsRelPri->SetReference( _V( -1.0939, 2.1438, 13.3103 ), SWITCH_ROT );
-		pUmbilicalsRelPri->SetMouseRegion( 0.395237f, 0.887448f, 0.424710f, 0.930452f );
+		pUmbilicalsRelPri->SetMouseRegion( AID_L10_IUS, 0.395237f, 0.887448f, 0.424710f, 0.930452f );
 		pUmbilicalsRelPri->SetPullDirection( SWITCH_PULL );
 		pUmbilicalsRelPri->SetSpringLoaded( true, 1 );
 
 		pUmbilicalsRelAlt->SetInitialAnimState( 0.5f );
 		pUmbilicalsRelAlt->DefineSwitchGroup( GRP_S49_L10_IUS_VC );
 		pUmbilicalsRelAlt->SetReference( _V( -1.0939, 2.1438, 13.3103 ), SWITCH_ROT );
-		pUmbilicalsRelAlt->SetMouseRegion( 0.449887f, 0.889443f, 0.480940f, 0.931571f );
+		pUmbilicalsRelAlt->SetMouseRegion( AID_L10_IUS, 0.449887f, 0.889443f, 0.480940f, 0.931571f );
 		pUmbilicalsRelAlt->SetPullDirection( SWITCH_PULL );
 		pUmbilicalsRelAlt->SetSpringLoaded( true, 1 );
 
 		pIUSDeploymentEnaPri->SetInitialAnimState( 0.5f );
 		pIUSDeploymentEnaPri->DefineSwitchGroup( GRP_S25_L10_IUS_VC );
 		pIUSDeploymentEnaPri->SetReference( _V( -1.0958, 2.1410, 13.1492 ), SWITCH_ROT );
-		pIUSDeploymentEnaPri->SetMouseRegion( 0.534739f, 0.890996f, 0.565632f, 0.929932f );
+		pIUSDeploymentEnaPri->SetMouseRegion( AID_L10_IUS, 0.534739f, 0.890996f, 0.565632f, 0.929932f );
 		pIUSDeploymentEnaPri->SetSpringLoaded( true, 0 );
 		pIUSDeploymentEnaPri->SetSpringLoaded( true, 2 );
 
 		pIUSDeploymentEnaAlt->SetInitialAnimState( 0.5f );
 		pIUSDeploymentEnaAlt->DefineSwitchGroup( GRP_S55_L10_IUS_VC );
 		pIUSDeploymentEnaAlt->SetReference( _V( -1.0958, 2.1410, 13.1492 ), SWITCH_ROT );
-		pIUSDeploymentEnaAlt->SetMouseRegion( 0.591902f, 0.889207f, 0.624428f, 0.928453f );
+		pIUSDeploymentEnaAlt->SetMouseRegion( AID_L10_IUS, 0.591902f, 0.889207f, 0.624428f, 0.928453f );
 		pIUSDeploymentEnaAlt->SetSpringLoaded( true, 0 );
 		pIUSDeploymentEnaAlt->SetSpringLoaded( true, 2 );
 
 		pIUSDeploymentDpyPri->SetInitialAnimState( 0.5f );
 		pIUSDeploymentDpyPri->DefineSwitchGroup( GRP_S26_L10_IUS_VC );
 		pIUSDeploymentDpyPri->SetReference( _V( -1.0939, 2.1438, 13.3103 ), SWITCH_ROT );
-		pIUSDeploymentDpyPri->SetMouseRegion( 0.666605f, 0.889142f, 0.699841f, 0.929472f );
+		pIUSDeploymentDpyPri->SetMouseRegion( AID_L10_IUS, 0.666605f, 0.889142f, 0.699841f, 0.929472f );
 		pIUSDeploymentDpyPri->SetPullDirection( SWITCH_PULL );
 		pIUSDeploymentDpyPri->SetSpringLoaded( true, 1 );
 
 		pIUSDeploymentDpyAlt->SetInitialAnimState( 0.5f );
 		pIUSDeploymentDpyAlt->DefineSwitchGroup( GRP_S56_L10_IUS_VC );
 		pIUSDeploymentDpyAlt->SetReference( _V( -1.0939, 2.1438, 13.3103 ), SWITCH_ROT );
-		pIUSDeploymentDpyAlt->SetMouseRegion( 0.726243f, 0.889508f, 0.758000f, 0.929481f );
+		pIUSDeploymentDpyAlt->SetMouseRegion( AID_L10_IUS, 0.726243f, 0.889508f, 0.758000f, 0.929481f );
 		pIUSDeploymentDpyAlt->SetPullDirection( SWITCH_PULL );
 		pIUSDeploymentDpyAlt->SetSpringLoaded( true, 1 );
 
 		pPowerKill->SetInitialAnimState( 0.5f );
 		pPowerKill->DefineSwitchGroup( GRP_S62_L10_IUS_VC );
 		pPowerKill->SetReference( _V( -1.1141, 2.1573, 13.5453 ), SWITCH_ROT );
-		pPowerKill->SetMouseRegion( 0.834209f, 0.848043f, 0.869189f, 0.889788f );
+		pPowerKill->SetMouseRegion( AID_L10_IUS, 0.834209f, 0.848043f, 0.869189f, 0.889788f );
 		pPowerKill->SetPullDirection( SWITCH_PULL );
 		pPowerKill->SetSpringLoaded( true, 1 );
 

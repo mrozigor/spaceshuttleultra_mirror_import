@@ -188,13 +188,6 @@ namespace vc
 		return;
 	}
 
-	bool MDU::DefineRegionAID(UINT aid)
-	{
-		AddAIDToRedrawEventList(aid);
-		return true;	
-	}
-
-
 	void MDU::DefineVCAnimations(UINT vc_idx) 
 	{
 		mfdspec.nmesh = vc_idx;
@@ -294,31 +287,6 @@ namespace vc
 		}
 		else if (sec_idp) bUseSecondaryPort = true;
 		return;
-	}
-
-	
-	void MDU::SetPowerButtonArea(float xmin, float ymin, float xmax, float ymax)
-	{
-		btnPwrXmin = xmin;
-		btnPwrXmax = xmax;
-		btnPwrYmin = ymin;
-		btnPwrYmax = ymax;
-	}
-
-	void MDU::SetBrightnessButtonArea(float xmin, float ymin, float xmax, float ymax)
-	{
-		btnBrtXmin = xmin;
-		btnBrtXmax = xmax;
-		btnBrtYmin = ymin;
-		btnBrtYmax = ymax;
-	}
-
-	void MDU::SetEdgekeyArea(float xmin, float ymin, float xmax, float ymax)
-	{
-		edgekeyXmin = xmin;
-		edgekeyXmax = xmax;
-		edgekeyYmin = ymin;
-		edgekeyYmax = ymax;
 	}
 
 	bool MDU::OnMouseEvent(int _event, float x, float y)

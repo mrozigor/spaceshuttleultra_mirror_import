@@ -73,7 +73,7 @@ namespace vc
 
 		pSlewAzimuth->SetInitialAnimState( 0.5f );
 		pSlewAzimuth->DefineSwitchGroup( GRP_A1US2_VC );
-		pSlewAzimuth->SetMouseRegion( 0.378565f, 0.285422f, 0.457113f, 0.370123f );
+		pSlewAzimuth->SetMouseRegion( AID_A1U, 0.378565f, 0.285422f, 0.457113f, 0.370123f );
 		pSlewAzimuth->SetReference( _V( 1.1198, 2.9729, 12.2231 ), switch_rot_horz );
 		pSlewAzimuth->SetOrientation( true );
 		pSlewAzimuth->SetSpringLoaded( true, 0 );
@@ -81,47 +81,47 @@ namespace vc
 
 		pSlewElevation->SetInitialAnimState( 0.5f );
 		pSlewElevation->DefineSwitchGroup( GRP_A1US3_VC );
-		pSlewElevation->SetMouseRegion( 0.505451f, 0.272174f, 0.574339f, 0.377064f );
+		pSlewElevation->SetMouseRegion( AID_A1U, 0.505451f, 0.272174f, 0.574339f, 0.377064f );
 		pSlewElevation->SetReference( _V( 1.0690, 2.9781, 12.2231 ), switch_rot_vert );
 		pSlewElevation->SetSpringLoaded( true, 0 );
 		pSlewElevation->SetSpringLoaded( true, 2 );
 
 		pSlewRate->SetInitialAnimState( 0.5f );
 		pSlewRate->DefineSwitchGroup( GRP_A1US4_VC );
-		pSlewRate->SetMouseRegion( 0.592866f, 0.272507f, 0.656497f, 0.376257f );
+		pSlewRate->SetMouseRegion( AID_A1U, 0.592866f, 0.272507f, 0.656497f, 0.376257f );
 		pSlewRate->SetReference( _V( 1.0690, 2.9781, 12.2231 ), switch_rot_vert );
 
 		pControl->SetInitialAnimState( 0.5f );
 		pControl->DefineSwitchGroup( GRP_A1US6_VC );
-		pControl->SetMouseRegion( 0.549356f, 0.490418f, 0.618453f, 0.598225f );
+		pControl->SetMouseRegion( AID_A1U, 0.549356f, 0.490418f, 0.618453f, 0.598225f );
 		pControl->SetReference( _V( 1.0520, 2.9117, 12.2231 ), switch_rot_vert );
 
 		pSteeringMode->SetInitialAnimState( 1.0f );
 		pSteeringMode->DefineSwitchGroup( GRP_A1URS7_VC );
-		pSteeringMode->SetMouseRegion( 0.165013f, 0.627728f, 0.267503f, 0.750766f );
+		pSteeringMode->SetMouseRegion( AID_A1U, 0.165013f, 0.627728f, 0.267503f, 0.750766f );
 		pSteeringMode->SetReference( _V( 1.1953, 2.8678, 12.2315 ), rotary_switch_rot );
 		pSteeringMode->DefineRotationAngle( 90.0f );
 		pSteeringMode->SetOffset( 135.0f );
 
 		pSearch->SetInitialAnimState( 0.5f );
 		pSearch->DefineSwitchGroup( GRP_A1US8_VC );
-		pSearch->SetMouseRegion( 0.351805f, 0.644865f, 0.415273f, 0.748752f );
+		pSearch->SetMouseRegion( AID_A1U, 0.351805f, 0.644865f, 0.415273f, 0.748752f );
 		pSearch->SetReference( _V( 1.1282, 2.8656, 12.2231 ), switch_rot_vert );
 		pSearch->SetSpringLoaded( true, 1 );
 
 		pPower->SetInitialAnimState( 0.5f );
 		pPower->DefineSwitchGroup( GRP_A1US12_VC );
-		pPower->SetMouseRegion( 0.030196f, 0.855995f, 0.092852f, 0.958587f );
+		pPower->SetMouseRegion( AID_A1U, 0.030196f, 0.855995f, 0.092852f, 0.958587f );
 		pPower->SetReference( _V( 1.2504, 2.8016, 12.2231 ), switch_rot_vert );
 
 		pMode->SetInitialAnimState( 0.5f );
 		pMode->DefineSwitchGroup( GRP_A1US13_VC );
-		pMode->SetMouseRegion( 0.162602f, 0.855104f, 0.224663f, 0.961070f );
+		pMode->SetMouseRegion( AID_A1U, 0.162602f, 0.855104f, 0.224663f, 0.961070f );
 		pMode->SetReference( _V( 1.2504, 2.8016, 12.2231 ), switch_rot_vert );
 
 		pRadarOutput->SetInitialAnimState( 0.5f );
 		pRadarOutput->DefineSwitchGroup( GRP_A1US14_VC );
-		pRadarOutput->SetMouseRegion( 0.353588f, 0.856309f, 0.416909f, 0.962201f );
+		pRadarOutput->SetMouseRegion( AID_A1U, 0.353588f, 0.856309f, 0.416909f, 0.962201f );
 		pRadarOutput->SetReference( _V( 1.2504, 2.8016, 12.2231 ), switch_rot_vert );
 		
 		pScanWarnTB->DefineMeshGroups( STS()->mesh_vc, GRP_A1U_TB_SCANWARN_U_VC, GRP_A1U_TB_SCANWARN_L_VC );

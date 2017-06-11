@@ -20,7 +20,7 @@ namespace vc
 	{
 		AddAIDToMouseEventList(AID_AFTMDU);
 
-		pAFD->SetMouseRegion(0.0, 0.0, 1.0, 1.0);
+		pAFD->SetMouseRegion(AID_AFTMDU, 0.0, 0.0, 1.0, 1.0);
 		pAFD->DefineVCGroup( GRP_AFD1_VC );
 	}
 

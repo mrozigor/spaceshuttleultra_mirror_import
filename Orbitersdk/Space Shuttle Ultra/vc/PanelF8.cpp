@@ -51,10 +51,8 @@ namespace vc {
 
 		AddAIDToMouseEventList(AID_F8);
 
-		pPLT1->SetMouseRegion(0.0f, 0.0f, 0.491582f, 0.609860f);
-		pPLT1->SetEdgekeyArea(0.210163f, 0.915644f, 0.783473f, 0.973985f);
-		pPLT2->SetMouseRegion(0.511129f, 0.0f, 1.0f, 0.611175f);
-		pPLT2->SetEdgekeyArea(0.210163f, 0.915644f, 0.783473f, 0.973985f);
+		pPLT1->SetMouseRegion( AID_F8, 0.0f, 0.0f, 0.491582f, 0.609860f);
+		pPLT2->SetMouseRegion( AID_F8, 0.511129f, 0.0f, 1.0f, 0.611175f);
 		
 		pPLT1->DefineVCGroup( GRP_PLT1_VC );
 		pPLT2->DefineVCGroup( GRP_PLT2_VC );
@@ -62,22 +60,22 @@ namespace vc {
 		pFltCntlrPower->DefineSwitchGroup(GRP_F8SWITCH5_VC);
 		pFltCntlrPower->SetInitialAnimState(0.5);
 		pFltCntlrPower->SetReference(_V(-0.734, 1.99, 14.685), switch_rot);
-		pFltCntlrPower->SetMouseRegion(0.372206f, 0.851179f, 0.428169f, 0.928952f);
+		pFltCntlrPower->SetMouseRegion( AID_F8, 0.372206f, 0.851179f, 0.428169f, 0.928952f);
 
 		pADIAttitude->DefineSwitchGroup( GRP_F8SWITCH6_VC );
 		pADIAttitude->SetInitialAnimState( 0.5 );
 		pADIAttitude->SetReference( _V( -0.633, 2.045, 14.7004 ), switch_rot );
-		pADIAttitude->SetMouseRegion( 0.576194f, 0.689506f, 0.618179f, 0.755844f );
+		pADIAttitude->SetMouseRegion( AID_F8, 0.576194f, 0.689506f, 0.618179f, 0.755844f );
 
 		pADIError->DefineSwitchGroup( GRP_F8SWITCH7_VC );
 		pADIError->SetInitialAnimState( 0.5 );
 		pADIError->SetReference( _V( -0.5921, 2.0469, 14.7009 ), switch_rot );
-		pADIError->SetMouseRegion( 0.655636f, 0.686714f, 0.698151f, 0.754200f );
+		pADIError->SetMouseRegion( AID_F8, 0.655636f, 0.686714f, 0.698151f, 0.754200f );
 
 		pADIRate->DefineSwitchGroup( GRP_F8SWITCH8_VC );
 		pADIRate->SetInitialAnimState( 0.5 );
 		pADIRate->SetReference( _V( -0.5627, 2.0463, 14.7008 ), switch_rot );
-		pADIRate->SetMouseRegion( 0.710745f, 0.687697f, 0.753016f, 0.750151f );
+		pADIRate->SetMouseRegion( AID_F8, 0.710745f, 0.687697f, 0.753016f, 0.750151f );
 
 		pLandingGearTB[0]->DefineMeshGroup( STS()->mesh_vc, GRP_F8TALKBACK2_VC );
 		
@@ -85,24 +83,24 @@ namespace vc {
 		
 		pLandingGearTB[2]->DefineMeshGroup( STS()->mesh_vc, GRP_F8TALKBACK3_VC );
 
-		pLandingGearArmDeployCover[0]->SetMouseRegion( 0, 0.067760f, 0.823818f, 0.131444f, 0.893443f );
-		pLandingGearArmDeployCover[0]->SetMouseRegion( 1, 0.000289f, 0.880336f, 0.033147f, 0.960580f );
+		pLandingGearArmDeployCover[0]->SetMouseRegion( AID_F8, 0, 0.067760f, 0.823818f, 0.131444f, 0.893443f );
+		pLandingGearArmDeployCover[0]->SetMouseRegion( AID_F8, 1, 0.000289f, 0.880336f, 0.033147f, 0.960580f );
 		pLandingGearArmDeployCover[0]->SetReference( _V( 0.444, 1.99996, 14.68735 ), _V( 0, 0.965408, 0.260745 ) );
 		pLandingGearArmDeployCover[0]->DefineCoverGroup( GRP_F8COVER1_VC );
 
-		pLandingGearArmDeployCover[1]->SetMouseRegion( 0, 0.152777f, 0.820686f, 0.213770f, 0.893461f );
-		pLandingGearArmDeployCover[1]->SetMouseRegion( 1, 0.095527f, 0.903222f, 0.133964f, 0.957603f );
+		pLandingGearArmDeployCover[1]->SetMouseRegion( AID_F8, 0, 0.152777f, 0.820686f, 0.213770f, 0.893461f );
+		pLandingGearArmDeployCover[1]->SetMouseRegion( AID_F8, 1, 0.095527f, 0.903222f, 0.133964f, 0.957603f );
 		pLandingGearArmDeployCover[1]->SetReference( _V( 0.4913, 1.99996, 14.68735 ), _V( 0, 0.965408, 0.260745 ) );
 		pLandingGearArmDeployCover[1]->DefineCoverGroup( GRP_F8COVER2_VC );
 
 		pLandingGearArmDeploy[0]->SetStateOffset( 1, 0.0f, 0.488281f );
 		pLandingGearArmDeploy[0]->SetDirection( push_dir );
-		pLandingGearArmDeploy[0]->SetMouseRegion( 0.078671f, 0.825713f, 0.119706f, 0.887857f );
+		pLandingGearArmDeploy[0]->SetMouseRegion( AID_F8, 0.078671f, 0.825713f, 0.119706f, 0.887857f );
 		pLandingGearArmDeploy[0]->DefineMeshGroup( STS()->mesh_vc, GRP_F8_S1_VC );
 
 		pLandingGearArmDeploy[1]->SetStateOffset( 1, 0.0f, 0.488281f );
 		pLandingGearArmDeploy[1]->SetDirection( push_dir );
-		pLandingGearArmDeploy[1]->SetMouseRegion( 0.165754f, 0.825414f, 0.206648f, 0.886536f );
+		pLandingGearArmDeploy[1]->SetMouseRegion( AID_F8, 0.165754f, 0.825414f, 0.206648f, 0.886536f );
 		pLandingGearArmDeploy[1]->DefineMeshGroup( STS()->mesh_vc, GRP_F8_S2_VC );
 	}
 

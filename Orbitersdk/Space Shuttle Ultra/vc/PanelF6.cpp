@@ -1,7 +1,6 @@
 #include "PanelF6.h"
 #include "../Atlantis.h"
 #include "../meshres_vc.h"
-#include "MDU.h"
 #include "../Atlantis_defs.h"
 
 
@@ -46,6 +45,19 @@ namespace vc {
 		Add( pRangeSafeArm = new StandardDoubleLight( _sts, "RANGE SAFE ARM" ) );// using double light because of 4 inputs
 
 		Add( pAbort = new PushButtonIndicatorSingleLight( _sts, "ABORT" ) );
+
+		Add( pHUDMode = new StdSwitch3( _sts, "HUD Mode" ) );
+		Add( pHUDBrightness = new RotaryDemuxSwitch( _sts, "HUD Brightness", 5 ) );
+		Add( pHUDBright = new StdSwitch3( _sts, "HUD Bright" ) );
+
+		pHUDMode->SetLabel( 0, "DCLT" );
+		pHUDMode->SetLabel( 1, "NORM" );
+		pHUDMode->SetLabel( 2, "TEST" );
+		pHUDMode->SetSpringLoaded( true, 0 );
+
+		pHUDBright->SetLabel( 0, "MAN NIGHT" );
+		pHUDBright->SetLabel( 1, "AUTO" );
+		pHUDBright->SetLabel( 2, "MAN DAY" );
 	}
 
 	PanelF6::~PanelF6()
@@ -57,10 +69,12 @@ namespace vc {
 		VECTOR3 switch_rot = _V(1, 0, 0);
 		VECTOR3 push_dir = _V( 0.0, -0.258681, 0.965963 );
 
-		AddAIDToMouseEventList(AID_F6);
+		AddAIDToMouseEventList( AID_F6 );
+		AddAIDToMouseEventList( AID_F6_MDU );
+		AddAIDToMouseEventList( AID_F6_HUD );
 
-		pCDR1->SetMouseRegion(0.0f, 0.0f, 0.487004f, 0.615168f);
-		pCDR2->SetMouseRegion(0.508892f, 0.0f, 0.993170f, 0.613257f);
+		pCDR1->SetMouseRegion( AID_F6_MDU, 0.0f, 0.0f, 0.490755f, 1.0f );
+		pCDR2->SetMouseRegion( AID_F6_MDU, 0.514292f, 0.0f, 1.0f, 1.0f );
 		
 		pCDR1->DefineVCGroup( GRP_CDR1_VC );
 		pCDR2->DefineVCGroup( GRP_CDR2_VC );
@@ -68,22 +82,22 @@ namespace vc {
 		pFltCntlrPower->DefineSwitchGroup(GRP_F6SWITCH_5_VC);
 		pFltCntlrPower->SetInitialAnimState(0.5);
 		pFltCntlrPower->SetReference(_V(-0.734, 1.99, 14.685), switch_rot);
-		pFltCntlrPower->SetMouseRegion(0.372206f, 0.851179f, 0.428169f, 0.928952f);
+		pFltCntlrPower->SetMouseRegion( AID_F6, 0.383447f, 0.622820f, 0.424394f, 0.795206f );
 
 		pADIAttitude->DefineSwitchGroup( GRP_F6SWITCH_6_VC );
 		pADIAttitude->SetInitialAnimState( 0.5 );
 		pADIAttitude->SetReference( _V( 0.633, 2.045, 14.7004 ), switch_rot );
-		pADIAttitude->SetMouseRegion( 0.571952f, 0.695254f, 0.614206f, 0.759335f );
+		pADIAttitude->SetMouseRegion( AID_F6, 0.576813f, 0.195323f, 0.617059f, 0.362889f );
 
 		pADIError->DefineSwitchGroup( GRP_F6SWITCH_7_VC );
 		pADIError->SetInitialAnimState( 0.5 );
 		pADIError->SetReference( _V( 0.5921, 2.0469, 14.7009 ), switch_rot );
-		pADIError->SetMouseRegion( 0.649129f, 0.690659f, 0.693501f, 0.759623f );
+		pADIError->SetMouseRegion( AID_F6, 0.653861f, 0.186497f, 0.699455f, 0.366683f );
 
 		pADIRate->DefineSwitchGroup( GRP_F6SWITCH_8_VC );
 		pADIRate->SetInitialAnimState( 0.5 );
 		pADIRate->SetReference( _V( 0.5627, 2.0463, 14.7008 ), switch_rot );
-		pADIRate->SetMouseRegion( 0.704403f, 0.693751f, 0.747005f, 0.759008f );
+		pADIRate->SetMouseRegion( AID_F6, 0.709568f, 0.184330f, 0.752249f, 0.356840f );
 
 		pLandingGearTB[0]->DefineMeshGroup( STS()->mesh_vc, GRP_F6TALKBACK2_VC );
 		
@@ -91,24 +105,24 @@ namespace vc {
 		
 		pLandingGearTB[2]->DefineMeshGroup( STS()->mesh_vc, GRP_F6TALKBACK3_VC );
 
-		pLandingGearArmDeployCover[0]->SetMouseRegion( 0, 0.066067f, 0.825664f, 0.130528f, 0.900261f );
-		pLandingGearArmDeployCover[0]->SetMouseRegion( 1, 0.004029f, 0.889020f, 0.029792f, 0.960046f );
+		pLandingGearArmDeployCover[0]->SetMouseRegion( AID_F6, 0, 0.054526f, 0.528985f, 0.125257f, 0.754980f );
+		pLandingGearArmDeployCover[0]->SetMouseRegion( AID_F6, 1, 0.054526f, 0.528985f, 0.070585f, 0.754980f );
 		pLandingGearArmDeployCover[0]->SetReference( _V( -0.92, 1.99996, 14.68735 ), _V( 0, 0.965408, 0.260745 ) );
 		pLandingGearArmDeployCover[0]->DefineCoverGroup( GRP_F6COVER1_VC );
 
-		pLandingGearArmDeployCover[1]->SetMouseRegion( 0, 0.153059f, 0.825691f, 0.217150f, 0.900504f );
-		pLandingGearArmDeployCover[1]->SetMouseRegion( 1, 0.082762f, 0.910630f, 0.126002f, 0.935335f );
+		pLandingGearArmDeployCover[1]->SetMouseRegion( AID_F6, 0, 0.145214f, 0.527563f, 0.213629f, 0.753547f );
+		pLandingGearArmDeployCover[1]->SetMouseRegion( AID_F6, 1, 0.145214f, 0.527563f, 0.159221f, 0.652332f );
 		pLandingGearArmDeployCover[1]->SetReference( _V( -0.87370, 1.99996, 14.68735 ), _V( 0, 0.965408, 0.260745 ) );
 		pLandingGearArmDeployCover[1]->DefineCoverGroup( GRP_F6COVER2_VC );
 
 		pLandingGearArmDeploy[0]->SetStateOffset( 1, 0.0f, 0.488281f );
 		pLandingGearArmDeploy[0]->SetDirection( push_dir );
-		pLandingGearArmDeploy[0]->SetMouseRegion( 0.077788f, 0.831051f, 0.119110f, 0.892631f );
+		pLandingGearArmDeploy[0]->SetMouseRegion( AID_F6, 0.075215f, 0.560928f, 0.116564f, 0.730217f );
 		pLandingGearArmDeploy[0]->DefineMeshGroup( STS()->mesh_vc, GRP_F6_A5_S1_VC );
 
 		pLandingGearArmDeploy[1]->SetStateOffset( 1, 0.0f, 0.488281f );
 		pLandingGearArmDeploy[1]->SetDirection( push_dir );
-		pLandingGearArmDeploy[1]->SetMouseRegion( 0.163805f, 0.830309f, 0.205588f, 0.892445f );
+		pLandingGearArmDeploy[1]->SetMouseRegion( AID_F6, 0.162630f, 0.559619f, 0.204250f, 0.726978f );
 		pLandingGearArmDeploy[1]->DefineMeshGroup( STS()->mesh_vc, GRP_F6_A5_S2_VC );
 
 		pRCSCommand[0]->DefineMeshGroup( STS()->mesh_vc, GRP_F6_XDS1_R_VC );
@@ -133,8 +147,25 @@ namespace vc {
 
 		pAbort->SetStateOffset( 1, -0.139648f, 0.0f );
 		pAbort->SetDirection( push_dir );
-		pAbort->SetMouseRegion( 0.897943f, 0.704919f, 0.930596f, 0.752289f );
+		pAbort->SetMouseRegion( AID_F6, 0.908141f, 0.214696f, 0.939683f, 0.348886f );
 		pAbort->DefineMeshGroup( STS()->mesh_vc, GRP_F6_A8_S2_VC );
+
+		pHUDMode->DefineSwitchGroup( GRP_F6HUDTEST_VC );
+		pHUDMode->SetInitialAnimState( 0.5 );
+		pHUDMode->SetReference( _V( 0.7052, 2.4685, 14.5712 ), _V( 1, 0, 0 ) );
+		pHUDMode->SetMouseRegion( AID_F6_HUD, 0.046968f, 0.392141f, 0.177257f, 0.644709f );
+
+		pHUDBrightness->DefineSwitchGroup( GRP_F6HUDDIM_VC );
+		pHUDBrightness->SetInitialAnimState( 0.5 );
+		pHUDBrightness->SetReference( _V( -0.6552, 2.4697, 14.5635 ), _V( 0, 0.275637, -0.961262 ) );
+		pHUDBrightness->DefineRotationAngle( 180.0f );
+		pHUDBrightness->SetOffset( -90.0f );
+		pHUDBrightness->SetMouseRegion( AID_F6_HUD, 0.401231f, 0.353931f, 0.605132f, 0.718589f );
+
+		pHUDBright->DefineSwitchGroup( GRP_F6HUDBRT_VC );
+		pHUDBright->SetInitialAnimState( 0.5 );
+		pHUDBright->SetReference( _V( 0.5978, 2.4679, 14.5712 ), _V( 1, 0, 0 ) );
+		pHUDBright->SetMouseRegion( AID_F6_HUD, 0.814331f, 0.392763f, 0.946918f, 0.646512f );
 		return;
 	}
 
@@ -143,10 +174,20 @@ namespace vc {
 		AtlantisPanel::RegisterVC();
 		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
 		
-		oapiVCRegisterArea(AID_F6, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
-		oapiVCSetAreaClickmode_Quadrilateral (AID_F6, 
-			_V(-0.940, 2.312, 14.756)+ofs, _V(-0.413, 2.312, 14.755)+ofs,
-			_V(-0.947, 1.951, 14.674)+ofs, _V(-0.413, 1.949, 14.673)+ofs);
+		oapiVCRegisterArea( AID_F6, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED );
+		oapiVCSetAreaClickmode_Quadrilateral( AID_F6, 
+			_V( -0.9453, 2.0815, 14.7095 ) + ofs, _V( -0.4221, 2.0815, 14.7095 ) + ofs,
+			_V( -0.9453, 1.9531, 14.6751 ) + ofs, _V( -0.4221, 1.9531, 14.6751 ) + ofs );
+
+		oapiVCRegisterArea( AID_F6_MDU, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED );
+		oapiVCSetAreaClickmode_Quadrilateral( AID_F6_MDU, 
+			_V( -0.9395, 2.3122, 14.7566 ) + ofs, _V( -0.4259, 2.3122, 14.7566 ) + ofs,
+			_V( -0.9395, 2.0986, 14.6968 ) + ofs, _V( -0.4259, 2.0986, 14.6968 ) + ofs );
+
+		oapiVCRegisterArea( AID_F6_HUD, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED );
+		oapiVCSetAreaClickmode_Quadrilateral( AID_F6_HUD, 
+			_V( -0.7256, 2.5085, 14.5803 ) + ofs, _V( -0.5853, 2.5085, 14.5803 ) + ofs,
+			_V( -0.7256, 2.4326, 14.5593 ) + ofs, _V( -0.5853, 2.4326, 14.5593 ) + ofs );
 		
 		return;
 	}
@@ -209,6 +250,17 @@ namespace vc {
 		pBundle = STS()->BundleManager()->CreateBundle( "ACA3_5", 16 );
 		pLandingGearArmDeploy[1]->ConnectLight( 0, pBundle, 1 );// dn light
 		pRangeSafeArm->ConnectLight( 1, pBundle, 13 );
+
+		pBundle = STS()->BundleManager()->CreateBundle( "HUD_CDR", 16 );
+		pHUDMode->outputA.Connect( pBundle, 1 );// mode dclt cdr
+		pHUDMode->outputB.Connect( pBundle, 2 );// mode test cdr
+		pHUDBrightness->ConnectOutputSignal( 0, pBundle, 3 );// brightness lvl 1 cdr
+		pHUDBrightness->ConnectOutputSignal( 1, pBundle, 4 );// brightness lvl 2 cdr
+		pHUDBrightness->ConnectOutputSignal( 2, pBundle, 5 );// brightness lvl 3 cdr
+		pHUDBrightness->ConnectOutputSignal( 3, pBundle, 6 );// brightness lvl 4 cdr
+		pHUDBrightness->ConnectOutputSignal( 4, pBundle, 7 );// brightness lvl 5 cdr
+		pHUDBright->outputA.Connect( pBundle, 8 );// bright man night cdr
+		pHUDBright->outputB.Connect( pBundle, 9 );// bright man day cdr
 
 		AtlantisPanel::Realize();
 	}

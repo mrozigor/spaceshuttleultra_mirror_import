@@ -63,13 +63,13 @@ namespace vc
 
 		pDIGI_DIS_SELECT->SetInitialAnimState( 0.5f );
 		pDIGI_DIS_SELECT->DefineSwitchGroup( GRP_S1_A2_VC );
-		pDIGI_DIS_SELECT->SetMouseRegion( 0.136026f, 0.298255f, 0.726990f, 0.441468f );
+		pDIGI_DIS_SELECT->SetMouseRegion( AID_A2, 0.136026f, 0.298255f, 0.726990f, 0.441468f );
 		pDIGI_DIS_SELECT->SetReference( _V( 0.0022, 3.2618, 12.3100 ), switch_rot );
 		pDIGI_DIS_SELECT->SetSpringLoaded( true, 0 );
 
 		pXPNTR_SCALE->SetInitialAnimState( 0.5f );
 		pXPNTR_SCALE->DefineSwitchGroup( GRP_S2_A2_VC );
-		pXPNTR_SCALE->SetMouseRegion( 0.174571f, 0.653784f, 0.766816f, 0.789220f );
+		pXPNTR_SCALE->SetMouseRegion( AID_A2, 0.174571f, 0.653784f, 0.766816f, 0.789220f );
 		pXPNTR_SCALE->SetReference( _V( 0.0037, 3.2001, 12.3100 ), switch_rot );
 
 		pRE_RRA->DefineMesh( mesh_index );

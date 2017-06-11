@@ -106,7 +106,7 @@ namespace vc {
 		LockableLever3* pGPC4Mode;
 		LockableLever3* pGPC5Mode;
 	public:
-		PanelO6(Atlantis* psts);
+		PanelO6(Atlantis* _sts);
 		virtual ~PanelO6();
 
 		virtual void AddMeshes( const VECTOR3& ofs );
