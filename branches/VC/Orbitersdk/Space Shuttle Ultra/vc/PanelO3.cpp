@@ -82,19 +82,19 @@ namespace vc
 		pRCSOMS_PRESS->SetOffset( 148.0f );
 		pRCSOMS_PRESS->SetInitialAnimState( 0.0f );
 		pRCSOMS_PRESS->SetReference( _V( 0.2147, 2.7921, 14.3509 ), rotary_switch_rot );
-		pRCSOMS_PRESS->SetMouseRegion( 0.142551f, 0.704583f, 0.202544f, 0.829816f );
+		pRCSOMS_PRESS->SetMouseRegion( AID_O3, 0.142551f, 0.704583f, 0.202544f, 0.829816f );
 
 		pRCSOMS_PRPLTQTY->DefineSwitchGroup( GRP_S11_O3_VC );
 		pRCSOMS_PRPLTQTY->DefineRotationAngle( 130.0f );
 		pRCSOMS_PRPLTQTY->SetOffset( 115.0f );
 		pRCSOMS_PRPLTQTY->SetInitialAnimState( 0.25f );
 		pRCSOMS_PRPLTQTY->SetReference( _V( 0.3653, 2.7950, 14.3503 ), rotary_switch_rot );
-		pRCSOMS_PRPLTQTY->SetMouseRegion( 0.398181f, 0.692892f, 0.454926f, 0.814155f );
+		pRCSOMS_PRPLTQTY->SetMouseRegion( AID_O3, 0.398181f, 0.692892f, 0.454926f, 0.814155f );
 
 		pMissionTimer->DefineSwitchGroup( GRP_S12_O3_VC );
 		pMissionTimer->SetInitialAnimState( 0.5f );
 		pMissionTimer->SetReference( _V( 0.5121638,  2.799416,  14.35993 ), switch_rot );
-		pMissionTimer->SetMouseRegion( 0.655579f, 0.695221f, 0.687731f, 0.794568f );
+		pMissionTimer->SetMouseRegion( AID_O3, 0.655579f, 0.695221f, 0.687731f, 0.794568f );
 		pMissionTimer->SetSpringLoaded( true, 0 );
 
 		pRCSOMS_PRPLT_QTY->DefineMesh( mesh_index );

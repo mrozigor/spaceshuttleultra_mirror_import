@@ -58,7 +58,7 @@ namespace vc
 		pMissionTimer->DefineSwitchGroup( GRP_S1_A4_VC );
 		pMissionTimer->SetInitialAnimState( 0.5 );
 		pMissionTimer->SetReference( _V( -0.7997, 2.9475, 12.3330 ), switch_rot );
-		pMissionTimer->SetMouseRegion( 0.741337f, 0.766488f, 0.860226f, 0.890987f );
+		pMissionTimer->SetMouseRegion( AID_A4, 0.741337f, 0.766488f, 0.860226f, 0.890987f );
 		pMissionTimer->SetSpringLoaded( true, 0 );
 
 		pMissionTime->DefineMesh( mesh_index );

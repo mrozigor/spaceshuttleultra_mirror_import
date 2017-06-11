@@ -68,34 +68,34 @@ namespace vc
 
 		AddAIDToMouseEventList( AID_L1 );
 
-		pFireSuppressionAvBayDischAgentCover[0]->SetMouseRegion( 0, 0.816760f, 0.231591f, 0.845892f, 0.349546f );
-		pFireSuppressionAvBayDischAgentCover[0]->SetMouseRegion( 1, 0.816760f, 0.231591f, 0.845892f, 0.250382f );
+		pFireSuppressionAvBayDischAgentCover[0]->SetMouseRegion( AID_L1, 0, 0.816760f, 0.231591f, 0.845892f, 0.349546f );
+		pFireSuppressionAvBayDischAgentCover[0]->SetMouseRegion( AID_L1, 1, 0.816760f, 0.231591f, 0.845892f, 0.250382f );
 		pFireSuppressionAvBayDischAgentCover[0]->DefineCoverGroup( GRP_A1_COVER4_L1_VC );
 		pFireSuppressionAvBayDischAgentCover[0]->SetReference( _V( -1.2237, 2.1413, 14.5724 ), switch_rot );
 
-		pFireSuppressionAvBayDischAgentCover[1]->SetMouseRegion( 0, 0.853003f, 0.231591f, 0.882802f, 0.349546f );
-		pFireSuppressionAvBayDischAgentCover[1]->SetMouseRegion( 1, 0.853003f, 0.231591f, 0.882802f, 0.250382f );
+		pFireSuppressionAvBayDischAgentCover[1]->SetMouseRegion( AID_L1, 0, 0.853003f, 0.231591f, 0.882802f, 0.349546f );
+		pFireSuppressionAvBayDischAgentCover[1]->SetMouseRegion( AID_L1, 1, 0.853003f, 0.231591f, 0.882802f, 0.250382f );
 		pFireSuppressionAvBayDischAgentCover[1]->DefineCoverGroup( GRP_A1_COVER5_L1_VC );
 		pFireSuppressionAvBayDischAgentCover[1]->SetReference( _V( -1.2237, 2.1413, 14.5724 ), switch_rot );
 
-		pFireSuppressionAvBayDischAgentCover[2]->SetMouseRegion( 0, 0.889269f, 0.231591f, 0.920107f, 0.349546f );
-		pFireSuppressionAvBayDischAgentCover[2]->SetMouseRegion( 1, 0.889269f, 0.231591f, 0.920107f, 0.250382f );
+		pFireSuppressionAvBayDischAgentCover[2]->SetMouseRegion( AID_L1, 0, 0.889269f, 0.231591f, 0.920107f, 0.349546f );
+		pFireSuppressionAvBayDischAgentCover[2]->SetMouseRegion( AID_L1, 1, 0.889269f, 0.231591f, 0.920107f, 0.250382f );
 		pFireSuppressionAvBayDischAgentCover[2]->DefineCoverGroup( GRP_A1_COVER6_L1_VC );
 		pFireSuppressionAvBayDischAgentCover[2]->SetReference( _V( -1.2237, 2.1413, 14.5724 ), switch_rot );
 
 		pFireSuppressionAvBayDischAgent[0]->SetStateOffset( 1, 0.0f, 0.488281f );
 		pFireSuppressionAvBayDischAgent[0]->SetDirection( push_dir );
-		pFireSuppressionAvBayDischAgent[0]->SetMouseRegion( 0.820565f, 0.259112f, 0.841511f, 0.325636f );
+		pFireSuppressionAvBayDischAgent[0]->SetMouseRegion( AID_L1, 0.820565f, 0.259112f, 0.841511f, 0.325636f );
 		pFireSuppressionAvBayDischAgent[0]->DefineMeshGroup( mesh_index, GRP_A1_S4_L1_VC );
 
 		pFireSuppressionAvBayDischAgent[1]->SetStateOffset( 1, 0.0f, 0.488281f );
 		pFireSuppressionAvBayDischAgent[1]->SetDirection( push_dir );
-		pFireSuppressionAvBayDischAgent[1]->SetMouseRegion( 0.856432f, 0.259112f, 0.878352f, 0.325636f );
+		pFireSuppressionAvBayDischAgent[1]->SetMouseRegion( AID_L1, 0.856432f, 0.259112f, 0.878352f, 0.325636f );
 		pFireSuppressionAvBayDischAgent[1]->DefineMeshGroup( mesh_index, GRP_A1_S5_L1_VC );
 
 		pFireSuppressionAvBayDischAgent[2]->SetStateOffset( 1, 0.0f, 0.488281f );
 		pFireSuppressionAvBayDischAgent[2]->SetDirection( push_dir );
-		pFireSuppressionAvBayDischAgent[2]->SetMouseRegion( 0.893686f, 0.259112f, 0.916010f, 0.325636f );
+		pFireSuppressionAvBayDischAgent[2]->SetMouseRegion( AID_L1, 0.893686f, 0.259112f, 0.916010f, 0.325636f );
 		pFireSuppressionAvBayDischAgent[2]->DefineMeshGroup( mesh_index, GRP_A1_S6_L1_VC );
 
 		pSmokeDetectionA_Cabin->DefineMeshGroup( mesh_index, GRP_A1_XDS1_A_CABIN_L1_VC );

@@ -60,17 +60,17 @@ namespace vc
 		pRadarAltimeter[0]->SetInitialAnimState( 0.5f );
 		pRadarAltimeter[0]->DefineSwitchGroup( GRP_S4_O8_VC );
 		pRadarAltimeter[0]->SetReference( _V( 0.2651, 3.1652, 13.6946 ), switch_rot );
-		pRadarAltimeter[0]->SetMouseRegion( 0.089737f, 0.106703f, 0.135184f, 0.140805f );
+		pRadarAltimeter[0]->SetMouseRegion( AID_O8, 0.089737f, 0.106703f, 0.135184f, 0.140805f );
 
 		pRadarAltimeter[1]->SetInitialAnimState( 0.5f );
 		pRadarAltimeter[1]->DefineSwitchGroup( GRP_S5_O8_VC );
 		pRadarAltimeter[1]->SetReference( _V( 0.2651, 3.1652, 13.6946 ), switch_rot );
-		pRadarAltimeter[1]->SetMouseRegion( 0.157729f, 0.106310f, 0.201778f, 0.140387f );
+		pRadarAltimeter[1]->SetMouseRegion( AID_O8, 0.157729f, 0.106310f, 0.201778f, 0.140387f );
 
 		pAnnunciatorLampTest->SetInitialAnimState( 0.5f );
 		pAnnunciatorLampTest->DefineSwitchGroup( GRP_S18_O8_VC );
 		pAnnunciatorLampTest->SetReference( _V( 0.6000, 3.0978, 13.9709 ), switch_rot );
-		pAnnunciatorLampTest->SetMouseRegion( 0.775565f, 0.498687f, 0.814904f, 0.530986f );
+		pAnnunciatorLampTest->SetMouseRegion( AID_O8, 0.775565f, 0.498687f, 0.814904f, 0.530986f );
 		pAnnunciatorLampTest->SetSpringLoaded( true, 0 );
 		pAnnunciatorLampTest->SetSpringLoaded( true, 2 );
 	}

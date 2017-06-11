@@ -214,48 +214,48 @@ namespace vc
 
 		AddAIDToMouseEventList(AID_A8);
 
-		pPortMPMCover->SetMouseRegion(0, 0.252639f, 0.834143f, 0.305916f, 0.863428f);
-		pPortMPMCover->SetMouseRegion(1, 0.235794f, 0.804317f, 0.298074f, 0.834143f);
+		pPortMPMCover->SetMouseRegion( AID_A8, 0, 0.252639f, 0.834143f, 0.305916f, 0.863428f);
+		pPortMPMCover->SetMouseRegion( AID_A8, 1, 0.235794f, 0.804317f, 0.298074f, 0.834143f);
 		pPortMPMCover->SetReference(_V(-0.646, 2.257, 12.478), switch_rot_vert);
 		pPortMPMCover->DefineCoverGroup(GRP_A8SCOVER5_A8_VC);
 
-		pStbdMPMCover->SetMouseRegion(0, 0.841143f, 0.836290f, 0.886384f, 0.867186f);
-		pStbdMPMCover->SetMouseRegion(1, 0.841143f, 0.806764f, 0.886384f, 0.833786f);
+		pStbdMPMCover->SetMouseRegion( AID_A8, 0, 0.841143f, 0.836290f, 0.886384f, 0.867186f);
+		pStbdMPMCover->SetMouseRegion( AID_A8, 1, 0.841143f, 0.806764f, 0.886384f, 0.833786f);
 		pStbdMPMCover->SetReference(_V(-0.339, 2.257, 12.479), switch_rot_vert);
 		pStbdMPMCover->DefineCoverGroup(GRP_A8SCOVER1_A8_VC);
 
-		pPortMPM->SetMouseRegion(0.252639f, 0.834143f, 0.305916f, 0.863428f);
+		pPortMPM->SetMouseRegion( AID_A8, 0.252639f, 0.834143f, 0.305916f, 0.863428f);
 		pPortMPM->SetReference(_V(-0.647, 2.238, 12.486), switch_rot_vert);
 		pPortMPM->DefineSwitchGroup(GRP_A8S17_A8_VC);
 		pPortMPM->SetInitialAnimState(0.5f);
 
-		pStbdMPM->SetMouseRegion(0.841143f, 0.836290f, 0.886384f, 0.867186f);
+		pStbdMPM->SetMouseRegion( AID_A8, 0.841143f, 0.836290f, 0.886384f, 0.867186f);
 		pStbdMPM->SetReference(_V(-0.693, 2.233, 12.486), switch_rot_vert);
 		pStbdMPM->DefineSwitchGroup(GRP_A8S12_A8_VC);
 		pStbdMPM->SetInitialAnimState(0.5f);
 
-		pPortMRL->SetMouseRegion(0.167373f, 0.841234f, 0.217567f, 0.867132f);
+		pPortMRL->SetMouseRegion( AID_A8, 0.167373f, 0.841234f, 0.217567f, 0.867132f);
 		pPortMRL->SetReference(_V(-0.693, 2.233, 12.486), switch_rot_vert);
 		pPortMRL->DefineSwitchGroup(GRP_A8S18_A8_VC);
 		pPortMRL->SetInitialAnimState(0.5f);
 
-		pStbdMRL->SetMouseRegion(0.755850f, 0.842015f, 0.801863f, 0.880786f);
+		pStbdMRL->SetMouseRegion( AID_A8, 0.755850f, 0.842015f, 0.801863f, 0.880786f);
 		pStbdMRL->SetReference(_V(-0.384, 2.233, 12.487), switch_rot_vert);
 		pStbdMRL->DefineSwitchGroup(GRP_A8S13_A8_VC);
 		pStbdMRL->SetInitialAnimState(0.5f);
 
-		pEEMode->SetMouseRegion(0.298233f, 0.2227635f, 0.346051f, 0.250502f);
+		pEEMode->SetMouseRegion( AID_A8, 0.298233f, 0.2227635f, 0.346051f, 0.250502f);
 		pEEMode->SetReference(_V(-0.625, 2.709, 12.337), switch_rot_vert);
 		pEEMode->DefineSwitchGroup(GRP_A8S4_A8_VC);
 		pEEMode->SetInitialAnimState(0.5f);
 
-		pEEManContr->SetMouseRegion(0.243867f, 0.22259f, 0.288102f, 0.252219f);
+		pEEManContr->SetMouseRegion( AID_A8, 0.243867f, 0.22259f, 0.288102f, 0.252219f);
 		pEEManContr->SetReference(_V(-0.654, 2.709, 12.337), switch_rot_vert);
 		pEEManContr->DefineSwitchGroup(GRP_A8S5_A8_VC);
 		pEEManContr->SetInitialAnimState(0.5f);
 		pEEManContr->SetSpringLoaded(true);
 
-		pShoulderBrace->SetMouseRegion(0.170449f, 0.618925f, 0.226497f, 0.651137f);
+		pShoulderBrace->SetMouseRegion( AID_A8, 0.170449f, 0.618925f, 0.226497f, 0.651137f);
 		pShoulderBrace->SetReference(_V(-0.687, 2.402, 12.434), switch_rot_horz);
 		pShoulderBrace->DefineSwitchGroup(GRP_A8S10_A8_VC);
 		pShoulderBrace->SetInitialAnimState(0.5f);
@@ -263,13 +263,13 @@ namespace vc
 		pShoulderBrace->SetOrientation(true);
 		pShoulderBrace->SetSpringLoaded(true);
 
-		pSingleDirectDrive->SetMouseRegion(0.142212f, 0.547297f, 0.208286f, 0.581384f);
+		pSingleDirectDrive->SetMouseRegion( AID_A8, 0.142212f, 0.547297f, 0.208286f, 0.581384f);
 		pSingleDirectDrive->SetReference(_V(-0.698, 2.458, 12.417), switch_rot_vert);
 		pSingleDirectDrive->DefineSwitchGroup(GRP_A8S9_A8_VC);
 		pSingleDirectDrive->SetInitialAnimState(0.5f);
 		pSingleDirectDrive->SetSpringLoaded(true);
 
-		pRMSSelect->SetMouseRegion(0.466754f, 0.757090f, 0.510409f, 0.788049f);
+		pRMSSelect->SetMouseRegion( AID_A8, 0.466754f, 0.757090f, 0.510409f, 0.788049f);
 		pRMSSelect->SetReference(_V(-0.537, 2.294, 12.467), switch_rot_horz);
 		pRMSSelect->DefineSwitchGroup(GRP_A8S11_A8_VC);
 		pRMSSelect->SetInitialAnimState(0.5f);
@@ -307,21 +307,21 @@ namespace vc
 
 		pSoftStopTB->DefineMeshGroups( mesh_index, GRP_A8U_DS3_U_A8_VC, GRP_A8U_DS3_L_A8_VC );
 
-		pLEDParameter->SetMouseRegion(0.45049f, 0.440562f, 0.531691f, 0.494226f);
+		pLEDParameter->SetMouseRegion( AID_A8, 0.45049f, 0.440562f, 0.531691f, 0.494226f);
 		pLEDParameter->DefineSwitchGroup(GRP_A8RS3_A8_VC);
 		pLEDParameter->SetReference(_V(-0.5354, 2.534, 12.4013), rotary_switch_rot);
 		pLEDParameter->SetInitialAnimState(1.0f);
 		pLEDParameter->DefineRotationAngle(210.0f);
 		pLEDParameter->SetOffset(-90.0f);
 
-		pLEDJoint->SetMouseRegion(0.13677f, 0.439533f, 0.223088f, 0.494112f);
+		pLEDJoint->SetMouseRegion( AID_A8, 0.13677f, 0.439533f, 0.223088f, 0.494112f);
 		pLEDJoint->DefineSwitchGroup(GRP_A8RS4_A8_VC);
 		pLEDJoint->SetReference(_V(-0.6984, 2.5339, 12.4013), rotary_switch_rot);
 		pLEDJoint->SetInitialAnimState(1.0f);
 		pLEDJoint->DefineRotationAngle(210.0f);
 		pLEDJoint->SetOffset(-150.0f);
 
-		pRMSMode->SetMouseRegion(0.77292f, 0.177526f, 0.855731f, 0.234343f);
+		pRMSMode->SetMouseRegion( AID_A8, 0.77292f, 0.177526f, 0.855731f, 0.234343f);
 		pRMSMode->DefineSwitchGroup(GRP_A8RS1_A8_VC);
 		pRMSMode->SetReference(_V(-0.3639, 2.7365, 12.3378), rotary_switch_rot);
 		pRMSMode->SetInitialAnimState(1.0f);
@@ -408,7 +408,7 @@ namespace vc
 
 		pMasterAlarm->SetStateOffset( 1, 0.0f, 0.113281f );
 		pMasterAlarm->SetDirection( push_dir );
-		pMasterAlarm->SetMouseRegion( 0.473079f, 0.225946f, 0.515116f, 0.246649f );
+		pMasterAlarm->SetMouseRegion( AID_A8, 0.473079f, 0.225946f, 0.515116f, 0.246649f );
 		pMasterAlarm->DefineMeshGroup( mesh_index, GRP_A8MASALARM_A8_VC );
 
 		pRMS->DefineMesh( mesh_index );

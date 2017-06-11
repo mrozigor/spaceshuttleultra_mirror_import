@@ -336,56 +336,56 @@ namespace vc
 		pControlBusPwrMNAPwr->SetInitialAnimState( 0.5f );
 		pControlBusPwrMNAPwr->DefineSwitchGroup( GRP_A1_S1_R1_VC );
 		pControlBusPwrMNAPwr->SetReference( _V( 1.1925, 2.1526, 14.6480 ), switch_rot );
-		pControlBusPwrMNAPwr->SetMouseRegion( 0.069446f, 0.166435f, 0.088014f, 0.233550f );
+		pControlBusPwrMNAPwr->SetMouseRegion( AID_R2, 0.069446f, 0.166435f, 0.088014f, 0.233550f );
 		pControlBusPwrMNAPwr->SetSpringLoaded( true );
 
 		pControlBusPwrMNBPwr->SetInitialAnimState( 0.5f );
 		pControlBusPwrMNBPwr->DefineSwitchGroup( GRP_A1_S2_R1_VC );
 		pControlBusPwrMNBPwr->SetReference( _V( 1.1797, 2.0951, 14.6441 ), switch_rot );
-		pControlBusPwrMNBPwr->SetMouseRegion( 0.057635f, 0.339876f, 0.077927f, 0.408386f );
+		pControlBusPwrMNBPwr->SetMouseRegion( AID_R2, 0.057635f, 0.339876f, 0.077927f, 0.408386f );
 		pControlBusPwrMNBPwr->SetSpringLoaded( true );
 
 		pControlBusPwrMNCPwr->SetInitialAnimState( 0.5f );
 		pControlBusPwrMNCPwr->DefineSwitchGroup( GRP_A1_S3_R1_VC );
 		pControlBusPwrMNCPwr->SetReference( _V( 1.1664, 2.0381, 14.6399 ), switch_rot );
-		pControlBusPwrMNCPwr->SetMouseRegion( 0.047596f, 0.514156f, 0.068455f, 0.585026f );
+		pControlBusPwrMNCPwr->SetMouseRegion( AID_R2, 0.047596f, 0.514156f, 0.068455f, 0.585026f );
 		pControlBusPwrMNCPwr->SetSpringLoaded( true );
 
 		pEssBusSourceMNBC->SetInitialAnimState( 0.5f );
 		pEssBusSourceMNBC->DefineSwitchGroup( GRP_A1_S4_R1_VC );
 		pEssBusSourceMNBC->SetReference( _V( 1.1925, 2.1526, 14.6480 ), switch_rot );
-		pEssBusSourceMNBC->SetMouseRegion( 0.119187f, 0.164126f, 0.137888f, 0.233977f );
+		pEssBusSourceMNBC->SetMouseRegion( AID_R2, 0.119187f, 0.164126f, 0.137888f, 0.233977f );
 
 		pEssBusSourceMNCA->SetInitialAnimState( 0.5f );
 		pEssBusSourceMNCA->DefineSwitchGroup( GRP_A1_S5_R1_VC );
 		pEssBusSourceMNCA->SetReference( _V( 1.1797, 2.0951, 14.6441 ), switch_rot );
-		pEssBusSourceMNCA->SetMouseRegion( 0.107904f, 0.340237f, 0.125902f, 0.408059f );
+		pEssBusSourceMNCA->SetMouseRegion( AID_R2, 0.107904f, 0.340237f, 0.125902f, 0.408059f );
 
 		pEssBusSourceMNAB->SetInitialAnimState( 0.5f );
 		pEssBusSourceMNAB->DefineSwitchGroup( GRP_A1_S6_R1_VC );
 		pEssBusSourceMNAB->SetReference( _V( 1.1664, 2.0381, 14.6399 ), switch_rot );
-		pEssBusSourceMNAB->SetMouseRegion( 0.096658f, 0.514786f, 0.115279f, 0.582150f );
+		pEssBusSourceMNAB->SetMouseRegion( AID_R2, 0.096658f, 0.514786f, 0.115279f, 0.582150f );
 
 		pEssBusSourceFC1->SetInitialAnimState( 0.5f );
 		pEssBusSourceFC1->DefineSwitchGroup( GRP_A1_S7_R1_VC );
 		pEssBusSourceFC1->SetReference( _V( 1.1925, 2.1526, 14.6480 ), switch_rot );
-		pEssBusSourceFC1->SetMouseRegion( 0.169292f, 0.166575f, 0.187370f, 0.236009f );
+		pEssBusSourceFC1->SetMouseRegion( AID_R2, 0.169292f, 0.166575f, 0.187370f, 0.236009f );
 
 		pEssBusSourceFC2->SetInitialAnimState( 0.5f );
 		pEssBusSourceFC2->DefineSwitchGroup( GRP_A1_S8_R1_VC );
 		pEssBusSourceFC2->SetReference( _V( 1.1797, 2.0951, 14.6441 ), switch_rot );
-		pEssBusSourceFC2->SetMouseRegion( 0.158506f, 0.342708f, 0.177224f, 0.410471f );
+		pEssBusSourceFC2->SetMouseRegion( AID_R2, 0.158506f, 0.342708f, 0.177224f, 0.410471f );
 
 		pEssBusSourceFC3->SetInitialAnimState( 0.5f );
 		pEssBusSourceFC3->DefineSwitchGroup( GRP_A1_S9_R1_VC );
 		pEssBusSourceFC3->SetReference( _V( 1.1664, 2.0381, 14.6399 ), switch_rot );
-		pEssBusSourceFC3->SetMouseRegion( 0.147168f, 0.512602f, 0.165938f, 0.581663f );
+		pEssBusSourceFC3->SetMouseRegion( AID_R2, 0.147168f, 0.512602f, 0.165938f, 0.581663f );
 
 		pFCMainBusA->SetInitialAnimState( 0.5f );
 		pFCMainBusA->DefineSwitchGroup( GRP_A1_S10_R1_VC );
 		pFCMainBusA->SetReference( _V( 1.1925, 2.1526, 14.6480 ), switch_rot );
 		pFCMainBusA->SetPullDirection( switch_pull );
-		pFCMainBusA->SetMouseRegion( 0.218102f, 0.164787f, 0.238058f, 0.234013f );
+		pFCMainBusA->SetMouseRegion( AID_R2, 0.218102f, 0.164787f, 0.238058f, 0.234013f );
 		pFCMainBusA->SetSpringLoaded( true, 0 );
 		pFCMainBusA->SetSpringLoaded( true, 2 );
 
@@ -393,7 +393,7 @@ namespace vc
 		pFCMainBusB->DefineSwitchGroup( GRP_A1_S11_R1_VC );
 		pFCMainBusB->SetReference( _V( 1.1797, 2.0951, 14.6441 ), switch_rot );
 		pFCMainBusB->SetPullDirection( switch_pull );
-		pFCMainBusB->SetMouseRegion( 0.207947f, 0.340869f, 0.228262f, 0.409300f );
+		pFCMainBusB->SetMouseRegion( AID_R2, 0.207947f, 0.340869f, 0.228262f, 0.409300f );
 		pFCMainBusB->SetSpringLoaded( true, 0 );
 		pFCMainBusB->SetSpringLoaded( true, 2 );
 
@@ -401,269 +401,269 @@ namespace vc
 		pFCMainBusC->DefineSwitchGroup( GRP_A1_S12_R1_VC );
 		pFCMainBusC->SetReference( _V( 1.1664, 2.0381, 14.6399 ), switch_rot );
 		pFCMainBusC->SetPullDirection( switch_pull );
-		pFCMainBusC->SetMouseRegion( 0.196878f, 0.513641f, 0.217177f, 0.579977f );
+		pFCMainBusC->SetMouseRegion( AID_R2, 0.196878f, 0.513641f, 0.217177f, 0.579977f );
 		pFCMainBusC->SetSpringLoaded( true, 0 );
 		pFCMainBusC->SetSpringLoaded( true, 2 );
 
 		pMNBusTieA->SetInitialAnimState( 0.5f );
 		pMNBusTieA->DefineSwitchGroup( GRP_A1_S13_R1_VC );
 		pMNBusTieA->SetReference( _V( 1.1925, 2.1526, 14.6480 ), switch_rot );
-		pMNBusTieA->SetMouseRegion( 0.286649f, 0.163550f, 0.306875f, 0.233598f );
+		pMNBusTieA->SetMouseRegion( AID_R2, 0.286649f, 0.163550f, 0.306875f, 0.233598f );
 		pMNBusTieA->SetSpringLoaded( true, 0 );
 		pMNBusTieA->SetSpringLoaded( true, 2 );
 
 		pMNBusTieB->SetInitialAnimState( 0.5f );
 		pMNBusTieB->DefineSwitchGroup( GRP_A1_S14_R1_VC );
 		pMNBusTieB->SetReference( _V( 1.1797, 2.0951, 14.6441 ), switch_rot );
-		pMNBusTieB->SetMouseRegion( 0.274631f, 0.339246f, 0.294351f, 0.409492f );
+		pMNBusTieB->SetMouseRegion( AID_R2, 0.274631f, 0.339246f, 0.294351f, 0.409492f );
 		pMNBusTieB->SetSpringLoaded( true, 0 );
 		pMNBusTieB->SetSpringLoaded( true, 2 );
 
 		pMNBusTieC->SetInitialAnimState( 0.5f );
 		pMNBusTieC->DefineSwitchGroup( GRP_A1_S15_R1_VC );
 		pMNBusTieC->SetReference( _V( 1.1664, 2.0381, 14.6399 ), switch_rot );
-		pMNBusTieC->SetMouseRegion( 0.265610f, 0.515440f, 0.284506f, 0.582897f );
+		pMNBusTieC->SetMouseRegion( AID_R2, 0.265610f, 0.515440f, 0.284506f, 0.582897f );
 		pMNBusTieC->SetSpringLoaded( true, 0 );
 		pMNBusTieC->SetSpringLoaded( true, 2 );
 
 		pInvPwr1->SetInitialAnimState( 0.5f );
 		pInvPwr1->DefineSwitchGroup( GRP_A1_S16_R1_VC );
 		pInvPwr1->SetReference( _V( 1.2845, 2.1147, 14.3638 ), switch_rot );
-		pInvPwr1->SetMouseRegion( 0.364295f, 0.267669f, 0.382682f, 0.340316f );
+		pInvPwr1->SetMouseRegion( AID_R2, 0.364295f, 0.267669f, 0.382682f, 0.340316f );
 		pInvPwr1->SetSpringLoaded( true, 0 );
 		pInvPwr1->SetSpringLoaded( true, 2 );
 
 		pInvPwr2->SetInitialAnimState( 0.5f );
 		pInvPwr2->DefineSwitchGroup( GRP_A1_S17_R1_VC );
 		pInvPwr2->SetReference( _V( 1.2654, 2.0300, 14.3561 ), switch_rot );
-		pInvPwr2->SetMouseRegion( 0.348628f, 0.527914f, 0.368419f, 0.600194f );
+		pInvPwr2->SetMouseRegion( AID_R2, 0.348628f, 0.527914f, 0.368419f, 0.600194f );
 		pInvPwr2->SetSpringLoaded( true, 0 );
 		pInvPwr2->SetSpringLoaded( true, 2 );
 
 		pInvPwr3->SetInitialAnimState( 0.5f );
 		pInvPwr3->DefineSwitchGroup( GRP_A1_S18_R1_VC );
 		pInvPwr3->SetReference( _V( 1.2465, 1.9432, 14.3505 ), switch_rot );
-		pInvPwr3->SetMouseRegion( 0.331337f, 0.788743f, 0.351055f, 0.862777f );
+		pInvPwr3->SetMouseRegion( AID_R2, 0.331337f, 0.788743f, 0.351055f, 0.862777f );
 		pInvPwr3->SetSpringLoaded( true, 0 );
 		pInvPwr3->SetSpringLoaded( true, 2 );
 
 		pInvACBus1->SetInitialAnimState( 0.5f );
 		pInvACBus1->DefineSwitchGroup( GRP_A1_S19_R1_VC );
 		pInvACBus1->SetReference( _V( 1.2845, 2.1147, 14.3638 ), switch_rot );
-		pInvACBus1->SetMouseRegion( 0.411120f, 0.266515f, 0.431888f, 0.342026f );
+		pInvACBus1->SetMouseRegion( AID_R2, 0.411120f, 0.266515f, 0.431888f, 0.342026f );
 		pInvACBus1->SetSpringLoaded( true, 0 );
 		pInvACBus1->SetSpringLoaded( true, 2 );
 
 		pInvACBus2->SetInitialAnimState( 0.5f );
 		pInvACBus2->DefineSwitchGroup( GRP_A1_S20_R1_VC );
 		pInvACBus2->SetReference( _V( 1.2654, 2.0300, 14.3561 ), switch_rot );
-		pInvACBus2->SetMouseRegion( 0.396130f, 0.527200f, 0.415532f, 0.600780f );
+		pInvACBus2->SetMouseRegion( AID_R2, 0.396130f, 0.527200f, 0.415532f, 0.600780f );
 		pInvACBus2->SetSpringLoaded( true, 0 );
 		pInvACBus2->SetSpringLoaded( true, 2 );
 
 		pInvACBus3->SetInitialAnimState( 0.5f );
 		pInvACBus3->DefineSwitchGroup( GRP_A1_S21_R1_VC );
 		pInvACBus3->SetReference( _V( 1.2465, 1.9432, 14.3505 ), switch_rot );
-		pInvACBus3->SetMouseRegion( 0.378402f, 0.789128f, 0.397712f, 0.863190f );
+		pInvACBus3->SetMouseRegion( AID_R2, 0.378402f, 0.789128f, 0.397712f, 0.863190f );
 		pInvACBus3->SetSpringLoaded( true, 0 );
 		pInvACBus3->SetSpringLoaded( true, 2 );
 
 		pACBusSnsr1->SetInitialAnimState( 0.5f );
 		pACBusSnsr1->DefineSwitchGroup( GRP_A1_S22_R1_VC );
 		pACBusSnsr1->SetReference( _V( 1.3400, 2.1310, 14.2199 ), switch_rot );
-		pACBusSnsr1->SetMouseRegion( 0.520422f, 0.216326f, 0.541343f, 0.293934f );
+		pACBusSnsr1->SetMouseRegion( AID_R2, 0.520422f, 0.216326f, 0.541343f, 0.293934f );
 		
 		pACBusSnsr2->SetInitialAnimState( 0.5f );
 		pACBusSnsr2->DefineSwitchGroup( GRP_A1_S23_R1_VC );
 		pACBusSnsr2->SetReference( _V( 1.3203, 2.0466, 14.2126 ), switch_rot );
-		pACBusSnsr2->SetMouseRegion( 0.504962f, 0.477589f, 0.525558f, 0.550331f );
+		pACBusSnsr2->SetMouseRegion( AID_R2, 0.504962f, 0.477589f, 0.525558f, 0.550331f );
 		
 		pACBusSnsr3->SetInitialAnimState( 0.5f );
 		pACBusSnsr3->DefineSwitchGroup( GRP_A1_S24_R1_VC );
 		pACBusSnsr3->SetReference( _V( 1.3017, 1.9596, 14.2075 ), switch_rot );
-		pACBusSnsr3->SetMouseRegion( 0.486880f, 0.734950f, 0.507597f, 0.812667f );
+		pACBusSnsr3->SetMouseRegion( AID_R2, 0.486880f, 0.734950f, 0.507597f, 0.812667f );
 
 		pPayloadCabin->SetInitialAnimState( 0.5f );
 		pPayloadCabin->DefineSwitchGroup( GRP_A1_S25_R1_VC );
 		pPayloadCabin->SetReference( _V( 1.2465, 1.9432, 14.3505 ), switch_rot );
-		pPayloadCabin->SetMouseRegion( 0.045919f, 0.787858f, 0.065093f, 0.860649f );
+		pPayloadCabin->SetMouseRegion( AID_R2, 0.045919f, 0.787858f, 0.065093f, 0.860649f );
 
 		pPayloadPriMNB->SetInitialAnimState( 0.5f );
 		pPayloadPriMNB->DefineSwitchGroup( GRP_A1_S26_R1_VC );
 		pPayloadPriMNB->SetReference( _V( 1.2465, 1.9432, 14.3505 ), switch_rot );
-		pPayloadPriMNB->SetMouseRegion( 0.093539f, 0.784247f, 0.111473f, 0.861887f );
+		pPayloadPriMNB->SetMouseRegion( AID_R2, 0.093539f, 0.784247f, 0.111473f, 0.861887f );
 		pPayloadPriMNB->SetSpringLoaded( true, 0 );
 		pPayloadPriMNB->SetSpringLoaded( true, 2 );
 
 		pPayloadPriFC3->SetInitialAnimState( 0.5f );
 		pPayloadPriFC3->DefineSwitchGroup( GRP_A1_S27_R1_VC );
 		pPayloadPriFC3->SetReference( _V( 1.2465, 1.9432, 14.3505 ), switch_rot );
-		pPayloadPriFC3->SetMouseRegion( 0.124323f, 0.784175f, 0.142225f, 0.864527f );
+		pPayloadPriFC3->SetMouseRegion( AID_R2, 0.124323f, 0.784175f, 0.142225f, 0.864527f );
 		pPayloadPriFC3->SetSpringLoaded( true, 0 );
 		pPayloadPriFC3->SetSpringLoaded( true, 2 );
 
 		pPayloadPriMNC->SetInitialAnimState( 0.5f );
 		pPayloadPriMNC->DefineSwitchGroup( GRP_A1_S28_R1_VC );
 		pPayloadPriMNC->SetReference( _V( 1.2465, 1.9432, 14.3505 ), switch_rot );
-		pPayloadPriMNC->SetMouseRegion( 0.154036f, 0.786062f, 0.172829f, 0.862178f );
+		pPayloadPriMNC->SetMouseRegion( AID_R2, 0.154036f, 0.786062f, 0.172829f, 0.862178f );
 		pPayloadPriMNC->SetSpringLoaded( true, 0 );
 		pPayloadPriMNC->SetSpringLoaded( true, 2 );
 
-		pPayloadAuxCover->SetMouseRegion( 0, 0.200874f, 0.776744f, 0.219259f, 0.864713f );
-		pPayloadAuxCover->SetMouseRegion( 1, 0.203431f, 0.732213f, 0.225585f, 0.768312f );
+		pPayloadAuxCover->SetMouseRegion( AID_R2, 0, 0.200874f, 0.776744f, 0.219259f, 0.864713f );
+		pPayloadAuxCover->SetMouseRegion( AID_R2, 1, 0.203431f, 0.732213f, 0.225585f, 0.768312f );
 		pPayloadAuxCover->DefineCoverGroup( GRP_A1_COVER29_R1_VC );
 		pPayloadAuxCover->SetReference( _V( 1.2095, 1.9622, 14.4680 ), switch_rot );
 
 		pPayloadAux->SetInitialAnimState( 0.5f );
 		pPayloadAux->DefineSwitchGroup( GRP_A1_S29_R1_VC );
 		pPayloadAux->SetReference( _V( 1.2465, 1.9432, 14.3505 ), switch_rot );
-		pPayloadAux->SetMouseRegion( 0.199678f, 0.790226f, 0.218994f, 0.863155f );
+		pPayloadAux->SetMouseRegion( AID_R2, 0.199678f, 0.790226f, 0.218994f, 0.863155f );
 
 		pPayloadAftMNB->SetInitialAnimState( 0.5f );
 		pPayloadAftMNB->DefineSwitchGroup( GRP_A1_S30_R1_VC );
 		pPayloadAftMNB->SetReference( _V( 1.2465, 1.9432, 14.3505 ), switch_rot );
-		pPayloadAftMNB->SetMouseRegion( 0.246471f, 0.790336f, 0.265298f, 0.863592f );
+		pPayloadAftMNB->SetMouseRegion( AID_R2, 0.246471f, 0.790336f, 0.265298f, 0.863592f );
 
 		pPayloadAftMNC->SetInitialAnimState( 0.5f );
 		pPayloadAftMNC->DefineSwitchGroup( GRP_A1_S31_R1_VC );
 		pPayloadAftMNC->SetReference( _V( 1.2465, 1.9432, 14.3505 ), switch_rot );
-		pPayloadAftMNC->SetMouseRegion( 0.277791f, 0.791175f, 0.295811f, 0.864617f );
+		pPayloadAftMNC->SetMouseRegion( AID_R2, 0.277791f, 0.791175f, 0.295811f, 0.864617f );
 
 		pFuelCellReac1->SetInitialAnimState( 0.5f );
 		pFuelCellReac1->DefineSwitchGroup( GRP_A2_S1_R1_VC );
 		pFuelCellReac1->SetReference( _V( 1.4330, 2.1530, 13.9740 ), switch_rot );
-		pFuelCellReac1->SetMouseRegion( 0.789772f, 0.139809f, 0.809598f, 0.215341f );
+		pFuelCellReac1->SetMouseRegion( AID_R2, 0.789772f, 0.139809f, 0.809598f, 0.215341f );
 		pFuelCellReac1->SetSpringLoaded( true, 0 );
 		pFuelCellReac1->SetSpringLoaded( true, 2 );
 
 		pFuelCellReac2->SetInitialAnimState( 0.5f );
 		pFuelCellReac2->DefineSwitchGroup( GRP_A2_S7_R1_VC );
 		pFuelCellReac2->SetReference( _V( 1.4115, 2.0517, 13.9664 ), switch_rot );
-		pFuelCellReac2->SetMouseRegion( 0.768949f, 0.445541f, 0.788966f, 0.522213f );
+		pFuelCellReac2->SetMouseRegion( AID_R2, 0.768949f, 0.445541f, 0.788966f, 0.522213f );
 		pFuelCellReac2->SetSpringLoaded( true, 0 );
 		pFuelCellReac2->SetSpringLoaded( true, 2 );
 
 		pFuelCellReac3->SetInitialAnimState( 0.5f );
 		pFuelCellReac3->DefineSwitchGroup( GRP_A2_S4_R1_VC );
 		pFuelCellReac3->SetReference( _V( 1.4225, 2.1024, 13.9698 ), switch_rot );
-		pFuelCellReac3->SetMouseRegion( 0.779078f, 0.292172f, 0.799463f, 0.370995f );
+		pFuelCellReac3->SetMouseRegion( AID_R2, 0.779078f, 0.292172f, 0.799463f, 0.370995f );
 		pFuelCellReac3->SetSpringLoaded( true, 0 );
 		pFuelCellReac3->SetSpringLoaded( true, 2 );
 
 		pO2ManifoldVlvTank1->SetInitialAnimState( 0.5f );
 		pO2ManifoldVlvTank1->DefineSwitchGroup( GRP_A2_S2_R1_VC );
 		pO2ManifoldVlvTank1->SetReference( _V( 1.3974, 2.1473, 14.0685 ), switch_rot );
-		pO2ManifoldVlvTank1->SetMouseRegion( 0.686635f, 0.159957f, 0.707208f, 0.235806f );
+		pO2ManifoldVlvTank1->SetMouseRegion( AID_R2, 0.686635f, 0.159957f, 0.707208f, 0.235806f );
 		pO2ManifoldVlvTank1->SetSpringLoaded( true, 0 );
 		pO2ManifoldVlvTank1->SetSpringLoaded( true, 2 );
 
 		pO2ManifoldVlvTank2->SetInitialAnimState( 0.5f );
 		pO2ManifoldVlvTank2->DefineSwitchGroup( GRP_A2_S5_R1_VC );
 		pO2ManifoldVlvTank2->SetReference( _V( 1.4225, 2.1024, 13.9698 ), switch_rot );
-		pO2ManifoldVlvTank2->SetMouseRegion( 0.677626f, 0.292308f, 0.698955f, 0.365463f );
+		pO2ManifoldVlvTank2->SetMouseRegion( AID_R2, 0.677626f, 0.292308f, 0.698955f, 0.365463f );
 		pO2ManifoldVlvTank2->SetSpringLoaded( true, 0 );
 		pO2ManifoldVlvTank2->SetSpringLoaded( true, 2 );
 
 		pH2ManifoldVlvTank1->SetInitialAnimState( 0.5f );
 		pH2ManifoldVlvTank1->DefineSwitchGroup( GRP_A2_S3_R1_VC );
 		pH2ManifoldVlvTank1->SetReference( _V( 1.3974, 2.1473, 14.0685 ), switch_rot );
-		pH2ManifoldVlvTank1->SetMouseRegion( 0.887703f, 0.163310f, 0.907984f, 0.242464f );
+		pH2ManifoldVlvTank1->SetMouseRegion( AID_R2, 0.887703f, 0.163310f, 0.907984f, 0.242464f );
 		pH2ManifoldVlvTank1->SetSpringLoaded( true, 0 );
 		pH2ManifoldVlvTank1->SetSpringLoaded( true, 2 );
 
 		pH2ManifoldVlvTank2->SetInitialAnimState( 0.5f );
 		pH2ManifoldVlvTank2->DefineSwitchGroup( GRP_A2_S6_R1_VC );
 		pH2ManifoldVlvTank2->SetReference( _V( 1.4225, 2.1024, 13.9698 ), switch_rot );
-		pH2ManifoldVlvTank2->SetMouseRegion( 0.879691f, 0.294468f, 0.899239f, 0.372147f );
+		pH2ManifoldVlvTank2->SetMouseRegion( AID_R2, 0.879691f, 0.294468f, 0.899239f, 0.372147f );
 		pH2ManifoldVlvTank2->SetSpringLoaded( true, 0 );
 		pH2ManifoldVlvTank2->SetSpringLoaded( true, 2 );
 
 		pO2TK1HeatersA->SetInitialAnimState( 0.5f );
 		pO2TK1HeatersA->DefineSwitchGroup( GRP_A2_S8_R1_VC );
 		pO2TK1HeatersA->SetReference( _V( 1.3533, 2.0372, 14.1175 ), switch_rot );
-		pO2TK1HeatersA->SetMouseRegion( 0.604301f, 0.494231f, 0.624059f, 0.572430f );
+		pO2TK1HeatersA->SetMouseRegion( AID_R2, 0.604301f, 0.494231f, 0.624059f, 0.572430f );
 
 		pO2TK1HeatersB->SetInitialAnimState( 0.5f );
 		pO2TK1HeatersB->DefineSwitchGroup( GRP_A2_S9_R1_VC );
 		pO2TK1HeatersB->SetReference( _V( 1.3533, 2.0372, 14.1175 ), switch_rot );
-		pO2TK1HeatersB->SetMouseRegion( 0.643711f, 0.493677f, 0.664358f, 0.571084f );
+		pO2TK1HeatersB->SetMouseRegion( AID_R2, 0.643711f, 0.493677f, 0.664358f, 0.571084f );
 
 		pO2TK1Heaters->SetInitialAnimState( 0.5f );
 		pO2TK1Heaters->DefineSwitchGroup( GRP_A2_S10_R1_VC );
 		pO2TK1Heaters->SetReference( _V( 1.3533, 2.0372, 14.1175 ), switch_rot );
-		pO2TK1Heaters->SetMouseRegion( 0.680614f, 0.492395f, 0.699791f, 0.568913f );
+		pO2TK1Heaters->SetMouseRegion( AID_R2, 0.680614f, 0.492395f, 0.699791f, 0.568913f );
 		pO2TK1Heaters->SetSpringLoaded( true, 0 );
 		pO2TK1Heaters->SetSpringLoaded( true, 2 );
 
 		pO2TK2HeatersA->SetInitialAnimState( 0.5f );
 		pO2TK2HeatersA->DefineSwitchGroup( GRP_A2_S13_R1_VC );
 		pO2TK2HeatersA->SetReference( _V( 1.3428, 1.9859, 14.1137 ), switch_rot );
-		pO2TK2HeatersA->SetMouseRegion( 0.594756f, 0.649479f, 0.614555f, 0.724077f );
+		pO2TK2HeatersA->SetMouseRegion( AID_R2, 0.594756f, 0.649479f, 0.614555f, 0.724077f );
 
 		pO2TK2HeatersB->SetInitialAnimState( 0.5f );
 		pO2TK2HeatersB->DefineSwitchGroup( GRP_A2_S14_R1_VC );
 		pO2TK2HeatersB->SetReference( _V( 1.3428, 1.9859, 14.1137 ), switch_rot );
-		pO2TK2HeatersB->SetMouseRegion( 0.635746f, 0.646391f, 0.653571f, 0.725934f );
+		pO2TK2HeatersB->SetMouseRegion( AID_R2, 0.635746f, 0.646391f, 0.653571f, 0.725934f );
 
 		pO2TK2Heaters->SetInitialAnimState( 0.5f );
 		pO2TK2Heaters->DefineSwitchGroup( GRP_A2_S15_R1_VC );
 		pO2TK2Heaters->SetReference( _V( 1.3428, 1.9859, 14.1137 ), switch_rot );
-		pO2TK2Heaters->SetMouseRegion( 0.671732f, 0.643791f, 0.689679f, 0.723404f );
+		pO2TK2Heaters->SetMouseRegion( AID_R2, 0.671732f, 0.643791f, 0.689679f, 0.723404f );
 		pO2TK2Heaters->SetSpringLoaded( true, 0 );
 		pO2TK2Heaters->SetSpringLoaded( true, 2 );
 
 		pO2TK3HeatersA->SetInitialAnimState( 0.5f );
 		pO2TK3HeatersA->DefineSwitchGroup( GRP_A2_S21_R1_VC );
 		pO2TK3HeatersA->SetReference( _V( 1.3319, 1.9360, 14.1100 ), switch_rot );
-		pO2TK3HeatersA->SetMouseRegion( 0.586690f, 0.796075f, 0.604818f, 0.876574f );
+		pO2TK3HeatersA->SetMouseRegion( AID_R2, 0.586690f, 0.796075f, 0.604818f, 0.876574f );
 
 		pO2TK3HeatersB->SetInitialAnimState( 0.5f );
 		pO2TK3HeatersB->DefineSwitchGroup( GRP_A2_S22_R1_VC );
 		pO2TK3HeatersB->SetReference( _V( 1.3319, 1.9360, 14.1100 ), switch_rot );
-		pO2TK3HeatersB->SetMouseRegion( 0.624927f, 0.796604f, 0.643888f, 0.875995f );
+		pO2TK3HeatersB->SetMouseRegion( AID_R2, 0.624927f, 0.796604f, 0.643888f, 0.875995f );
 
 		pO2TK3Heaters->SetInitialAnimState( 0.5f );
 		pO2TK3Heaters->DefineSwitchGroup( GRP_A2_S23_R1_VC );
 		pO2TK3Heaters->SetReference( _V( 1.3319, 1.9360, 14.1100 ), switch_rot );
-		pO2TK3Heaters->SetMouseRegion( 0.660057f, 0.794125f, 0.679893f, 0.875792f );
+		pO2TK3Heaters->SetMouseRegion( AID_R2, 0.660057f, 0.794125f, 0.679893f, 0.875792f );
 		pO2TK3Heaters->SetSpringLoaded( true, 0 );
 		pO2TK3Heaters->SetSpringLoaded( true, 2 );
 
 		pH2TK1HeatersA->SetInitialAnimState( 0.5f );
 		pH2TK1HeatersA->DefineSwitchGroup( GRP_A2_S11_R1_VC );
 		pH2TK1HeatersA->SetReference( _V( 1.3533, 2.0372, 14.1175 ), switch_rot );
-		pH2TK1HeatersA->SetMouseRegion( 0.850473f, 0.497816f, 0.871936f, 0.569279f );
+		pH2TK1HeatersA->SetMouseRegion( AID_R2, 0.850473f, 0.497816f, 0.871936f, 0.569279f );
 
 		pH2TK1HeatersB->SetInitialAnimState( 0.5f );
 		pH2TK1HeatersB->DefineSwitchGroup( GRP_A2_S12_R1_VC );
 		pH2TK1HeatersB->SetReference( _V( 1.3533, 2.0372, 14.1175 ), switch_rot );
-		pH2TK1HeatersB->SetMouseRegion( 0.889951f, 0.496632f, 0.909783f, 0.573041f );
+		pH2TK1HeatersB->SetMouseRegion( AID_R2, 0.889951f, 0.496632f, 0.909783f, 0.573041f );
 
 		pH2TK2HeatersA->SetInitialAnimState( 0.5f );
 		pH2TK2HeatersA->DefineSwitchGroup( GRP_A2_S19_R1_VC );
 		pH2TK2HeatersA->SetReference( _V( 1.3428, 1.9859, 14.1137 ), switch_rot );
-		pH2TK2HeatersA->SetMouseRegion( 0.840319f, 0.647562f, 0.859615f, 0.717474f );
+		pH2TK2HeatersA->SetMouseRegion( AID_R2, 0.840319f, 0.647562f, 0.859615f, 0.717474f );
 
 		pH2TK2HeatersB->SetInitialAnimState( 0.5f );
 		pH2TK2HeatersB->DefineSwitchGroup( GRP_A2_S20_R1_VC );
 		pH2TK2HeatersB->SetReference( _V( 1.3428, 1.9859, 14.1137 ), switch_rot );
-		pH2TK2HeatersB->SetMouseRegion( 0.880004f, 0.646139f, 0.899238f, 0.719269f );
+		pH2TK2HeatersB->SetMouseRegion( AID_R2, 0.880004f, 0.646139f, 0.899238f, 0.719269f );
 
 		pH2TK3HeatersA->SetInitialAnimState( 0.5f );
 		pH2TK3HeatersA->DefineSwitchGroup( GRP_A2_S24_R1_VC );
 		pH2TK3HeatersA->SetReference( _V( 1.3319, 1.9360, 14.1100 ), switch_rot );
-		pH2TK3HeatersA->SetMouseRegion( 0.829226f, 0.797709f, 0.849242f, 0.868222f );
+		pH2TK3HeatersA->SetMouseRegion( AID_R2, 0.829226f, 0.797709f, 0.849242f, 0.868222f );
 
 		pH2TK3HeatersB->SetInitialAnimState( 0.5f );
 		pH2TK3HeatersB->DefineSwitchGroup( GRP_A2_S25_R1_VC );
 		pH2TK3HeatersB->SetReference( _V( 1.3319, 1.9360, 14.1100 ), switch_rot );
-		pH2TK3HeatersB->SetMouseRegion( 0.868802f, 0.799046f, 0.888961f, 0.869549f );
+		pH2TK3HeatersB->SetMouseRegion( AID_R2, 0.868802f, 0.799046f, 0.888961f, 0.869549f );
 
 		pFuelCell1->SetInitialAnimState( 0.5f );
 		pFuelCell1->DefineSwitchGroup( GRP_A2_S16_R1_VC );
 		pFuelCell1->SetReference( _V( 1.3718, 1.9650, 14.0063 ), switch_rot );
 		pFuelCell1->SetPullDirection( switch_pull );
-		pFuelCell1->SetMouseRegion( 0.711174f, 0.710608f, 0.731550f, 0.790725f );
+		pFuelCell1->SetMouseRegion( AID_R2, 0.711174f, 0.710608f, 0.731550f, 0.790725f );
 		pFuelCell1->SetSpringLoaded( true, 0 );
 		pFuelCell1->SetSpringLoaded( true, 2 );
 
@@ -671,7 +671,7 @@ namespace vc
 		pFuelCell2->DefineSwitchGroup( GRP_A2_S17_R1_VC );
 		pFuelCell2->SetReference( _V( 1.3718, 1.9650, 14.0063 ), switch_rot );
 		pFuelCell2->SetPullDirection( switch_pull );
-		pFuelCell2->SetMouseRegion( 0.750424f, 0.708584f, 0.771162f, 0.788885f );
+		pFuelCell2->SetMouseRegion( AID_R2, 0.750424f, 0.708584f, 0.771162f, 0.788885f );
 		pFuelCell2->SetSpringLoaded( true, 0 );
 		pFuelCell2->SetSpringLoaded( true, 2 );
 
@@ -679,7 +679,7 @@ namespace vc
 		pFuelCell3->DefineSwitchGroup( GRP_A2_S18_R1_VC );
 		pFuelCell3->SetReference( _V( 1.3718, 1.9650, 14.0063 ), switch_rot );
 		pFuelCell3->SetPullDirection( switch_pull );
-		pFuelCell3->SetMouseRegion( 0.791352f, 0.712022f, 0.811377f, 0.793408f );
+		pFuelCell3->SetMouseRegion( AID_R2, 0.791352f, 0.712022f, 0.811377f, 0.793408f );
 		pFuelCell3->SetSpringLoaded( true, 0 );
 		pFuelCell3->SetSpringLoaded( true, 2 );
 

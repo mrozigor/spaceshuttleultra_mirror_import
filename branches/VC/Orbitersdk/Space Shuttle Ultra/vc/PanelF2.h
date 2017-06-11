@@ -31,7 +31,6 @@
 #include "StandardLight.h"
 #include "StandardSwitch.h"
 #include "StandardSwitchCover.h"
-#include "StandardRotarySwitch.h"
 
 
 namespace vc
@@ -53,10 +52,6 @@ namespace vc
 
 		PushButtonIndicatorDoubleLight* pDragChuteARM;
 		PushButtonIndicatorDoubleLight* pDragChuteDPY;
-
-		StdSwitch3* pHUDMode;
-		RotaryDemuxSwitch* pHUDBrightness;
-		StdSwitch3* pHUDBright;
 
 		StandardSingleLight* pBFC;
 

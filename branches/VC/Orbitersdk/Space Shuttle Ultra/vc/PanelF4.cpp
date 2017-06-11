@@ -114,71 +114,71 @@ namespace vc
 
 		pMasterAlarm->SetStateOffset( 1, 0.139648f, 0.0f );
 		pMasterAlarm->SetDirection( push_dir );
-		pMasterAlarm->SetMouseRegion( 0.404892f, 0.258904f, 0.454918f, 0.331408f );
+		pMasterAlarm->SetMouseRegion( AID_F4, 0.404892f, 0.258904f, 0.454918f, 0.331408f );
 		pMasterAlarm->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S1_VC );
 
 		pPitchAuto->SetStateOffset( 1, 0.0f, 0.488281f );
 		pPitchAuto->SetDirection( push_dir );
-		pPitchAuto->SetMouseRegion( 0.573131f, 0.348409f, 0.606497f, 0.413077f );
+		pPitchAuto->SetMouseRegion( AID_F4, 0.573131f, 0.348409f, 0.606497f, 0.413077f );
 		pPitchAuto->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S2_VC );
 
 		pPitchCSS->SetStateOffset( 1, 0.0f, 0.488281f );
 		pPitchCSS->SetDirection( push_dir );
-		pPitchCSS->SetMouseRegion( 0.621720f, 0.4071805f, 0.656692f, 0.474488f );
+		pPitchCSS->SetMouseRegion( AID_F4, 0.621720f, 0.4071805f, 0.656692f, 0.474488f );
 		pPitchCSS->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S3_VC );
 
 		pRollYawAuto->SetStateOffset( 1, 0.0f, 0.488281f );
 		pRollYawAuto->SetDirection( push_dir );
-		pRollYawAuto->SetMouseRegion( 0.548946f, 0.430385f, 0.581996f, 0.496719f );
+		pRollYawAuto->SetMouseRegion( AID_F4, 0.548946f, 0.430385f, 0.581996f, 0.496719f );
 		pRollYawAuto->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S5_VC );
 
 		pRollYawCSS->SetStateOffset( 1, 0.0f, 0.488281f );
 		pRollYawCSS->SetDirection( push_dir );
-		pRollYawCSS->SetMouseRegion( 0.599243f, 0.489802f, 0.633905f, 0.558635f );
+		pRollYawCSS->SetMouseRegion( AID_F4, 0.599243f, 0.489802f, 0.633905f, 0.558635f );
 		pRollYawCSS->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S6_VC );
 
 		pSbdbkThrot->SetStateOffset( 1, 0.0f, 0.488281f );// AUTO
 		pSbdbkThrot->SetStateOffset( 2, 0.146484f, 0.488281f );// MAN
 		pSbdbkThrot->SetStateOffset( 3, 0.146484f, 0.0f );// AUTO/MAN
 		pSbdbkThrot->SetDirection( push_dir );
-		pSbdbkThrot->SetMouseRegion( 0.798881f, 0.620206f, 0.833964f, 0.684788f );
+		pSbdbkThrot->SetMouseRegion( AID_F4, 0.798881f, 0.620206f, 0.833964f, 0.684788f );
 		pSbdbkThrot->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S8_VC );
 
 		pBodyFlap->SetStateOffset( 1, 0.0f, 0.488281f );// AUTO
 		pBodyFlap->SetStateOffset( 2, 0.146484f, 0.488281f );// MAN
 		pBodyFlap->SetStateOffset( 3, 0.146484f, 0.0f );// AUTO/MAN
 		pBodyFlap->SetDirection( push_dir );
-		pBodyFlap->SetMouseRegion( 0.849432f, 0.681700f, 0.885129f, 0.744627f );
+		pBodyFlap->SetMouseRegion( AID_F4, 0.849432f, 0.681700f, 0.885129f, 0.744627f );
 		pBodyFlap->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S9_VC );
 
 		pDragChuteJETT->SetStateOffset( 1, 0.0f, 0.488281f );// 1
 		pDragChuteJETT->SetStateOffset( 2, 0.146484f, 0.488281f );// 2
 		pDragChuteJETT->SetStateOffset( 3, 0.146484f, 0.0f );// 12
 		pDragChuteJETT->SetDirection( push_dir );
-		pDragChuteJETT->SetMouseRegion( 0.358708f, 0.054155f, 0.396472f, 0.128148f );
+		pDragChuteJETT->SetMouseRegion( AID_F4, 0.358708f, 0.054155f, 0.396472f, 0.128148f );
 		pDragChuteJETT->DefineMeshGroup( STS()->mesh_vc, GRP_F4_S10_VC );
 
-		pDragChuteJETTCover->SetMouseRegion( 0, 0.352893f, 0.043177f, 0.399339f, 0.154601f );
-		pDragChuteJETTCover->SetMouseRegion( 1, 0.356096f, 0.0f, 0.402268f, 0.031398f );
+		pDragChuteJETTCover->SetMouseRegion( AID_F4, 0, 0.352893f, 0.043177f, 0.399339f, 0.154601f );
+		pDragChuteJETTCover->SetMouseRegion( AID_F4, 1, 0.356096f, 0.0f, 0.402268f, 0.031398f );
 		pDragChuteJETTCover->SetReference( _V( -0.5320, 2.5288, 14.6101 ), _V( 1, 0, 0 ) );
 		pDragChuteJETTCover->DefineCoverGroup( GRP_F4COVERS10_VC );
 
 		pHUDMode->DefineSwitchGroup( GRP_F8HUDTEST_VC );
 		pHUDMode->SetInitialAnimState( 0.5 );
 		pHUDMode->SetReference( _V( -0.5996, 2.4685, 14.5712 ), _V( 1, 0, 0 ) );
-		pHUDMode->SetMouseRegion( 0.048451f, 0.220342f, 0.080458f, 0.288456f );
+		pHUDMode->SetMouseRegion( AID_F4, 0.048451f, 0.220342f, 0.080458f, 0.288456f );
 
 		pHUDBrightness->DefineSwitchGroup( GRP_F8HUDDIM_VC );
 		pHUDBrightness->SetInitialAnimState( 0.5 );
 		pHUDBrightness->SetReference( _V( 0.6496, 2.4697, 14.5635 ), _V( 0, 0.275637, -0.961262 ) );
 		pHUDBrightness->DefineRotationAngle( 180.0f );
 		pHUDBrightness->SetOffset( -90.0f );
-		pHUDBrightness->SetMouseRegion( 0.135890f, 0.217720f, 0.186902f, 0.309858f );
+		pHUDBrightness->SetMouseRegion( AID_F4, 0.135890f, 0.217720f, 0.186902f, 0.309858f );
 
 		pHUDBright->DefineSwitchGroup( GRP_F8HUDBRT_VC );
 		pHUDBright->SetInitialAnimState( 0.5 );
 		pHUDBright->SetReference( _V( -0.7070, 2.4680, 14.5712 ), _V( 1, 0, 0 ) );
-		pHUDBright->SetMouseRegion( 0.239172f, 0.220413f, 0.270920f, 0.289949f );
+		pHUDBright->SetMouseRegion( AID_F4, 0.239172f, 0.220413f, 0.270920f, 0.289949f );
 
 		pBFC->DefineMeshGroup( STS()->mesh_vc, GRP_F4_XDS3_VC );
 		pBFC->SetStateOffset( 1, 0.139648f, 0.0f );

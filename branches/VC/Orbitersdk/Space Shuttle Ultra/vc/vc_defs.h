@@ -45,6 +45,8 @@
 
 #define AID_F6_MIN		1030
 #define AID_F6			1030
+#define AID_F6_MDU		1031
+#define AID_F6_HUD		1032
 #define AID_F6_MAX		1039
 
 #define AID_F7_MIN		1040

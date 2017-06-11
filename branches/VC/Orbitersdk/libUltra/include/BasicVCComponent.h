@@ -57,6 +57,7 @@ class BasicVCComponent: public ISubsystem
 	VECTOR3 dir;
 	double fInitialAnimState;
 	VCMOUSEEVENTPOINT p_a, p_b, p_c, p_d;
+	UINT mouseregionID;
 
 	mutable float cache_lastx;
 	mutable float cache_lasty;
@@ -95,13 +96,14 @@ public:
 
 	/**
 	 * Set the mouse region of the switch inside the area. 
-	 * Only allows rectangular regions currently. 
+	 * Only allows rectangular regions currently.
+	 * @param aid  Mouse area ID.
 	 * @param xmin The x coordinate of the left side
 	 * @param xmax The x coordinate of the right side
 	 * @param ymin The y coordinate of the top side
 	 * @param ymax The y coordinate of the bottom side.
 	 */
-	bool SetMouseRegion(float xmin, float ymin, float xmax, float ymax);
+	bool SetMouseRegion( UINT aid, float xmin, float ymin, float xmax, float ymax);
 
 
 	void SetParentPanel(BasicPanel<TVessel>* pPanel);
@@ -122,6 +124,7 @@ public:
 
 
 	bool IsOwnRegion(UINT aid) const;
+	UINT GetMouseRegionID( void ) const;
 	bool IsPointOver(float x, float y) const;
 	bool ProjectMouse(float x, float y, float &mx, float &my) const;
 
@@ -216,8 +219,9 @@ void BasicVCComponent<TVessel>::SetParentPanel(BasicPanel<TVessel>* pPanel) {
 }
 
 template <class TVessel>
-bool BasicVCComponent<TVessel>::SetMouseRegion(float xmin, float ymin, float xmax, float ymax)
+bool BasicVCComponent<TVessel>::SetMouseRegion( UINT aid, float xmin, float ymin, float xmax, float ymax)
 {
+	mouseregionID = aid;
 	p_a.x = xmin;
 	p_a.y = ymin;
 	p_d.x = xmax;
@@ -237,6 +241,12 @@ bool BasicVCComponent<TVessel>::IsOwnRegion(UINT aid) const
 		return true;
 	else
 		return false;
+}
+
+template <class TVessel>
+UINT BasicVCComponent<TVessel>::GetMouseRegionID( void ) const
+{
+	return mouseregionID;
 }
 
 template <class TVessel>

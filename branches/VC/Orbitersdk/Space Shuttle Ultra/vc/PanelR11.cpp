@@ -35,20 +35,20 @@ namespace vc
 		AddAIDToMouseEventList(AID_R11);
 
 		pCRT4->DefineVCGroup( GRP_CRT4_VC );
-		pCRT4->SetMouseRegion(0.036582f, 0.020135f, 0.521159f, 0.402556f);
+		pCRT4->SetMouseRegion( AID_R11, 0.036582f, 0.020135f, 0.521159f, 0.402556f);
 
-		pKeyboardAft->SetMouseRegion( 0.092359f, 0.429578f, 0.275403f, 0.780348f );
+		pKeyboardAft->SetMouseRegion( AID_R11, 0.092359f, 0.429578f, 0.275403f, 0.780348f );
 
 		pIDPCRTPower->SetInitialAnimState( 0.5f );
 		pIDPCRTPower->DefineSwitchGroup( GRP_R11LS1_VC );
 		pIDPCRTPower->SetReference( _V( 1.2491, 2.2434, 13.4210 ), switch_rot );
-		pIDPCRTPower->SetMouseRegion( 0.350223f, 0.567250f, 0.385167f, 0.609089f );
+		pIDPCRTPower->SetMouseRegion( AID_R11, 0.350223f, 0.567250f, 0.385167f, 0.609089f );
 
 
 		pIDPCRTMajFunc->SetInitialAnimState( 0.5f );
 		pIDPCRTMajFunc->DefineSwitchGroup( GRP_R11LS2_VC );
 		pIDPCRTMajFunc->SetReference( _V( 1.1616, 2.1864, 13.4197 ), switch_rot );
-		pIDPCRTMajFunc->SetMouseRegion( 0.352497f, 0.743870f, 0.387197f, 0.785950f );
+		pIDPCRTMajFunc->SetMouseRegion( AID_R11, 0.352497f, 0.743870f, 0.387197f, 0.785950f );
 	}
 
 	void PanelR11::RegisterVC()
