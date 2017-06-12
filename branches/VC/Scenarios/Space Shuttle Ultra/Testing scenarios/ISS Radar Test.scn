@@ -388,9 +388,6 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   @ENDPANEL 
   @PANEL F4
   "Drag Chute JETT Cover" [0]
-  "HUD Mode" NORM
-  "HUD Brightness" [2]
-  "HUD Bright" AUTO
   @ENDPANEL 
   @PANEL F6
   "Cdr Flt Cntlr Pwr" OFF
@@ -416,6 +413,9 @@ EVENT_TIMER1 0.000000 DOWN STOPPED
   "Landing Gear DN Cover" [0]
   "Landing Gear ARM" 0
   "Landing Gear DN" 0
+  "HUD Mode" NORM
+  "HUD Brightness" [2]
+  "HUD Bright" AUTO
   @ENDPANEL 
   @PANEL R2
   "Boiler1 N2 Supply" OFF
