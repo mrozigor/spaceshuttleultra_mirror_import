@@ -378,10 +378,6 @@ namespace vc {
 		std::vector<dps::DEU_LINE> lines;
 		std::vector<dps::DEU_ELLIPSE> ellipses;
 		std::vector<dps::DEU_PIXEL> pixels;
-		
-		float btnPwrXmin, btnPwrXmax, btnPwrYmin, btnPwrYmax;
-		float btnBrtXmin, btnBrtXmax, btnBrtYmin, btnBrtYmax;
-		float edgekeyXmin, edgekeyXmax, edgekeyYmin, edgekeyYmax;
 
 		//Use a paint buffer for storing primitives?
 		virtual void RegisterMFDContext(int id);

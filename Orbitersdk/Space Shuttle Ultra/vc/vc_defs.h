@@ -55,6 +55,8 @@
 
 #define AID_F8_MIN		1050
 #define AID_F8			1050
+#define AID_F8_MDU		1051
+#define AID_F8_HUD		1052
 #define AID_F8_MAX		1059
 
 #define AID_F9_MIN		1060

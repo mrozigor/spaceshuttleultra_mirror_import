@@ -79,11 +79,11 @@ namespace vc {
 	{
 		AddAIDToMouseEventList(AID_F7);
 
-		pCRT1->SetMouseRegion( AID_F7, 0.0f, 0.0f, 0.330f, 0.5136f);
-		pCRT2->SetMouseRegion( AID_F7, 0.6715f, 0.0f, 1.0f, 0.5136f);
-		pCRT3->SetMouseRegion( AID_F7, 0.340f, 0.26f, 0.6715f, 0.75f);
-		pMFD1->SetMouseRegion( AID_F7, 0.0f, 0.5284f, 0.330f, 1.0f);
-		pMFD2->SetMouseRegion( AID_F7, 0.6715f, 0.5284f, 1.0f, 1.0f);
+		pCRT1->SetMouseRegion( AID_F7, 0.0f, 0.0f, 0.324694f, 0.490948f );
+		pCRT2->SetMouseRegion( AID_F7, 0.675193f, 0.0f, 1.0f, 0.490948f );
+		pCRT3->SetMouseRegion( AID_F7, 0.337995f, 0.257779f, 0.663350f, 0.750545f );
+		pMFD1->SetMouseRegion( AID_F7, 0.0f, 0.510035f, 0.324694f, 1.0f );
+		pMFD2->SetMouseRegion( AID_F7, 0.675193f, 0.510035f, 1.0f, 1.0f );
 
 		pCRT1->DefineVCGroup( GRP_CRT1_VC );
 		pCRT2->DefineVCGroup( GRP_CRT2_VC );
@@ -238,11 +238,9 @@ namespace vc {
 		VECTOR3 ofs = STS()->GetOrbiterCoGOffset() + VC_OFFSET;
 		oapiVCRegisterArea(AID_F7, PANEL_REDRAW_NEVER, PANEL_MOUSE_LBDOWN | PANEL_MOUSE_LBUP | PANEL_MOUSE_LBPRESSED);
 		
-		oapiVCSetAreaClickmode_Quadrilateral (AID_F7, 
-			_V(- 0.389, 2.4112365, 14.790174)+ ofs, 
-			_V(0.385, 2.4112365, 14.791174) + ofs,
-			_V(- 0.389, 1.9662365, 14.664174)+ ofs, 
-			_V(0.385, 1.9662365, 14.664174) + ofs);
+		oapiVCSetAreaClickmode_Quadrilateral( AID_F7, 
+			_V( -0.3879, 2.4088, 14.7837 ) + ofs, _V( 0.385, 2.4088, 14.7837 ) + ofs, 
+			_V( -0.3879, 1.9679, 14.6604 ) + ofs, _V( 0.385, 1.9679, 14.6604 ) + ofs );
 
 		return;
 	}

@@ -30,6 +30,8 @@
 #include "Talkback.h"
 #include "PushButtonIndicator.h"
 #include "StandardSwitchCover.h"
+#include "StandardRotarySwitch.h"
+
 
 namespace vc {
 
@@ -51,6 +53,11 @@ namespace vc {
 
 		StandardSwitchCover* pLandingGearArmDeployCover[2];
 		PushButtonIndicatorSingleLight *pLandingGearArmDeploy[2];
+
+		StdSwitch3* pHUDMode;
+		RotaryDemuxSwitch* pHUDBrightness;
+		StdSwitch3* pHUDBright;
+
 	public:
 		PanelF8(Atlantis* _sts);
 		virtual ~PanelF8();

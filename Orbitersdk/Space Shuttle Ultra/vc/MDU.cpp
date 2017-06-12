@@ -108,14 +108,6 @@ namespace vc
 		_sts->RegisterMDU(_usMDUID, this);
 
 		fBrightness = 0.8;
-		
-		// set default button positions
-		btnPwrXmin = 0.038f; btnPwrXmax = 0.099f;
-		btnPwrYmin = 0.8350f; btnPwrYmax = 0.9144f;
-		btnBrtXmin = 0.9257f; btnBrtXmax = 0.9929f;
-		btnBrtYmin = 0.8350f; btnBrtYmax = 0.9144f;
-		edgekeyXmin = 0.2237f; edgekeyXmax = 0.7939f;
-		edgekeyYmin = 0.9185f; edgekeyYmax = 0.9601f;
 
 		CreateGDIObjects();
 		CreateSketchpadObjects();
@@ -292,7 +284,7 @@ namespace vc
 	bool MDU::OnMouseEvent(int _event, float x, float y)
 	{
 		//sprintf_s(oapiDebugString(), 80, "MDU %s mouse event %d (%f, %f)", GetQualifiedIdentifier().c_str(), _event, x, y);
-		if(y >= btnPwrYmin && y<= btnPwrYmax && x >= btnPwrXmin && x <= btnPwrXmax)
+		if ((y >= 0.843f) && (y <= 0.917f) && (x >= 0.038f) && (x <= 0.1f))
 		{
 			if(_event & PANEL_MOUSE_LBDOWN)
 			{
@@ -301,7 +293,7 @@ namespace vc
 				if (oapiGetMFDMode( usMDUID ) != 0) oapiOpenMFD( 1000, usMDUID );
 			}
 		}
-		else if(y >= btnBrtYmin && y<= btnBrtYmax && x >= btnBrtXmin && x <= btnBrtXmax)
+		else if ((y >= 0.843f) && (y <= 0.917f) && (x >= 0.907f) && (x <= 0.97f))
 		{
 			//sprintf_s(oapiDebugString(), 80, "MDU %s BRIGHTNESS", GetQualifiedIdentifier().c_str());
 			if (_event & PANEL_MOUSE_LBDOWN)
@@ -313,12 +305,10 @@ namespace vc
 				VisualCreated();
 			}
 		}
-		else if (y >= edgekeyYmin && y <= edgekeyYmax)
+		else if ((y >= 0.928f) && (y <= 0.976f))
 		{
-			//const float edgekeyWidth = 0.0661;
-			//const float edgekeySpace = 0.12068;
-			float edgekeyClickPos = (x-edgekeyXmin)/(edgekeyXmax-edgekeyXmin); // calculate horizontal position of click relative to left edge of edgekey area (scaled between 0 and 1)
-			if(edgekeyClickPos >= 0.0 && edgekeyClickPos <= 0.1)
+			float edgekeyClickPos = (x - 0.215f) / (0.802f - 0.215f); // calculate horizontal position of click relative to left edge of edgekey area (scaled between 0 and 1)
+			if ((edgekeyClickPos >= 0.0) && (edgekeyClickPos <= 0.08))
 			{
 				if(_event & PANEL_MOUSE_LBDOWN)
 				{
@@ -326,7 +316,7 @@ namespace vc
 					oapiProcessMFDButton (usMDUID, 0, _event);
 				}
 			}
-			else if(edgekeyClickPos >= 0.18 && edgekeyClickPos <= 0.28)
+			else if ((edgekeyClickPos >= 0.18) && (edgekeyClickPos <= 0.26))
 			{
 				if(_event & PANEL_MOUSE_LBDOWN)
 				{
@@ -334,7 +324,7 @@ namespace vc
 					oapiProcessMFDButton (usMDUID, 1, _event);
 				}
 			}
-			else if(edgekeyClickPos >= 0.36 && edgekeyClickPos <= 0.46)
+			else if ((edgekeyClickPos >= 0.365) && (edgekeyClickPos <= 0.445))
 			{
 				if(_event & PANEL_MOUSE_LBDOWN)
 				{
@@ -342,7 +332,7 @@ namespace vc
 					oapiProcessMFDButton (usMDUID, 2, _event);
 				}
 			} 
-			else if(edgekeyClickPos >= 0.54 && edgekeyClickPos <= 0.64)
+			else if(edgekeyClickPos >= 0.55 && edgekeyClickPos <= 0.63)
 			{
 				if(_event & PANEL_MOUSE_LBDOWN)
 				{
@@ -350,7 +340,7 @@ namespace vc
 					oapiProcessMFDButton (usMDUID, 3, _event);
 				}
 			}
-			else if(edgekeyClickPos >= 0.72 && edgekeyClickPos <= 0.82)
+			else if ((edgekeyClickPos >= 0.74) && (edgekeyClickPos <= 0.82))
 			{
 				if(_event & PANEL_MOUSE_LBDOWN)
 				{
@@ -358,7 +348,7 @@ namespace vc
 					oapiProcessMFDButton (usMDUID, 4, _event);
 				}
 			}
-			else if(edgekeyClickPos >= 0.90 && edgekeyClickPos <= 1.0)
+			else if ((edgekeyClickPos >= 0.92) && (edgekeyClickPos <= 1.0))
 			{
 				if (_event & PANEL_MOUSE_LBDOWN) {
 					t0 = oapiGetSysTime();
