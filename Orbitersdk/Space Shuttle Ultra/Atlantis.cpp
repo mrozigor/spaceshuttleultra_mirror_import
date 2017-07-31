@@ -872,21 +872,23 @@ Atlantis::Atlantis(OBJHANDLE hObj, int fmodel)
 	SSMELight = AddPointLight(_V(0, (SSMET_REF.y + SSMEL_REF.y) / 2, SSMEL_REF.z - 2.9348), 300, 5e-3, 0, 5e-2, col_diff_SSME, col_zero_SSME, col_ambient_SSME);
 
 	// RCS exhaust
+	// DaveS note: Looks pretty good now, quite alot better than before. Only thing missing now is actual light color reflection in the plume (currently it's always white (color of the pstream texture used) when it should reflect the color of the actual light that shines on it)
+	// Maybe this effect could be done the same way as re-entry pstreams (they change color according to Orbiter's own internal vessel temperature calculations)? 
 	RCS_Exhaust_tex = oapiRegisterExhaustTexture("SSU\\Exhaust_atrcs");
 	SURFHANDLE RCS_tex = oapiRegisterParticleTexture("SSU\\ps-rcs2");
-	RCS_PSSpec.srcsize = 0.1;//0.1
-	RCS_PSSpec.srcrate = 3000;//3000
-	RCS_PSSpec.v0 = 50;//10
-	RCS_PSSpec.srcspread = 0;//0
-	RCS_PSSpec.lifetime = 0.2;//0.2
-	RCS_PSSpec.growthrate = 25;//3.5
-	RCS_PSSpec.atmslowdown = 5.0;//0.5
-	RCS_PSSpec.ltype = PARTICLESTREAMSPEC::DIFFUSE;//EMSSIVE
+	RCS_PSSpec.srcsize = 0.2;//0.1
+	RCS_PSSpec.srcrate = 50000;//3000
+	RCS_PSSpec.v0 = 150.0;//50
+	RCS_PSSpec.srcspread = 0.0;//0
+	RCS_PSSpec.lifetime = 0.1;//0.2
+	RCS_PSSpec.growthrate = 100.0;//25
+	RCS_PSSpec.atmslowdown = 5.0;//5.0
+	RCS_PSSpec.ltype = PARTICLESTREAMSPEC::DIFFUSE;//DIFFUSE
 	RCS_PSSpec.levelmap = PARTICLESTREAMSPEC::LVL_PLIN;//LVL_FLAT
 	RCS_PSSpec.lmin = 0.1;//0.25
 	RCS_PSSpec.lmax = 0.5;//0.25
 	RCS_PSSpec.atmsmap = PARTICLESTREAMSPEC::ATM_FLAT;//ATM_FLAT
-	RCS_PSSpec.amin = 1;//1
+	RCS_PSSpec.amin = 0.35;//1
 	RCS_PSSpec.tex = RCS_tex;
 
 
@@ -1797,7 +1799,7 @@ void Atlantis::DefineAnimations(void)
 		_V(0.712, -2.905, 16.082), _V(0, -0.209789, -0.977747), (float)(-65.3*RAD));
 	static UINT NosewheelGrp[5] = { GRP_NOSE_WHEELS, GRP_NLG_STRUT, GRP_NLG_UPPER_TORQUE_ARM, GRP_NLG_LOWER_TORQUE_ARM, GRP_NLG_SHOCK_STRUT };
 	static MGROUP_ROTATE Nosewheel(midx, NosewheelGrp, 5,
-		_V(0, -3.038, 14.888), _V(1, 0, 0), (float)(114.5*RAD));
+		_V(0, -3.0194, 14.9298), _V(1, 0, 0), (float)(113.1*RAD));
 	static UINT RGearDoorGrp[1] = { GRP_RIGHT_MLG_DOOR };
 	static MGROUP_ROTATE RGearDoor(midx, RGearDoorGrp, 1,
 		_V(4.6598, -3.5055, -3.9442), _V(-0.00301632, -0.0253688, -0.999674), (float)(-84.2*RAD));
